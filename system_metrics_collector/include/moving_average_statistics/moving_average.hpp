@@ -82,6 +82,9 @@ public:
   /**
    *  Returns the standard deviation (population) of all data recorded. If size of list is zero, returns NaN.
    *
+   *  Variance is obtained by Welford's online algorithm,
+   *  see https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford%27s_online_algorithm
+   *
    *  @return The standard deviation (population) of all data recorded, or NaN if size of data is zero.
   **/
   double standardDeviation()
@@ -89,10 +92,12 @@ public:
     return getStatistics().standard_deviation;
   }
   /**
-   *  Return a StatisticResults object, containing average, minimum, maximum and standard deviation (population).
-   *  When statistic is not available, e.g. there is no items added, it will return NaN.
+   *  Return a StatisticResults object, containing average, minimum, maximum, standard deviation (population),
+   *  and sample count.
+   *  For the case of no observations, the average, min, max, and standard deviation are NaN.
    *
-   *  @return StatisticResults object, containing average, minimum, maximum and standard deviation (population).
+   *  @return StatisticResults object, containing average, minimum, maximum, standard deviation (population),
+   *  and sample count.
   **/
   StatisticResults getStatistics()
   {
@@ -109,7 +114,6 @@ public:
       to_return.average = average_;
       to_return.min = min_;
       to_return.max = max_;
-      // todo what if the count is 1?
       to_return.standard_deviation = std::sqrt(sum_of_square_diff_from_mean_ / count_);
     }
 
@@ -152,9 +156,7 @@ public:
 
 protected:
   /**
-   *  Internal function for adding item. It handles data insertion and cache data validation logic.
-   *
-   *  Derived class should override add_item() and call add_item_() with custom input.
+   *  Internal function for marking an observation. It handles data insertion and cache data validation logic.
    *
    *  Variance is obtained by Welford's online algorithm,
    *  see https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford%27s_online_algorithm
@@ -176,7 +178,7 @@ protected:
   mutable std::recursive_mutex mutex;
 
 private:
-  // cached average
+  // cached values below
   double average_ = 0;
   double min_ = DBL_MAX;
   double max_ = DBL_MIN;
