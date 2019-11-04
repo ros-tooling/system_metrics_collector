@@ -16,9 +16,9 @@
 #define MOVING_AVERAGE_STATISTICS__TYPES_HPP_
 
 /**
- *  A container for statistics results
+ *  A container for statistics data results for a set of recorded observations.
  */
-struct StatisticResults
+struct StatisticData
 {
   double average = std::nan("");
   double min = std::nan("");

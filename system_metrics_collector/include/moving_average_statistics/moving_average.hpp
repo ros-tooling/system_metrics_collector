@@ -23,7 +23,7 @@
 #include <mutex>
 #include <type_traits>
 
-#include "moving_average_statistics/types.hpp"
+#include "types.hpp"
 
 
 /**
@@ -85,17 +85,17 @@ public:
     return getStatistics().standard_deviation;
   }
   /**
-   *  Return a StatisticResults object, containing average, minimum, maximum, standard deviation (population),
+   *  Return a StatisticData object, containing average, minimum, maximum, standard deviation (population),
    *  and sample count.
    *  For the case of no observations, the average, min, max, and standard deviation are NaN.
    *
-   *  @return StatisticResults object, containing average, minimum, maximum, standard deviation (population),
+   *  @return StatisticData object, containing average, minimum, maximum, standard deviation (population),
    *  and sample count.
   **/
-  StatisticResults getStatistics() const
+  StatisticData getStatistics() const
   {
     std::lock_guard<std::mutex> guard(mutex);
-    StatisticResults to_return;
+    StatisticData to_return;
 
     if (count_ == 0) {
       return to_return;  // already initialized
