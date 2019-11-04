@@ -42,7 +42,12 @@ if(BUILD_TESTING)
   ament_add_gtest(test_moving_average_statistics
           test/moving_average_statistics/test_moving_average_statistics.cpp ${SOURCES})
 
+  ament_add_gtest(test_collector
+          test/system_metrics_collector/test_collector.cpp ${SOURCES})
+
   install(TARGETS test_moving_average_statistics DESTINATION lib/${PROJECT_NAME})
+  install(TARGETS test_collector DESTINATION lib/${PROJECT_NAME})
+
 endif()
 
 ament_package()
