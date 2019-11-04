@@ -185,10 +185,6 @@ TEST_F(MovingAverageStatisticsTestFixture, test_thread_safe) {
   ASSERT_NEAR(moving_average_statistics->average(), control, var);
 }
 
-TEST_F(MovingAverageStatisticsTestFixture, asdf) {
-  auto test = std::make_shared<MovingAverageStatistics<int>>();
-}
-
 int main(int argc, char ** argv)
 {
   ::testing::InitGoogleTest(&argc, argv);
