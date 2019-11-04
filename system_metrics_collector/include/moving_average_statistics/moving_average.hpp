@@ -157,7 +157,7 @@ private:
   double min_ = std::numeric_limits<double>::max();
   double max_ = std::numeric_limits<double>::min();
   double sum_of_square_diff_from_mean_ = 0;
-  int64_t count_ = 0;
+  uint64_t count_ = 0;
 };
 
 #endif  // MOVING_AVERAGE_STATISTICS__MOVING_AVERAGE_HPP_

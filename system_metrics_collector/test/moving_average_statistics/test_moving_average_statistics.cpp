@@ -21,12 +21,13 @@
 #include "moving_average_statistics/moving_average.hpp"
 
 // Useful testing constants
-static constexpr const double TEST_DATA[] = {-3.5, -2.1, -1.1, 0.0, 4.7, 5.0, 6.7, 9.9, 11.0};
+static constexpr const uint64_t EXPECTED_SIZE = 9;
+static constexpr const std::array<double, EXPECTED_SIZE> TEST_DATA{-3.5, -2.1, -1.1, 0.0, 4.7, 5.0,
+  6.7, 9.9, 11.0};
 static constexpr const double EXPECTED_AVG = 3.4;
 static constexpr const double EXPECTED_MIN = -3.5;
 static constexpr const double EXPECTED_MAX = 11.0;
 static constexpr const double EXPECTED_STD = 4.997999599839919955173;
-static constexpr const double EXPECTED_SIZE = 9;
 
 /**
  * Test fixture

@@ -24,7 +24,7 @@ struct StatisticData
   double min = std::nan("");
   double max = std::nan("");
   double standard_deviation = std::nan("");
-  int64_t sample_count = 0;
+  uint64_t sample_count = 0;
 };
 
 #endif  // MOVING_AVERAGE_STATISTICS__TYPES_HPP_
