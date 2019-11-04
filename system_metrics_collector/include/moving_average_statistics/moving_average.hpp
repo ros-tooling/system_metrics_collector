@@ -19,6 +19,7 @@
 #include <cmath>
 
 #include <algorithm>
+#include <limits>
 #include <mutex>
 #include <type_traits>
 
@@ -36,19 +37,11 @@
  *  for standard deviation.
  *
  *  When statistics are not available, e.g. no observations have been made, NaNs are returned.
- *
- *  @tparam T the type to be observed. Note: this must conform to std::is_arithmetic.
 **/
 
-template<
-  class T,
-  typename = typename std::enable_if<std::is_arithmetic<T>::value, T>::type>
 class MovingAverageStatistics
 {
 public:
-  /**
-   *  MovingAverageStatistics object constructor.
-  **/
   MovingAverageStatistics() = default;
   ~MovingAverageStatistics() = default;
 
@@ -57,7 +50,7 @@ public:
    *
    *  @return The arithmetic mean of all data recorded, or NaN if the sample count is 0.
   **/
-  double average()
+  double average() const
   {
     return getStatistics().average;
   }
@@ -66,7 +59,7 @@ public:
    *
    *  @return The maximum value recorded, or NaN if size of data is zero.
   **/
-  double max()
+  double max() const
   {
     return getStatistics().max;
   }
@@ -75,7 +68,7 @@ public:
    *
    *  @return The minimum value recorded, or NaN if size of data is zero.
   **/
-  double min()
+  double min() const
   {
     return getStatistics().min;
   }
@@ -87,7 +80,7 @@ public:
    *
    *  @return The standard deviation (population) of all data recorded, or NaN if size of data is zero.
   **/
-  double standardDeviation()
+  double standardDeviation() const
   {
     return getStatistics().standard_deviation;
   }
@@ -99,23 +92,21 @@ public:
    *  @return StatisticResults object, containing average, minimum, maximum, standard deviation (population),
    *  and sample count.
   **/
-  StatisticResults getStatistics()
+  StatisticResults getStatistics() const
   {
-    std::lock_guard<std::recursive_mutex> guard(mutex);
+    std::lock_guard<std::mutex> guard(mutex);
     StatisticResults to_return;
-    to_return.sample_count = count_;
 
     if (count_ == 0) {
-      to_return.average = nan("");
-      to_return.min = nan("");
-      to_return.max = nan("");
-      to_return.standard_deviation = nan("");
-    } else {
-      to_return.average = average_;
-      to_return.min = min_;
-      to_return.max = max_;
-      to_return.standard_deviation = std::sqrt(sum_of_square_diff_from_mean_ / count_);
+      return to_return;  // already initialized
     }
+
+    // update based on current observations
+    to_return.sample_count = count_;
+    to_return.average = average_;
+    to_return.min = min_;
+    to_return.max = max_;
+    to_return.standard_deviation = std::sqrt(sum_of_square_diff_from_mean_ / count_);
 
     return to_return;
   }
@@ -124,7 +115,7 @@ public:
   **/
   void reset()
   {
-    std::lock_guard<std::recursive_mutex> guard(mutex);
+    std::lock_guard<std::mutex> guard(mutex);
     average_ = 0;
     min_ = DBL_MAX;
     max_ = DBL_MIN;
@@ -134,13 +125,18 @@ public:
   /**
    *  Observe a sample for the given window. The input item is used to calculate statistics.
    *
-   *  Derived class should override add_item() and call add_item_() with custom input.
-   *
    *  @param item The item that was observed
   **/
-  virtual void add_item(const T & item)
+  virtual void add_measurement(const double & item)
   {
-    add_item_(item);
+    std::lock_guard<std::mutex> guard(mutex);
+    count_++;
+    const double previous_average_ = average_;
+    average_ = previous_average_ + (item - previous_average_) / count_;
+    min_ = std::min(min_, item);
+    max_ = std::max(max_, item);
+    sum_of_square_diff_from_mean_ = sum_of_square_diff_from_mean_ + (item - previous_average_) *
+      (item - average_);
   }
 
   /**
@@ -148,40 +144,18 @@ public:
    *
    * @return the number of samples observed
    */
-  virtual int64_t get_count()
+  int64_t get_count() const
   {
-    std::lock_guard<std::recursive_mutex> guard(mutex);
+    std::lock_guard<std::mutex> guard(mutex);
     return count_;
   }
 
-protected:
-  /**
-   *  Internal function for marking an observation. It handles data insertion and cache data validation logic.
-   *
-   *  Variance is obtained by Welford's online algorithm,
-   *  see https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Welford%27s_online_algorithm
-   *
-   *  @param item item to be stored.
-   */
-  void add_item_(const T & item)
-  {
-    std::lock_guard<std::recursive_mutex> guard(mutex);
-    count_++;
-    double previous_average_ = average_;
-    average_ = previous_average_ + (item - previous_average_) / count_;
-    min_ = std::min(min_, static_cast<double>(item));
-    max_ = std::max(max_, static_cast<double>(item));
-    sum_of_square_diff_from_mean_ = sum_of_square_diff_from_mean_ + (item - previous_average_) *
-      (item - average_);
-  }
-
-  mutable std::recursive_mutex mutex;
-
 private:
+  mutable std::mutex mutex;
   // cached values below
   double average_ = 0;
-  double min_ = DBL_MAX;
-  double max_ = DBL_MIN;
+  double min_ = std::numeric_limits<double>::max();
+  double max_ = std::numeric_limits<double>::min();
   double sum_of_square_diff_from_mean_ = 0;
   int64_t count_ = 0;
 };

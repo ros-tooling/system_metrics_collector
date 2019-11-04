@@ -15,9 +15,9 @@
 
 #include <gtest/gtest.h>
 
+#include <atomic>
 #include <memory>
 #include <thread>
-#include <atomic>
 #include "moving_average_statistics/moving_average.hpp"
 
 
@@ -29,7 +29,7 @@ class MovingAverageStatisticsTestFixture : public ::testing::Test
 public:
   void SetUp() override
   {
-    moving_average_statistics = std::make_shared<MovingAverageStatistics<double>>();
+    moving_average_statistics = std::make_unique<MovingAverageStatistics>();
   }
 
   void TearDown() override
@@ -38,17 +38,18 @@ public:
   }
 
 protected:
-  std::shared_ptr<MovingAverageStatistics<double>> moving_average_statistics = nullptr;
+  std::unique_ptr<MovingAverageStatistics> moving_average_statistics = nullptr;
   int expected_count = 0;
 };
 
 // Useful testing constants
-const double TEST_DATA[] = {-3.5, -2.1, -1.1, 0.0, 4.7, 5.0, 6.7, 9.9, 11.0};
-const double EXPECTED_AVG = 3.4;
-const double EXPECTED_MIN = -3.5;
-const double EXPECTED_MAX = 11.0;
-const double EXPECTED_STD = 4.997999599839919955173;
-const double EXPECTED_SIZE = 9;
+static const double TEST_DATA[] = {-3.5, -2.1, -1.1, 0.0, 4.7, 5.0, 6.7, 9.9, 11.0};
+static const double EXPECTED_AVG = 3.4;
+static const double EXPECTED_MIN = -3.5;
+static const double EXPECTED_MAX = 11.0;
+static const double EXPECTED_STD = 4.997999599839919955173;
+static const double EXPECTED_SIZE = 9;
+
 
 TEST_F(MovingAverageStatisticsTestFixture, sanity) {
   ASSERT_TRUE(true);
@@ -57,7 +58,7 @@ TEST_F(MovingAverageStatisticsTestFixture, sanity) {
 
 TEST_F(MovingAverageStatisticsTestFixture, test_average) {
   for (double d : TEST_DATA) {
-    moving_average_statistics->add_item(d);
+    moving_average_statistics->add_measurement(d);
     ASSERT_EQ(++expected_count, moving_average_statistics->get_count());
   }
 
@@ -70,7 +71,7 @@ TEST_F(MovingAverageStatisticsTestFixture, test_average_empty) {
 
 TEST_F(MovingAverageStatisticsTestFixture, test_maximum) {
   for (double d : TEST_DATA) {
-    moving_average_statistics->add_item(d);
+    moving_average_statistics->add_measurement(d);
     ASSERT_EQ(++expected_count, moving_average_statistics->get_count());
   }
 
@@ -83,12 +84,11 @@ TEST_F(MovingAverageStatisticsTestFixture, test_maximum_empty) {
 
 TEST_F(MovingAverageStatisticsTestFixture, test_minimum) {
   for (double d : TEST_DATA) {
-    moving_average_statistics->add_item(d);
+    moving_average_statistics->add_measurement(d);
     ASSERT_EQ(++expected_count, moving_average_statistics->get_count());
   }
 
-  const double expected_minimum = -3.5;
-  EXPECT_EQ(moving_average_statistics->min(), expected_minimum);
+  EXPECT_EQ(moving_average_statistics->min(), EXPECTED_MIN);
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, test_minimum_empty) {
@@ -97,7 +97,7 @@ TEST_F(MovingAverageStatisticsTestFixture, test_minimum_empty) {
 
 TEST_F(MovingAverageStatisticsTestFixture, test_standard_deviation) {
   for (double d : TEST_DATA) {
-    moving_average_statistics->add_item(d);
+    moving_average_statistics->add_measurement(d);
   }
 
   EXPECT_DOUBLE_EQ(moving_average_statistics->standardDeviation(), EXPECTED_STD);
@@ -105,7 +105,7 @@ TEST_F(MovingAverageStatisticsTestFixture, test_standard_deviation) {
 
 TEST_F(MovingAverageStatisticsTestFixture, test_get_statistics) {
   for (double d : TEST_DATA) {
-    moving_average_statistics->add_item(d);
+    moving_average_statistics->add_measurement(d);
   }
 
   auto result = moving_average_statistics->getStatistics();
@@ -126,7 +126,7 @@ TEST_F(MovingAverageStatisticsTestFixture, test_get_statistics_int) {
   const int expected_size = 10;
 
   for (int d : data_int) {
-    moving_average_statistics->add_item(d);
+    moving_average_statistics->add_measurement(d);
   }
 
   auto result = moving_average_statistics->getStatistics();
@@ -142,10 +142,10 @@ TEST_F(MovingAverageStatisticsTestFixture, test_standard_deviation_empty) {
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, test_reset) {
-  moving_average_statistics->add_item(0.6);
+  moving_average_statistics->add_measurement(0.6);
   moving_average_statistics->reset();
   ASSERT_TRUE(std::isnan(moving_average_statistics->average()));
-  moving_average_statistics->add_item(1.5);
+  moving_average_statistics->add_measurement(1.5);
   EXPECT_EQ(moving_average_statistics->average(), 1.5);
 }
 
@@ -154,22 +154,22 @@ TEST_F(MovingAverageStatisticsTestFixture, test_thread_safe) {
   std::atomic<int> count(0);
 
   std::thread t1([this, &count, &total_sum]() {
-      for (double i = 1; i < 1101.0; i++) {
-        moving_average_statistics->add_item(i);
+      for (int i = 1; i < 1101.0; i++) {
+        moving_average_statistics->add_measurement(static_cast<double>(i));
         count++;
         total_sum += i;
       }
     });
   std::thread t2([this, &count, &total_sum]() {
-      for (double i = 1; i < 2101.0; i++) {
-        moving_average_statistics->add_item(i);
+      for (int i = 1; i < 2101.0; i++) {
+        moving_average_statistics->add_measurement(static_cast<double>(i));
         count++;
         total_sum += i;
       }
     });
   std::thread t3([this, &count, &total_sum]() {
-      for (double i = 1; i < 3101.0; i++) {
-        moving_average_statistics->add_item(i);
+      for (int i = 1; i < 3101.0; i++) {
+        moving_average_statistics->add_measurement(static_cast<double>(i));
         count++;
         total_sum += i;
       }
@@ -180,7 +180,7 @@ TEST_F(MovingAverageStatisticsTestFixture, test_thread_safe) {
   t3.join();
 
   double control = static_cast<double>(total_sum.load()) / static_cast<double>(count.load());
-  double var = 0.00000000001;
+  double var = 1e-11;
 
   ASSERT_NEAR(moving_average_statistics->average(), control, var);
 }

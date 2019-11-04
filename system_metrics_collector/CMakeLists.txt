@@ -42,9 +42,6 @@ if(BUILD_TESTING)
 
   install(TARGETS test_moving_average_statistics DESTINATION lib/${PROJECT_NAME})
 
-  if(TARGET test_multifile_reader)
-    target_link_libraries(test_multifile_reader system_metrics_collector)
-  endif()
 
 endif()
 

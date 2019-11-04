@@ -20,11 +20,11 @@
  */
 struct StatisticResults
 {
-  double average;
-  double min;
-  double max;
-  double standard_deviation;
-  int sample_count;
+  double average = std::nan("");
+  double min = std::nan("");
+  double max = std::nan("");
+  double standard_deviation = std::nan("");
+  int64_t sample_count = 0;
 };
 
 #endif  // MOVING_AVERAGE_STATISTICS__TYPES_HPP_
