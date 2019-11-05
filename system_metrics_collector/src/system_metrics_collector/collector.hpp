@@ -15,8 +15,8 @@
 #ifndef SYSTEM_METRICS_COLLECTOR__COLLECTOR_HPP_
 #define SYSTEM_METRICS_COLLECTOR__COLLECTOR_HPP_
 
-#include "../../src/moving_average_statistics/moving_average.hpp"
-#include "../../src/moving_average_statistics/types.hpp"
+#include "../moving_average_statistics/moving_average.hpp"
+#include "../moving_average_statistics/types.hpp"
 
 /**
  * Simple wrapping class in order to collect observed data and generate statistics for the given observations.
