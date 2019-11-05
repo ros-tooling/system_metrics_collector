@@ -13,22 +13,27 @@
 // limitations under the License.
 
 #include <gtest/gtest.h>
-#include <memory>
+
 #include <iostream>
-#include "system_metrics_collector/collector.hpp"
-#include "moving_average_statistics/types.hpp"
+#include <memory>
+
+#include "../../src/system_metrics_collector/collector.hpp"
+#include "../../src/moving_average_statistics/types.hpp"
 
 /**
  * Simple extension to test basic functionality
  */
-class TestCollector : public Collector<int> {
+class TestCollector : public Collector
+{
 public:
   TestCollector() = default;
   virtual ~TestCollector() = default;
-  bool start() override {
+  bool start() override
+  {
     return true;
   }
-  bool stop() override {
+  bool stop() override
+  {
     this->clearCurrentMeasurements();
     return true;
   }
@@ -40,18 +45,18 @@ public:
 class CollectorTestFixure : public ::testing::Test
 {
 public:
-    void SetUp() override
-    {
-      test_collector = std::make_shared<TestCollector>();
-    }
+  void SetUp() override
+  {
+    test_collector = std::make_unique<TestCollector>();
+  }
 
-    void TearDown() override
-    {
-      test_collector.reset();
-    }
+  void TearDown() override
+  {
+    test_collector.reset();
+  }
 
 protected:
-    std::shared_ptr<TestCollector> test_collector = nullptr;
+  std::unique_ptr<TestCollector> test_collector = nullptr;
 };
 
 TEST_F(CollectorTestFixure, sanity) {
@@ -59,12 +64,17 @@ TEST_F(CollectorTestFixure, sanity) {
   ASSERT_NE(test_collector, nullptr);
 }
 
-TEST_F(CollectorTestFixure, test_add_measurement) {
-
+TEST_F(CollectorTestFixure, test_add_and_clear_measurement) {
   test_collector->acceptData(1);
   auto stats = test_collector->getStatisticsResults();
   ASSERT_EQ(1, stats.sample_count);
   ASSERT_EQ(1, stats.average);
-  std::cout << statisticsResultsToString(stats) << std::endl;
-}
 
+  test_collector->clearCurrentMeasurements();
+  stats = test_collector->getStatisticsResults();
+  ASSERT_TRUE(std::isnan(stats.average));
+  ASSERT_TRUE(std::isnan(stats.min));
+  ASSERT_TRUE(std::isnan(stats.max));
+  ASSERT_TRUE(std::isnan(stats.standard_deviation));
+  ASSERT_EQ(0, stats.sample_count);
+}

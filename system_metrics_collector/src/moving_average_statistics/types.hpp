@@ -15,6 +15,8 @@
 #ifndef MOVING_AVERAGE_STATISTICS__TYPES_HPP_
 #define MOVING_AVERAGE_STATISTICS__TYPES_HPP_
 
+#include <string>
+
 /**
  *  A container for statistics data results for a set of recorded observations.
  */
@@ -26,5 +28,20 @@ struct StatisticData
   double standard_deviation = std::nan("");
   uint64_t sample_count = 0;
 };
+
+/**
+ * Function which pretty prints the contents of a StatisticData struct.
+ *
+ * @param results the StatisticData to pretty print
+ * @return std::string formatted struct contents in an easily readable format, e.g.,
+ * /"avg=1, min=2, max=3, std_dev=4, count=5/"
+ */
+static std::string statisticsDataToString(StatisticData results)
+{
+  return "avg=" + std::to_string(results.average) + ", min=" + std::to_string(results.min) +
+         ", max=" +
+         std::to_string(results.max) + ", std_dev=" + std::to_string(results.standard_deviation) +
+         ", count=" + std::to_string(results.sample_count);
+}
 
 #endif  // MOVING_AVERAGE_STATISTICS__TYPES_HPP_

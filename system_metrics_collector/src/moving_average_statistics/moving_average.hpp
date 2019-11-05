@@ -38,7 +38,6 @@
  *
  *  When statistics are not available, e.g. no observations have been made, NaNs are returned.
 **/
-
 class MovingAverageStatistics
 {
 public:
@@ -96,14 +95,14 @@ public:
    *
    *  @param item The item that was observed
   **/
-  virtual void add_measurement(const double & item);
+  virtual void addMeasurement(const double & item);
 
   /**
    * Return the number of samples observed
    *
    * @return the number of samples observed
    */
-  int64_t get_count() const;
+  int64_t getCount() const;
 
 private:
   mutable std::mutex mutex;

@@ -13,8 +13,8 @@ endif()
 
 # Enable strict compiler flags if possible.
 include(CheckCXXCompilerFlag)
-# Removed -Wmissing-declarations until gmock is ignored
-set(FLAGS -pedantic -Wno-long-long -Wall -Wextra -Wcast-qual -Wformat -Wwrite-strings -Wcast-align -Wno-error=cast-align)
+set(FLAGS -pedantic -Wno-long-long -Wall -Wextra -Wcast-qual -Wformat -Wwrite-strings -Wcast-align
+        -Wno-error=cast-align -Wmissing-declarations)
 foreach(FLAG ${FLAGS})
   check_cxx_compiler_flag(${FLAG} R${FLAG})
   if(${R${FLAG}})
@@ -29,9 +29,11 @@ find_package(rcutils REQUIRED)
 find_package(metrics_statistics_msgs REQUIRED)
 
 set(SOURCES
-        src/moving_average_statistics/moving_average.cpp
         src/moving_average_statistics/moving_average.hpp
-        src/moving_average_statistics/types.hpp)
+        src/moving_average_statistics/moving_average.cpp
+        src/moving_average_statistics/types.hpp
+        src/system_metrics_collector/collector.hpp
+        src/system_metrics_collector/collector.cpp)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -40,13 +42,21 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   ament_add_gtest(test_moving_average_statistics
-          test/moving_average_statistics/test_moving_average_statistics.cpp ${SOURCES})
+          test/moving_average_statistics/test_moving_average_statistics.cpp
+          ${SOURCES})
 
   ament_add_gtest(test_collector
-          test/system_metrics_collector/test_collector.cpp ${SOURCES})
+          test/system_metrics_collector/test_collector.cpp
+          ${SOURCES})
 
-  install(TARGETS test_moving_average_statistics DESTINATION lib/${PROJECT_NAME})
-  install(TARGETS test_collector DESTINATION lib/${PROJECT_NAME})
+  install(TARGETS
+          test_moving_average_statistics
+          DESTINATION
+          lib/${PROJECT_NAME})
+  install(TARGETS
+          test_collector
+          DESTINATION
+          lib/${PROJECT_NAME})
 
 endif()
 
