@@ -28,9 +28,10 @@ find_package(rclcpp REQUIRED)
 find_package(rcutils REQUIRED)
 find_package(metrics_statistics_msgs REQUIRED)
 
-include_directories(include)
-
-set(SOURCES src/moving_average_statistics/moving_average.cpp)
+set(SOURCES
+        src/moving_average_statistics/moving_average.cpp
+        src/moving_average_statistics/moving_average.hpp
+        src/moving_average_statistics/types.hpp)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

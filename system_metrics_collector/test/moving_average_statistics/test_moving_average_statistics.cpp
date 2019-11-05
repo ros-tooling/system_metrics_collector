@@ -18,7 +18,8 @@
 #include <atomic>
 #include <memory>
 #include <thread>
-#include "moving_average_statistics/moving_average.hpp"
+
+#include "../../src/moving_average_statistics/moving_average.hpp"
 
 // Useful testing constants
 static constexpr const uint64_t EXPECTED_SIZE = 9;
