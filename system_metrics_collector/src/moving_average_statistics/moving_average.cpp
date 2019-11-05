@@ -21,8 +21,8 @@
 #include <numeric>
 #include <type_traits>
 
-#include "types.hpp"
 #include "moving_average.hpp"
+#include "types.hpp"
 
 
 double MovingAverageStatistics::average() const
@@ -74,7 +74,7 @@ void MovingAverageStatistics::reset()
   count_ = 0;
 }
 
-void MovingAverageStatistics::addMeasurement(const double & item)
+void MovingAverageStatistics::addMeasurement(const double item)
 {
   std::lock_guard<std::mutex> guard(mutex);
   count_++;
@@ -86,7 +86,7 @@ void MovingAverageStatistics::addMeasurement(const double & item)
     (item - average_);
 }
 
-int64_t MovingAverageStatistics::getCount() const
+uint64_t MovingAverageStatistics::getCount() const
 {
   std::lock_guard<std::mutex> guard(mutex);
   return count_;

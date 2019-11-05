@@ -30,7 +30,7 @@ public:
   /**
    * Start collecting data. Meant to be called after construction.
    *
-   * @return
+   * @return true if started, false if an error occured
    */
   virtual bool start() = 0;
 
@@ -38,21 +38,21 @@ public:
    * Stop collecting data. Meant to be a teardown method (before destruction, but should place the
    * class in a restartable state, i.e., start can be called to be able to resume collection.
    *
-   * @return
+   * @return true if stopped, false if an error occurred
    */
   virtual bool stop() = 0;
 
   /**
    * Add an observed measurement.
    *
-   * @param measurement
+   * @param the measurement observed
    */
   virtual void acceptData(double measurement);
 
   /**
    * Return the statistics for all of the observed data.
    *
-   * @return
+   * @return the StatisticData for all the observed measurements
    */
   virtual StatisticData getStatisticsResults() const;
 
@@ -63,7 +63,7 @@ public:
 
 private:
   MovingAverageStatistics collected_data_;
-  bool started_ = false;
+  bool started_{false};
 };
 
 

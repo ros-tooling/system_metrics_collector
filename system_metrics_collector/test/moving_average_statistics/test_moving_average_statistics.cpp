@@ -150,21 +150,21 @@ TEST_F(MovingAverageStatisticsTestFixture, test_thread_safe) {
   std::atomic<int> count(0);
 
   std::thread t1([this, &count, &total_sum]() {
-      for (int i = 1; i < 1101.0; i++) {
+      for (int i = 1; i < 1101; i++) {
         moving_average_statistics->addMeasurement(static_cast<double>(i));
         count++;
         total_sum += i;
       }
     });
   std::thread t2([this, &count, &total_sum]() {
-      for (int i = 1; i < 2101.0; i++) {
+      for (int i = 1; i < 2101; i++) {
         moving_average_statistics->addMeasurement(static_cast<double>(i));
         count++;
         total_sum += i;
       }
     });
   std::thread t3([this, &count, &total_sum]() {
-      for (int i = 1; i < 3101.0; i++) {
+      for (int i = 1; i < 3101; i++) {
         moving_average_statistics->addMeasurement(static_cast<double>(i));
         count++;
         total_sum += i;

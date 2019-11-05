@@ -95,14 +95,14 @@ public:
    *
    *  @param item The item that was observed
   **/
-  virtual void addMeasurement(const double & item);
+  virtual void addMeasurement(const double item);
 
   /**
    * Return the number of samples observed
    *
    * @return the number of samples observed
    */
-  int64_t getCount() const;
+  uint64_t getCount() const;
 
 private:
   mutable std::mutex mutex;

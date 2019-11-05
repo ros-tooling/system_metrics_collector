@@ -15,6 +15,7 @@
 #ifndef MOVING_AVERAGE_STATISTICS__TYPES_HPP_
 #define MOVING_AVERAGE_STATISTICS__TYPES_HPP_
 
+#include <sstream>
 #include <string>
 
 /**
@@ -38,10 +39,11 @@ struct StatisticData
  */
 static std::string statisticsDataToString(StatisticData results)
 {
-  return "avg=" + std::to_string(results.average) + ", min=" + std::to_string(results.min) +
-         ", max=" +
-         std::to_string(results.max) + ", std_dev=" + std::to_string(results.standard_deviation) +
-         ", count=" + std::to_string(results.sample_count);
+  std::stringstream ss;
+  ss << "avg=" << std::to_string(results.average) << ", min=" << std::to_string(results.min) <<
+    ", max=" << std::to_string(results.max) << ", std_dev=" << std::to_string(
+    results.standard_deviation) << ", count=" << std::to_string(results.sample_count);
+  return ss.str();
 }
 
 #endif  // MOVING_AVERAGE_STATISTICS__TYPES_HPP_
