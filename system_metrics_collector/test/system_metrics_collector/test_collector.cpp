@@ -56,7 +56,7 @@ public:
   }
 
 protected:
-  std::unique_ptr<TestCollector> test_collector = nullptr;
+  std::unique_ptr<TestCollector> test_collector{};
 };
 
 TEST_F(CollectorTestFixure, sanity) {
