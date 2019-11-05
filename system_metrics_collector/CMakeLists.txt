@@ -30,6 +30,8 @@ find_package(metrics_statistics_msgs REQUIRED)
 
 include_directories(include)
 
+set(SOURCES src/moving_average_statistics/moving_average.cpp)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   find_package(ament_cmake_gtest REQUIRED)
@@ -37,7 +39,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   ament_add_gtest(test_moving_average_statistics
-          test/moving_average_statistics/test_moving_average_statistics.cpp)
+          test/moving_average_statistics/test_moving_average_statistics.cpp ${SOURCES})
 
   install(TARGETS test_moving_average_statistics DESTINATION lib/${PROJECT_NAME})
 endif()

@@ -15,12 +15,12 @@
 #ifndef MOVING_AVERAGE_STATISTICS__MOVING_AVERAGE_HPP_
 #define MOVING_AVERAGE_STATISTICS__MOVING_AVERAGE_HPP_
 
-
 #include <cmath>
 
 #include <algorithm>
 #include <limits>
 #include <mutex>
+#include <numeric>
 #include <type_traits>
 
 #include "types.hpp"
@@ -50,28 +50,22 @@ public:
    *
    *  @return The arithmetic mean of all data recorded, or NaN if the sample count is 0.
   **/
-  double average() const
-  {
-    return getStatistics().average;
-  }
+  double average() const;
+
   /**
    *  Returns the maximum value recorded. If size of list is zero, returns NaN.
    *
    *  @return The maximum value recorded, or NaN if size of data is zero.
   **/
-  double max() const
-  {
-    return getStatistics().max;
-  }
+  double max() const;
+
   /**
    *  Returns the minimum value recorded. If size of list is zero, returns NaN.
    *
    *  @return The minimum value recorded, or NaN if size of data is zero.
   **/
-  double min() const
-  {
-    return getStatistics().min;
-  }
+  double min() const;
+
   /**
    *  Returns the standard deviation (population) of all data recorded. If size of list is zero, returns NaN.
    *
@@ -80,10 +74,8 @@ public:
    *
    *  @return The standard deviation (population) of all data recorded, or NaN if size of data is zero.
   **/
-  double standardDeviation() const
-  {
-    return getStatistics().standard_deviation;
-  }
+  double standardDeviation() const;
+
   /**
    *  Return a StatisticData object, containing average, minimum, maximum, standard deviation (population),
    *  and sample count.
@@ -92,63 +84,26 @@ public:
    *  @return StatisticData object, containing average, minimum, maximum, standard deviation (population),
    *  and sample count.
   **/
-  StatisticData getStatistics() const
-  {
-    std::lock_guard<std::mutex> guard(mutex);
-    StatisticData to_return;
+  StatisticData getStatistics() const;
 
-    if (count_ == 0) {
-      return to_return;  // already initialized
-    }
-
-    // update based on current observations
-    to_return.sample_count = count_;
-    to_return.average = average_;
-    to_return.min = min_;
-    to_return.max = max_;
-    to_return.standard_deviation = std::sqrt(sum_of_square_diff_from_mean_ / count_);
-
-    return to_return;
-  }
   /**
    *  Reset all calculated values. Equivalent to a new window for a moving average.
   **/
-  void reset()
-  {
-    std::lock_guard<std::mutex> guard(mutex);
-    average_ = 0;
-    min_ = DBL_MAX;
-    max_ = DBL_MIN;
-    sum_of_square_diff_from_mean_ = 0;
-    count_ = 0;
-  }
+  void reset();
+
   /**
    *  Observe a sample for the given window. The input item is used to calculate statistics.
    *
    *  @param item The item that was observed
   **/
-  virtual void add_measurement(const double & item)
-  {
-    std::lock_guard<std::mutex> guard(mutex);
-    count_++;
-    const double previous_average_ = average_;
-    average_ = previous_average_ + (item - previous_average_) / count_;
-    min_ = std::min(min_, item);
-    max_ = std::max(max_, item);
-    sum_of_square_diff_from_mean_ = sum_of_square_diff_from_mean_ + (item - previous_average_) *
-      (item - average_);
-  }
+  virtual void add_measurement(const double & item);
 
   /**
    * Return the number of samples observed
    *
    * @return the number of samples observed
    */
-  int64_t get_count() const
-  {
-    std::lock_guard<std::mutex> guard(mutex);
-    return count_;
-  }
+  int64_t get_count() const;
 
 private:
   mutable std::mutex mutex;
