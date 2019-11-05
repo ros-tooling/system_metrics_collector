@@ -28,15 +28,21 @@ find_package(rclcpp REQUIRED)
 find_package(rcutils REQUIRED)
 find_package(metrics_statistics_msgs REQUIRED)
 
+set(SOURCES
+        src/moving_average_statistics/moving_average.cpp
+        src/moving_average_statistics/moving_average.hpp
+        src/moving_average_statistics/types.hpp)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
-  # the following line skips the linter which checks for copyrights
-  # uncomment the line when a copyright and license is not present in all source files
-  #set(ament_cmake_copyright_FOUND TRUE)
-  # the following line skips cpplint (only works in a git repo)
-  # uncomment the line when this package is not in a git repo
-  #set(ament_cmake_cpplint_FOUND TRUE)
+  find_package(ament_cmake_gtest REQUIRED)
+
   ament_lint_auto_find_test_dependencies()
+
+  ament_add_gtest(test_moving_average_statistics
+          test/moving_average_statistics/test_moving_average_statistics.cpp ${SOURCES})
+
+  install(TARGETS test_moving_average_statistics DESTINATION lib/${PROJECT_NAME})
 endif()
 
 ament_package()
