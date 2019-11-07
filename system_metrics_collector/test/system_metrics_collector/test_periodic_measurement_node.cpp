@@ -39,13 +39,14 @@ public:
   {}
   virtual ~TestPeriodicMeasurementNode() = default;
 
-private:
+  // made public to manually test
   void periodicMeasurement() override
   {
-    std::unique_lock<std::recursive_mutex> ulock(mutex);
     sum += 1;
     acceptData(static_cast<double>(sum.load()));
   }
+
+private:
   std::atomic<int> sum{0};
   std::condition_variable_any cv;
 };
@@ -87,15 +88,15 @@ protected:
 
 TEST_F(PeriodicMeasurementTestFixure, sanity) {
   ASSERT_NE(test_periodic_measurer, nullptr);
-  ASSERT_EQ("name=test_periodic_node, publishing_topic=test_topic, measurement_period=50ms, "
-    "started=false, avg=nan, min=nan, max=nan, std_dev=nan, count=0",
+  ASSERT_EQ("name=test_periodic_node, measurement_period=50ms, publishing_topic=test_topic,"
+    " started=false, avg=nan, min=nan, max=nan, std_dev=nan, count=0",
     test_periodic_measurer->getStatusString());
 }
 
 TEST_F(PeriodicMeasurementTestFixure, test_measurement_manually) {
   ASSERT_NE(test_periodic_measurer, nullptr);
 
-  test_periodic_measurer->performPeriodicMeasurement();
+  test_periodic_measurer->periodicMeasurement();
 
   StatisticData data = test_periodic_measurer->getStatisticsResults();
   ASSERT_FALSE(std::isnan(data.average));

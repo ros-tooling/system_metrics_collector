@@ -27,19 +27,18 @@ PeriodicMeasurementNode::PeriodicMeasurementNode(
   const std::string & publishing_topic)
 : Node(name),
   measurement_period_(measurement_period),
-  publishing_topic_(publishing_topic)
+  publishing_topic_(publishing_topic),
+  measurement_timer_(nullptr)
 {}
 
 bool PeriodicMeasurementNode::setupStart()
 {
-  std::unique_lock<std::recursive_mutex> ulock(mutex);
-
   if (!measurement_timer_) {
     RCLCPP_DEBUG(this->get_logger(), "creating timer");
 
     measurement_timer_ = this->create_wall_timer(
       measurement_period_,
-      std::bind(&PeriodicMeasurementNode::performPeriodicMeasurement, this));
+      std::bind(&PeriodicMeasurementNode::periodicMeasurement, this));
 
   } else {
     RCLCPP_WARN(this->get_logger(), "setupStart: measurement_timer_ already exists!");
@@ -49,19 +48,11 @@ bool PeriodicMeasurementNode::setupStart()
 
 bool PeriodicMeasurementNode::setupStop()
 {
-  std::unique_lock<std::recursive_mutex> ulock(mutex);
-
   if (measurement_timer_) {
     measurement_timer_->cancel();
-    measurement_timer_ = nullptr;
+    measurement_timer_.reset();
   }
   return true;
-}
-
-void PeriodicMeasurementNode::performPeriodicMeasurement()
-{
-  std::unique_lock<std::recursive_mutex> ulock(mutex);
-  periodicMeasurement();
 }
 
 std::string PeriodicMeasurementNode::getStatusString()

@@ -23,7 +23,7 @@
 
 bool Collector::start()
 {
-  std::unique_lock<std::recursive_mutex> ulock(mutex);
+  std::unique_lock<std::mutex> ulock(mutex);
   if (started_) {
     return false;
   }
@@ -33,7 +33,7 @@ bool Collector::start()
 
 bool Collector::stop()
 {
-  std::unique_lock<std::recursive_mutex> ulock(mutex);
+  std::unique_lock<std::mutex> ulock(mutex);
   if (!started_) {
     return false;
   }
@@ -61,7 +61,7 @@ void Collector::clearCurrentMeasurements()
 
 bool Collector::isStarted() const
 {
-  std::unique_lock<std::recursive_mutex> ulock(mutex);
+  std::unique_lock<std::mutex> ulock(mutex);
   return started_;
 }
 

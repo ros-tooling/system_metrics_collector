@@ -39,14 +39,6 @@ public:
   bool start();
 
   /**
-   * Override in order to perform necessary starting steps. Overridden methods should lock the recursive mutex class
-   * member 'mutex'
-   *
-   * @return true if setup was successful, false otherwise.
-   */
-  virtual bool setupStart() = 0;
-
-  /**
    * Stop collecting data. Meant to be a teardown method (before destruction, but should place the
    * class in a restartable state, i.e., start can be called to be able to resume collection.
    *
@@ -57,15 +49,8 @@ public:
   bool stop();
 
   /**
-   * Override in order to perform necessary teardown. Overridden methods should lock the recursive mutex class
-   * member 'mutex'
-   *
-   * @return true if teardown was successful, false otherwise.
-   */
-  virtual bool setupStop() = 0;
-
-  /**
-   * Add an observed measurement.
+   * Add an observed measurement. This aggregates the measurement and calculates statistics
+   * via the moving_average class.
    *
    * @param the measurement observed
    */
@@ -99,11 +84,25 @@ public:
 
   // todo @dabonnie uptime (once start has been called)
 
-protected:
-  mutable std::recursive_mutex mutex;  // recursive for child classes
-
 private:
+  /**
+   * Override in order to perform necessary starting steps.
+   *
+   * @return true if setup was successful, false otherwise.
+   */
+  virtual bool setupStart() = 0;
+
+  /**
+   * Override in order to perform necessary teardown.
+   *
+   * @return true if teardown was successful, false otherwise.
+   */
+  virtual bool setupStop() = 0;
+
+  mutable std::mutex mutex;
+
   MovingAverageStatistics collected_data_;
+
   bool started_{false};
 };
 

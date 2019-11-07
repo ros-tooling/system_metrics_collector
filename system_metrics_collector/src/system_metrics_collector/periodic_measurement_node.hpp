@@ -36,12 +36,26 @@ public:
    * @param topic the topic for publishing data
    * @param measurement_period
    */
-  explicit PeriodicMeasurementNode(
+  PeriodicMeasurementNode(
     const std::string & name,
     const std::chrono::milliseconds & measurement_period,
     const std::string & topic);  // todo @dbbonnie think about a default topic
 
   virtual ~PeriodicMeasurementNode() = default;
+
+  /**
+   * Return a pretty printed status representation of this class
+   *
+   * @return a string detailing the current status
+   */
+  std::string getStatusString() override;
+
+private:
+  /**
+   * Override this method to perform a single measurement. This is called via performPeriodicMeasurement
+   * with the period defined in the constructor.
+   */
+  virtual void periodicMeasurement() = 0;
 
   /**
    * Creates a ROS2 timer with a period of measurement_period_.
@@ -57,30 +71,9 @@ public:
    */
   bool setupStop() override;
 
-  /**
-   * Periodically calls this method, via the ROS2 timer, in order to perform a
-   * measurement. The measurement should be defined in the periodicMeasurement method.
-   */
-  void performPeriodicMeasurement();
-
-  /**
-   * Return a pretty printed status representation of this class
-   *
-   * @return a string detailing the current status
-   */
-  std::string getStatusString() override;
-
-protected:
-  /**
-   * Override this method to perform a measurement. This is called via performPeriodicMeasurement
-   * with the period defined in the constructor.
-   */
-  virtual void periodicMeasurement() = 0;
-
-private:
   std::string publishing_topic_;
   std::chrono::milliseconds measurement_period_;
-  rclcpp::TimerBase::SharedPtr measurement_timer_{nullptr};
+  rclcpp::TimerBase::SharedPtr measurement_timer_;
 };
 
 
