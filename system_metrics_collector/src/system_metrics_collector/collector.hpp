@@ -15,11 +15,14 @@
 #ifndef SYSTEM_METRICS_COLLECTOR__COLLECTOR_HPP_
 #define SYSTEM_METRICS_COLLECTOR__COLLECTOR_HPP_
 
+#include <mutex>
+#include <string>
+
 #include "../moving_average_statistics/moving_average.hpp"
 #include "../moving_average_statistics/types.hpp"
 
 /**
- * Simple wrapping class in order to collect observed data and generate statistics for the given observations.
+ * Simple class in order to collect observed data and generate statistics for the given observations.
  */
 class Collector
 {
@@ -28,26 +31,45 @@ public:
   virtual ~Collector() = default;
 
   /**
-   * Start collecting data. Meant to be called after construction.
+   * Start collecting data. Meant to be called after construction. Note: this locks the recursive mutex class
+   * member 'mutex'.
    *
-   * @return true if started, false if an error occured
+   * @return true if started, false if an error occurred
    */
-  virtual bool start() = 0;
+  bool start();
+
+  /**
+   * Override in order to perform necessary starting steps. Overridden methods should lock the recursive mutex class
+   * member 'mutex'
+   *
+   * @return true if setup was successful, false otherwise.
+   */
+  virtual bool setupStart() = 0;
 
   /**
    * Stop collecting data. Meant to be a teardown method (before destruction, but should place the
    * class in a restartable state, i.e., start can be called to be able to resume collection.
    *
+   * This calls clearCurrentMeasurements.
+   *
    * @return true if stopped, false if an error occurred
    */
-  virtual bool stop() = 0;
+  bool stop();
+
+  /**
+   * Override in order to perform necessary teardown. Overridden methods should lock the recursive mutex class
+   * member 'mutex'
+   *
+   * @return true if teardown was successful, false otherwise.
+   */
+  virtual bool setupStop() = 0;
 
   /**
    * Add an observed measurement.
    *
    * @param the measurement observed
    */
-  virtual void acceptData(double measurement);
+  virtual void acceptData(const double measurement);
 
   /**
    * Return the statistics for all of the observed data.
@@ -60,6 +82,25 @@ public:
    * Clear / reset all current measurements.
    */
   virtual void clearCurrentMeasurements();
+
+  /**
+   * Return true is start has been called, false otherwise.
+   *
+   * @return the started state of this collector
+   */
+  bool isStarted() const;
+
+  /**
+   * Return a pretty printed status representation of this class
+   *
+   * @return a string detailing the current status
+   */
+  virtual std::string getStatusString();
+
+  // todo @dabonnie uptime (once start has been called)
+
+protected:
+  mutable std::recursive_mutex mutex;  // recursive for child classes
 
 private:
   MovingAverageStatistics collected_data_;

@@ -12,14 +12,39 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "collector.hpp"
+
+#include <mutex>
+#include <sstream>
+#include <string>
 
 #include "../../src/moving_average_statistics/moving_average.hpp"
 #include "../../src/moving_average_statistics/types.hpp"
 
-#include "collector.hpp"
+bool Collector::start()
+{
+  std::unique_lock<std::recursive_mutex> ulock(mutex);
+  if (started_) {
+    return false;
+  }
+  started_ = true;
+  return setupStart();
+}
 
+bool Collector::stop()
+{
+  std::unique_lock<std::recursive_mutex> ulock(mutex);
+  if (!started_) {
+    return false;
+  }
+  started_ = false;
 
-void Collector::acceptData(double measurement)
+  const bool ret = setupStop();
+  clearCurrentMeasurements();
+  return ret;
+}
+
+void Collector::acceptData(const double measurement)
 {
   collected_data_.addMeasurement(measurement);
 }
@@ -32,4 +57,18 @@ StatisticData Collector::getStatisticsResults() const
 void Collector::clearCurrentMeasurements()
 {
   collected_data_.reset();
+}
+
+bool Collector::isStarted() const
+{
+  std::unique_lock<std::recursive_mutex> ulock(mutex);
+  return started_;
+}
+
+std::string Collector::getStatusString()
+{
+  std::stringstream ss;
+  ss << "started=" << (isStarted() ? "true" : "false") <<
+    ", " << statisticsDataToString(getStatisticsResults());
+  return ss.str();
 }

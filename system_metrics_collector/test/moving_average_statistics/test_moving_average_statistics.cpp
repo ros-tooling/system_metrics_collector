@@ -58,7 +58,6 @@ protected:
 };
 
 TEST_F(MovingAverageStatisticsTestFixture, sanity) {
-  ASSERT_TRUE(true);
   ASSERT_NE(moving_average_statistics, nullptr);
 }
 
@@ -189,12 +188,4 @@ TEST(MovingAverageStatisticsTest, test_pretty_printing) {
   stats.addMeasurement(1);
   ASSERT_EQ("avg=1.000000, min=1.000000, max=1.000000, std_dev=0.000000, count=1",
     statisticsDataToString(stats.getStatistics()));
-}
-
-int main(int argc, char ** argv)
-{
-  ::testing::InitGoogleTest(&argc, argv);
-  // run with 'time ./test_moving_average_statistics --gtest_repeat=2000
-  //   --gtest_shuffle --gtest_break_on_failure'
-  return RUN_ALL_TESTS();
 }

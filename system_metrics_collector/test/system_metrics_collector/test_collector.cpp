@@ -28,11 +28,11 @@ class TestCollector : public Collector
 public:
   TestCollector() = default;
   virtual ~TestCollector() = default;
-  bool start() override
+  bool setupStart() override
   {
     return true;
   }
-  bool stop() override
+  bool setupStop() override
   {
     this->clearCurrentMeasurements();
     return true;
@@ -60,7 +60,6 @@ protected:
 };
 
 TEST_F(CollectorTestFixure, sanity) {
-  ASSERT_TRUE(true);
   ASSERT_NE(test_collector, nullptr);
 }
 
@@ -77,4 +76,14 @@ TEST_F(CollectorTestFixure, test_add_and_clear_measurement) {
   ASSERT_TRUE(std::isnan(stats.max));
   ASSERT_TRUE(std::isnan(stats.standard_deviation));
   ASSERT_EQ(0, stats.sample_count);
+}
+
+TEST_F(CollectorTestFixure, test_start_and_stop) {
+  ASSERT_FALSE(test_collector->isStarted());
+  ASSERT_EQ("started=false, avg=nan, min=nan, max=nan, std_dev=nan, count=0",
+    test_collector->getStatusString());
+  ASSERT_TRUE(test_collector->start());
+  ASSERT_TRUE(test_collector->isStarted());
+  ASSERT_EQ("started=true, avg=nan, min=nan, max=nan, std_dev=nan, count=0",
+    test_collector->getStatusString());
 }
