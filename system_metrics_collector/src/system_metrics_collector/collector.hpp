@@ -21,6 +21,8 @@
 #include "../moving_average_statistics/moving_average.hpp"
 #include "../moving_average_statistics/types.hpp"
 
+#include "rcpputils/thread_safety_annotations.hpp"
+
 /**
  * Simple class in order to collect observed data and generate statistics for the given observations.
  */
@@ -80,7 +82,7 @@ public:
    *
    * @return a string detailing the current status
    */
-  virtual std::string getStatusString();
+  virtual std::string getStatusString() const;
 
   // todo @dabonnie uptime (once start has been called)
 
@@ -90,20 +92,20 @@ private:
    *
    * @return true if setup was successful, false otherwise.
    */
-  virtual bool setupStart() = 0;
+  virtual bool setupStart() = 0 RCPPUTILS_TSA_REQUIRES(mutex);
 
   /**
    * Override in order to perform necessary teardown.
    *
    * @return true if teardown was successful, false otherwise.
    */
-  virtual bool setupStop() = 0;
+  virtual bool setupStop() = 0 RCPPUTILS_TSA_REQUIRES(mutex);
 
   mutable std::mutex mutex;
 
   MovingAverageStatistics collected_data_;
 
-  bool started_{false};
+  bool started_{false} RCPPUTILS_TSA_GUARDED_BY(mutex);
 };
 
 

@@ -48,7 +48,7 @@ public:
    *
    * @return a string detailing the current status
    */
-  std::string getStatusString() override;
+  std::string getStatusString() const override;
 
 private:
   /**

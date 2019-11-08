@@ -34,7 +34,7 @@ add_library(system_metrics_collector SHARED
   src/system_metrics_collector/collector.cpp
   src/system_metrics_collector/periodic_measurement_node.cpp)
 
-ament_target_dependencies(system_metrics_collector rclcpp)
+ament_target_dependencies(system_metrics_collector rclcpp rcpputils)
 ament_export_libraries(system_metrics_collector)
 
 if(BUILD_TESTING)

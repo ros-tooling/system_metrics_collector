@@ -33,13 +33,16 @@ bool Collector::start()
 
 bool Collector::stop()
 {
-  std::unique_lock<std::mutex> ulock(mutex);
-  if (!started_) {
-    return false;
-  }
-  started_ = false;
+  bool ret = false;
+  {
+    std::unique_lock<std::mutex> ulock(mutex);
+    if (!started_) {
+      return false;
+    }
+    started_ = false;
 
-  const bool ret = setupStop();
+    ret = setupStop();
+  }
   clearCurrentMeasurements();
   return ret;
 }
@@ -65,7 +68,7 @@ bool Collector::isStarted() const
   return started_;
 }
 
-std::string Collector::getStatusString()
+std::string Collector::getStatusString() const
 {
   std::stringstream ss;
   ss << "started=" << (isStarted() ? "true" : "false") <<

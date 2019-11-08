@@ -55,7 +55,7 @@ bool PeriodicMeasurementNode::setupStop()
   return true;
 }
 
-std::string PeriodicMeasurementNode::getStatusString()
+std::string PeriodicMeasurementNode::getStatusString() const
 {
   std::stringstream ss;
   ss << "name=" << get_name() <<

@@ -25,6 +25,12 @@
 #include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
 #include "../../src/moving_average_statistics/types.hpp"
 
+
+static constexpr const std::chrono::milliseconds TEST_LENGTH =
+  std::chrono::milliseconds(250);
+static constexpr const std::chrono::milliseconds TEST_PERIOD =
+  std::chrono::milliseconds(50);
+
 /**
  * Simple extension to test basic functionality
  */
@@ -32,7 +38,7 @@ class TestPeriodicMeasurementNode : public PeriodicMeasurementNode
 {
 public:
   TestPeriodicMeasurementNode(
-    const std::string name,
+    const std::string & name,
     const std::chrono::milliseconds & measurement_period,
     const std::string & publishing_topic)
   : PeriodicMeasurementNode(name, measurement_period, publishing_topic)
@@ -48,7 +54,6 @@ public:
 
 private:
   std::atomic<int> sum{0};
-  std::condition_variable_any cv;
 };
 
 /**
@@ -63,7 +68,7 @@ public:
     rclcpp::init(1, &argv);
 
     test_periodic_measurer = std::make_shared<TestPeriodicMeasurementNode>("test_periodic_node",
-        std::chrono::milliseconds(50), "test_topic");
+        TEST_PERIOD, "test_topic");
 
     ASSERT_FALSE(test_periodic_measurer->isStarted());
 
@@ -121,14 +126,14 @@ TEST_F(PeriodicMeasurementTestFixure, test_start_and_stop) {
 
   rclcpp::executors::SingleThreadedExecutor ex;
   ex.add_node(test_periodic_measurer);
-  ex.spin_until_future_complete(dummy_future, std::chrono::milliseconds(250));
+  ex.spin_until_future_complete(dummy_future, TEST_LENGTH);
 
   StatisticData data = test_periodic_measurer->getStatisticsResults();
   ASSERT_EQ(3, data.average);
   ASSERT_EQ(1, data.min);
-  ASSERT_EQ(5, data.max);
+  ASSERT_EQ(TEST_LENGTH.count() / TEST_PERIOD.count(), data.max);
   ASSERT_FALSE(std::isnan(data.standard_deviation));
-  ASSERT_EQ(5, data.sample_count);
+  ASSERT_EQ(TEST_LENGTH.count() / TEST_PERIOD.count(), data.sample_count);
 
   const bool stop_success = test_periodic_measurer->stop();
   ASSERT_TRUE(stop_success);
