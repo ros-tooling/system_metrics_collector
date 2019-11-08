@@ -25,11 +25,13 @@
 #include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
 #include "../../src/moving_average_statistics/types.hpp"
 
-
+namespace
+{
 static constexpr const std::chrono::milliseconds TEST_LENGTH =
   std::chrono::milliseconds(250);
 static constexpr const std::chrono::milliseconds TEST_PERIOD =
   std::chrono::milliseconds(50);
+}
 
 /**
  * Simple extension to test basic functionality
@@ -39,7 +41,7 @@ class TestPeriodicMeasurementNode : public PeriodicMeasurementNode
 public:
   TestPeriodicMeasurementNode(
     const std::string & name,
-    const std::chrono::milliseconds & measurement_period,
+    const std::chrono::milliseconds measurement_period,
     const std::string & publishing_topic)
   : PeriodicMeasurementNode(name, measurement_period, publishing_topic)
   {}

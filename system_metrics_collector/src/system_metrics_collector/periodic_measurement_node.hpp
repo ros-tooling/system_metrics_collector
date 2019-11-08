@@ -38,7 +38,7 @@ public:
    */
   PeriodicMeasurementNode(
     const std::string & name,
-    const std::chrono::milliseconds & measurement_period,
+    const std::chrono::milliseconds measurement_period,
     const std::string & topic);  // todo @dbbonnie think about a default topic
 
   virtual ~PeriodicMeasurementNode() = default;
