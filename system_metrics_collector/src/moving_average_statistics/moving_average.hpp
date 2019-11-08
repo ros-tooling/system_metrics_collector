@@ -25,6 +25,7 @@
 
 #include "types.hpp"
 
+#include "rcpputils/thread_safety_annotations.hpp"
 
 /**
  *  A class for calculating moving average statistics. This operates in constant memory and constant time. Note:
@@ -49,21 +50,21 @@ public:
    *
    *  @return The arithmetic mean of all data recorded, or NaN if the sample count is 0.
   **/
-  double average() const;
+  double average() const RCPPUTILS_TSA_REQUIRES(mutex);
 
   /**
    *  Returns the maximum value recorded. If size of list is zero, returns NaN.
    *
    *  @return The maximum value recorded, or NaN if size of data is zero.
   **/
-  double max() const;
+  double max() const RCPPUTILS_TSA_REQUIRES(mutex);
 
   /**
    *  Returns the minimum value recorded. If size of list is zero, returns NaN.
    *
    *  @return The minimum value recorded, or NaN if size of data is zero.
   **/
-  double min() const;
+  double min() const RCPPUTILS_TSA_REQUIRES(mutex);
 
   /**
    *  Returns the standard deviation (population) of all data recorded. If size of list is zero, returns NaN.
@@ -73,7 +74,7 @@ public:
    *
    *  @return The standard deviation (population) of all data recorded, or NaN if size of data is zero.
   **/
-  double standardDeviation() const;
+  double standardDeviation() const RCPPUTILS_TSA_REQUIRES(mutex);
 
   /**
    *  Return a StatisticData object, containing average, minimum, maximum, standard deviation (population),
@@ -106,12 +107,11 @@ public:
 
 private:
   mutable std::mutex mutex;
-  // cached values below
-  double average_ = 0;
-  double min_ = std::numeric_limits<double>::max();
-  double max_ = std::numeric_limits<double>::min();
-  double sum_of_square_diff_from_mean_ = 0;
-  uint64_t count_ = 0;
+  double average_ = 0                              RCPPUTILS_TSA_GUARDED_BY(mutex);
+  double min_ = std::numeric_limits<double>::max() RCPPUTILS_TSA_GUARDED_BY(mutex);
+  double max_ = std::numeric_limits<double>::min() RCPPUTILS_TSA_GUARDED_BY(mutex);
+  double sum_of_square_diff_from_mean_ = 0         RCPPUTILS_TSA_GUARDED_BY(mutex);
+  uint64_t count_ = 0                              RCPPUTILS_TSA_GUARDED_BY(mutex);
 };
 
 #endif  // MOVING_AVERAGE_STATISTICS__MOVING_AVERAGE_HPP_
