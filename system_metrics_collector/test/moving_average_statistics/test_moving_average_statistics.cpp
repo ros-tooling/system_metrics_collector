@@ -41,8 +41,8 @@ public:
     moving_average_statistics = std::make_unique<MovingAverageStatistics>();
 
     for (double d : TEST_DATA) {
-      moving_average_statistics->add_measurement(d);
-      ASSERT_EQ(++expected_count, moving_average_statistics->get_count());
+      moving_average_statistics->addMeasurement(d);
+      ASSERT_EQ(++expected_count, moving_average_statistics->getCount());
     }
   }
 
@@ -58,7 +58,6 @@ protected:
 };
 
 TEST_F(MovingAverageStatisticsTestFixture, sanity) {
-  ASSERT_TRUE(true);
   ASSERT_NE(moving_average_statistics, nullptr);
 }
 
@@ -100,7 +99,7 @@ TEST_F(MovingAverageStatisticsTestFixture, test_stddev_empty) {
 
 TEST_F(MovingAverageStatisticsTestFixture, test_count_empty) {
   MovingAverageStatistics empty;
-  ASSERT_EQ(0, empty.get_count());
+  ASSERT_EQ(0, empty.getCount());
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, test_get_statistics) {
@@ -124,7 +123,7 @@ TEST_F(MovingAverageStatisticsTestFixture, test_get_statistics_int) {
   const int expected_size = 10;
 
   for (int d : data_int) {
-    moving_average_statistics->add_measurement(d);
+    moving_average_statistics->addMeasurement(d);
   }
 
   auto result = moving_average_statistics->getStatistics();
@@ -136,10 +135,10 @@ TEST_F(MovingAverageStatisticsTestFixture, test_get_statistics_int) {
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, test_reset) {
-  moving_average_statistics->add_measurement(0.6);
+  moving_average_statistics->addMeasurement(0.6);
   moving_average_statistics->reset();
   ASSERT_TRUE(std::isnan(moving_average_statistics->average()));
-  moving_average_statistics->add_measurement(1.5);
+  moving_average_statistics->addMeasurement(1.5);
   EXPECT_EQ(moving_average_statistics->average(), 1.5);
 }
 
@@ -150,22 +149,22 @@ TEST_F(MovingAverageStatisticsTestFixture, test_thread_safe) {
   std::atomic<int> count(0);
 
   std::thread t1([this, &count, &total_sum]() {
-      for (int i = 1; i < 1101.0; i++) {
-        moving_average_statistics->add_measurement(static_cast<double>(i));
+      for (int i = 1; i < 1101; i++) {
+        moving_average_statistics->addMeasurement(static_cast<double>(i));
         count++;
         total_sum += i;
       }
     });
   std::thread t2([this, &count, &total_sum]() {
-      for (int i = 1; i < 2101.0; i++) {
-        moving_average_statistics->add_measurement(static_cast<double>(i));
+      for (int i = 1; i < 2101; i++) {
+        moving_average_statistics->addMeasurement(static_cast<double>(i));
         count++;
         total_sum += i;
       }
     });
   std::thread t3([this, &count, &total_sum]() {
-      for (int i = 1; i < 3101.0; i++) {
-        moving_average_statistics->add_measurement(static_cast<double>(i));
+      for (int i = 1; i < 3101; i++) {
+        moving_average_statistics->addMeasurement(static_cast<double>(i));
         count++;
         total_sum += i;
       }
@@ -181,10 +180,12 @@ TEST_F(MovingAverageStatisticsTestFixture, test_thread_safe) {
   ASSERT_NEAR(moving_average_statistics->average(), control, var);
 }
 
-int main(int argc, char ** argv)
-{
-  ::testing::InitGoogleTest(&argc, argv);
-  // run with 'time ./test_moving_average_statistics --gtest_repeat=2000
-  //   --gtest_shuffle --gtest_break_on_failure'
-  return RUN_ALL_TESTS();
+TEST(MovingAverageStatisticsTest, test_pretty_printing) {
+  StatisticData data;
+  ASSERT_EQ("avg=nan, min=nan, max=nan, std_dev=nan, count=0", statisticsDataToString(data));
+
+  MovingAverageStatistics stats;
+  stats.addMeasurement(1);
+  ASSERT_EQ("avg=1.000000, min=1.000000, max=1.000000, std_dev=0.000000, count=1",
+    statisticsDataToString(stats.getStatistics()));
 }

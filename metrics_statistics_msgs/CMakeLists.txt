@@ -29,16 +29,16 @@ find_package(builtin_interfaces REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 set(msg_files
-        "msg/MetricsMessage.msg"
-        "msg/StatisticDataPoint.msg"
-        "msg/StatisticDataType.msg"
-        )
+  msg/MetricsMessage.msg
+  msg/StatisticDataPoint.msg
+  msg/StatisticDataType.msg
+  )
 
 ## Generate added messages and services with any dependencies listed here
 rosidl_generate_interfaces(${PROJECT_NAME}
-        ${msg_files}
-        DEPENDENCIES builtin_interfaces std_msgs
-        )
+  ${msg_files}
+  DEPENDENCIES builtin_interfaces std_msgs
+  )
 
 ament_export_dependencies(rosidl_default_runtime)
 
