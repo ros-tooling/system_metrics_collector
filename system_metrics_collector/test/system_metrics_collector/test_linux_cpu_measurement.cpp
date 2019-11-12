@@ -133,3 +133,13 @@ TEST(LinuxCpuMeasurementTest, testCalculateCpuActivePercentage)
   auto p = LinuxCpuMeasurementNode::computeCpuActivePercentage(parsed_data1, parsed_data2);
   ASSERT_DOUBLE_EQ(CPU_ACTIVE_PERCENTAGE, p);
 }
+
+TEST(LinuxCpuMeasurementTest, testEmptyProcCpuData)
+{
+  ProcCpuData empty;
+  ASSERT_EQ(ProcCpuData::EMPTY_LABEL, empty.cpu_label);
+
+  for (int i = 0; i < ProcCpuData::kNumProcCpuStates; i++) {
+    ASSERT_EQ(0, empty.times[i]);
+  }
+}

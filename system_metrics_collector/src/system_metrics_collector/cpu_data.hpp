@@ -23,6 +23,7 @@
  */
 struct ProcCpuData
 {
+  static constexpr const char EMPTY_LABEL[] = "empty";
   /**
    * Enum representing each item in a /proc/stat cpu line
    */
@@ -42,19 +43,20 @@ struct ProcCpuData
   /**
    * The cpu label of the line parsed
    */
-  std::string cpu_label = "empty";  // todo fixme magic string constant
+  std::string cpu_label = EMPTY_LABEL;
   size_t times[kNumProcCpuStates] = {0};
 
-  size_t getIdleTime() const
-  {
-    return times[idle] + times[iOWait];
-  }
+  /**
+   * Return the idle time
+   * @return the idle time for this data set
+   */
+  size_t getIdleTime() const;
 
-  size_t getActiveTime() const
-  {
-    return times[user] + times[nice] + times[system] + times[irq] +
-           times[softIrq] + times[steal];
-  }
+  /**
+   * Return the active time
+   * @return the active time for this data set
+   */
+  size_t getActiveTime() const;
 
   /**
    * Return a pretty printed string of the ProcCpuData struct.
@@ -62,25 +64,15 @@ struct ProcCpuData
    * @param data the struct to print
    * @return a formatted string of the input struct
    */
-  std::string toString()
-  {
-    std::stringstream ss;
-    ss << "cpu_label=" << cpu_label <<
-      ", user=" << times[user] <<
-      ", nice=" << times[nice] <<
-      ", system=" << times[system] <<
-      ", idle=" << times[idle] <<
-      ", iOWait=" << times[iOWait] <<
-      ", irq=" << times[irq] <<
-      ", softIrq=" << times[softIrq] <<
-      ", steal=" << times[steal];
-    return ss.str();
-  }
+  std::string toString();
 
-  bool isMeasurementEmpty() const
-  {
-    return cpu_label == "empty";  //  todo fixme magic string constant
-  }
+  /**
+   * Return true if the struct is not populated with any useful data.
+   * This indicates a parsing error.
+   *
+   * @return true if empty (no valid data), false otherwise.
+   */
+  bool isMeasurementEmpty() const;
 };
 
 #endif  // SYSTEM_METRICS_COLLECTOR__CPU_DATA_HPP_
