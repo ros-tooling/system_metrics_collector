@@ -41,7 +41,7 @@ PeriodicMeasurementNode::PeriodicMeasurementNode(
 bool PeriodicMeasurementNode::setupStart()
 {
   if (!measurement_timer_) {
-    RCLCPP_INFO(this->get_logger(), "setupStart: creating measurement_timer_");
+    RCLCPP_DEBUG(this->get_logger(), "setupStart: creating measurement_timer_");
 
     measurement_timer_ = this->create_wall_timer(
       measurement_period_,
@@ -54,11 +54,11 @@ bool PeriodicMeasurementNode::setupStart()
   if (!publish_timer_ &&
     publish_period_ != PeriodicMeasurementNode::DEFAULT_PUBLISH_WINDOW)
   {
-    RCLCPP_INFO(this->get_logger(), "setupStart: creating publish_timer_");
+    RCLCPP_DEBUG(this->get_logger(), "setupStart: creating publish_timer_");
 
     publish_timer_ = this->create_wall_timer(
       publish_period_,
-      std::bind(&Collector::clearCurrentMeasurements, this));
+      std::bind(&Collector::clearCurrentMeasurements, this));  // todo fixme, bind to publish method
 
   } else {
     if (publish_timer_) {
@@ -87,6 +87,7 @@ std::string PeriodicMeasurementNode::getStatusString() const
     ", publish_period=" <<
   (publish_period_ != PeriodicMeasurementNode::DEFAULT_PUBLISH_WINDOW ?
   std::to_string(publish_period_.count()) + "ms" : "None") <<
+    ", clear_measurements_on_publish_=" << clear_measurements_on_publish_ <<
     ", " << Collector::getStatusString();
   return ss.str();
 }
@@ -97,5 +98,5 @@ void PeriodicMeasurementNode::performPeriodicMeasurement()
   RCLCPP_DEBUG(this->get_logger(), "performPeriodicMeasurement: %f", measurement);
 
   acceptData(measurement);
-  RCLCPP_INFO(this->get_logger(), getStatusString());
+  RCLCPP_DEBUG(this->get_logger(), getStatusString());
 }

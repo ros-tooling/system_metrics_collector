@@ -33,7 +33,7 @@ add_library(system_metrics_collector SHARED
   src/moving_average_statistics/types.hpp
   src/system_metrics_collector/collector.cpp
   src/system_metrics_collector/periodic_measurement_node.cpp
-  src/system_metrics_collector/linux_cpu_measurement_node.hpp
+  src/system_metrics_collector/linux_cpu_measurement_node.cpp
   src/system_metrics_collector/cpu_data.hpp
 )
 

@@ -85,12 +85,24 @@ private:
    */
   bool setupStop() override;
 
+  // todo implement on publish timer callback, check if we need to clear the window
+  // todo this is part of the publishing interface
 
-  //todo implement on publish timer callback, check if we need to clear the window
-
+  /**
+   * Topic used for publishing
+   */
   const std::string publishing_topic_;
+  /**
+   * The period used to take a single measurement
+   */
   const std::chrono::milliseconds measurement_period_;
+  /**
+   * The period used to publish measurement data
+   */
   const std::chrono::milliseconds publish_period_;
+  /**
+   * If true, then measurements are cleared after publishing data
+   */
   const bool clear_measurements_on_publish_;
   rclcpp::TimerBase::SharedPtr measurement_timer_;
   rclcpp::TimerBase::SharedPtr publish_timer_;

@@ -101,8 +101,10 @@ protected:
 
 TEST_F(PeriodicMeasurementTestFixure, sanity) {
   ASSERT_NE(test_periodic_measurer, nullptr);
-  ASSERT_EQ("name=test_periodic_node, measurement_period=50ms, publishing_topic=test_topic,"
-    " publish_period=None, started=false, avg=nan, min=nan, max=nan, std_dev=nan, count=0",
+  ASSERT_EQ("name=test_periodic_node, measurement_period=50ms,"
+    " publishing_topic=test_topic, publish_period=None,"
+    " clear_measurements_on_publish_=1, started=false,"
+    " avg=nan, min=nan, max=nan, std_dev=nan, count=0",
     test_periodic_measurer->getStatusString());
 }
 
