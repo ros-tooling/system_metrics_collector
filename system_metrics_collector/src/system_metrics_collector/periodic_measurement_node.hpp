@@ -29,17 +29,23 @@
 class PeriodicMeasurementNode : public Collector, public rclcpp::Node
 {
 public:
+  static constexpr const std::chrono::milliseconds DEFAULT_PUBLISH_WINDOW =
+    std::chrono::milliseconds(0);
   /**
    * Construct a PeriodicMeasurementNode.
    *
    * @param name the name of this node
    * @param topic the topic for publishing data
    * @param measurement_period
+   * @param publish_period the window of active measurements. If specified all measurements
+   * will be cleared when the window has been exceeded.
    */
   PeriodicMeasurementNode(
     const std::string & name,
     const std::chrono::milliseconds measurement_period,
-    const std::string & topic);  // todo @dbbonnie think about a default topic
+    const std::string & topic,  // todo @dbbonnie think about a default topic
+    const std::chrono::milliseconds & publish_period = DEFAULT_PUBLISH_WINDOW,
+    const bool clear_measurements_on_publish = true);
 
   virtual ~PeriodicMeasurementNode() = default;
 
@@ -54,8 +60,16 @@ private:
   /**
    * Override this method to perform a single measurement. This is called via performPeriodicMeasurement
    * with the period defined in the constructor.
+   *
+   * @return the measurement made to be aggregated for statistics
    */
-  virtual void periodicMeasurement() = 0;
+  virtual double periodicMeasurement() = 0;
+
+  /**
+   * Called via a ROS2 timer per the measurement_period_. This calls periodicMeasurement
+   * and adds the resulting output via Collector::acceptData(double data);
+   */
+  virtual void performPeriodicMeasurement();
 
   /**
    * Creates a ROS2 timer with a period of measurement_period_.
@@ -71,10 +85,15 @@ private:
    */
   bool setupStop() override;
 
-  std::string publishing_topic_;
-  std::chrono::milliseconds measurement_period_;
-  rclcpp::TimerBase::SharedPtr measurement_timer_;
-};
 
+  //todo implement on publish timer callback, check if we need to clear the window
+
+  const std::string publishing_topic_;
+  const std::chrono::milliseconds measurement_period_;
+  const std::chrono::milliseconds publish_period_;
+  const bool clear_measurements_on_publish_;
+  rclcpp::TimerBase::SharedPtr measurement_timer_;
+  rclcpp::TimerBase::SharedPtr publish_timer_;
+};
 
 #endif  // SYSTEM_METRICS_COLLECTOR__PERIODIC_MEASUREMENT_NODE_HPP_

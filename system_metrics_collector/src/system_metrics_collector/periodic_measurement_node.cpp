@@ -20,29 +20,52 @@
 
 #include "rclcpp/rclcpp.hpp"
 
+/* static */ constexpr const std::chrono::milliseconds PeriodicMeasurementNode::
+DEFAULT_PUBLISH_WINDOW;
 
 PeriodicMeasurementNode::PeriodicMeasurementNode(
   const std::string & name,
   const std::chrono::milliseconds measurement_period,
-  const std::string & publishing_topic)
+  const std::string & publishing_topic,
+  const std::chrono::milliseconds & publish_period,
+  const bool clear_measurements_on_publish)
 : Node(name),
   measurement_period_(measurement_period),
   publishing_topic_(publishing_topic),
-  measurement_timer_(nullptr)
+  measurement_timer_(nullptr),
+  publish_timer_(nullptr),
+  publish_period_(publish_period),
+  clear_measurements_on_publish_(clear_measurements_on_publish)
 {}
 
 bool PeriodicMeasurementNode::setupStart()
 {
   if (!measurement_timer_) {
-    RCLCPP_DEBUG(this->get_logger(), "creating timer");
+    RCLCPP_INFO(this->get_logger(), "setupStart: creating measurement_timer_");
 
     measurement_timer_ = this->create_wall_timer(
       measurement_period_,
-      std::bind(&PeriodicMeasurementNode::periodicMeasurement, this));
+      std::bind(&PeriodicMeasurementNode::performPeriodicMeasurement, this));
 
   } else {
     RCLCPP_WARN(this->get_logger(), "setupStart: measurement_timer_ already exists!");
   }
+
+  if (!publish_timer_ &&
+    publish_period_ != PeriodicMeasurementNode::DEFAULT_PUBLISH_WINDOW)
+  {
+    RCLCPP_INFO(this->get_logger(), "setupStart: creating publish_timer_");
+
+    publish_timer_ = this->create_wall_timer(
+      publish_period_,
+      std::bind(&Collector::clearCurrentMeasurements, this));
+
+  } else {
+    if (publish_timer_) {
+      RCLCPP_WARN(this->get_logger(), "setupStart: publish_timer_ already exists!");
+    }
+  }
+
   return true;
 }
 
@@ -61,6 +84,18 @@ std::string PeriodicMeasurementNode::getStatusString() const
   ss << "name=" << get_name() <<
     ", measurement_period=" << std::to_string(measurement_period_.count()) << "ms" <<
     ", publishing_topic=" << publishing_topic_ <<
+    ", publish_period=" <<
+  (publish_period_ != PeriodicMeasurementNode::DEFAULT_PUBLISH_WINDOW ?
+  std::to_string(publish_period_.count()) + "ms" : "None") <<
     ", " << Collector::getStatusString();
   return ss.str();
+}
+
+void PeriodicMeasurementNode::performPeriodicMeasurement()
+{
+  double measurement = periodicMeasurement();
+  RCLCPP_DEBUG(this->get_logger(), "performPeriodicMeasurement: %f", measurement);
+
+  acceptData(measurement);
+  RCLCPP_INFO(this->get_logger(), getStatusString());
 }

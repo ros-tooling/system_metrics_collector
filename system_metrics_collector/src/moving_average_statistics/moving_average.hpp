@@ -92,7 +92,8 @@ public:
   void reset();
 
   /**
-   *  Observe a sample for the given window. The input item is used to calculate statistics.
+   *  Observe a sample for the given window. The input item is used to calculate statistics. Note:
+   *  any input values of NaN will be discarded and not added as a measurement.
    *
    *  @param item The item that was observed
   **/

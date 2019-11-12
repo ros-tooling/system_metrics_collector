@@ -32,10 +32,17 @@ add_library(system_metrics_collector SHARED
   src/moving_average_statistics/moving_average.cpp
   src/moving_average_statistics/types.hpp
   src/system_metrics_collector/collector.cpp
-  src/system_metrics_collector/periodic_measurement_node.cpp)
+  src/system_metrics_collector/periodic_measurement_node.cpp
+  src/system_metrics_collector/linux_cpu_measurement_node.hpp
+  src/system_metrics_collector/cpu_data.hpp
+)
 
 ament_target_dependencies(system_metrics_collector rclcpp rcpputils)
 ament_export_libraries(system_metrics_collector)
+
+add_executable(main src/system_metrics_collector/main.cpp)
+target_link_libraries(main system_metrics_collector)
+ament_target_dependencies(main)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -57,6 +64,11 @@ if(BUILD_TESTING)
     test/system_metrics_collector/test_periodic_measurement_node.cpp)
   target_link_libraries(test_periodic_measurement_node system_metrics_collector)
   ament_target_dependencies(test_periodic_measurement_node rclcpp)
+
+  ament_add_gtest(test_linux_cpu_measurement_node
+          test/system_metrics_collector/test_linux_cpu_measurement.cpp)
+  target_link_libraries(test_linux_cpu_measurement_node system_metrics_collector)
+  ament_target_dependencies(test_linux_cpu_measurement_node rclcpp)
 
   install(TARGETS
     test_moving_average_statistics

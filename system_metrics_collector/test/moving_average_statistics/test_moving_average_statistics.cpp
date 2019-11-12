@@ -57,6 +57,13 @@ protected:
   int expected_count = 0;
 };
 
+TEST_F(MovingAverageStatisticsTestFixture, test_add_nan_ignore) {
+  auto stats1 = statisticsDataToString(moving_average_statistics->getStatistics());
+  moving_average_statistics->addMeasurement(std::nan(""));
+  auto stats2 = statisticsDataToString(moving_average_statistics->getStatistics());
+  ASSERT_EQ(stats1, stats2);
+}
+
 TEST_F(MovingAverageStatisticsTestFixture, sanity) {
   ASSERT_NE(moving_average_statistics, nullptr);
 }
