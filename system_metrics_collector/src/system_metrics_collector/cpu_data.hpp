@@ -15,36 +15,36 @@
 #ifndef SYSTEM_METRICS_COLLECTOR__CPU_DATA_HPP_
 #define SYSTEM_METRICS_COLLECTOR__CPU_DATA_HPP_
 
-#include <string>
+#include <array>
 #include <sstream>
+#include <string>
+
+/**
+ * Enum representing each item in a /proc/stat cpu line
+ */
+enum class ProcCpuStates
+{
+  kUser = 0,
+  kNice,
+  kSystem,
+  kIdle,
+  kIOWait,
+  kIrq,
+  kSoftIrq,
+  kSteal,
+  kNumProcCpuStates
+};
 
 /**
  * Struct containing data parsed from a /proc/stat cpu line
  */
-struct ProcCpuData
+class ProcCpuData
 {
-  static constexpr const char EMPTY_LABEL[] = "empty";
-  /**
-   * Enum representing each item in a /proc/stat cpu line
-   */
-  enum ProcCpuStates
-  {
-    user = 0,
-    nice,
-    system,
-    idle,
-    iOWait,
-    irq,
-    softIrq,
-    steal,
-    kNumProcCpuStates
-  };
+public:
+  ProcCpuData() = default;
+  virtual ~ProcCpuData() = default;
 
-  /**
-   * The cpu label of the line parsed
-   */
-  std::string cpu_label = EMPTY_LABEL;
-  size_t times[kNumProcCpuStates] = {0};
+  static constexpr const char EMPTY_LABEL[] = "empty";
 
   /**
    * Return the idle time
@@ -73,6 +73,17 @@ struct ProcCpuData
    * @return true if empty (no valid data), false otherwise.
    */
   bool isMeasurementEmpty() const;
+
+  /**
+   * The cpu label of the line parsed
+   */
+  std::string cpu_label{EMPTY_LABEL};
+
+  /**
+   * Array contained the parsed CPU data, where each index
+   * of ProcCpuStates contains its labeled data.
+   */
+  std::array<int, static_cast<int>(ProcCpuStates::kNumProcCpuStates)> times{};
 };
 
 #endif  // SYSTEM_METRICS_COLLECTOR__CPU_DATA_HPP_

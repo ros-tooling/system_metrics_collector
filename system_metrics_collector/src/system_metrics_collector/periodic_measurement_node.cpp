@@ -94,7 +94,7 @@ std::string PeriodicMeasurementNode::getStatusString() const
 
 void PeriodicMeasurementNode::performPeriodicMeasurement()
 {
-  double measurement = periodicMeasurement();
+  const double measurement = periodicMeasurement();
   RCLCPP_DEBUG(this->get_logger(), "performPeriodicMeasurement: %f", measurement);
 
   acceptData(measurement);

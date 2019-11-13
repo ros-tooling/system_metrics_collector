@@ -17,19 +17,14 @@
 
 #include "linux_cpu_measurement_node.hpp"
 
-/* static */ constexpr const char LinuxCpuMeasurementNode::PROC_STAT_FILE[];
-/* static */ constexpr const char LinuxCpuMeasurementNode::CPU_LABEL[];
-/* static */ constexpr const size_t LinuxCpuMeasurementNode::CPU_LABEL_LENGTH;
+namespace
+{
+constexpr const char PROC_STAT_FILE[] = "/proc/stat";
+constexpr const char CPU_LABEL[] = "cpu";
+constexpr const size_t CPU_LABEL_LENGTH = 3;
+}  // namespace
 
-LinuxCpuMeasurementNode::LinuxCpuMeasurementNode(
-  const std::string & name,
-  const std::chrono::milliseconds measurement_period,
-  const std::string & topic,
-  const std::chrono::milliseconds & publish_period)
-: PeriodicMeasurementNode(name, measurement_period, topic, publish_period)
-{}
-
-ProcCpuData LinuxCpuMeasurementNode::processLine(const std::string & stat_cpu_line)
+ProcCpuData processLine(const std::string & stat_cpu_line)
 {
   ProcCpuData parsed_data;
 
@@ -37,9 +32,15 @@ ProcCpuData LinuxCpuMeasurementNode::processLine(const std::string & stat_cpu_li
     if (!stat_cpu_line.compare(0, CPU_LABEL_LENGTH, CPU_LABEL)) {
       std::istringstream ss(stat_cpu_line);
 
+      if (!ss.good()) {
+        return ProcCpuData();
+      }
       ss >> parsed_data.cpu_label;
 
-      for (int i = 0; i < ProcCpuData::kNumProcCpuStates; ++i) {
+      for (int i = 0; i < static_cast<int>(ProcCpuStates::kNumProcCpuStates); ++i) {
+        if (!ss.good()) {
+          return ProcCpuData();
+        }
         ss >> parsed_data.times[i];
       }
 
@@ -49,7 +50,7 @@ ProcCpuData LinuxCpuMeasurementNode::processLine(const std::string & stat_cpu_li
   return parsed_data;
 }
 
-double LinuxCpuMeasurementNode::computeCpuActivePercentage(
+double computeCpuActivePercentage(
   const ProcCpuData & measurement1,
   const ProcCpuData & measurement2)
 {
@@ -64,15 +65,24 @@ double LinuxCpuMeasurementNode::computeCpuActivePercentage(
   return 100.0 * active_time / total_time;
 }
 
+LinuxCpuMeasurementNode::LinuxCpuMeasurementNode(
+  const std::string & name,
+  const std::chrono::milliseconds measurement_period,
+  const std::string & topic,
+  const std::chrono::milliseconds & publish_period)
+: PeriodicMeasurementNode(name, measurement_period, topic, publish_period),
+  last_measurement_()
+{}
+
 double LinuxCpuMeasurementNode::periodicMeasurement()
 {
-  const auto measurement1 = makeSingleMeasurement();
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));  // todo fixme magic constant
-  const auto measurement2 = makeSingleMeasurement();
+  ProcCpuData current_measurement = makeSingleMeasurement();
 
-  const double cpu_percentage = LinuxCpuMeasurementNode::computeCpuActivePercentage(
-    measurement1,
-    measurement2);
+  const double cpu_percentage = computeCpuActivePercentage(
+    last_measurement_,
+    current_measurement);
+
+  last_measurement_ = current_measurement;
 
   return cpu_percentage;
 }
@@ -82,8 +92,6 @@ ProcCpuData LinuxCpuMeasurementNode::makeSingleMeasurement()
   std::ifstream stat_file(PROC_STAT_FILE);
   std::string line;
   std::getline(stat_file, line);
-  stat_file.close();
 
-  return stat_file.good() ?
-         LinuxCpuMeasurementNode::processLine(line) : ProcCpuData();
+  return stat_file.good() ? processLine(line) : ProcCpuData();
 }

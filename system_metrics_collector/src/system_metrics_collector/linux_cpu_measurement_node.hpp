@@ -24,15 +24,31 @@
 #include "../../src/system_metrics_collector/cpu_data.hpp"
 
 /**
+ * Parse a line read from /proc/stat
+ *
+ * @param stat_cpu_line a line from /proc/stat
+ * @return ProcCpuData struct populated if parsed, otherwise empty
+ */
+ProcCpuData processLine(const std::string & stat_cpu_line);
+
+/**
+ * Compute the percentage of CPU active.
+ *
+ * @param measurement1 the first measurement
+ * @param measurement2 the second measurement (made after the first)
+ * @return percentage of CPU active
+ */
+double computeCpuActivePercentage(
+  const ProcCpuData & measurement1,
+  const ProcCpuData & measurement2);
+
+/**
  * Node that periodically calculates the % of active CPU by
  * reading /proc/stat.
  */
 class LinuxCpuMeasurementNode : public PeriodicMeasurementNode
 {
 public:
-  static constexpr const char PROC_STAT_FILE[] = "/proc/stat";
-  static constexpr const char CPU_LABEL[] = "cpu";
-  static constexpr const size_t CPU_LABEL_LENGTH = 3;
   /**
    *
    * @param name
@@ -47,25 +63,6 @@ public:
     PeriodicMeasurementNode::DEFAULT_PUBLISH_WINDOW);
 
   virtual ~LinuxCpuMeasurementNode() = default;
-
-  /**
-   * Parse a line read from /proc/stat
-   *
-   * @param stat_cpu_line a line from /proc/stat
-   * @return ProcCpuData struct populated if parsed, otherwise empty
-   */
-  static ProcCpuData processLine(const std::string & stat_cpu_line);
-
-  /**
-   * Compute the percentage of CPU active.
-   *
-   * @param measurement1 the first measurement
-   * @param measurement2 the second measurement (made after the first)
-   * @return percentage of CPU active
-   */
-  static double computeCpuActivePercentage(
-    const ProcCpuData & measurement1,
-    const ProcCpuData & measurement2);
 
 protected:
   /**
@@ -82,6 +79,8 @@ private:
    * @return ProcCpuData the measurement made
    */
   virtual ProcCpuData makeSingleMeasurement();
+
+  ProcCpuData last_measurement_;
 };
 
 #endif  // SYSTEM_METRICS_COLLECTOR__LINUX_CPU_MEASUREMENT_NODE_HPP_

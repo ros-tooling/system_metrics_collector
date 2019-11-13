@@ -24,14 +24,14 @@
 
 namespace
 {
-constexpr const char proc_sample_1[] =
+const char proc_sample_1[] =
   "cpu  22451232 118653 7348045 934943300 5378119 0 419114 0 0 0\n";
-constexpr const char proc_sample_2[] =
+const char proc_sample_2[] =
   "cpu  22451360 118653 7348080 934949227 5378120 0 419117 0 0 0\n";
 constexpr const std::chrono::milliseconds TEST_PERIOD =
   std::chrono::milliseconds(50);
 constexpr const double CPU_ACTIVE_PERCENTAGE = 2.8002699055330633;
-}
+}  // namespace
 
 class TestLinuxCpuMeasurementNode : public LinuxCpuMeasurementNode
 {
@@ -53,18 +53,16 @@ public:
 private:
   ProcCpuData makeSingleMeasurement() override
   {
-    ProcCpuData toReturn;
-    if (first) {
-      toReturn = LinuxCpuMeasurementNode::processLine(proc_sample_1);
-    } else {
-      toReturn = LinuxCpuMeasurementNode::processLine(proc_sample_2);
-    }
-
     first = !first;
-    return toReturn;
+
+    if (first) {
+      return processLine(proc_sample_1);
+    } else {
+      return processLine(proc_sample_2);
+    }
   }
 
-  bool first{true};
+  bool first{false};
 };
 
 class LinuxCpuMeasurementTestFixture : public ::testing::Test
@@ -72,8 +70,7 @@ class LinuxCpuMeasurementTestFixture : public ::testing::Test
 public:
   void SetUp() override
   {
-    const char * const argv = "d";
-    rclcpp::init(1, &argv);
+    rclcpp::init(0, nullptr);
 
     test_measure_linux_cpu = std::make_shared<TestLinuxCpuMeasurementNode>("test_periodic_node",
         TEST_PERIOD, "test_topic");
@@ -99,15 +96,18 @@ protected:
   std::shared_ptr<TestLinuxCpuMeasurementNode> test_measure_linux_cpu;
 };
 
-
 TEST_F(LinuxCpuMeasurementTestFixture, testManualMeasurement) {
+  // first measurement caches
   double cpu_active_percentage = test_measure_linux_cpu->periodicMeasurement();
+  ASSERT_TRUE(std::isnan(cpu_active_percentage));
+  // second measurement compares current and cached
+  cpu_active_percentage = test_measure_linux_cpu->periodicMeasurement();
   ASSERT_DOUBLE_EQ(CPU_ACTIVE_PERCENTAGE, cpu_active_percentage);
 }
 
 TEST(LinuxCpuMeasurementTest, testParseProcLine)
 {
-  auto parsed_data = LinuxCpuMeasurementNode::processLine(proc_sample_1);
+  auto parsed_data = processLine(proc_sample_1);
 
   ASSERT_EQ("cpu", parsed_data.cpu_label);
   ASSERT_EQ(22451232, parsed_data.times[0]);
@@ -127,10 +127,10 @@ TEST(LinuxCpuMeasurementTest, testParseProcLine)
 
 TEST(LinuxCpuMeasurementTest, testCalculateCpuActivePercentage)
 {
-  auto parsed_data1 = LinuxCpuMeasurementNode::processLine(proc_sample_1);
-  auto parsed_data2 = LinuxCpuMeasurementNode::processLine(proc_sample_2);
+  auto parsed_data1 = processLine(proc_sample_1);
+  auto parsed_data2 = processLine(proc_sample_2);
 
-  auto p = LinuxCpuMeasurementNode::computeCpuActivePercentage(parsed_data1, parsed_data2);
+  auto p = computeCpuActivePercentage(parsed_data1, parsed_data2);
   ASSERT_DOUBLE_EQ(CPU_ACTIVE_PERCENTAGE, p);
 }
 
@@ -139,7 +139,7 @@ TEST(LinuxCpuMeasurementTest, testEmptyProcCpuData)
   ProcCpuData empty;
   ASSERT_EQ(ProcCpuData::EMPTY_LABEL, empty.cpu_label);
 
-  for (int i = 0; i < ProcCpuData::kNumProcCpuStates; i++) {
+  for (int i = 0; i < static_cast<int>(ProcCpuStates::kNumProcCpuStates); i++) {
     ASSERT_EQ(0, empty.times[i]);
   }
 }

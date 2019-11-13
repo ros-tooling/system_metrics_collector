@@ -17,7 +17,7 @@
 #include <mutex>
 #include <sstream>
 #include <string>
-#include <iostream>
+
 #include "../../src/moving_average_statistics/moving_average.hpp"
 #include "../../src/moving_average_statistics/types.hpp"
 

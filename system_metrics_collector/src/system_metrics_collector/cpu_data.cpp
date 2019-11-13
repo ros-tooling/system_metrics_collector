@@ -21,28 +21,32 @@
 
 size_t ProcCpuData::getIdleTime() const
 {
-  return times[idle] + times[iOWait];
+  return times[static_cast<int>(ProcCpuStates::kIdle)] +
+         times[static_cast<int>(ProcCpuStates::kIOWait)];
 }
 
 size_t ProcCpuData::getActiveTime() const
 {
-  return times[user] + times[nice] + times[system] + times[irq] +
-         times[softIrq] + times[steal];
+  return times[static_cast<int>(ProcCpuStates::kUser)] +
+         times[static_cast<int>(ProcCpuStates::kNice)] +
+         times[static_cast<int>(ProcCpuStates::kSystem)] +
+         times[static_cast<int>(ProcCpuStates::kIrq)] +
+         times[static_cast<int>(ProcCpuStates::kSoftIrq)] +
+         times[static_cast<int>(ProcCpuStates::kSteal)];
 }
-
 
 std::string ProcCpuData::toString() const
 {
   std::stringstream ss;
   ss << "cpu_label=" << cpu_label <<
-    ", user=" << times[user] <<
-    ", nice=" << times[nice] <<
-    ", system=" << times[system] <<
-    ", idle=" << times[idle] <<
-    ", iOWait=" << times[iOWait] <<
-    ", irq=" << times[irq] <<
-    ", softIrq=" << times[softIrq] <<
-    ", steal=" << times[steal];
+    ", user=" << times[static_cast<int>(ProcCpuStates::kUser)] <<
+    ", nice=" << times[static_cast<int>(ProcCpuStates::kNice)] <<
+    ", system=" << times[static_cast<int>(ProcCpuStates::kSystem)] <<
+    ", idle=" << times[static_cast<int>(ProcCpuStates::kIdle)] <<
+    ", iOWait=" << times[static_cast<int>(ProcCpuStates::kIOWait)] <<
+    ", irq=" << times[static_cast<int>(ProcCpuStates::kIrq)] <<
+    ", softIrq=" << times[static_cast<int>(ProcCpuStates::kSoftIrq)] <<
+    ", steal=" << times[static_cast<int>(ProcCpuStates::kSteal)];
   return ss.str();
 }
 

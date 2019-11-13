@@ -43,12 +43,19 @@ int main(int argc, char ** argv)
   rclcpp::executors::SingleThreadedExecutor ex;
   node->start();
 
-  // used for manual testing
+  int code = 0;
   auto r = rcutils_logging_set_logger_level(node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
 
-  ex.add_node(node);
-  ex.spin();
+  if (r != 0) {
+    std::cout << "Unabled to set debug logging!" << std::endl;
+    code = 1;
+  } else {
+    ex.add_node(node);
+    ex.spin();
+  }
+
 
   rclcpp::shutdown();
   node->stop();
+  return code;
 }

@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include <atomic>
 #include <chrono>
 #include <iostream>
 #include <string>
@@ -27,11 +28,11 @@
 
 namespace
 {
-static constexpr const std::chrono::milliseconds TEST_LENGTH =
+constexpr const std::chrono::milliseconds TEST_LENGTH =
   std::chrono::milliseconds(250);
-static constexpr const std::chrono::milliseconds TEST_PERIOD =
+constexpr const std::chrono::milliseconds TEST_PERIOD =
   std::chrono::milliseconds(50);
-}
+}  // namespace
 
 /**
  * Simple extension to test basic functionality
@@ -72,8 +73,7 @@ class PeriodicMeasurementTestFixure : public ::testing::Test
 public:
   void SetUp() override
   {
-    const char * const argv = "d";
-    rclcpp::init(1, &argv);
+    rclcpp::init(0, nullptr);
 
     test_periodic_measurer = std::make_shared<TestPeriodicMeasurementNode>("test_periodic_node",
         TEST_PERIOD, "test_topic");
