@@ -31,7 +31,7 @@ size_t ProcCpuData::getActiveTime() const
 }
 
 
-std::string ProcCpuData::toString()
+std::string ProcCpuData::toString() const
 {
   std::stringstream ss;
   ss << "cpu_label=" << cpu_label <<

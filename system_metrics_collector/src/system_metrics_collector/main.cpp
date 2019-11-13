@@ -34,7 +34,7 @@ int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
 
-  std::shared_ptr<LinuxCpuMeasurementNode> node = std::make_shared<LinuxCpuMeasurementNode>(
+  auto node = std::make_shared<LinuxCpuMeasurementNode>(
     "linuxCpuCollector",
     std::chrono::milliseconds(1000),
     "not_publishing_yet",

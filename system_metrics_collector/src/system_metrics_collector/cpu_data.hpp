@@ -64,7 +64,7 @@ struct ProcCpuData
    * @param data the struct to print
    * @return a formatted string of the input struct
    */
-  std::string toString();
+  std::string toString() const;
 
   /**
    * Return true if the struct is not populated with any useful data.

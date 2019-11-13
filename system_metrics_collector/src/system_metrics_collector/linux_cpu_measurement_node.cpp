@@ -66,11 +66,11 @@ double LinuxCpuMeasurementNode::computeCpuActivePercentage(
 
 double LinuxCpuMeasurementNode::periodicMeasurement()
 {
-  auto measurement1 = makeSingleMeasurement();
+  const auto measurement1 = makeSingleMeasurement();
   std::this_thread::sleep_for(std::chrono::milliseconds(100));  // todo fixme magic constant
-  auto measurement2 = makeSingleMeasurement();
+  const auto measurement2 = makeSingleMeasurement();
 
-  double cpu_percentage = LinuxCpuMeasurementNode::computeCpuActivePercentage(
+  const double cpu_percentage = LinuxCpuMeasurementNode::computeCpuActivePercentage(
     measurement1,
     measurement2);
 
@@ -84,5 +84,6 @@ ProcCpuData LinuxCpuMeasurementNode::makeSingleMeasurement()
   std::getline(stat_file, line);
   stat_file.close();
 
-  return LinuxCpuMeasurementNode::processLine(line);
+  return stat_file.good() ?
+         LinuxCpuMeasurementNode::processLine(line) : ProcCpuData();
 }
