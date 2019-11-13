@@ -34,9 +34,9 @@ find_package(metrics_statistics_msgs REQUIRED)
 
 add_library(system_metrics_collector SHARED
   src/system_metrics_collector/collector.cpp
-  src/system_metrics_collector/cpu_data.cpp
   src/system_metrics_collector/linux_cpu_measurement_node.cpp
   src/system_metrics_collector/periodic_measurement_node.cpp
+  src/system_metrics_collector/proc_cpu_data.cpp
   src/moving_average_statistics/moving_average.cpp
   src/moving_average_statistics/types.hpp
 )

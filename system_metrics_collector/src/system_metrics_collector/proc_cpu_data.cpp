@@ -15,7 +15,7 @@
 #include <string>
 #include <sstream>
 
-#include "cpu_data.hpp"
+#include "proc_cpu_data.hpp"
 
 /*static*/ constexpr const char ProcCpuData::EMPTY_LABEL[];
 

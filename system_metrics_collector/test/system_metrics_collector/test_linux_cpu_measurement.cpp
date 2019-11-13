@@ -21,6 +21,7 @@
 #include <mutex>
 
 #include "../../src/system_metrics_collector/linux_cpu_measurement_node.hpp"
+#include "../../src/system_metrics_collector/proc_cpu_data.hpp"
 
 namespace
 {

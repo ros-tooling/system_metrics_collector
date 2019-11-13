@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SYSTEM_METRICS_COLLECTOR__CPU_DATA_HPP_
-#define SYSTEM_METRICS_COLLECTOR__CPU_DATA_HPP_
+#ifndef SYSTEM_METRICS_COLLECTOR__PROC_CPU_DATA_HPP_
+#define SYSTEM_METRICS_COLLECTOR__PROC_CPU_DATA_HPP_
 
 #include <array>
 #include <sstream>
@@ -86,4 +86,4 @@ public:
   std::array<int, static_cast<int>(ProcCpuStates::kNumProcCpuStates)> times{};
 };
 
-#endif  // SYSTEM_METRICS_COLLECTOR__CPU_DATA_HPP_
+#endif  // SYSTEM_METRICS_COLLECTOR__PROC_CPU_DATA_HPP_

@@ -21,7 +21,7 @@
 #include <string>
 
 #include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
-#include "../../src/system_metrics_collector/cpu_data.hpp"
+#include "../../src/system_metrics_collector/proc_cpu_data.hpp"
 
 /**
  * Parse a line read from /proc/stat
