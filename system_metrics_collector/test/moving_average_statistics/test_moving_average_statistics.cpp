@@ -21,14 +21,17 @@
 
 #include "../../src/moving_average_statistics/moving_average.hpp"
 
+namespace
+{
 // Useful testing constants
-static constexpr const uint64_t EXPECTED_SIZE = 9;
-static constexpr const std::array<double, EXPECTED_SIZE> TEST_DATA{-3.5, -2.1, -1.1, 0.0, 4.7, 5.0,
+constexpr const uint64_t EXPECTED_SIZE = 9;
+constexpr const std::array<double, EXPECTED_SIZE> TEST_DATA{-3.5, -2.1, -1.1, 0.0, 4.7, 5.0,
   6.7, 9.9, 11.0};
-static constexpr const double EXPECTED_AVG = 3.4;
-static constexpr const double EXPECTED_MIN = -3.5;
-static constexpr const double EXPECTED_MAX = 11.0;
-static constexpr const double EXPECTED_STD = 4.997999599839919955173;
+constexpr const double EXPECTED_AVG = 3.4;
+constexpr const double EXPECTED_MIN = -3.5;
+constexpr const double EXPECTED_MAX = 11.0;
+constexpr const double EXPECTED_STD = 4.997999599839919955173;
+}  // namespace
 
 /**
  * Test fixture
@@ -56,6 +59,13 @@ protected:
   std::unique_ptr<MovingAverageStatistics> moving_average_statistics = nullptr;
   int expected_count = 0;
 };
+
+TEST_F(MovingAverageStatisticsTestFixture, test_add_nan_ignore) {
+  auto stats1 = statisticsDataToString(moving_average_statistics->getStatistics());
+  moving_average_statistics->addMeasurement(std::nan(""));
+  auto stats2 = statisticsDataToString(moving_average_statistics->getStatistics());
+  ASSERT_EQ(stats1, stats2);
+}
 
 TEST_F(MovingAverageStatisticsTestFixture, sanity) {
   ASSERT_NE(moving_average_statistics, nullptr);

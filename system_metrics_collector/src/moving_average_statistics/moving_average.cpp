@@ -77,13 +77,16 @@ void MovingAverageStatistics::reset()
 void MovingAverageStatistics::addMeasurement(const double item)
 {
   std::lock_guard<std::mutex> guard(mutex);
-  count_++;
-  const double previous_average_ = average_;
-  average_ = previous_average_ + (item - previous_average_) / count_;
-  min_ = std::min(min_, item);
-  max_ = std::max(max_, item);
-  sum_of_square_diff_from_mean_ = sum_of_square_diff_from_mean_ + (item - previous_average_) *
-    (item - average_);
+
+  if (!std::isnan(item)) {
+    count_++;
+    const double previous_average_ = average_;
+    average_ = previous_average_ + (item - previous_average_) / count_;
+    min_ = std::min(min_, item);
+    max_ = std::max(max_, item);
+    sum_of_square_diff_from_mean_ = sum_of_square_diff_from_mean_ + (item - previous_average_) *
+      (item - average_);
+  }
 }
 
 uint64_t MovingAverageStatistics::getCount() const

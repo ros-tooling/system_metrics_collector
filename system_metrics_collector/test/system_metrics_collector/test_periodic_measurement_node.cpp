@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include <atomic>
 #include <chrono>
 #include <iostream>
 #include <string>
@@ -27,11 +28,11 @@
 
 namespace
 {
-static constexpr const std::chrono::milliseconds TEST_LENGTH =
+constexpr const std::chrono::milliseconds TEST_LENGTH =
   std::chrono::milliseconds(250);
-static constexpr const std::chrono::milliseconds TEST_PERIOD =
+constexpr const std::chrono::milliseconds TEST_PERIOD =
   std::chrono::milliseconds(50);
-}
+}  // namespace
 
 /**
  * Simple extension to test basic functionality
@@ -42,19 +43,25 @@ public:
   TestPeriodicMeasurementNode(
     const std::string & name,
     const std::chrono::milliseconds measurement_period,
-    const std::string & publishing_topic)
-  : PeriodicMeasurementNode(name, measurement_period, publishing_topic)
+    const std::string & publishing_topic,
+    const std::chrono::milliseconds publish_period =
+    PeriodicMeasurementNode::DEFAULT_PUBLISH_WINDOW)
+  : PeriodicMeasurementNode(name, measurement_period, publishing_topic, publish_period)
   {}
   virtual ~TestPeriodicMeasurementNode() = default;
 
-  // made public to manually test
-  void periodicMeasurement() override
+private:
+  /**
+   * Test measurement for the fixture.
+   *
+   * @return
+   */
+  double periodicMeasurement() override
   {
     sum += 1;
-    acceptData(static_cast<double>(sum.load()));
+    return static_cast<double>(sum.load());
   }
 
-private:
   std::atomic<int> sum{0};
 };
 
@@ -66,8 +73,7 @@ class PeriodicMeasurementTestFixure : public ::testing::Test
 public:
   void SetUp() override
   {
-    const char * const argv = "d";
-    rclcpp::init(1, &argv);
+    rclcpp::init(0, nullptr);
 
     test_periodic_measurer = std::make_shared<TestPeriodicMeasurementNode>("test_periodic_node",
         TEST_PERIOD, "test_topic");
@@ -95,22 +101,11 @@ protected:
 
 TEST_F(PeriodicMeasurementTestFixure, sanity) {
   ASSERT_NE(test_periodic_measurer, nullptr);
-  ASSERT_EQ("name=test_periodic_node, measurement_period=50ms, publishing_topic=test_topic,"
-    " started=false, avg=nan, min=nan, max=nan, std_dev=nan, count=0",
+  ASSERT_EQ("name=test_periodic_node, measurement_period=50ms,"
+    " publishing_topic=test_topic, publish_period=None,"
+    " clear_measurements_on_publish_=1, started=false,"
+    " avg=nan, min=nan, max=nan, std_dev=nan, count=0",
     test_periodic_measurer->getStatusString());
-}
-
-TEST_F(PeriodicMeasurementTestFixure, test_measurement_manually) {
-  ASSERT_NE(test_periodic_measurer, nullptr);
-
-  test_periodic_measurer->periodicMeasurement();
-
-  StatisticData data = test_periodic_measurer->getStatisticsResults();
-  ASSERT_FALSE(std::isnan(data.average));
-  ASSERT_FALSE(std::isnan(data.min));
-  ASSERT_FALSE(std::isnan(data.max));
-  ASSERT_FALSE(std::isnan(data.standard_deviation));
-  ASSERT_EQ(1, data.sample_count);
 }
 
 TEST_F(PeriodicMeasurementTestFixure, test_start_and_stop) {
