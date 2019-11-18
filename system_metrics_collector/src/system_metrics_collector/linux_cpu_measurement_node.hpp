@@ -50,10 +50,12 @@ class LinuxCpuMeasurementNode : public PeriodicMeasurementNode
 {
 public:
   /**
+   * Construct a LinuxCpuMeasurementNode
    *
-   * @param name
-   * @param measurement_period
-   * @param topic
+   * @param name the name of this node
+   * @param measurement_period the period of this node, used to
+   * read measurements
+   * @param topic the topic name used for publishing
    */
   LinuxCpuMeasurementNode(
     const std::string & name,
@@ -80,6 +82,10 @@ private:
    */
   virtual ProcCpuData makeSingleMeasurement();
 
+  /**
+   * The cached measurement used in order to perform the CPU active
+   * percentage.
+   */
   ProcCpuData last_measurement_;
 };
 

@@ -13,15 +13,18 @@
 // limitations under the License.
 
 #include <chrono>
+#include <fstream>
+#include <sstream>
 #include <string>
 
-#include "linux_cpu_measurement_node.hpp"
+#include "../../src/system_metrics_collector/linux_cpu_measurement_node.hpp"
 
 namespace
 {
 constexpr const char PROC_STAT_FILE[] = "/proc/stat";
 constexpr const char CPU_LABEL[] = "cpu";
 constexpr const size_t CPU_LABEL_LENGTH = 3;
+
 }  // namespace
 
 ProcCpuData processLine(const std::string & stat_cpu_line)
