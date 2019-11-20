@@ -20,6 +20,7 @@
 #include <string>
 
 #include "rclcpp/rclcpp.hpp"
+#include "rcutils/logging_macros.h"
 
 #include "../../src/system_metrics_collector/linux_cpu_measurement_node.hpp"
 #include "../../src/system_metrics_collector/linux_memory_measurement_node.hpp"
@@ -52,15 +53,19 @@ int main(int argc, char ** argv)
   mem_node->start();
 
   auto r = rcutils_logging_set_logger_level(cpu_node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+  if (r != 0) {
+    RCUTILS_LOG_ERROR_NAMED("main", "Unable to set debug logging for the cpu node");
+  }
+
   r = rcutils_logging_set_logger_level(mem_node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
 
   if (r != 0) {
-    std::cout << "Unable to set debug logging!" << std::endl;
-  } else {
-    ex.add_node(cpu_node);
-    ex.add_node(mem_node);
-    ex.spin();
+    RCUTILS_LOG_ERROR_NAMED("main", "Unable to set debug logging for the memory node");
   }
+
+  ex.add_node(cpu_node);
+  ex.add_node(mem_node);
+  ex.spin();
 
   rclcpp::shutdown();
   cpu_node->stop();

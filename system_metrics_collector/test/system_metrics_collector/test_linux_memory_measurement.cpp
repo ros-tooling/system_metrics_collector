@@ -79,8 +79,7 @@ constexpr const char FULL_SAMPLE[] = "MemTotal:       16302048 kB\n"
   "DirectMap4k:     3993192 kB\n"
   "DirectMap2M:    12660736 kB\n"
   "DirectMap1G:     1048576 kB";
-constexpr const std::chrono::milliseconds TEST_PERIOD =
-  std::chrono::milliseconds(50);
+constexpr const auto TEST_PERIOD{std::chrono::milliseconds(50)};
 constexpr const double MEMORY_USED_PERCENTAGE = 44.148416198995363;
 }  // namespace
 

@@ -30,6 +30,7 @@ constexpr const char PROC_STAT_FILE[] = "/proc/meminfo";
 constexpr const char MEM_TOTAL[] = "MemTotal:";
 constexpr const char MEM_AVAILABLE[] = "MemAvailable:";
 constexpr const char EMPTY_FILE[] = "";
+constexpr const int INVALID_MEMORY_SAMPLE = -1;
 }  // namespace
 
 std::string readFile(const std::string & file_name)
@@ -56,8 +57,8 @@ double processLines(const std::string & lines)
 
   std::string line;
 
-  int total = -1;
-  int available = -1;
+  int total = INVALID_MEMORY_SAMPLE;
+  int available = INVALID_MEMORY_SAMPLE;
 
   std::istringstream parse_line("");  // parse each line from the input
   std::string tlabel;
@@ -97,7 +98,8 @@ double processLines(const std::string & lines)
   }
   const double to_return = static_cast<double>(total - available) / static_cast<double>(total) *
     100.0;
-  return total == -1 || available == -1 ? std::nan("") : to_return;
+  return total == INVALID_MEMORY_SAMPLE || available == INVALID_MEMORY_SAMPLE ?
+         std::nan("") : to_return;
 }
 
 LinuxMemoryMeasurementNode::LinuxMemoryMeasurementNode(
