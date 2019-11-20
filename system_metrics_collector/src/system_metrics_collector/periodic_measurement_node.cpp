@@ -27,7 +27,7 @@ PeriodicMeasurementNode::PeriodicMeasurementNode(
   const std::string & name,
   const std::chrono::milliseconds measurement_period,
   const std::string & publishing_topic,
-  const std::chrono::milliseconds & publish_period,
+  const std::chrono::milliseconds publish_period,
   const bool clear_measurements_on_publish)
 : Node(name),
   measurement_period_(measurement_period),

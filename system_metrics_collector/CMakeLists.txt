@@ -65,6 +65,11 @@ if(BUILD_TESTING)
   target_link_libraries(test_linux_cpu_measurement_node system_metrics_collector)
   ament_target_dependencies(test_linux_cpu_measurement_node rclcpp)
 
+  ament_add_gtest(test_linux_memory_measurement_node
+          test/system_metrics_collector/test_linux_memory_measurement.cpp)
+  target_link_libraries(test_linux_memory_measurement_node system_metrics_collector)
+  ament_target_dependencies(test_linux_memory_measurement_node rclcpp)
+
   ament_add_gtest(test_moving_average_statistics
           test/moving_average_statistics/test_moving_average_statistics.cpp)
   target_link_libraries(test_moving_average_statistics system_metrics_collector)

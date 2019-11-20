@@ -51,13 +51,11 @@ int main(int argc, char ** argv)
   cpu_node->start();
   mem_node->start();
 
-  int return_code = 0;
   auto r = rcutils_logging_set_logger_level(cpu_node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
   r = rcutils_logging_set_logger_level(mem_node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
 
   if (r != 0) {
     std::cout << "Unable to set debug logging!" << std::endl;
-    return_code = 1;
   } else {
     ex.add_node(cpu_node);
     ex.add_node(mem_node);
@@ -67,5 +65,5 @@ int main(int argc, char ** argv)
   rclcpp::shutdown();
   cpu_node->stop();
   mem_node->stop();
-  return return_code;
+  return r;
 }

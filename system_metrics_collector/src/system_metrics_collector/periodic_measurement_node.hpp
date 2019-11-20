@@ -44,7 +44,7 @@ public:
     const std::string & name,
     const std::chrono::milliseconds measurement_period,
     const std::string & topic,  // todo @dbbonnie think about a default topic
-    const std::chrono::milliseconds & publish_period = DEFAULT_PUBLISH_WINDOW,
+    const std::chrono::milliseconds publish_period = DEFAULT_PUBLISH_WINDOW,
     const bool clear_measurements_on_publish = true);
 
   virtual ~PeriodicMeasurementNode() = default;

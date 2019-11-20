@@ -61,7 +61,7 @@ public:
     const std::string & name,
     const std::chrono::milliseconds measurement_period,
     const std::string & topic,
-    const std::chrono::milliseconds & publish_period =
+    const std::chrono::milliseconds publish_period =
     PeriodicMeasurementNode::DEFAULT_PUBLISH_WINDOW);
 
   virtual ~LinuxCpuMeasurementNode() = default;
