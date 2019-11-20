@@ -20,8 +20,10 @@
 #include <string>
 
 #include "rclcpp/rclcpp.hpp"
+#include "rcutils/logging_macros.h"
 
 #include "../../src/system_metrics_collector/linux_cpu_measurement_node.hpp"
+#include "../../src/system_metrics_collector/linux_memory_measurement_node.hpp"
 
 /**
  * This is current a "test" main in order to manually test the measurement nodes.
@@ -34,28 +36,39 @@ int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
 
-  auto node = std::make_shared<LinuxCpuMeasurementNode>(
+  auto cpu_node = std::make_shared<LinuxCpuMeasurementNode>(
     "linuxCpuCollector",
     std::chrono::milliseconds(1000),
     "not_publishing_yet",
     std::chrono::milliseconds(1000 * 60));
 
-  rclcpp::executors::SingleThreadedExecutor ex;
-  node->start();
+  auto mem_node = std::make_shared<LinuxMemoryMeasurementNode>(
+    "linuxMemoryCollector",
+    std::chrono::milliseconds(1000),
+    "not_publishing_yet",
+    std::chrono::milliseconds(1000 * 60));
 
-  int code = 0;
-  auto r = rcutils_logging_set_logger_level(node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+  rclcpp::executors::MultiThreadedExecutor ex;
+  cpu_node->start();
+  mem_node->start();
 
+  auto r = rcutils_logging_set_logger_level(cpu_node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
   if (r != 0) {
-    std::cout << "Unabled to set debug logging!" << std::endl;
-    code = 1;
-  } else {
-    ex.add_node(node);
-    ex.spin();
+    RCUTILS_LOG_ERROR_NAMED("main", "Unable to set debug logging for the cpu node");
   }
 
+  r = rcutils_logging_set_logger_level(mem_node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+
+  if (r != 0) {
+    RCUTILS_LOG_ERROR_NAMED("main", "Unable to set debug logging for the memory node");
+  }
+
+  ex.add_node(cpu_node);
+  ex.add_node(mem_node);
+  ex.spin();
 
   rclcpp::shutdown();
-  node->stop();
-  return code;
+  cpu_node->stop();
+  mem_node->stop();
+  return r;
 }

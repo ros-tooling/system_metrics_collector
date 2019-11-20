@@ -13,15 +13,20 @@
 // limitations under the License.
 
 #include <chrono>
+#include <fstream>
+#include <sstream>
 #include <string>
 
-#include "linux_cpu_measurement_node.hpp"
+#include "../../src/system_metrics_collector/linux_cpu_measurement_node.hpp"
+#include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
+
+#include "rclcpp/rclcpp.hpp"
+#include "rcutils/logging_macros.h"
 
 namespace
 {
 constexpr const char PROC_STAT_FILE[] = "/proc/stat";
 constexpr const char CPU_LABEL[] = "cpu";
-constexpr const size_t CPU_LABEL_LENGTH = 3;
 }  // namespace
 
 ProcCpuData processLine(const std::string & stat_cpu_line)
@@ -29,7 +34,7 @@ ProcCpuData processLine(const std::string & stat_cpu_line)
   ProcCpuData parsed_data;
 
   if (!stat_cpu_line.empty()) {
-    if (!stat_cpu_line.compare(0, CPU_LABEL_LENGTH, CPU_LABEL)) {
+    if (!stat_cpu_line.compare(0, strlen(CPU_LABEL), CPU_LABEL)) {
       std::istringstream ss(stat_cpu_line);
 
       if (!ss.good()) {
@@ -55,6 +60,8 @@ double computeCpuActivePercentage(
   const ProcCpuData & measurement2)
 {
   if (measurement1.isMeasurementEmpty() || measurement2.isMeasurementEmpty()) {
+    RCUTILS_LOG_ERROR_NAMED("computeCpuActivePercentage",
+      "a measurement was empty, unable to compute cpu percentage");
     return std::nan("");
   }
 
@@ -69,7 +76,7 @@ LinuxCpuMeasurementNode::LinuxCpuMeasurementNode(
   const std::string & name,
   const std::chrono::milliseconds measurement_period,
   const std::string & topic,
-  const std::chrono::milliseconds & publish_period)
+  const std::chrono::milliseconds publish_period)
 : PeriodicMeasurementNode(name, measurement_period, topic, publish_period),
   last_measurement_()
 {}
@@ -90,8 +97,17 @@ double LinuxCpuMeasurementNode::periodicMeasurement()
 ProcCpuData LinuxCpuMeasurementNode::makeSingleMeasurement()
 {
   std::ifstream stat_file(PROC_STAT_FILE);
+  if (!stat_file.good()) {
+    RCLCPP_ERROR(this->get_logger(), "unable to open file %s", PROC_STAT_FILE);
+    return ProcCpuData();
+  }
   std::string line;
   std::getline(stat_file, line);
 
-  return stat_file.good() ? processLine(line) : ProcCpuData();
+  if (!stat_file.good()) {
+    RCLCPP_ERROR(this->get_logger(), "unable to get cpu line from file");
+    return ProcCpuData();
+  } else {
+    return processLine(line);
+  }
 }

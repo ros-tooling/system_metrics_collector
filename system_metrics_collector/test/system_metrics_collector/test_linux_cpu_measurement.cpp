@@ -25,9 +25,9 @@
 
 namespace
 {
-const char proc_sample_1[] =
+constexpr const char proc_sample_1[] =
   "cpu  22451232 118653 7348045 934943300 5378119 0 419114 0 0 0\n";
-const char proc_sample_2[] =
+constexpr const char proc_sample_2[] =
   "cpu  22451360 118653 7348080 934949227 5378120 0 419117 0 0 0\n";
 constexpr const std::chrono::milliseconds TEST_PERIOD =
   std::chrono::milliseconds(50);
