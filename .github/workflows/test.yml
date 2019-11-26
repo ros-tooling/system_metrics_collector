@@ -51,21 +51,3 @@ jobs:
       with:
         name: colcon-logs-${{ matrix.os }}-asan
         path: ros2_ws/log
-
-  build_and_test_tsan:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-          os: [ubuntu-18.04]
-    steps:
-    - uses: ros-tooling/setup-ros2@0.0.6
-    - uses: ros-tooling/action-ros2-ci@master
-      with:
-        colcon-mixin-name: tsan
-        colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
-        package-name: system_metrics_collector
-    - uses: actions/upload-artifact@master
-      with:
-        name: colcon-logs-${{ matrix.os }}-tsan
-        path: ros2_ws/log
