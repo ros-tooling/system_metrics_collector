@@ -17,8 +17,8 @@
 #include <sstream>
 #include <string>
 
-#include "../../src/system_metrics_collector/linux_cpu_measurement_node.hpp"
-#include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
+#include "linux_cpu_measurement_node.hpp"
+#include "periodic_measurement_node.hpp"
 
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/logging_macros.h"
@@ -75,9 +75,9 @@ double computeCpuActivePercentage(
 LinuxCpuMeasurementNode::LinuxCpuMeasurementNode(
   const std::string & name,
   const std::chrono::milliseconds measurement_period,
-  const std::string & topic,
+  const std::string & statistics_topic,
   const std::chrono::milliseconds publish_period)
-: PeriodicMeasurementNode(name, measurement_period, topic, publish_period),
+: PeriodicMeasurementNode(name, measurement_period, statistics_topic, publish_period),
   last_measurement_()
 {}
 

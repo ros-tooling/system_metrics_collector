@@ -19,9 +19,11 @@
 #include <chrono>
 #include <string>
 
+#include <rclcpp/rclcpp.hpp>
+#include <metrics_statistics_msgs/msg/metrics_message.hpp>
+
 #include "collector.hpp"
 
-#include "rclcpp/rclcpp.hpp"
 
 /**
  * Class which makes periodic measurements, using a ROS2 timer.
@@ -72,6 +74,12 @@ private:
   virtual void performPeriodicMeasurement();
 
   /**
+   * Called via a ROS2 timer per the publish_period_. This publishes the statistics derived from
+   * the collected measurements
+   */
+  void publishStatistics() const;
+
+  /**
    * Creates a ROS2 timer with a period of measurement_period_.
    *
    * @return if setup was successful
@@ -84,9 +92,6 @@ private:
    * @return if teardown was successful
    */
   bool setupStop() override;
-
-  // todo implement on publish timer callback, check if we need to clear the window
-  // todo this is part of the publishing interface
 
   /**
    * Topic used for publishing
@@ -104,8 +109,13 @@ private:
    * If true, then measurements are cleared after publishing data
    */
   const bool clear_measurements_on_publish_;
+
+  /**
+   * Members of this node that do the actual actions
+   */
   rclcpp::TimerBase::SharedPtr measurement_timer_;
   rclcpp::TimerBase::SharedPtr publish_timer_;
+  rclcpp::Publisher<metrics_statistics_msgs::msg::MetricsMessage>::SharedPtr publisher_;
 };
 
 #endif  // SYSTEM_METRICS_COLLECTOR__PERIODIC_MEASUREMENT_NODE_HPP_

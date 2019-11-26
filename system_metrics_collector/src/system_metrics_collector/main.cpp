@@ -22,8 +22,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/logging_macros.h"
 
-#include "../../src/system_metrics_collector/linux_cpu_measurement_node.hpp"
-#include "../../src/system_metrics_collector/linux_memory_measurement_node.hpp"
+#include "linux_cpu_measurement_node.hpp"
+#include "linux_memory_measurement_node.hpp"
 
 /**
  * This is current a "test" main in order to manually test the measurement nodes.

@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #include "periodic_measurement_node.hpp"
 
 #include <chrono>
@@ -20,8 +19,9 @@
 
 #include "rclcpp/rclcpp.hpp"
 
-/* static */ constexpr const std::chrono::milliseconds PeriodicMeasurementNode::
-DEFAULT_PUBLISH_WINDOW;
+using metrics_statistics_msgs::msg::MetricsMessage;
+
+constexpr const std::chrono::milliseconds PeriodicMeasurementNode::DEFAULT_PUBLISH_WINDOW;
 
 PeriodicMeasurementNode::PeriodicMeasurementNode(
   const std::string & name,
@@ -30,13 +30,10 @@ PeriodicMeasurementNode::PeriodicMeasurementNode(
   const std::chrono::milliseconds publish_period,
   const bool clear_measurements_on_publish)
 : Node(name),
-  measurement_period_(measurement_period),
   publishing_topic_(publishing_topic),
-  measurement_timer_(nullptr),
-  publish_timer_(nullptr),
+  measurement_period_(measurement_period),
   publish_period_(publish_period),
-  clear_measurements_on_publish_(clear_measurements_on_publish)
-{}
+  clear_measurements_on_publish_(clear_measurements_on_publish) {}
 
 bool PeriodicMeasurementNode::setupStart()
 {
@@ -44,9 +41,7 @@ bool PeriodicMeasurementNode::setupStart()
     RCLCPP_DEBUG(this->get_logger(), "setupStart: creating measurement_timer_");
 
     measurement_timer_ = this->create_wall_timer(
-      measurement_period_,
-      std::bind(&PeriodicMeasurementNode::performPeriodicMeasurement, this));
-
+      measurement_period_, [this]() { this->performPeriodicMeasurement(); });
   } else {
     RCLCPP_WARN(this->get_logger(), "setupStart: measurement_timer_ already exists!");
   }
@@ -57,13 +52,20 @@ bool PeriodicMeasurementNode::setupStart()
     RCLCPP_DEBUG(this->get_logger(), "setupStart: creating publish_timer_");
 
     publish_timer_ = this->create_wall_timer(
-      publish_period_,
-      std::bind(&Collector::clearCurrentMeasurements, this));  // todo fixme, bind to publish method
-
+      publish_period_, [this]() {
+        this->publishStatistics();
+        if (this->clear_measurements_on_publish_) {
+          this->clearCurrentMeasurements();
+        }
+      });
   } else {
     if (publish_timer_) {
       RCLCPP_WARN(this->get_logger(), "setupStart: publish_timer_ already exists!");
     }
+  }
+
+  if (publisher_ == nullptr) {
+    publisher_ = create_publisher<MetricsMessage>(publishing_topic_, 10);
   }
 
   return true;
@@ -99,4 +101,13 @@ void PeriodicMeasurementNode::performPeriodicMeasurement()
 
   acceptData(measurement);
   RCLCPP_DEBUG(this->get_logger(), getStatusString());
+}
+
+void PeriodicMeasurementNode::publishStatistics() const
+{
+  if (publisher_ == nullptr) {
+    return;
+  }
+
+  // TODO: call publisher_->publish() here
 }

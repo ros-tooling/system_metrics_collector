@@ -18,8 +18,8 @@
 #include <sstream>
 #include <string>
 
-#include "../../src/moving_average_statistics/moving_average.hpp"
-#include "../../src/moving_average_statistics/types.hpp"
+#include "../moving_average_statistics/moving_average.hpp"
+#include "../moving_average_statistics/types.hpp"
 
 bool Collector::start()
 {

@@ -30,6 +30,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rcutils REQUIRED)
+find_package(rcpputils REQUIRED)
 find_package(metrics_statistics_msgs REQUIRED)
 
 add_library(system_metrics_collector SHARED
@@ -41,11 +42,13 @@ add_library(system_metrics_collector SHARED
   src/moving_average_statistics/moving_average.cpp
   src/moving_average_statistics/types.hpp
 )
-
-ament_target_dependencies(system_metrics_collector rclcpp rcpputils)
+target_include_directories(system_metrics_collector PRIVATE ${metrics_statistics_msgs_INCLUDE_DIRS})
+target_link_libraries(system_metrics_collector ${metrics_statistics_msgs_LIBRARIES})
+ament_target_dependencies(system_metrics_collector rclcpp rcutils rcpputils metrics_statistics_msgs)
 ament_export_libraries(system_metrics_collector)
 
 add_executable(main src/system_metrics_collector/main.cpp)
+target_include_directories(main PRIVATE ${metrics_statistics_msgs_INCLUDE_DIRS})
 target_link_libraries(main system_metrics_collector)
 ament_target_dependencies(main)
 
@@ -61,25 +64,32 @@ if(BUILD_TESTING)
   ament_target_dependencies(test_collector rclcpp)
 
   ament_add_gtest(test_linux_cpu_measurement_node
-          test/system_metrics_collector/test_linux_cpu_measurement.cpp)
+    test/system_metrics_collector/test_linux_cpu_measurement.cpp)
+  target_include_directories(test_linux_cpu_measurement_node PRIVATE
+    ${metrics_statistics_msgs_INCLUDE_DIRS})
   target_link_libraries(test_linux_cpu_measurement_node system_metrics_collector)
   ament_target_dependencies(test_linux_cpu_measurement_node rclcpp)
 
   ament_add_gtest(test_linux_memory_measurement_node
-          test/system_metrics_collector/test_linux_memory_measurement.cpp)
+    test/system_metrics_collector/test_linux_memory_measurement.cpp)
+  target_include_directories(test_linux_memory_measurement_node PRIVATE
+    ${metrics_statistics_msgs_INCLUDE_DIRS})
   target_link_libraries(test_linux_memory_measurement_node system_metrics_collector)
   ament_target_dependencies(test_linux_memory_measurement_node rclcpp)
 
   ament_add_gtest(test_moving_average_statistics
-          test/moving_average_statistics/test_moving_average_statistics.cpp)
+    test/moving_average_statistics/test_moving_average_statistics.cpp)
   target_link_libraries(test_moving_average_statistics system_metrics_collector)
   ament_target_dependencies(test_moving_average_statistics rclcpp)
 
   ament_add_gtest(test_periodic_measurement_node
     test/system_metrics_collector/test_periodic_measurement_node.cpp)
+  target_include_directories(test_periodic_measurement_node PRIVATE
+    ${metrics_statistics_msgs_INCLUDE_DIRS})
   target_link_libraries(test_periodic_measurement_node system_metrics_collector)
   ament_target_dependencies(test_periodic_measurement_node rclcpp)
 
+  # why install test executables?
   install(TARGETS
     test_moving_average_statistics
     DESTINATION

@@ -18,8 +18,8 @@
 #include <streambuf>
 #include <string>
 
-#include "../../src/system_metrics_collector/linux_memory_measurement_node.hpp"
-#include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
+#include "linux_memory_measurement_node.hpp"
+#include "periodic_measurement_node.hpp"
 
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/logging_macros.h"

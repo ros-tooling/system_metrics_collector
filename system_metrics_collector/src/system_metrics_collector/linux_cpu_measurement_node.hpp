@@ -20,8 +20,8 @@
 #include <sstream>
 #include <string>
 
-#include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
-#include "../../src/system_metrics_collector/proc_cpu_data.hpp"
+#include "periodic_measurement_node.hpp"
+#include "proc_cpu_data.hpp"
 
 /**
  * Parse a line read from /proc/stat
@@ -60,7 +60,7 @@ public:
   LinuxCpuMeasurementNode(
     const std::string & name,
     const std::chrono::milliseconds measurement_period,
-    const std::string & topic,
+    const std::string & statistics_topic,
     const std::chrono::milliseconds publish_period =
     PeriodicMeasurementNode::DEFAULT_PUBLISH_WINDOW);
 

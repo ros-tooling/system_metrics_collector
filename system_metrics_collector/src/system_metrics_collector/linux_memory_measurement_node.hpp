@@ -18,7 +18,7 @@
 #include <chrono>
 #include <string>
 
-#include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
+#include "periodic_measurement_node.hpp"
 
 /**
  * Read the contents of the input filename into a string. Helper function
