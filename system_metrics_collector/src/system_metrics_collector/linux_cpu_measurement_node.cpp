@@ -32,7 +32,7 @@ constexpr const char CPU_LABEL[] = "cpu";
 namespace system_metrics_collector
 {
 
-system_metrics_collector::ProcCpuData processLine(const std::string & stat_cpu_line)
+system_metrics_collector::ProcCpuData processStatCpuLine(const std::string & stat_cpu_line)
 {
   system_metrics_collector::ProcCpuData parsed_data;
 
@@ -113,7 +113,7 @@ system_metrics_collector::ProcCpuData LinuxCpuMeasurementNode::makeSingleMeasure
     RCLCPP_ERROR(this->get_logger(), "unable to get cpu line from file");
     return system_metrics_collector::ProcCpuData();
   } else {
-    return processLine(line);
+    return processStatCpuLine(line);
   }
 }
 

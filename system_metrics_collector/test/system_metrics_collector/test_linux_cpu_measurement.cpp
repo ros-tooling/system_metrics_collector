@@ -57,9 +57,9 @@ private:
     first = !first;
 
     if (first) {
-      return system_metrics_collector::processLine(proc_sample_1);
+      return system_metrics_collector::processStatCpuLine(proc_sample_1);
     } else {
-      return system_metrics_collector::processLine(proc_sample_2);
+      return system_metrics_collector::processStatCpuLine(proc_sample_2);
     }
   }
 
@@ -109,7 +109,7 @@ TEST_F(LinuxCpuMeasurementTestFixture, testManualMeasurement) {
 
 TEST(LinuxCpuMeasurementTest, testParseProcLine)
 {
-  auto parsed_data = system_metrics_collector::processLine(proc_sample_1);
+  auto parsed_data = system_metrics_collector::processStatCpuLine(proc_sample_1);
 
   ASSERT_EQ("cpu", parsed_data.cpu_label);
   ASSERT_EQ(22451232, parsed_data.times[0]);
@@ -129,8 +129,8 @@ TEST(LinuxCpuMeasurementTest, testParseProcLine)
 
 TEST(LinuxCpuMeasurementTest, testCalculateCpuActivePercentage)
 {
-  auto parsed_data1 = system_metrics_collector::processLine(proc_sample_1);
-  auto parsed_data2 = system_metrics_collector::processLine(proc_sample_2);
+  auto parsed_data1 = system_metrics_collector::processStatCpuLine(proc_sample_1);
+  auto parsed_data2 = system_metrics_collector::processStatCpuLine(proc_sample_2);
 
   auto p = computeCpuActivePercentage(parsed_data1, parsed_data2);
   ASSERT_DOUBLE_EQ(CPU_ACTIVE_PERCENTAGE, p);

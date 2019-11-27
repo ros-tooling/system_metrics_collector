@@ -30,7 +30,7 @@ namespace system_metrics_collector
  * @param file_name the file to be read
  * @return the file to be read's contents as a std::string
  */
-std::string readFile(const std::string & file_name);
+std::string readFileToString(const std::string & file_name);
 
 /**
  * Process input lines from the /proc/meminfo file. The expected format to
@@ -44,7 +44,7 @@ std::string readFile(const std::string & file_name);
  * @return the percentage of memory used, specifically
  * (MemTotal - MemAvailable) / MemTotal * 100.0
  */
-double processLines(const std::string & lines);
+double processMemInfoLines(const std::string & lines);
 
 /**
  * Node that periodically measures the percentage of RAM used

@@ -32,7 +32,7 @@ namespace system_metrics_collector
  * @param stat_cpu_line a line from /proc/stat
  * @return ProcCpuData struct populated if parsed, otherwise empty
  */
-system_metrics_collector::ProcCpuData processLine(const std::string & stat_cpu_line);
+system_metrics_collector::ProcCpuData processStatCpuLine(const std::string & stat_cpu_line);
 
 /**
  * Compute the percentage of CPU active.

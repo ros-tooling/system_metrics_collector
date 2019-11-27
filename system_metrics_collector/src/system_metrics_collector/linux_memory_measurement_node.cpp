@@ -33,15 +33,14 @@ constexpr const char EMPTY_FILE[] = "";
 constexpr const int INVALID_MEMORY_SAMPLE = -1;
 }  // namespace
 
-namespace system_metrics_collector
-{
+namespace system_metrics_collector {
 
 
-std::string readFile(const std::string & file_name)
+std::string readFileToString(const std::string & file_name)
 {
   std::ifstream file_to_read(file_name);
   if (!file_to_read.good()) {
-    RCUTILS_LOG_ERROR_NAMED("readFile", "unable to parse file %s", file_name.c_str());
+    RCUTILS_LOG_ERROR_NAMED("readFileToString", "unable to parse file %s", file_name.c_str());
     return EMPTY_FILE;
   }
 
@@ -51,7 +50,7 @@ std::string readFile(const std::string & file_name)
   return to_return;
 }
 
-double processLines(const std::string & lines)
+double processMemInfoLines(const std::string & lines)
 {
   std::istringstream process_lines_stream(lines);
   if (!process_lines_stream.good()) {
@@ -73,13 +72,13 @@ double processLines(const std::string & lines)
     if (!line.compare(0, strlen(MEM_TOTAL), MEM_TOTAL)) {
       parse_line >> tlabel;
       if (!parse_line.good()) {
-        RCUTILS_LOG_ERROR_NAMED("processLines", "unable to parse %s label", MEM_TOTAL);
+        RCUTILS_LOG_ERROR_NAMED("processMemInfoLines", "unable to parse %s label", MEM_TOTAL);
         return std::nan("");
       }
 
       parse_line >> total;
       if (!parse_line.good()) {
-        RCUTILS_LOG_ERROR_NAMED("processLines", "unable to parse %s value", MEM_TOTAL);
+        RCUTILS_LOG_ERROR_NAMED("processMemInfoLines", "unable to parse %s value", MEM_TOTAL);
         return std::nan("");
       }
     } else if (!line.compare(0, strlen(MEM_AVAILABLE), MEM_AVAILABLE)) {
@@ -87,13 +86,13 @@ double processLines(const std::string & lines)
 
       parse_line >> tlabel;
       if (!parse_line.good()) {
-        RCUTILS_LOG_ERROR_NAMED("processLines", "unable to parse %s label", MEM_AVAILABLE);
+        RCUTILS_LOG_ERROR_NAMED("processMemInfoLines", "unable to parse %s label", MEM_AVAILABLE);
         return std::nan("");
       }
 
       parse_line >> available;
       if (!parse_line.good()) {
-        RCUTILS_LOG_ERROR_NAMED("processLines", "unable to parse %s value", MEM_AVAILABLE);
+        RCUTILS_LOG_ERROR_NAMED("processMemInfoLines", "unable to parse %s value", MEM_AVAILABLE);
         return std::nan("");
       }
       break;  // no need to parse other lines after this label
@@ -121,8 +120,8 @@ double LinuxMemoryMeasurementNode::periodicMeasurement()
   if (!stat_file.good()) {
     return std::nan("");
   }
-  auto read_string = readFile(PROC_STAT_FILE);
-  return processLines(read_string);
+  auto read_string = readFileToString(PROC_STAT_FILE);
+  return processMemInfoLines(read_string);
 }
 
 }  // namespace system_metrics_collector

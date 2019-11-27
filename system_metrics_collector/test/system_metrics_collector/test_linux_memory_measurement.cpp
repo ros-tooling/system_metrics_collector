@@ -98,7 +98,7 @@ public:
   double periodicMeasurement() override
   {
     // override to avoid calling methods involved in file i/o
-    return system_metrics_collector::processLines(test_string_);
+    return system_metrics_collector::processMemInfoLines(test_string_);
   }
 
   void setTestString(std::string & test_string)
@@ -156,24 +156,24 @@ TEST_F(LinuxMemoryMeasurementTestFixture, testManualMeasurement) {
 
 TEST(LinuxMemoryMeasurementTest, testReadInvalidFile)
 {
-  const auto s = system_metrics_collector::readFile("this_will_fail.txt");
+  const auto s = system_metrics_collector::readFileToString("this_will_fail.txt");
   ASSERT_EQ("", s);
 }
 
 TEST(LinuxMemoryMeasurementTest, testProcessLines)
 {
-  auto d = system_metrics_collector::processLines(EMPTY_SAMPLE);
+  auto d = system_metrics_collector::processMemInfoLines(EMPTY_SAMPLE);
   ASSERT_TRUE(std::isnan(d));
 
-  d = system_metrics_collector::processLines(GARBAGE_SAMPLE);
+  d = system_metrics_collector::processMemInfoLines(GARBAGE_SAMPLE);
   ASSERT_TRUE(std::isnan(d));
 
-  d = system_metrics_collector::processLines(INCOMPLETE_SAMPLE);
+  d = system_metrics_collector::processMemInfoLines(INCOMPLETE_SAMPLE);
   ASSERT_TRUE(std::isnan(d));
 
-  d = system_metrics_collector::processLines(COMPLETE_SAMPLE);
+  d = system_metrics_collector::processMemInfoLines(COMPLETE_SAMPLE);
   ASSERT_DOUBLE_EQ(MEMORY_USED_PERCENTAGE, d);
 
-  d = system_metrics_collector::processLines(FULL_SAMPLE);
+  d = system_metrics_collector::processMemInfoLines(FULL_SAMPLE);
   ASSERT_DOUBLE_EQ(MEMORY_USED_PERCENTAGE, d);
 }
