@@ -78,7 +78,8 @@ public:
 
     ASSERT_FALSE(test_measure_linux_cpu->isStarted());
 
-    const StatisticData data = test_measure_linux_cpu->getStatisticsResults();
+    const moving_average_statistics::StatisticData data =
+      test_measure_linux_cpu->getStatisticsResults();
     ASSERT_TRUE(std::isnan(data.average));
     ASSERT_TRUE(std::isnan(data.min));
     ASSERT_TRUE(std::isnan(data.max));

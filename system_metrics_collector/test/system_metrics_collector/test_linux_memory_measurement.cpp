@@ -123,7 +123,8 @@ public:
 
     ASSERT_FALSE(test_measure_linux_memory->isStarted());
 
-    const StatisticData data = test_measure_linux_memory->getStatisticsResults();
+    const moving_average_statistics::StatisticData data =
+      test_measure_linux_memory->getStatisticsResults();
     ASSERT_TRUE(std::isnan(data.average));
     ASSERT_TRUE(std::isnan(data.min));
     ASSERT_TRUE(std::isnan(data.max));
@@ -155,7 +156,7 @@ TEST_F(LinuxMemoryMeasurementTestFixture, testManualMeasurement) {
 
 TEST(LinuxMemoryMeasurementTest, testReadInvalidFile)
 {
-  auto s = readFile("this_will_fail.txt");
+  const auto s = readFile("this_will_fail.txt");
   ASSERT_EQ("", s);
 }
 

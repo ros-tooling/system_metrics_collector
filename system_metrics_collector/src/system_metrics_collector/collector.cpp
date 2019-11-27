@@ -52,7 +52,7 @@ void Collector::acceptData(const double measurement)
   collected_data_.addMeasurement(measurement);
 }
 
-StatisticData Collector::getStatisticsResults() const
+moving_average_statistics::StatisticData Collector::getStatisticsResults() const
 {
   return collected_data_.getStatistics();
 }
