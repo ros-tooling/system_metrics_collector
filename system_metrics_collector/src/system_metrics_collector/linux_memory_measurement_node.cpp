@@ -33,8 +33,8 @@ constexpr const char EMPTY_FILE[] = "";
 constexpr const int INVALID_MEMORY_SAMPLE = -1;
 }  // namespace
 
-namespace system_metrics_collector {
-
+namespace system_metrics_collector
+{
 
 std::string readFileToString(const std::string & file_name)
 {
