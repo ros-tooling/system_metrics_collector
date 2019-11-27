@@ -21,6 +21,9 @@
 #include "../../src/moving_average_statistics/moving_average.hpp"
 #include "../../src/moving_average_statistics/types.hpp"
 
+namespace system_metrics_collector
+{
+
 bool Collector::start()
 {
   std::unique_lock<std::mutex> ulock(mutex);
@@ -75,3 +78,5 @@ std::string Collector::getStatusString() const
     ", " << statisticsDataToString(getStatisticsResults());
   return ss.str();
 }
+
+}  // namespace system_metrics_collector

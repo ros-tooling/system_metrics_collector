@@ -83,7 +83,7 @@ constexpr const auto TEST_PERIOD{std::chrono::milliseconds(50)};
 constexpr const double MEMORY_USED_PERCENTAGE = 44.148416198995363;
 }  // namespace
 
-class TestLinuxMemoryMeasurementNode : public LinuxMemoryMeasurementNode
+class TestLinuxMemoryMeasurementNode : public system_metrics_collector::LinuxMemoryMeasurementNode
 {
 public:
   TestLinuxMemoryMeasurementNode(
@@ -98,7 +98,7 @@ public:
   double periodicMeasurement() override
   {
     // override to avoid calling methods involved in file i/o
-    return processLines(test_string_);
+    return system_metrics_collector::processLines(test_string_);
   }
 
   void setTestString(std::string & test_string)
@@ -156,24 +156,24 @@ TEST_F(LinuxMemoryMeasurementTestFixture, testManualMeasurement) {
 
 TEST(LinuxMemoryMeasurementTest, testReadInvalidFile)
 {
-  const auto s = readFile("this_will_fail.txt");
+  const auto s = system_metrics_collector::readFile("this_will_fail.txt");
   ASSERT_EQ("", s);
 }
 
 TEST(LinuxMemoryMeasurementTest, testProcessLines)
 {
-  auto d = processLines(EMPTY_SAMPLE);
+  auto d = system_metrics_collector::processLines(EMPTY_SAMPLE);
   ASSERT_TRUE(std::isnan(d));
 
-  d = processLines(GARBAGE_SAMPLE);
+  d = system_metrics_collector::processLines(GARBAGE_SAMPLE);
   ASSERT_TRUE(std::isnan(d));
 
-  d = processLines(INCOMPLETE_SAMPLE);
+  d = system_metrics_collector::processLines(INCOMPLETE_SAMPLE);
   ASSERT_TRUE(std::isnan(d));
 
-  d = processLines(COMPLETE_SAMPLE);
+  d = system_metrics_collector::processLines(COMPLETE_SAMPLE);
   ASSERT_DOUBLE_EQ(MEMORY_USED_PERCENTAGE, d);
 
-  d = processLines(FULL_SAMPLE);
+  d = system_metrics_collector::processLines(FULL_SAMPLE);
   ASSERT_DOUBLE_EQ(MEMORY_USED_PERCENTAGE, d);
 }

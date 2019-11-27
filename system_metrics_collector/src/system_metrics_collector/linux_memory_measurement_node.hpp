@@ -20,6 +20,9 @@
 
 #include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
 
+namespace system_metrics_collector
+{
+
 /**
  * Read the contents of the input filename into a string. Helper function
  * for parsing.
@@ -48,7 +51,7 @@ double processLines(const std::string & lines);
  * by a linux system. Specifically, the values used to make
  * this measurement are obtained from /proc/meminfo.
  */
-class LinuxMemoryMeasurementNode : public PeriodicMeasurementNode
+class LinuxMemoryMeasurementNode : public system_metrics_collector::PeriodicMeasurementNode
 {
 public:
   /**
@@ -78,5 +81,7 @@ protected:
    */
   double periodicMeasurement() override;
 };
+
+}  // namespace system_metrics_collector
 
 #endif  // SYSTEM_METRICS_COLLECTOR__LINUX_MEMORY_MEASUREMENT_NODE_HPP_

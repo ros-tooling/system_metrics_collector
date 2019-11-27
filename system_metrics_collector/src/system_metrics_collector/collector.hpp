@@ -23,7 +23,8 @@
 
 #include "rcpputils/thread_safety_annotations.hpp"
 
-// namespace system_metrics_collector {
+namespace system_metrics_collector
+{
 
 /**
  * Simple class in order to collect observed data and generate statistics for the given observations.
@@ -110,6 +111,6 @@ private:
   bool started_{false} RCPPUTILS_TSA_GUARDED_BY(mutex);
 };
 
-// }  // namespace system_metrics_collector
+}  // namespace system_metrics_collector
 
 #endif  // SYSTEM_METRICS_COLLECTOR__COLLECTOR_HPP_

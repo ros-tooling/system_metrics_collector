@@ -37,7 +37,7 @@ constexpr const std::chrono::milliseconds TEST_PERIOD =
 /**
  * Simple extension to test basic functionality
  */
-class TestPeriodicMeasurementNode : public PeriodicMeasurementNode
+class TestPeriodicMeasurementNode : public ::system_metrics_collector::PeriodicMeasurementNode
 {
 public:
   TestPeriodicMeasurementNode(

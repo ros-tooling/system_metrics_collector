@@ -33,6 +33,10 @@ constexpr const char EMPTY_FILE[] = "";
 constexpr const int INVALID_MEMORY_SAMPLE = -1;
 }  // namespace
 
+namespace system_metrics_collector
+{
+
+
 std::string readFile(const std::string & file_name)
 {
   std::ifstream file_to_read(file_name);
@@ -120,3 +124,5 @@ double LinuxMemoryMeasurementNode::periodicMeasurement()
   auto read_string = readFile(PROC_STAT_FILE);
   return processLines(read_string);
 }
+
+}  // namespace system_metrics_collector
