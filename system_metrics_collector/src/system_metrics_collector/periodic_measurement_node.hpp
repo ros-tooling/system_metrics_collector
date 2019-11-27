@@ -31,8 +31,9 @@
 class PeriodicMeasurementNode : public Collector, public rclcpp::Node
 {
 public:
-  static constexpr const std::chrono::milliseconds DEFAULT_PUBLISH_WINDOW =
+  static constexpr const std::chrono::milliseconds INVALID_PUBLISH_WINDOW =
     std::chrono::milliseconds(0);
+
   /**
    * Construct a PeriodicMeasurementNode.
    *
@@ -46,7 +47,7 @@ public:
     const std::string & name,
     const std::chrono::milliseconds measurement_period,
     const std::string & topic,  // todo @dbbonnie think about a default topic
-    const std::chrono::milliseconds publish_period = DEFAULT_PUBLISH_WINDOW,
+    const std::chrono::milliseconds publish_period = INVALID_PUBLISH_WINDOW,
     const bool clear_measurements_on_publish = true);
 
   virtual ~PeriodicMeasurementNode() = default;
@@ -77,7 +78,7 @@ private:
    * Called via a ROS2 timer per the publish_period_. This publishes the statistics derived from
    * the collected measurements
    */
-  void publishStatistics() const;
+  virtual void publishStatistics() = 0;
 
   /**
    * Creates a ROS2 timer with a period of measurement_period_.
@@ -110,11 +111,17 @@ private:
    */
   const bool clear_measurements_on_publish_;
 
-  /**
-   * Members of this node that do the actual actions
-   */
   rclcpp::TimerBase::SharedPtr measurement_timer_;
   rclcpp::TimerBase::SharedPtr publish_timer_;
+
+protected:
+  /**
+   * Returns a new MetricsMessage with some common information filled out
+   *
+   * @return new MetricsMessage
+   */
+  metrics_statistics_msgs::msg::MetricsMessage newMetricsMessage();
+
   rclcpp::Publisher<metrics_statistics_msgs::msg::MetricsMessage>::SharedPtr publisher_;
 };
 

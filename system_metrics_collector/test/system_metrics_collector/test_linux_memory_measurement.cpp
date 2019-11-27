@@ -91,7 +91,7 @@ public:
     const std::chrono::milliseconds measurement_period,
     const std::string & publishing_topic)
   : LinuxMemoryMeasurementNode(name, measurement_period, publishing_topic,
-      PeriodicMeasurementNode::DEFAULT_PUBLISH_WINDOW)
+      PeriodicMeasurementNode::INVALID_PUBLISH_WINDOW)
   {}
   virtual ~TestLinuxMemoryMeasurementNode() = default;
 
@@ -100,6 +100,13 @@ public:
     // override to avoid calling methods involved in file i/o
     return processLines(test_string_);
   }
+
+  /**
+   * Test publish for the fixture.
+   *
+   * @return
+   */
+  void publishStatistics() override {}
 
   void setTestString(std::string & test_string)
   {

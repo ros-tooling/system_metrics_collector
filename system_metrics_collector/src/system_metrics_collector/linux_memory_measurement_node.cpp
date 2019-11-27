@@ -18,11 +18,15 @@
 #include <streambuf>
 #include <string>
 
+#include <rclcpp/rclcpp.hpp>
+#include <rcutils/logging_macros.h>
+#include <metrics_statistics_msgs/msg/statistic_data_type.hpp>
+
 #include "linux_memory_measurement_node.hpp"
 #include "periodic_measurement_node.hpp"
 
-#include "rclcpp/rclcpp.hpp"
-#include "rcutils/logging_macros.h"
+using metrics_statistics_msgs::msg::MetricsMessage;
+using metrics_statistics_msgs::msg::StatisticDataType;
 
 namespace
 {
@@ -119,4 +123,39 @@ double LinuxMemoryMeasurementNode::periodicMeasurement()
   }
   auto read_string = readFile(PROC_STAT_FILE);
   return processLines(read_string);
+}
+
+void LinuxMemoryMeasurementNode::publishStatistics()
+{
+  if (publisher_ == nullptr) {
+    return;
+  }
+
+  static constexpr const int NUM_DATA_TYPES = 5;
+  static constexpr const uint8_t data_types[NUM_DATA_TYPES] = {
+    StatisticDataType::STATISTICS_DATA_TYPE_AVERAGE,
+    StatisticDataType::STATISTICS_DATA_TYPE_MINIMUM,
+    StatisticDataType::STATISTICS_DATA_TYPE_MAXIMUM,
+    StatisticDataType::STATISTICS_DATA_TYPE_STDDEV,
+    StatisticDataType::STATISTICS_DATA_TYPE_SAMPLE_COUNT
+  };
+
+  const StatisticData statistic_data = getStatisticsResults();
+  const double data[NUM_DATA_TYPES] = {
+    statistic_data.average,
+    statistic_data.min,
+    statistic_data.max,
+    statistic_data.standard_deviation,
+    static_cast<double>(statistic_data.sample_count)
+  };
+
+  MetricsMessage msg = newMetricsMessage();
+  msg.metrics_source = "memory_usage";
+  for (int i = 0; i < NUM_DATA_TYPES; ++i) {
+    msg.statistics.emplace_back();
+    msg.statistics.back().data_type = data_types[i];
+    msg.statistics.back().data = data[i];
+  }
+
+  publisher_->publish(msg);
 }

@@ -64,7 +64,7 @@ public:
     const std::chrono::milliseconds measurement_period,
     const std::string & topic,
     const std::chrono::milliseconds publish_period =
-    PeriodicMeasurementNode::DEFAULT_PUBLISH_WINDOW);
+    PeriodicMeasurementNode::INVALID_PUBLISH_WINDOW);
 
   virtual ~LinuxMemoryMeasurementNode() = default;
 
@@ -77,6 +77,11 @@ protected:
    * @return percentage of RAM used
    */
   double periodicMeasurement() override;
+
+  /**
+   * This publishes the statistics derived from the collected measurements
+   */
+  void publishStatistics() override;
 };
 
 #endif  // SYSTEM_METRICS_COLLECTOR__LINUX_MEMORY_MEASUREMENT_NODE_HPP_

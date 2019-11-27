@@ -58,7 +58,6 @@ int main(int argc, char ** argv)
   }
 
   r = rcutils_logging_set_logger_level(mem_node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-
   if (r != 0) {
     RCUTILS_LOG_ERROR_NAMED("main", "Unable to set debug logging for the memory node");
   }

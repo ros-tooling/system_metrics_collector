@@ -88,20 +88,6 @@ if(BUILD_TESTING)
     ${metrics_statistics_msgs_INCLUDE_DIRS})
   target_link_libraries(test_periodic_measurement_node system_metrics_collector)
   ament_target_dependencies(test_periodic_measurement_node rclcpp)
-
-  # why install test executables?
-  install(TARGETS
-    test_moving_average_statistics
-    DESTINATION
-    lib/${PROJECT_NAME})
-  install(TARGETS
-    test_collector
-    DESTINATION
-    lib/${PROJECT_NAME})
-  install(TARGETS
-    test_periodic_measurement_node
-    DESTINATION
-    lib/${PROJECT_NAME})
 endif()
 
 ament_package()

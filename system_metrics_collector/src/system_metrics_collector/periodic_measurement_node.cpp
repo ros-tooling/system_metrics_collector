@@ -21,7 +21,7 @@
 
 using metrics_statistics_msgs::msg::MetricsMessage;
 
-constexpr const std::chrono::milliseconds PeriodicMeasurementNode::DEFAULT_PUBLISH_WINDOW;
+constexpr const std::chrono::milliseconds PeriodicMeasurementNode::INVALID_PUBLISH_WINDOW;
 
 PeriodicMeasurementNode::PeriodicMeasurementNode(
   const std::string & name,
@@ -37,8 +37,12 @@ PeriodicMeasurementNode::PeriodicMeasurementNode(
 
 bool PeriodicMeasurementNode::setupStart()
 {
+  if (publisher_ == nullptr) {
+    publisher_ = create_publisher<MetricsMessage>(publishing_topic_, 10);
+  }
+
   if (!measurement_timer_) {
-    RCLCPP_DEBUG(this->get_logger(), "setupStart: creating measurement_timer_");
+    RCLCPP_DEBUG(get_logger(), "setupStart: creating measurement_timer_");
 
     measurement_timer_ = this->create_wall_timer(
       measurement_period_, [this]() { this->performPeriodicMeasurement(); });
@@ -46,10 +50,9 @@ bool PeriodicMeasurementNode::setupStart()
     RCLCPP_WARN(this->get_logger(), "setupStart: measurement_timer_ already exists!");
   }
 
-  if (!publish_timer_ &&
-    publish_period_ != PeriodicMeasurementNode::DEFAULT_PUBLISH_WINDOW)
+  if (!publish_timer_ && publish_period_ != PeriodicMeasurementNode::INVALID_PUBLISH_WINDOW)
   {
-    RCLCPP_DEBUG(this->get_logger(), "setupStart: creating publish_timer_");
+    RCLCPP_DEBUG(get_logger(), "setupStart: creating publish_timer_");
 
     publish_timer_ = this->create_wall_timer(
       publish_period_, [this]() {
@@ -58,14 +61,8 @@ bool PeriodicMeasurementNode::setupStart()
           this->clearCurrentMeasurements();
         }
       });
-  } else {
-    if (publish_timer_) {
+  } else if (publish_timer_) {
       RCLCPP_WARN(this->get_logger(), "setupStart: publish_timer_ already exists!");
-    }
-  }
-
-  if (publisher_ == nullptr) {
-    publisher_ = create_publisher<MetricsMessage>(publishing_topic_, 10);
   }
 
   return true;
@@ -77,6 +74,10 @@ bool PeriodicMeasurementNode::setupStop()
     measurement_timer_->cancel();
     measurement_timer_.reset();
   }
+  if (publish_timer_) {
+    publish_timer_->cancel();
+    publish_timer_.reset();
+  }
   return true;
 }
 
@@ -87,7 +88,7 @@ std::string PeriodicMeasurementNode::getStatusString() const
     ", measurement_period=" << std::to_string(measurement_period_.count()) << "ms" <<
     ", publishing_topic=" << publishing_topic_ <<
     ", publish_period=" <<
-  (publish_period_ != PeriodicMeasurementNode::DEFAULT_PUBLISH_WINDOW ?
+  (publish_period_ != PeriodicMeasurementNode::INVALID_PUBLISH_WINDOW ?
   std::to_string(publish_period_.count()) + "ms" : "None") <<
     ", clear_measurements_on_publish_=" << clear_measurements_on_publish_ <<
     ", " << Collector::getStatusString();
@@ -103,11 +104,14 @@ void PeriodicMeasurementNode::performPeriodicMeasurement()
   RCLCPP_DEBUG(this->get_logger(), getStatusString());
 }
 
-void PeriodicMeasurementNode::publishStatistics() const
+MetricsMessage PeriodicMeasurementNode::newMetricsMessage()
 {
-  if (publisher_ == nullptr) {
-    return;
-  }
+  rclcpp::Time curr_time = now();
 
-  // TODO: call publisher_->publish() here
+  MetricsMessage msg;
+  msg.measurement_source_name = get_name();
+  msg.window_start = curr_time - rclcpp::Duration(publish_period_);
+  msg.window_stop = curr_time;
+
+  return msg;
 }

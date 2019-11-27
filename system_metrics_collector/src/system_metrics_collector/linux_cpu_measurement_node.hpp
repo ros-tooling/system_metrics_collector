@@ -62,7 +62,7 @@ public:
     const std::chrono::milliseconds measurement_period,
     const std::string & statistics_topic,
     const std::chrono::milliseconds publish_period =
-    PeriodicMeasurementNode::DEFAULT_PUBLISH_WINDOW);
+    PeriodicMeasurementNode::INVALID_PUBLISH_WINDOW);
 
   virtual ~LinuxCpuMeasurementNode() = default;
 
@@ -81,6 +81,11 @@ private:
    * @return ProcCpuData the measurement made
    */
   virtual ProcCpuData makeSingleMeasurement();
+
+  /**
+   * This publishes the statistics derived from the collected measurements
+   */
+  void publishStatistics() override;
 
   /**
    * The cached measurement used in order to perform the CPU active

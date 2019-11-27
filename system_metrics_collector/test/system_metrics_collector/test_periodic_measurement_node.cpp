@@ -45,7 +45,7 @@ public:
     const std::chrono::milliseconds measurement_period,
     const std::string & publishing_topic,
     const std::chrono::milliseconds publish_period =
-    PeriodicMeasurementNode::DEFAULT_PUBLISH_WINDOW)
+    PeriodicMeasurementNode::INVALID_PUBLISH_WINDOW)
   : PeriodicMeasurementNode(name, measurement_period, publishing_topic, publish_period)
   {}
   virtual ~TestPeriodicMeasurementNode() = default;
@@ -61,6 +61,13 @@ private:
     sum += 1;
     return static_cast<double>(sum.load());
   }
+
+  /**
+   * Test publish for the fixture.
+   *
+   * @return
+   */
+  void publishStatistics() override {}
 
   std::atomic<int> sum{0};
 };
@@ -109,10 +116,8 @@ TEST_F(PeriodicMeasurementTestFixure, sanity) {
 }
 
 TEST_F(PeriodicMeasurementTestFixure, test_start_and_stop) {
-  ASSERT_TRUE(true);
   ASSERT_NE(test_periodic_measurer, nullptr);
   ASSERT_FALSE(test_periodic_measurer->isStarted());
-
 
   const bool start_success = test_periodic_measurer->start();
   ASSERT_TRUE(start_success);
@@ -126,15 +131,15 @@ TEST_F(PeriodicMeasurementTestFixure, test_start_and_stop) {
   ex.spin_until_future_complete(dummy_future, TEST_LENGTH);
 
   StatisticData data = test_periodic_measurer->getStatisticsResults();
-  ASSERT_EQ(3, data.average);
-  ASSERT_EQ(1, data.min);
-  ASSERT_EQ(TEST_LENGTH.count() / TEST_PERIOD.count(), data.max);
-  ASSERT_FALSE(std::isnan(data.standard_deviation));
-  ASSERT_EQ(TEST_LENGTH.count() / TEST_PERIOD.count(), data.sample_count);
+  EXPECT_EQ(3, data.average);
+  EXPECT_EQ(1, data.min);
+  EXPECT_EQ(TEST_LENGTH.count() / TEST_PERIOD.count(), data.max);
+  EXPECT_FALSE(std::isnan(data.standard_deviation));
+  EXPECT_EQ(TEST_LENGTH.count() / TEST_PERIOD.count(), data.sample_count);
 
   const bool stop_success = test_periodic_measurer->stop();
-  ASSERT_TRUE(stop_success);
-  ASSERT_FALSE(test_periodic_measurer->isStarted());
+  EXPECT_TRUE(stop_success);
+  EXPECT_FALSE(test_periodic_measurer->isStarted());
 }
 
 int main(int argc, char ** argv)
