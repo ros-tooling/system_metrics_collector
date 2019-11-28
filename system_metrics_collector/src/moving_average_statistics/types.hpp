@@ -18,6 +18,9 @@
 #include <sstream>
 #include <string>
 
+namespace moving_average_statistics
+{
+
 /**
  *  A container for statistics data results for a set of recorded observations.
  */
@@ -45,5 +48,7 @@ static std::string statisticsDataToString(const StatisticData & results)
     results.standard_deviation) << ", count=" << std::to_string(results.sample_count);
   return ss.str();
 }
+
+}  // namespace moving_average_statistics
 
 #endif  // MOVING_AVERAGE_STATISTICS__TYPES_HPP_

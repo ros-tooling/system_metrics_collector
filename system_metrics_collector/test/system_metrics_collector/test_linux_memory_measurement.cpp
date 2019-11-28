@@ -83,7 +83,7 @@ constexpr const auto TEST_PERIOD{std::chrono::milliseconds(50)};
 constexpr const double MEMORY_USED_PERCENTAGE = 44.148416198995363;
 }  // namespace
 
-class TestLinuxMemoryMeasurementNode : public LinuxMemoryMeasurementNode
+class TestLinuxMemoryMeasurementNode : public system_metrics_collector::LinuxMemoryMeasurementNode
 {
 public:
   TestLinuxMemoryMeasurementNode(
@@ -98,7 +98,7 @@ public:
   double periodicMeasurement() override
   {
     // override to avoid calling methods involved in file i/o
-    return processLines(test_string_);
+    return system_metrics_collector::processMemInfoLines(test_string_);
   }
 
   void setTestString(std::string & test_string)
@@ -123,7 +123,8 @@ public:
 
     ASSERT_FALSE(test_measure_linux_memory->isStarted());
 
-    const StatisticData data = test_measure_linux_memory->getStatisticsResults();
+    const moving_average_statistics::StatisticData data =
+      test_measure_linux_memory->getStatisticsResults();
     ASSERT_TRUE(std::isnan(data.average));
     ASSERT_TRUE(std::isnan(data.min));
     ASSERT_TRUE(std::isnan(data.max));
@@ -155,24 +156,24 @@ TEST_F(LinuxMemoryMeasurementTestFixture, testManualMeasurement) {
 
 TEST(LinuxMemoryMeasurementTest, testReadInvalidFile)
 {
-  auto s = readFile("this_will_fail.txt");
+  const auto s = system_metrics_collector::readFileToString("this_will_fail.txt");
   ASSERT_EQ("", s);
 }
 
 TEST(LinuxMemoryMeasurementTest, testProcessLines)
 {
-  auto d = processLines(EMPTY_SAMPLE);
+  auto d = system_metrics_collector::processMemInfoLines(EMPTY_SAMPLE);
   ASSERT_TRUE(std::isnan(d));
 
-  d = processLines(GARBAGE_SAMPLE);
+  d = system_metrics_collector::processMemInfoLines(GARBAGE_SAMPLE);
   ASSERT_TRUE(std::isnan(d));
 
-  d = processLines(INCOMPLETE_SAMPLE);
+  d = system_metrics_collector::processMemInfoLines(INCOMPLETE_SAMPLE);
   ASSERT_TRUE(std::isnan(d));
 
-  d = processLines(COMPLETE_SAMPLE);
+  d = system_metrics_collector::processMemInfoLines(COMPLETE_SAMPLE);
   ASSERT_DOUBLE_EQ(MEMORY_USED_PERCENTAGE, d);
 
-  d = processLines(FULL_SAMPLE);
+  d = system_metrics_collector::processMemInfoLines(FULL_SAMPLE);
   ASSERT_DOUBLE_EQ(MEMORY_USED_PERCENTAGE, d);
 }

@@ -23,6 +23,9 @@
 
 #include "rcpputils/thread_safety_annotations.hpp"
 
+namespace system_metrics_collector
+{
+
 /**
  * Simple class in order to collect observed data and generate statistics for the given observations.
  */
@@ -63,7 +66,7 @@ public:
    *
    * @return the StatisticData for all the observed measurements
    */
-  virtual StatisticData getStatisticsResults() const;
+  virtual moving_average_statistics::StatisticData getStatisticsResults() const;
 
   /**
    * Clear / reset all current measurements.
@@ -103,10 +106,11 @@ private:
 
   mutable std::mutex mutex;
 
-  MovingAverageStatistics collected_data_;
+  moving_average_statistics::MovingAverageStatistics collected_data_;
 
   bool started_{false} RCPPUTILS_TSA_GUARDED_BY(mutex);
 };
 
+}  // namespace system_metrics_collector
 
 #endif  // SYSTEM_METRICS_COLLECTOR__COLLECTOR_HPP_

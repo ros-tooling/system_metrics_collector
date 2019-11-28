@@ -24,6 +24,8 @@
 #include "moving_average.hpp"
 #include "types.hpp"
 
+namespace moving_average_statistics
+{
 
 double MovingAverageStatistics::average() const
 {
@@ -94,3 +96,5 @@ uint64_t MovingAverageStatistics::getCount() const
   std::lock_guard<std::mutex> guard(mutex);
   return count_;
 }
+
+}  // namespace moving_average_statistics

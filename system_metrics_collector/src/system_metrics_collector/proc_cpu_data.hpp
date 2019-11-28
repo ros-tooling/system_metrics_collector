@@ -19,6 +19,9 @@
 #include <sstream>
 #include <string>
 
+namespace system_metrics_collector
+{
+
 /**
  * Enum representing each item in a /proc/stat cpu line
  */
@@ -85,5 +88,7 @@ public:
    */
   std::array<int, static_cast<int>(ProcCpuStates::kNumProcCpuStates)> times{};
 };
+
+}  // namespace system_metrics_collector
 
 #endif  // SYSTEM_METRICS_COLLECTOR__PROC_CPU_DATA_HPP_

@@ -34,7 +34,7 @@ constexpr const std::chrono::milliseconds TEST_PERIOD =
 constexpr const double CPU_ACTIVE_PERCENTAGE = 2.8002699055330633;
 }  // namespace
 
-class TestLinuxCpuMeasurementNode : public LinuxCpuMeasurementNode
+class TestLinuxCpuMeasurementNode : public system_metrics_collector::LinuxCpuMeasurementNode
 {
 public:
   TestLinuxCpuMeasurementNode(
@@ -52,14 +52,14 @@ public:
   }
 
 private:
-  ProcCpuData makeSingleMeasurement() override
+  system_metrics_collector::ProcCpuData makeSingleMeasurement() override
   {
     first = !first;
 
     if (first) {
-      return processLine(proc_sample_1);
+      return system_metrics_collector::processStatCpuLine(proc_sample_1);
     } else {
-      return processLine(proc_sample_2);
+      return system_metrics_collector::processStatCpuLine(proc_sample_2);
     }
   }
 
@@ -78,7 +78,8 @@ public:
 
     ASSERT_FALSE(test_measure_linux_cpu->isStarted());
 
-    const StatisticData data = test_measure_linux_cpu->getStatisticsResults();
+    const moving_average_statistics::StatisticData data =
+      test_measure_linux_cpu->getStatisticsResults();
     ASSERT_TRUE(std::isnan(data.average));
     ASSERT_TRUE(std::isnan(data.min));
     ASSERT_TRUE(std::isnan(data.max));
@@ -108,7 +109,7 @@ TEST_F(LinuxCpuMeasurementTestFixture, testManualMeasurement) {
 
 TEST(LinuxCpuMeasurementTest, testParseProcLine)
 {
-  auto parsed_data = processLine(proc_sample_1);
+  auto parsed_data = system_metrics_collector::processStatCpuLine(proc_sample_1);
 
   ASSERT_EQ("cpu", parsed_data.cpu_label);
   ASSERT_EQ(22451232, parsed_data.times[0]);
@@ -128,8 +129,8 @@ TEST(LinuxCpuMeasurementTest, testParseProcLine)
 
 TEST(LinuxCpuMeasurementTest, testCalculateCpuActivePercentage)
 {
-  auto parsed_data1 = processLine(proc_sample_1);
-  auto parsed_data2 = processLine(proc_sample_2);
+  auto parsed_data1 = system_metrics_collector::processStatCpuLine(proc_sample_1);
+  auto parsed_data2 = system_metrics_collector::processStatCpuLine(proc_sample_2);
 
   auto p = computeCpuActivePercentage(parsed_data1, parsed_data2);
   ASSERT_DOUBLE_EQ(CPU_ACTIVE_PERCENTAGE, p);
@@ -137,10 +138,12 @@ TEST(LinuxCpuMeasurementTest, testCalculateCpuActivePercentage)
 
 TEST(LinuxCpuMeasurementTest, testEmptyProcCpuData)
 {
-  ProcCpuData empty;
-  ASSERT_EQ(ProcCpuData::EMPTY_LABEL, empty.cpu_label);
+  system_metrics_collector::ProcCpuData empty;
+  ASSERT_EQ(system_metrics_collector::ProcCpuData::EMPTY_LABEL, empty.cpu_label);
 
-  for (int i = 0; i < static_cast<int>(ProcCpuStates::kNumProcCpuStates); i++) {
+  for (int i = 0; i < static_cast<int>(system_metrics_collector::ProcCpuStates::kNumProcCpuStates);
+    i++)
+  {
     ASSERT_EQ(0, empty.times[i]);
   }
 }

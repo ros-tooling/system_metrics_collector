@@ -17,6 +17,9 @@
 
 #include "proc_cpu_data.hpp"
 
+namespace system_metrics_collector
+{
+
 /*static*/ constexpr const char ProcCpuData::EMPTY_LABEL[];
 
 size_t ProcCpuData::getIdleTime() const
@@ -54,3 +57,5 @@ bool ProcCpuData::isMeasurementEmpty() const
 {
   return cpu_label == ProcCpuData::EMPTY_LABEL;
 }
+
+}  // namespace system_metrics_collector

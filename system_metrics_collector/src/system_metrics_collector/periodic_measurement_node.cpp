@@ -20,6 +20,9 @@
 
 #include "rclcpp/rclcpp.hpp"
 
+namespace system_metrics_collector
+{
+
 /* static */ constexpr const std::chrono::milliseconds PeriodicMeasurementNode::
 DEFAULT_PUBLISH_WINDOW;
 
@@ -100,3 +103,5 @@ void PeriodicMeasurementNode::performPeriodicMeasurement()
   acceptData(measurement);
   RCLCPP_DEBUG(this->get_logger(), getStatusString());
 }
+
+}  // namespace system_metrics_collector
