@@ -81,20 +81,6 @@ private:
   virtual void publishStatistics() = 0;
 
   /**
-   * Creates a ROS2 timer with a period of measurement_period_.
-   *
-   * @return if setup was successful
-   */
-  bool setupStart() override;
-
-  /**
-   * Stops the ROS2 timer
-   *
-   * @return if teardown was successful
-   */
-  bool setupStop() override;
-
-  /**
    * Topic used for publishing
    */
   const std::string publishing_topic_;
@@ -111,10 +97,25 @@ private:
    */
   const bool clear_measurements_on_publish_;
 
+  rclcpp::Time measurement_start_;
   rclcpp::TimerBase::SharedPtr measurement_timer_;
   rclcpp::TimerBase::SharedPtr publish_timer_;
 
 protected:
+  /**
+   * Creates a ROS2 timer with a period of measurement_period_.
+   *
+   * @return if setup was successful
+   */
+  bool setupStart() override;
+
+  /**
+   * Stops the ROS2 timer
+   *
+   * @return if teardown was successful
+   */
+  bool setupStop() override;
+
   /**
    * Returns a new MetricsMessage with some common information filled out
    *

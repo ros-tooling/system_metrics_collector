@@ -19,13 +19,11 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <rcutils/logging_macros.h>
-#include <metrics_statistics_msgs/msg/statistic_data_type.hpp>
 
 #include "linux_cpu_measurement_node.hpp"
 #include "periodic_measurement_node.hpp"
 
 using metrics_statistics_msgs::msg::MetricsMessage;
-using metrics_statistics_msgs::msg::StatisticDataType;
 
 namespace
 {
@@ -71,7 +69,7 @@ double computeCpuActivePercentage(
 
   const double active_time = measurement2.getActiveTime() - measurement1.getActiveTime();
   const double total_time = (measurement2.getIdleTime() + measurement2.getActiveTime()) -
-    (measurement1.getIdleTime() + measurement2.getActiveTime());
+    (measurement1.getIdleTime() + measurement1.getActiveTime());
 
   return 100.0 * active_time / total_time;
 }
@@ -122,17 +120,8 @@ void LinuxCpuMeasurementNode::publishStatistics()
     return;
   }
 
-  static constexpr const int NUM_DATA_TYPES = 5;
-  static constexpr const uint8_t data_types[NUM_DATA_TYPES] = {
-    StatisticDataType::STATISTICS_DATA_TYPE_AVERAGE,
-    StatisticDataType::STATISTICS_DATA_TYPE_MINIMUM,
-    StatisticDataType::STATISTICS_DATA_TYPE_MAXIMUM,
-    StatisticDataType::STATISTICS_DATA_TYPE_STDDEV,
-    StatisticDataType::STATISTICS_DATA_TYPE_SAMPLE_COUNT
-  };
-
   const StatisticData statistic_data = getStatisticsResults();
-  const double data[NUM_DATA_TYPES] = {
+  const double data[STATISTICS_DATA_TYPES.size()] = {
     statistic_data.average,
     statistic_data.min,
     statistic_data.max,
@@ -142,11 +131,17 @@ void LinuxCpuMeasurementNode::publishStatistics()
 
   MetricsMessage msg = newMetricsMessage();
   msg.metrics_source = "cpu_usage";
-  for (int i = 0; i < NUM_DATA_TYPES; ++i) {
+  for (int i = 0; i < STATISTICS_DATA_TYPES.size(); ++i) {
     msg.statistics.emplace_back();
-    msg.statistics.back().data_type = data_types[i];
+    msg.statistics.back().data_type = STATISTICS_DATA_TYPES[i];
     msg.statistics.back().data = data[i];
   }
 
   publisher_->publish(msg);
+}
+
+bool LinuxCpuMeasurementNode::setupStart()
+{
+  last_measurement_ = ProcCpuData();
+  return PeriodicMeasurementNode::setupStart();
 }

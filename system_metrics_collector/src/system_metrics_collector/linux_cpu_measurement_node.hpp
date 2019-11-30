@@ -88,6 +88,13 @@ private:
   void publishStatistics() override;
 
   /**
+   * Creates a ROS2 timer with a period of measurement_period_.
+   *
+   * @return if setup was successful
+   */
+  bool setupStart() override;
+
+  /**
    * The cached measurement used in order to perform the CPU active
    * percentage.
    */
