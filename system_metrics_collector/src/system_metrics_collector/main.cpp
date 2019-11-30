@@ -39,13 +39,13 @@ int main(int argc, char ** argv)
   auto cpu_node = std::make_shared<system_metrics_collector::LinuxCpuMeasurementNode>(
     "linuxCpuCollector",
     std::chrono::milliseconds(1000),
-    "not_publishing_yet",
+    "system_metrics",
     std::chrono::milliseconds(1000 * 60));
 
   auto mem_node = std::make_shared<system_metrics_collector::LinuxMemoryMeasurementNode>(
     "linuxMemoryCollector",
     std::chrono::milliseconds(1000),
-    "not_publishing_yet",
+    "system_metrics",
     std::chrono::milliseconds(1000 * 60));
 
   rclcpp::executors::MultiThreadedExecutor ex;
