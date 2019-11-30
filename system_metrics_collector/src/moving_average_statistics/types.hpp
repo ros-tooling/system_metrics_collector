@@ -19,8 +19,7 @@
 #include <sstream>
 #include <string>
 
-#include <metrics_statistics_msgs/msg/statistic_data_type.hpp>
-
+#include "metrics_statistics_msgs/msg/statistic_data_type.hpp"
 
 /**
  *  Enumeration of the various StatisticDataTypes

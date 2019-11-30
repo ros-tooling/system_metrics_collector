@@ -48,8 +48,8 @@ public:
     const std::string & publishing_topic,
     const std::chrono::milliseconds publish_period,
     const bool clear_measurements_on_publish)
-  : PeriodicMeasurementNode(name, measurement_period, publishing_topic, publish_period, 
-    clear_measurements_on_publish)
+  : PeriodicMeasurementNode(name, measurement_period, publishing_topic, publish_period,
+      clear_measurements_on_publish)
   {}
   virtual ~TestPeriodicMeasurementNode() = default;
 

@@ -19,8 +19,8 @@
 #include <chrono>
 #include <string>
 
-#include <rclcpp/rclcpp.hpp>
-#include <metrics_statistics_msgs/msg/metrics_message.hpp>
+#include "rclcpp/rclcpp.hpp"
+#include "metrics_statistics_msgs/msg/metrics_message.hpp"
 
 #include "collector.hpp"
 

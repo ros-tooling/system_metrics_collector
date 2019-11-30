@@ -22,7 +22,7 @@
 #include <mutex>
 #include <string>
 
-#include <metrics_statistics_msgs/msg/metrics_message.hpp>
+#include "metrics_statistics_msgs/msg/metrics_message.hpp"
 
 #include "../../src/system_metrics_collector/linux_cpu_measurement_node.hpp"
 #include "../../src/system_metrics_collector/proc_cpu_data.hpp"
@@ -31,7 +31,8 @@ using metrics_statistics_msgs::msg::MetricsMessage;
 using metrics_statistics_msgs::msg::StatisticDataPoint;
 using metrics_statistics_msgs::msg::StatisticDataType;
 
-namespace {
+namespace
+{
 
 constexpr const char TEST_NODE_NAME[] = "test_measure_linux_cpu";
 constexpr const char TEST_TOPIC[] = "test_cpu_measure_topic";
@@ -71,8 +72,8 @@ void StatisticDataToStatisticDataPoints(const StatisticData & src, StatisticData
   dst[StatisticDataType::STATISTICS_DATA_TYPE_MINIMUM - 1].data = src.min;
   dst[StatisticDataType::STATISTICS_DATA_TYPE_MAXIMUM - 1].data = src.max;
   dst[StatisticDataType::STATISTICS_DATA_TYPE_STDDEV - 1].data = src.standard_deviation;
-  dst[StatisticDataType::STATISTICS_DATA_TYPE_SAMPLE_COUNT - 1].data 
-    = static_cast<double>(src.sample_count);
+  dst[StatisticDataType::STATISTICS_DATA_TYPE_SAMPLE_COUNT - 1].data =
+    static_cast<double>(src.sample_count);
 }
 
 }  // namespace
@@ -86,7 +87,7 @@ public:
     const std::chrono::milliseconds measurement_period,
     const std::string & publishing_topic,
     const std::chrono::milliseconds publish_period)
-    : LinuxCpuMeasurementNode(name, measurement_period, publishing_topic, publish_period) {}
+  : LinuxCpuMeasurementNode(name, measurement_period, publishing_topic, publish_period) {}
 
   virtual ~TestLinuxCpuMeasurementNode() = default;
 
@@ -108,11 +109,12 @@ private:
 class TestReceiveCpuMeasurementNode : public rclcpp::Node
 {
 public:
-  TestReceiveCpuMeasurementNode(const std::string & name) : rclcpp::Node(name), times_received(0)
+  explicit TestReceiveCpuMeasurementNode(const std::string & name)
+  : rclcpp::Node(name), times_received(0)
   {
-    auto callback = [this](MetricsMessage::UniquePtr msg) { this->MetricsMessageCallback(*msg); };
+    auto callback = [this](MetricsMessage::UniquePtr msg) {this->MetricsMessageCallback(*msg);};
     subscription = create_subscription<MetricsMessage,
-      std::function<void(MetricsMessage::UniquePtr)>>(TEST_TOPIC, 10, callback);
+        std::function<void(MetricsMessage::UniquePtr)>>(TEST_TOPIC, 10, callback);
 
     for (auto & stats : expected_stats) {
       for (int i = 0; i < STATISTICS_DATA_TYPES.size(); ++i) {

@@ -22,7 +22,7 @@
 #include <mutex>
 #include <string>
 
-#include <metrics_statistics_msgs/msg/metrics_message.hpp>
+#include "metrics_statistics_msgs/msg/metrics_message.hpp"
 
 #include "../../src/system_metrics_collector/linux_memory_measurement_node.hpp"
 
@@ -30,7 +30,8 @@ using metrics_statistics_msgs::msg::MetricsMessage;
 using metrics_statistics_msgs::msg::StatisticDataPoint;
 using metrics_statistics_msgs::msg::StatisticDataType;
 
-namespace {
+namespace
+{
 
 constexpr const char TEST_NODE_NAME[] = "test_measure_linux_memory";
 constexpr const char TEST_TOPIC[] = "test_memory_measure_topic";
@@ -44,14 +45,14 @@ constexpr const std::chrono::milliseconds PUBLISH_PERIOD =
 
 constexpr const char EMPTY_SAMPLE[] = "";
 constexpr const char GARBAGE_SAMPLE[] = "this is garbage\n";
-constexpr const char INCOMPLETE_SAMPLE[] = 
+constexpr const char INCOMPLETE_SAMPLE[] =
   "MemTotal:       16302048 kB\n"
   "MemFree:          443300 kB\n";
-constexpr const char COMPLETE_SAMPLE[] = 
+constexpr const char COMPLETE_SAMPLE[] =
   "MemTotal:       16302048 kB\n"
   "MemFree:          239124 kB\n"
   "MemAvailable:    9104952 kB\n";
-constexpr const char FULL_SAMPLE[] = 
+constexpr const char FULL_SAMPLE[] =
   "MemTotal:       16302048 kB\n"
   "MemFree:          239124 kB\n"
   "MemAvailable:    9104952 kB\n"
@@ -149,8 +150,8 @@ void StatisticDataToStatisticDataPoints(const StatisticData & src, StatisticData
   dst[StatisticDataType::STATISTICS_DATA_TYPE_MINIMUM - 1].data = src.min;
   dst[StatisticDataType::STATISTICS_DATA_TYPE_MAXIMUM - 1].data = src.max;
   dst[StatisticDataType::STATISTICS_DATA_TYPE_STDDEV - 1].data = src.standard_deviation;
-  dst[StatisticDataType::STATISTICS_DATA_TYPE_SAMPLE_COUNT - 1].data 
-    = static_cast<double>(src.sample_count);
+  dst[StatisticDataType::STATISTICS_DATA_TYPE_SAMPLE_COUNT - 1].data =
+    static_cast<double>(src.sample_count);
 }
 
 }  // namespace
@@ -225,11 +226,12 @@ protected:
 class TestReceiveMemoryMeasurementNode : public rclcpp::Node
 {
 public:
-  TestReceiveMemoryMeasurementNode(const std::string & name) : rclcpp::Node(name), times_received(0)
+  explicit TestReceiveMemoryMeasurementNode(const std::string & name)
+  : rclcpp::Node(name), times_received(0)
   {
-    auto callback = [this](MetricsMessage::UniquePtr msg) { this->MetricsMessageCallback(*msg); };
+    auto callback = [this](MetricsMessage::UniquePtr msg) {this->MetricsMessageCallback(*msg);};
     subscription = create_subscription<MetricsMessage,
-      std::function<void(MetricsMessage::UniquePtr)>>(TEST_TOPIC, 10, callback);
+        std::function<void(MetricsMessage::UniquePtr)>>(TEST_TOPIC, 10, callback);
 
     for (auto & stats : expected_stats) {
       for (int i = 0; i < STATISTICS_DATA_TYPES.size(); ++i) {

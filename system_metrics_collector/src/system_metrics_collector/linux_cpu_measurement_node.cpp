@@ -12,16 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "linux_cpu_measurement_node.hpp"
+
 #include <chrono>
 #include <fstream>
 #include <sstream>
 #include <string>
 
-#include <rclcpp/rclcpp.hpp>
-#include <rcutils/logging_macros.h>
-
-#include "linux_cpu_measurement_node.hpp"
-#include "periodic_measurement_node.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "rcutils/logging_macros.h"
 
 using metrics_statistics_msgs::msg::MetricsMessage;
 
