@@ -23,13 +23,16 @@
 #include "periodic_measurement_node.hpp"
 #include "proc_cpu_data.hpp"
 
+namespace system_metrics_collector
+{
+
 /**
  * Parse a line read from /proc/stat
  *
  * @param stat_cpu_line a line from /proc/stat
  * @return ProcCpuData struct populated if parsed, otherwise empty
  */
-ProcCpuData processLine(const std::string & stat_cpu_line);
+system_metrics_collector::ProcCpuData processStatCpuLine(const std::string & stat_cpu_line);
 
 /**
  * Compute the percentage of CPU active.
@@ -39,14 +42,14 @@ ProcCpuData processLine(const std::string & stat_cpu_line);
  * @return percentage of CPU active
  */
 double computeCpuActivePercentage(
-  const ProcCpuData & measurement1,
-  const ProcCpuData & measurement2);
+  const system_metrics_collector::ProcCpuData & measurement1,
+  const system_metrics_collector::ProcCpuData & measurement2);
 
 /**
  * Node that periodically calculates the % of active CPU by
  * reading /proc/stat.
  */
-class LinuxCpuMeasurementNode : public PeriodicMeasurementNode
+class LinuxCpuMeasurementNode : public system_metrics_collector::PeriodicMeasurementNode
 {
 public:
   /**
@@ -80,7 +83,7 @@ private:
    *
    * @return ProcCpuData the measurement made
    */
-  virtual ProcCpuData makeSingleMeasurement();
+  virtual system_metrics_collector::ProcCpuData makeSingleMeasurement();
 
   /**
    * This publishes the statistics derived from the collected measurements
@@ -98,7 +101,9 @@ private:
    * The cached measurement used in order to perform the CPU active
    * percentage.
    */
-  ProcCpuData last_measurement_;
+  system_metrics_collector::ProcCpuData last_measurement_;
 };
+
+}  // namespace system_metrics_collector
 
 #endif  // SYSTEM_METRICS_COLLECTOR__LINUX_CPU_MEASUREMENT_NODE_HPP_

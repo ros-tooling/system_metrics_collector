@@ -19,6 +19,9 @@
 
 #include "rclcpp/rclcpp.hpp"
 
+namespace system_metrics_collector
+{
+
 using metrics_statistics_msgs::msg::MetricsMessage;
 
 constexpr const std::chrono::milliseconds PeriodicMeasurementNode::INVALID_PUBLISH_WINDOW;
@@ -113,3 +116,5 @@ MetricsMessage PeriodicMeasurementNode::newMetricsMessage()
   msg.window_stop = now();
   return msg;
 }
+
+}  // namespace system_metrics_collector

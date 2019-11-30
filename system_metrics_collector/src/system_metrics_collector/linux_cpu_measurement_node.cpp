@@ -30,22 +30,27 @@ constexpr const char PROC_STAT_FILE[] = "/proc/stat";
 constexpr const char CPU_LABEL[] = "cpu";
 }  // namespace
 
-ProcCpuData processLine(const std::string & stat_cpu_line)
+namespace system_metrics_collector
 {
-  ProcCpuData parsed_data;
+
+system_metrics_collector::ProcCpuData processStatCpuLine(const std::string & stat_cpu_line)
+{
+  system_metrics_collector::ProcCpuData parsed_data;
 
   if (!stat_cpu_line.empty()) {
     if (!stat_cpu_line.compare(0, strlen(CPU_LABEL), CPU_LABEL)) {
       std::istringstream ss(stat_cpu_line);
 
       if (!ss.good()) {
-        return ProcCpuData();
+        return system_metrics_collector::ProcCpuData();
       }
       ss >> parsed_data.cpu_label;
 
-      for (int i = 0; i < static_cast<int>(ProcCpuStates::kNumProcCpuStates); ++i) {
+      for (int i = 0;
+        i < static_cast<int>(system_metrics_collector::ProcCpuStates::kNumProcCpuStates); ++i)
+      {
         if (!ss.good()) {
-          return ProcCpuData();
+          return system_metrics_collector::ProcCpuData();
         }
         ss >> parsed_data.times[i];
       }
@@ -57,8 +62,8 @@ ProcCpuData processLine(const std::string & stat_cpu_line)
 }
 
 double computeCpuActivePercentage(
-  const ProcCpuData & measurement1,
-  const ProcCpuData & measurement2)
+  const system_metrics_collector::ProcCpuData & measurement1,
+  const system_metrics_collector::ProcCpuData & measurement2)
 {
   if (measurement1.isMeasurementEmpty() || measurement2.isMeasurementEmpty()) {
     RCUTILS_LOG_ERROR_NAMED("computeCpuActivePercentage",
@@ -84,7 +89,7 @@ LinuxCpuMeasurementNode::LinuxCpuMeasurementNode(
 
 double LinuxCpuMeasurementNode::periodicMeasurement()
 {
-  ProcCpuData current_measurement = makeSingleMeasurement();
+  const system_metrics_collector::ProcCpuData current_measurement = makeSingleMeasurement();
 
   const double cpu_percentage = computeCpuActivePercentage(
     last_measurement_,
@@ -95,21 +100,21 @@ double LinuxCpuMeasurementNode::periodicMeasurement()
   return cpu_percentage;
 }
 
-ProcCpuData LinuxCpuMeasurementNode::makeSingleMeasurement()
+system_metrics_collector::ProcCpuData LinuxCpuMeasurementNode::makeSingleMeasurement()
 {
   std::ifstream stat_file(PROC_STAT_FILE);
   if (!stat_file.good()) {
     RCLCPP_ERROR(this->get_logger(), "unable to open file %s", PROC_STAT_FILE);
-    return ProcCpuData();
+    return system_metrics_collector::ProcCpuData();
   }
   std::string line;
   std::getline(stat_file, line);
 
   if (!stat_file.good()) {
     RCLCPP_ERROR(this->get_logger(), "unable to get cpu line from file");
-    return ProcCpuData();
+    return system_metrics_collector::ProcCpuData();
   } else {
-    return processLine(line);
+    return processStatCpuLine(line);
   }
 }
 
@@ -119,8 +124,8 @@ void LinuxCpuMeasurementNode::publishStatistics()
     return;
   }
 
-  const StatisticData statistic_data = getStatisticsResults();
-  const double data[STATISTICS_DATA_TYPES.size()] = {
+  const moving_average_statistics::StatisticData statistic_data = getStatisticsResults();
+  const double data[moving_average_statistics::STATISTICS_DATA_TYPES.size()] = {
     statistic_data.average,
     statistic_data.min,
     statistic_data.max,
@@ -130,9 +135,9 @@ void LinuxCpuMeasurementNode::publishStatistics()
 
   MetricsMessage msg = newMetricsMessage();
   msg.metrics_source = "cpu_usage";
-  for (int i = 0; i < STATISTICS_DATA_TYPES.size(); ++i) {
+  for (int i = 0; i < moving_average_statistics::STATISTICS_DATA_TYPES.size(); ++i) {
     msg.statistics.emplace_back();
-    msg.statistics.back().data_type = STATISTICS_DATA_TYPES[i];
+    msg.statistics.back().data_type = moving_average_statistics::STATISTICS_DATA_TYPES[i];
     msg.statistics.back().data = data[i];
   }
 
@@ -144,3 +149,5 @@ bool LinuxCpuMeasurementNode::setupStart()
   last_measurement_ = ProcCpuData();
   return PeriodicMeasurementNode::setupStart();
 }
+
+}  // namespace system_metrics_collector

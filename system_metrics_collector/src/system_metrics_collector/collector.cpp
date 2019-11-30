@@ -21,6 +21,9 @@
 #include "../moving_average_statistics/moving_average.hpp"
 #include "../moving_average_statistics/types.hpp"
 
+namespace system_metrics_collector
+{
+
 bool Collector::start()
 {
   std::unique_lock<std::mutex> ulock(mutex);
@@ -52,7 +55,7 @@ void Collector::acceptData(const double measurement)
   collected_data_.addMeasurement(measurement);
 }
 
-StatisticData Collector::getStatisticsResults() const
+moving_average_statistics::StatisticData Collector::getStatisticsResults() const
 {
   return collected_data_.getStatistics();
 }
@@ -75,3 +78,5 @@ std::string Collector::getStatusString() const
     ", " << statisticsDataToString(getStatisticsResults());
   return ss.str();
 }
+
+}  // namespace system_metrics_collector

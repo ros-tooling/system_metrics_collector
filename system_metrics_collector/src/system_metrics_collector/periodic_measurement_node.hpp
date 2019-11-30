@@ -25,10 +25,13 @@
 #include "collector.hpp"
 
 
+namespace system_metrics_collector
+{
+
 /**
  * Class which makes periodic measurements, using a ROS2 timer.
  */
-class PeriodicMeasurementNode : public Collector, public rclcpp::Node
+class PeriodicMeasurementNode : public system_metrics_collector::Collector, public rclcpp::Node
 {
 public:
   static constexpr const std::chrono::milliseconds INVALID_PUBLISH_WINDOW =
@@ -125,5 +128,7 @@ protected:
 
   rclcpp::Publisher<metrics_statistics_msgs::msg::MetricsMessage>::SharedPtr publisher_;
 };
+
+}  // namespace system_metrics_collector
 
 #endif  // SYSTEM_METRICS_COLLECTOR__PERIODIC_MEASUREMENT_NODE_HPP_

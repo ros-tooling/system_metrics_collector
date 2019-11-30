@@ -39,7 +39,7 @@ constexpr const std::chrono::milliseconds PUBLISH_PERIOD =
 /**
  * Simple extension to test basic functionality
  */
-class TestPeriodicMeasurementNode : public PeriodicMeasurementNode
+class TestPeriodicMeasurementNode : public ::system_metrics_collector::PeriodicMeasurementNode
 {
 public:
   TestPeriodicMeasurementNode(
@@ -99,7 +99,8 @@ public:
 
     ASSERT_FALSE(test_periodic_measurer->isStarted());
 
-    const StatisticData data = test_periodic_measurer->getStatisticsResults();
+    const moving_average_statistics::StatisticData data =
+      test_periodic_measurer->getStatisticsResults();
     ASSERT_TRUE(std::isnan(data.average));
     ASSERT_TRUE(std::isnan(data.min));
     ASSERT_TRUE(std::isnan(data.max));
@@ -142,7 +143,7 @@ TEST_F(PeriodicMeasurementTestFixure, test_start_and_stop) {
   ex.add_node(test_periodic_measurer);
   ex.spin_until_future_complete(dummy_future, TEST_LENGTH);
 
-  StatisticData data = test_periodic_measurer->getStatisticsResults();
+  moving_average_statistics::StatisticData data = test_periodic_measurer->getStatisticsResults();
   EXPECT_EQ(3, data.average);
   EXPECT_EQ(1, data.min);
   EXPECT_EQ(TEST_LENGTH.count() / MEASURE_PERIOD.count(), data.max);

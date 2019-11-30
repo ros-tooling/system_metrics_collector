@@ -27,6 +27,9 @@
 
 #include "rcpputils/thread_safety_annotations.hpp"
 
+namespace moving_average_statistics
+{
+
 /**
  *  A class for calculating moving average statistics. This operates in constant memory and constant time. Note:
  *  reset() must be called manually in order to start a new measurement window.
@@ -114,5 +117,7 @@ private:
   double sum_of_square_diff_from_mean_ = 0         RCPPUTILS_TSA_GUARDED_BY(mutex);
   uint64_t count_ = 0                              RCPPUTILS_TSA_GUARDED_BY(mutex);
 };
+
+}  // namespace moving_average_statistics
 
 #endif  // MOVING_AVERAGE_STATISTICS__MOVING_AVERAGE_HPP_

@@ -21,6 +21,9 @@
 
 #include "metrics_statistics_msgs/msg/statistic_data_type.hpp"
 
+namespace moving_average_statistics
+{
+
 /**
  *  Enumeration of the various StatisticDataTypes
  */
@@ -59,5 +62,7 @@ static std::string statisticsDataToString(const StatisticData & results)
     results.standard_deviation) << ", count=" << std::to_string(results.sample_count);
   return ss.str();
 }
+
+}  // namespace moving_average_statistics
 
 #endif  // MOVING_AVERAGE_STATISTICS__TYPES_HPP_

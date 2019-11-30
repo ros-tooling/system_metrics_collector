@@ -23,7 +23,7 @@
 /**
  * Simple extension to test basic functionality
  */
-class TestCollector : public Collector
+class TestCollector : public system_metrics_collector::Collector
 {
 public:
   TestCollector() = default;

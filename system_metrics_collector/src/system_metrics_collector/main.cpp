@@ -36,13 +36,13 @@ int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
 
-  auto cpu_node = std::make_shared<LinuxCpuMeasurementNode>(
+  auto cpu_node = std::make_shared<system_metrics_collector::LinuxCpuMeasurementNode>(
     "linuxCpuCollector",
     std::chrono::milliseconds(1000),
     "not_publishing_yet",
     std::chrono::milliseconds(1000 * 60));
 
-  auto mem_node = std::make_shared<LinuxMemoryMeasurementNode>(
+  auto mem_node = std::make_shared<system_metrics_collector::LinuxMemoryMeasurementNode>(
     "linuxMemoryCollector",
     std::chrono::milliseconds(1000),
     "not_publishing_yet",
