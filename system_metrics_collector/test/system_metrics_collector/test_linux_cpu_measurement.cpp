@@ -86,8 +86,8 @@ public:
     const std::chrono::milliseconds measurement_period,
     const std::string & publishing_topic,
     const std::chrono::milliseconds publish_period)
-    : LinuxCpuMeasurementNode(name, measurement_period, publishing_topic, publish_period)
-  {}
+    : LinuxCpuMeasurementNode(name, measurement_period, publishing_topic, publish_period) {}
+
   virtual ~TestLinuxCpuMeasurementNode() = default;
 
   double periodicMeasurement() override
@@ -162,35 +162,6 @@ public:
 private:
   void MetricsMessageCallback(const MetricsMessage & msg)
   {
-    std::cout << msg.measurement_source_name << std::endl
-              << msg.metrics_source << std::endl
-              << msg.window_start.sec << ' ' << msg.window_start.nanosec << std::endl
-              << msg.window_stop.sec << ' ' << msg.window_stop.nanosec << std::endl;
-    for (int i = 0; i < STATISTICS_DATA_TYPES.size(); ++i) {
-      switch (msg.statistics[i].data_type) {
-        case StatisticDataType::STATISTICS_DATA_TYPE_AVERAGE:
-          std::cout << "avg=";
-          break;
-        case StatisticDataType::STATISTICS_DATA_TYPE_MINIMUM:
-          std::cout << "min=";
-          break;
-        case StatisticDataType::STATISTICS_DATA_TYPE_MAXIMUM:
-          std::cout << "max=";
-          break;
-        case StatisticDataType::STATISTICS_DATA_TYPE_STDDEV:
-          std::cout << "std_dev=";
-          break;
-        case StatisticDataType::STATISTICS_DATA_TYPE_SAMPLE_COUNT:
-          std::cout << "count=";
-          break;
-        default:
-          break;
-      }
-      std::cout << msg.statistics[i].data << " (expect: " << expected_stats[times_received][i].data
-                << ')' << std::endl;
-    }
-    std::cout << std::endl;
-
     ASSERT_GT(expected_stats.size(), times_received);
 
     // check source names

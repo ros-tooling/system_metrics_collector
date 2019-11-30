@@ -14,24 +14,45 @@
 
 #include <gtest/gtest.h>
 
+#include <array>
 #include <chrono>
+#include <functional>
 #include <iostream>
-#include <string>
 #include <memory>
 #include <mutex>
+#include <string>
+
+#include <metrics_statistics_msgs/msg/metrics_message.hpp>
 
 #include "../../src/system_metrics_collector/linux_memory_measurement_node.hpp"
 
-namespace
-{
+using metrics_statistics_msgs::msg::MetricsMessage;
+using metrics_statistics_msgs::msg::StatisticDataPoint;
+using metrics_statistics_msgs::msg::StatisticDataType;
+
+namespace {
+
+constexpr const char TEST_NODE_NAME[] = "test_measure_linux_memory";
+constexpr const char TEST_TOPIC[] = "test_memory_measure_topic";
+
+constexpr const std::chrono::milliseconds TEST_LENGTH =
+  std::chrono::milliseconds(250);
+constexpr const std::chrono::milliseconds MEASURE_PERIOD =
+  std::chrono::milliseconds(50);
+constexpr const std::chrono::milliseconds PUBLISH_PERIOD =
+  std::chrono::milliseconds(80);
+
 constexpr const char EMPTY_SAMPLE[] = "";
 constexpr const char GARBAGE_SAMPLE[] = "this is garbage\n";
-constexpr const char INCOMPLETE_SAMPLE[] = "MemTotal:       16302048 kB\n"
+constexpr const char INCOMPLETE_SAMPLE[] = 
+  "MemTotal:       16302048 kB\n"
   "MemFree:          443300 kB\n";
-constexpr const char COMPLETE_SAMPLE[] = "MemTotal:       16302048 kB\n"
+constexpr const char COMPLETE_SAMPLE[] = 
+  "MemTotal:       16302048 kB\n"
   "MemFree:          239124 kB\n"
   "MemAvailable:    9104952 kB\n";
-constexpr const char FULL_SAMPLE[] = "MemTotal:       16302048 kB\n"
+constexpr const char FULL_SAMPLE[] = 
+  "MemTotal:       16302048 kB\n"
   "MemFree:          239124 kB\n"
   "MemAvailable:    9104952 kB\n"
   "Buffers:         2755028 kB\n"
@@ -79,9 +100,61 @@ constexpr const char FULL_SAMPLE[] = "MemTotal:       16302048 kB\n"
   "DirectMap4k:     3993192 kB\n"
   "DirectMap2M:    12660736 kB\n"
   "DirectMap1G:     1048576 kB";
-constexpr const auto TEST_PERIOD{std::chrono::milliseconds(50)};
+
+constexpr const std::array<const char *, 10> SAMPLES = {
+  FULL_SAMPLE,
+
+  "MemTotal:       16304208 kB\n"
+  "MemFree:          845168 kB\n"
+  "MemAvailable:    4840176 kB\n",
+
+  "MemTotal:       16302048 kB\n"
+  "MemFree:         9104952 kB\n"
+  "MemAvailable:     239124 kB\n",
+
+  "MemTotal:       16304208 kB\n"
+  "MemFree:          821256 kB\n"
+  "MemAvailable:    4828452 kB\n",
+
+  "MemTotal:       16304208 kB\n"
+  "MemFree:          825460 kB\n"
+  "MemAvailable:    4835920 kB\n",
+
+  "MemTotal:       16304208 kB\n"
+  "MemFree:          826912 kB\n"
+  "MemAvailable:    4837388 kB\n",
+
+  "MemTotal:       16304208 kB\n"
+  "MemFree:          827568 kB\n"
+  "MemAvailable:    4838060 kB\n",
+
+  "MemTotal:       16304208 kB\n"
+  "MemFree:          826792 kB\n"
+  "MemAvailable:    4837376 kB\n",
+
+  "MemTotal:       16304208 kB\n"
+  "MemFree:          827380 kB\n"
+  "MemAvailable:    4838020 kB\n",
+
+  "MemTotal:       16304208 kB\n"
+  "MemFree:          826968 kB\n"
+  "MemAvailable:    4837664 kB\n",
+};
+
 constexpr const double MEMORY_USED_PERCENTAGE = 44.148416198995363;
+
+void StatisticDataToStatisticDataPoints(const StatisticData & src, StatisticDataPoint * dst)
+{
+  dst[StatisticDataType::STATISTICS_DATA_TYPE_AVERAGE - 1].data = src.average;
+  dst[StatisticDataType::STATISTICS_DATA_TYPE_MINIMUM - 1].data = src.min;
+  dst[StatisticDataType::STATISTICS_DATA_TYPE_MAXIMUM - 1].data = src.max;
+  dst[StatisticDataType::STATISTICS_DATA_TYPE_STDDEV - 1].data = src.standard_deviation;
+  dst[StatisticDataType::STATISTICS_DATA_TYPE_SAMPLE_COUNT - 1].data 
+    = static_cast<double>(src.sample_count);
+}
+
 }  // namespace
+
 
 class TestLinuxMemoryMeasurementNode : public LinuxMemoryMeasurementNode
 {
@@ -89,32 +162,33 @@ public:
   TestLinuxMemoryMeasurementNode(
     const std::string & name,
     const std::chrono::milliseconds measurement_period,
-    const std::string & publishing_topic)
-  : LinuxMemoryMeasurementNode(name, measurement_period, publishing_topic,
-      PeriodicMeasurementNode::INVALID_PUBLISH_WINDOW)
-  {}
+    const std::string & publishing_topic,
+    const std::chrono::milliseconds publish_period)
+  : LinuxMemoryMeasurementNode(name, measurement_period, publishing_topic, publish_period),
+    measurement_index(0) {}
+
   virtual ~TestLinuxMemoryMeasurementNode() = default;
 
-  double periodicMeasurement() override
+  void setTestString(const std::string & test_string)
   {
-    // override to avoid calling methods involved in file i/o
-    return processLines(test_string_);
-  }
-
-  /**
-   * Test publish for the fixture.
-   *
-   * @return
-   */
-  void publishStatistics() override {}
-
-  void setTestString(std::string & test_string)
-  {
+    measurement_index = -1;
     test_string_ = test_string;
   }
 
+  // override to avoid calling methods involved in file i/o
+  double periodicMeasurement() override
+  {
+    if (measurement_index < 0) {
+      return processLines(test_string_);
+    } else {
+      EXPECT_GT(SAMPLES.size(), measurement_index);
+      return processLines(SAMPLES[measurement_index++]);
+    }
+  }
+
 private:
-  std::string test_string_{""};
+  int measurement_index;
+  std::string test_string_;
 };
 
 class LinuxMemoryMeasurementTestFixture : public ::testing::Test
@@ -125,8 +199,7 @@ public:
     rclcpp::init(0, nullptr);
 
     test_measure_linux_memory = std::make_shared<TestLinuxMemoryMeasurementNode>(
-      "test_periodic_node",
-      TEST_PERIOD, "test_topic");
+      TEST_NODE_NAME, MEASURE_PERIOD, TEST_TOPIC, PUBLISH_PERIOD);
 
     ASSERT_FALSE(test_measure_linux_memory->isStarted());
 
@@ -149,16 +222,99 @@ protected:
   std::shared_ptr<TestLinuxMemoryMeasurementNode> test_measure_linux_memory;
 };
 
-TEST_F(LinuxMemoryMeasurementTestFixture, testManualMeasurement) {
-  double mem_used_percentage = test_measure_linux_memory->periodicMeasurement();
-  ASSERT_TRUE(std::isnan(mem_used_percentage));
+class TestReceiveMemoryMeasurementNode : public rclcpp::Node
+{
+public:
+  TestReceiveMemoryMeasurementNode(const std::string & name) : rclcpp::Node(name), times_received(0)
+  {
+    auto callback = [this](MetricsMessage::UniquePtr msg) { this->MetricsMessageCallback(*msg); };
+    subscription = create_subscription<MetricsMessage,
+      std::function<void(MetricsMessage::UniquePtr)>>(TEST_TOPIC, 10, callback);
 
-  auto s = std::string(FULL_SAMPLE);
-  test_measure_linux_memory->setTestString(s);
+    for (auto & stats : expected_stats) {
+      for (int i = 0; i < STATISTICS_DATA_TYPES.size(); ++i) {
+        stats[i].data_type = STATISTICS_DATA_TYPES[i];
+        stats[i].data = std::nan("");
+      }
+    }
 
-  mem_used_percentage = test_measure_linux_memory->periodicMeasurement();
-  ASSERT_DOUBLE_EQ(MEMORY_USED_PERCENTAGE, mem_used_percentage);
-}
+    // setting expected_stats[0]
+    MovingAverageStatistics stats_calc;
+    stats_calc.addMeasurement(processLines(SAMPLES[0]));
+    StatisticData data = stats_calc.getStatistics();
+    StatisticDataToStatisticDataPoints(data, expected_stats[0]);
+
+    // setting expected_stats[1]
+    stats_calc.reset();
+    stats_calc.addMeasurement(processLines(SAMPLES[1]));
+    stats_calc.addMeasurement(processLines(SAMPLES[2]));
+    data = stats_calc.getStatistics();
+    StatisticDataToStatisticDataPoints(data, expected_stats[1]);
+
+    // setting expected_stats[2]
+    stats_calc.reset();
+    stats_calc.addMeasurement(processLines(SAMPLES[3]));
+    data = stats_calc.getStatistics();
+    StatisticDataToStatisticDataPoints(data, expected_stats[2]);
+
+    // setting expected_stats[3]
+    stats_calc.reset();
+    stats_calc.addMeasurement(processLines(SAMPLES[5]));
+    data = stats_calc.getStatistics();
+    StatisticDataToStatisticDataPoints(data, expected_stats[3]);
+
+    // setting expected_stats[4]
+    stats_calc.reset();
+    stats_calc.addMeasurement(processLines(SAMPLES[6]));
+    stats_calc.addMeasurement(processLines(SAMPLES[7]));
+    data = stats_calc.getStatistics();
+    StatisticDataToStatisticDataPoints(data, expected_stats[4]);
+
+    // setting expected_stats[5]
+    stats_calc.reset();
+    stats_calc.addMeasurement(processLines(SAMPLES[8]));
+    data = stats_calc.getStatistics();
+    StatisticDataToStatisticDataPoints(data, expected_stats[5]);
+  }
+
+  int getNumReceived() const
+  {
+    return times_received;
+  }
+
+private:
+  void MetricsMessageCallback(const MetricsMessage & msg)
+  {
+    ASSERT_GT(expected_stats.size(), times_received);
+
+    // check source names
+    EXPECT_EQ(TEST_NODE_NAME, msg.measurement_source_name);
+    EXPECT_EQ("memory_usage", msg.metrics_source);
+
+    // check measurement window
+    std::chrono::seconds window_sec(msg.window_stop.sec - msg.window_start.sec);
+    std::chrono::nanoseconds window_nanosec(msg.window_stop.nanosec - msg.window_start.nanosec);
+    std::chrono::milliseconds window = std::chrono::duration_cast<std::chrono::milliseconds>(
+      window_sec + window_nanosec);
+    EXPECT_GT(5, std::abs(window.count() - PUBLISH_PERIOD.count()));
+
+    // check measurements
+    for (int i = 0; i < STATISTICS_DATA_TYPES.size(); ++i) {
+      EXPECT_EQ(STATISTICS_DATA_TYPES[i], msg.statistics[i].data_type);
+      if (std::isnan(expected_stats[times_received][i].data)) {
+        EXPECT_TRUE(std::isnan(msg.statistics[i].data));
+      } else {
+        EXPECT_DOUBLE_EQ(expected_stats[times_received][i].data, msg.statistics[i].data);
+      }
+    }
+
+    ++times_received;
+  }
+
+  rclcpp::Subscription<MetricsMessage>::SharedPtr subscription;
+  std::array<StatisticDataPoint[STATISTICS_DATA_TYPES.size()], 6> expected_stats;
+  int times_received;
+};
 
 TEST(LinuxMemoryMeasurementTest, testReadInvalidFile)
 {
@@ -182,4 +338,93 @@ TEST(LinuxMemoryMeasurementTest, testProcessLines)
 
   d = processLines(FULL_SAMPLE);
   ASSERT_DOUBLE_EQ(MEMORY_USED_PERCENTAGE, d);
+}
+
+TEST_F(LinuxMemoryMeasurementTestFixture, testManualMeasurement) {
+  test_measure_linux_memory->setTestString("");
+  double mem_used_percentage = test_measure_linux_memory->periodicMeasurement();
+  ASSERT_TRUE(std::isnan(mem_used_percentage));
+
+  test_measure_linux_memory->setTestString(FULL_SAMPLE);
+  mem_used_percentage = test_measure_linux_memory->periodicMeasurement();
+  ASSERT_DOUBLE_EQ(MEMORY_USED_PERCENTAGE, mem_used_percentage);
+}
+
+TEST_F(LinuxMemoryMeasurementTestFixture, testPublishMetricsMessage)
+{
+  ASSERT_NE(test_measure_linux_memory, nullptr);
+  ASSERT_FALSE(test_measure_linux_memory->isStarted());
+
+  auto test_receive_measurements = std::make_shared<TestReceiveMemoryMeasurementNode>(
+    "test_receive_measurements");
+  std::promise<bool> empty_promise;
+  std::shared_future<bool> dummy_future = empty_promise.get_future();
+  rclcpp::executors::SingleThreadedExecutor ex;
+  ex.add_node(test_measure_linux_memory);
+  ex.add_node(test_receive_measurements);
+
+  //
+  // spin the node with it started
+  //
+  bool start_success = test_measure_linux_memory->start();
+  ASSERT_TRUE(start_success);
+  ASSERT_TRUE(test_measure_linux_memory->isStarted());
+  ex.spin_until_future_complete(dummy_future, TEST_LENGTH);
+  EXPECT_EQ(3, test_receive_measurements->getNumReceived());
+  // expectation is:
+  // 50 ms: SAMPLES[0] is collected
+  // 80 ms: statistics derived from SAMPLES[0] is published. statistics are cleared
+  // 100 ms: SAMPLES[1] is collected
+  // 150 ms: SAMPLES[2] is collected
+  // 160 ms: statistics derived from SAMPLES[1 & 2] is published. statistics are cleared
+  // 200 ms: SAMPLES[3] is collected
+  // 240 ms: statistics derived from SAMPLES[3] is published. statistics are cleared
+  // 250 ms: SAMPLES[4] is collected. last getStatisticsResults() is of SAMPLES[4]
+  StatisticData data = test_measure_linux_memory->getStatisticsResults();
+  EXPECT_EQ(1, data.sample_count);
+
+  //
+  // spin the node with it stopped
+  //
+  bool stop_success = test_measure_linux_memory->stop();
+  ASSERT_TRUE(stop_success);
+  ASSERT_FALSE(test_measure_linux_memory->isStarted());
+  ex.spin_until_future_complete(dummy_future, TEST_LENGTH);
+  EXPECT_EQ(3, test_receive_measurements->getNumReceived());
+  // expectation is:
+  // upon calling stop, samples are cleared, so getStatisticsResults() would be NaNs
+  // no MetricsMessages are published
+  data = test_measure_linux_memory->getStatisticsResults();
+  EXPECT_TRUE(std::isnan(data.average));
+  EXPECT_TRUE(std::isnan(data.min));
+  EXPECT_TRUE(std::isnan(data.max));
+  EXPECT_TRUE(std::isnan(data.standard_deviation));
+  EXPECT_EQ(0, data.sample_count);
+
+  //
+  // spin the node with it restarted
+  //
+  start_success = test_measure_linux_memory->start();
+  ASSERT_TRUE(start_success);
+  ASSERT_TRUE(test_measure_linux_memory->isStarted());
+  ex.spin_until_future_complete(dummy_future, TEST_LENGTH);
+  EXPECT_EQ(6, test_receive_measurements->getNumReceived());
+  // expectation is:
+  // 50 ms: SAMPLES[5] is collected
+  // 80 ms: statistics derived from SAMPLES[5] is published. statistics are cleared
+  // 100 ms: SAMPLES[6] is collected
+  // 150 ms: SAMPLES[7] is collected
+  // 160 ms: statistics derived from SAMPLES[6 & 7] is published. statistics are cleared
+  // 200 ms: SAMPLES[8] is collected
+  // 240 ms: statistics derived from SAMPLES[8] is published. statistics are cleared
+  // 250 ms: SAMPLES[9] is collected. last getStatisticsResults() is of SAMPLES[9]
+  data = test_measure_linux_memory->getStatisticsResults();
+  EXPECT_EQ(1, data.sample_count);
+
+  //
+  // stop the node to finish off the test
+  //
+  stop_success = test_measure_linux_memory->stop();
+  ASSERT_TRUE(stop_success);
+  ASSERT_FALSE(test_measure_linux_memory->isStarted());
 }
