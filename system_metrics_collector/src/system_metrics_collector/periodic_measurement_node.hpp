@@ -32,22 +32,24 @@ namespace system_metrics_collector
 class PeriodicMeasurementNode : public system_metrics_collector::Collector, public rclcpp::Node
 {
 public:
-  static constexpr const std::chrono::milliseconds DEFAULT_PUBLISH_WINDOW =
+  static constexpr const std::chrono::milliseconds INVALID_PUBLISH_WINDOW =
     std::chrono::milliseconds(0);
+
   /**
    * Construct a PeriodicMeasurementNode.
    *
    * @param name the name of this node
    * @param topic the topic for publishing data
    * @param measurement_period
-   * @param publish_period the window of active measurements. If specified all measurements
-   * will be cleared when the window has been exceeded.
+   * @param publish_period the window of active measurements
+   * @param clear_measurements_on_publish whether all measurements should be cleared
+   *        between subsequent publishing windows
    */
   PeriodicMeasurementNode(
     const std::string & name,
     const std::chrono::milliseconds measurement_period,
     const std::string & topic,  // todo @dbbonnie think about a default topic
-    const std::chrono::milliseconds publish_period = DEFAULT_PUBLISH_WINDOW,
+    const std::chrono::milliseconds publish_period,
     const bool clear_measurements_on_publish = true);
 
   virtual ~PeriodicMeasurementNode() = default;
