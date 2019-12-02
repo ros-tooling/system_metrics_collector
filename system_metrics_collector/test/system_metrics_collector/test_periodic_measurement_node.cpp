@@ -74,8 +74,11 @@ public:
   {
     rclcpp::init(0, nullptr);
 
-    test_periodic_measurer = std::make_shared<TestPeriodicMeasurementNode>("test_periodic_node",
-        TEST_PERIOD, "test_topic", std::chrono::milliseconds(-1) /*invalid publishing period*/);
+    test_periodic_measurer = std::make_shared<TestPeriodicMeasurementNode>(
+      "test_periodic_node",
+      TEST_PERIOD,
+      "test_topic",
+      ::system_metrics_collector::PeriodicMeasurementNode::INVALID_PUBLISH_WINDOW);
 
     ASSERT_FALSE(test_periodic_measurer->isStarted());
 

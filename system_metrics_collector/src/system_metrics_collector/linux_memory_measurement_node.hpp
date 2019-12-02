@@ -58,10 +58,9 @@ public:
    * Construct a LinuxMemoryMeasurementNode
    *
    * @param name the name of this node
-   * @param measurement_period the period of this node, used to
-   *        read measurements
+   * @param measurement_period the period of this node, used to read measurements
    * @param topic the topic name used for publishing
-   * @param publish_period the period at which metrics are published
+   * @param publish_period the period at which metrics are published. 0 ms means don't publish
    */
   LinuxMemoryMeasurementNode(
     const std::string & name,

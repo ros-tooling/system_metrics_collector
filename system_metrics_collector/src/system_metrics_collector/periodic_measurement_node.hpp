@@ -32,6 +32,9 @@ namespace system_metrics_collector
 class PeriodicMeasurementNode : public system_metrics_collector::Collector, public rclcpp::Node
 {
 public:
+  static constexpr const std::chrono::milliseconds INVALID_PUBLISH_WINDOW =
+    std::chrono::milliseconds(0);
+
   /**
    * Construct a PeriodicMeasurementNode.
    *
