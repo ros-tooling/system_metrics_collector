@@ -16,8 +16,8 @@
 #include "periodic_measurement_node.hpp"
 
 #include <chrono>
-#include <string>
 #include <stdexcept>
+#include <string>
 
 #include "rclcpp/rclcpp.hpp"
 
