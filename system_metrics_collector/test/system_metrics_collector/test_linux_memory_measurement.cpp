@@ -91,7 +91,7 @@ public:
     const std::chrono::milliseconds measurement_period,
     const std::string & publishing_topic)
   : LinuxMemoryMeasurementNode(name, measurement_period, publishing_topic,
-      PeriodicMeasurementNode::INVALID_PUBLISH_WINDOW)
+      std::chrono::milliseconds(-1) /*invalid publishing period*/)
   {}
   virtual ~TestLinuxMemoryMeasurementNode() = default;
 

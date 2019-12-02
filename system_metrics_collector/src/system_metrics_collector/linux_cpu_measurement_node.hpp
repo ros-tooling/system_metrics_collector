@@ -57,15 +57,15 @@ public:
    *
    * @param name the name of this node
    * @param measurement_period the period of this node, used to
-   * read measurements
+   *        read measurements
    * @param topic the topic name used for publishing
+   * @param publish_period the period at which metrics are published
    */
   LinuxCpuMeasurementNode(
     const std::string & name,
     const std::chrono::milliseconds measurement_period,
     const std::string & topic,
-    const std::chrono::milliseconds publish_period =
-    PeriodicMeasurementNode::INVALID_PUBLISH_WINDOW);
+    const std::chrono::milliseconds publish_period);
 
   virtual ~LinuxCpuMeasurementNode() = default;
 

@@ -44,8 +44,7 @@ public:
     const std::string & name,
     const std::chrono::milliseconds measurement_period,
     const std::string & publishing_topic,
-    const std::chrono::milliseconds publish_period =
-    PeriodicMeasurementNode::INVALID_PUBLISH_WINDOW)
+    const std::chrono::milliseconds publish_period)
   : PeriodicMeasurementNode(name, measurement_period, publishing_topic, publish_period)
   {}
   virtual ~TestPeriodicMeasurementNode() = default;
@@ -76,7 +75,7 @@ public:
     rclcpp::init(0, nullptr);
 
     test_periodic_measurer = std::make_shared<TestPeriodicMeasurementNode>("test_periodic_node",
-        TEST_PERIOD, "test_topic");
+        TEST_PERIOD, "test_topic", std::chrono::milliseconds(-1) /*invalid publishing period*/);
 
     ASSERT_FALSE(test_periodic_measurer->isStarted());
 
