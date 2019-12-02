@@ -42,7 +42,7 @@ public:
     const std::chrono::milliseconds measurement_period,
     const std::string & publishing_topic)
   : LinuxCpuMeasurementNode(name, measurement_period, publishing_topic,
-      PeriodicMeasurementNode::DEFAULT_PUBLISH_WINDOW)
+      PeriodicMeasurementNode::INVALID_PUBLISH_WINDOW)
   {}
   virtual ~TestLinuxCpuMeasurementNode() = default;
 

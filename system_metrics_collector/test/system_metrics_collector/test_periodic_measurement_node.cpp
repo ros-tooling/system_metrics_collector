@@ -45,7 +45,7 @@ public:
     const std::chrono::milliseconds measurement_period,
     const std::string & publishing_topic,
     const std::chrono::milliseconds publish_period =
-    PeriodicMeasurementNode::DEFAULT_PUBLISH_WINDOW)
+    PeriodicMeasurementNode::INVALID_PUBLISH_WINDOW)
   : PeriodicMeasurementNode(name, measurement_period, publishing_topic, publish_period)
   {}
   virtual ~TestPeriodicMeasurementNode() = default;

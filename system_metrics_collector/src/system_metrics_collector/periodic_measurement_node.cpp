@@ -23,8 +23,7 @@
 namespace system_metrics_collector
 {
 
-/* static */ constexpr const std::chrono::milliseconds PeriodicMeasurementNode::
-DEFAULT_PUBLISH_WINDOW;
+constexpr const std::chrono::milliseconds PeriodicMeasurementNode::INVALID_PUBLISH_WINDOW;
 
 PeriodicMeasurementNode::PeriodicMeasurementNode(
   const std::string & name,
@@ -55,7 +54,7 @@ bool PeriodicMeasurementNode::setupStart()
   }
 
   if (!publish_timer_ &&
-    publish_period_ != PeriodicMeasurementNode::DEFAULT_PUBLISH_WINDOW)
+    publish_period_ != PeriodicMeasurementNode::INVALID_PUBLISH_WINDOW)
   {
     RCLCPP_DEBUG(this->get_logger(), "setupStart: creating publish_timer_");
 
@@ -88,7 +87,7 @@ std::string PeriodicMeasurementNode::getStatusString() const
     ", measurement_period=" << std::to_string(measurement_period_.count()) << "ms" <<
     ", publishing_topic=" << publishing_topic_ <<
     ", publish_period=" <<
-  (publish_period_ != PeriodicMeasurementNode::DEFAULT_PUBLISH_WINDOW ?
+  (publish_period_ != PeriodicMeasurementNode::INVALID_PUBLISH_WINDOW ?
   std::to_string(publish_period_.count()) + "ms" : "None") <<
     ", clear_measurements_on_publish_=" << clear_measurements_on_publish_ <<
     ", " << Collector::getStatusString();

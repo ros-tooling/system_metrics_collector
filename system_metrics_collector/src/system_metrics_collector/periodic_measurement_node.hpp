@@ -32,7 +32,7 @@ namespace system_metrics_collector
 class PeriodicMeasurementNode : public system_metrics_collector::Collector, public rclcpp::Node
 {
 public:
-  static constexpr const std::chrono::milliseconds DEFAULT_PUBLISH_WINDOW =
+  static constexpr const std::chrono::milliseconds INVALID_PUBLISH_WINDOW =
     std::chrono::milliseconds(0);
   /**
    * Construct a PeriodicMeasurementNode.
@@ -47,7 +47,7 @@ public:
     const std::string & name,
     const std::chrono::milliseconds measurement_period,
     const std::string & topic,  // todo @dbbonnie think about a default topic
-    const std::chrono::milliseconds publish_period = DEFAULT_PUBLISH_WINDOW,
+    const std::chrono::milliseconds publish_period = INVALID_PUBLISH_WINDOW,
     const bool clear_measurements_on_publish = true);
 
   virtual ~PeriodicMeasurementNode() = default;

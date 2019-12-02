@@ -67,7 +67,7 @@ public:
     const std::chrono::milliseconds measurement_period,
     const std::string & topic,
     const std::chrono::milliseconds publish_period =
-    PeriodicMeasurementNode::DEFAULT_PUBLISH_WINDOW);
+    PeriodicMeasurementNode::INVALID_PUBLISH_WINDOW);
 
   virtual ~LinuxMemoryMeasurementNode() = default;
 
