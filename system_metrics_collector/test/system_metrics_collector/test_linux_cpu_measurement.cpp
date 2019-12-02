@@ -31,7 +31,7 @@ constexpr const char proc_sample_2[] =
   "cpu  22451360 118653 7348080 934949227 5378120 0 419117 0 0 0\n";
 constexpr const std::chrono::milliseconds TEST_PERIOD =
   std::chrono::milliseconds(50);
-constexpr const double CPU_ACTIVE_PERCENTAGE = 2.8002699055330633;
+constexpr const double CPU_ACTIVE_PERCENTAGE = 2.7239908106334099;
 }  // namespace
 
 class TestLinuxCpuMeasurementNode : public system_metrics_collector::LinuxCpuMeasurementNode

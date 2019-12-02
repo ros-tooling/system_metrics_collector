@@ -72,7 +72,7 @@ double computeCpuActivePercentage(
 
   const double active_time = measurement2.getActiveTime() - measurement1.getActiveTime();
   const double total_time = (measurement2.getIdleTime() + measurement2.getActiveTime()) -
-    (measurement1.getIdleTime() + measurement2.getActiveTime());
+    (measurement1.getIdleTime() + measurement1.getActiveTime());
 
   return 100.0 * active_time / total_time;
 }
