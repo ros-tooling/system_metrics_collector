@@ -33,7 +33,8 @@ class PeriodicMeasurementNode : public system_metrics_collector::Collector, publ
 {
 public:
   static constexpr const std::chrono::milliseconds INVALID_PUBLISH_WINDOW =
-    std::chrono::milliseconds(0);
+    std::chrono::milliseconds(-1);
+
   /**
    * Construct a PeriodicMeasurementNode.
    *
