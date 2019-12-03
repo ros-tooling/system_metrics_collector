@@ -14,11 +14,15 @@
 
 #include "batch_statistics_message_publisher.hpp"
 
+#include <string>
+#include <utility>
+
 using metrics_statistics_msgs::msg::MetricsMessage;
 using metrics_statistics_msgs::msg::StatisticDataPoint;
 using metrics_statistics_msgs::msg::StatisticDataType;
 
-namespace system_metrics_collector {
+namespace system_metrics_collector
+{
 
 /* static */ constexpr const std::chrono::milliseconds BatchStatisticsMessagePublisher::
 INVALID_PUBLISH_WINDOW;

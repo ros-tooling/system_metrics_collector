@@ -32,7 +32,7 @@ namespace system_metrics_collector
 /**
  * Class which makes periodic measurements, using a ROS2 timer.
  */
-class PeriodicMeasurementNode : public system_metrics_collector::Collector, 
+class PeriodicMeasurementNode : public system_metrics_collector::Collector,
   public system_metrics_collector::BatchStatisticsMessagePublisher, public rclcpp::Node
 {
 public:

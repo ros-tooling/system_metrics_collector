@@ -16,13 +16,15 @@
 #define SYSTEM_METRICS_COLLECTOR__BATCH_STATISTICS_MESSAGE_PUBLISHER_HPP_
 
 #include <chrono>
+#include <string>
 
 #include "builtin_interfaces/msg/time.hpp"
 #include "metrics_statistics_msgs/msg/metrics_message.hpp"
 
 #include "../moving_average_statistics/types.hpp"
 
-namespace system_metrics_collector {
+namespace system_metrics_collector
+{
 
 class BatchStatisticsMessagePublisher
 {
@@ -47,4 +49,4 @@ public:
 
 }  // namespace system_metrics_collector
 
-#endif  // SYSTEM_METRICS_COLLECTOR__COLLECTOR_HPP_
+#endif  // SYSTEM_METRICS_COLLECTOR__BATCH_STATISTICS_MESSAGE_PUBLISHER_HPP_

@@ -35,7 +35,8 @@ using moving_average_statistics::StatisticData;
 using moving_average_statistics::STATISTICS_DATA_TYPES;
 using system_metrics_collector::processStatCpuLine;
 
-namespace {
+namespace
+{
 
 constexpr const char TEST_NODE_NAME[] = "test_measure_linux_cpu";
 constexpr const char TEST_TOPIC[] = "test_cpu_measure_topic";
@@ -80,7 +81,7 @@ public:
     const std::chrono::milliseconds measurement_period,
     const std::string & publishing_topic,
     const std::chrono::milliseconds publish_period)
-    : LinuxCpuMeasurementNode(name, measurement_period, publishing_topic, publish_period) {}
+  : LinuxCpuMeasurementNode(name, measurement_period, publishing_topic, publish_period) {}
 
   virtual ~TestLinuxCpuMeasurementNode() = default;
 
@@ -103,11 +104,11 @@ class TestReceiveCpuMeasurementNode : public rclcpp::Node
 {
 public:
   explicit TestReceiveCpuMeasurementNode(const std::string & name)
-    : rclcpp::Node(name), times_received(0)
+  : rclcpp::Node(name), times_received(0)
   {
     auto callback = [this](MetricsMessage::UniquePtr msg) {this->MetricsMessageCallback(*msg);};
     subscription = create_subscription<MetricsMessage,
-    std::function<void(MetricsMessage::UniquePtr)>>(TEST_TOPIC, 10, callback);
+        std::function<void(MetricsMessage::UniquePtr)>>(TEST_TOPIC, 10, callback);
 
     // tools for calculating expected statistics values
     moving_average_statistics::MovingAverageStatistics stats_calc;
@@ -170,7 +171,8 @@ public:
   }
 
 private:
-  using ExpectedStatistics = std::unordered_map<decltype(StatisticDataPoint::data_type), decltype(StatisticDataPoint::data)>;
+  using ExpectedStatistics =
+    std::unordered_map<decltype(StatisticDataPoint::data_type), decltype(StatisticDataPoint::data)>;
 
   void StatisticDataToExpectedStatistics(const StatisticData & src, ExpectedStatistics & dst)
   {
@@ -225,7 +227,7 @@ public:
     rclcpp::init(0, nullptr);
 
     test_measure_linux_cpu = std::make_shared<TestLinuxCpuMeasurementNode>(TEST_NODE_NAME,
-                                                                           MEASURE_PERIOD, TEST_TOPIC, PUBLISH_PERIOD);
+        MEASURE_PERIOD, TEST_TOPIC, PUBLISH_PERIOD);
 
     ASSERT_FALSE(test_measure_linux_cpu->isStarted());
 
@@ -280,7 +282,8 @@ TEST(LinuxCpuMeasurementTest, testEmptyProcCpuData)
   ASSERT_EQ(system_metrics_collector::ProcCpuData::EMPTY_LABEL, empty.cpu_label);
 
   for (int i = 0; i < static_cast<int>(system_metrics_collector::ProcCpuStates::kNumProcCpuStates);
-       i++) {
+    i++)
+  {
     ASSERT_EQ(0, empty.times[i]);
   }
 }
@@ -301,7 +304,7 @@ TEST_F(LinuxCpuMeasurementTestFixture, testPublishMetricsMessage)
   ASSERT_FALSE(test_measure_linux_cpu->isStarted());
 
   auto test_receive_measurements = std::make_shared<TestReceiveCpuMeasurementNode>(
-                                     "test_receive_measurements");
+    "test_receive_measurements");
   std::promise<bool> empty_promise;
   std::shared_future<bool> dummy_future = empty_promise.get_future();
   rclcpp::executors::SingleThreadedExecutor ex;

@@ -21,6 +21,7 @@
 #include <memory>
 #include <mutex>
 #include <string>
+#include <unordered_map>
 
 #include "metrics_statistics_msgs/msg/metrics_message.hpp"
 
@@ -290,7 +291,8 @@ public:
   }
 
 private:
-  using ExpectedStatistics = std::unordered_map<decltype(StatisticDataPoint::data_type), decltype(StatisticDataPoint::data)>;
+  using ExpectedStatistics =
+    std::unordered_map<decltype(StatisticDataPoint::data_type), decltype(StatisticDataPoint::data)>;
 
   void StatisticDataToExpectedStatistics(const StatisticData & src, ExpectedStatistics & dst)
   {
