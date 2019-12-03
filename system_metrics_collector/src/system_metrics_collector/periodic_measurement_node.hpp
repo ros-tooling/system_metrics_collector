@@ -94,7 +94,6 @@ private:
    */
   const bool clear_measurements_on_publish_;
 
-  rclcpp::Time measurement_start_;
   rclcpp::TimerBase::SharedPtr measurement_timer_;
   rclcpp::TimerBase::SharedPtr publish_timer_;
 
@@ -114,11 +113,9 @@ protected:
   bool setupStop() override;
 
   /**
-   * Returns a new MetricsMessage with some common information filled out
-   *
-   * @return new MetricsMessage
+   * The tracking of the starting time of the statistics
    */
-  metrics_statistics_msgs::msg::MetricsMessage newMetricsMessage();
+  rclcpp::Time window_start_;
 
   rclcpp::Publisher<metrics_statistics_msgs::msg::MetricsMessage>::SharedPtr publisher_;
 };

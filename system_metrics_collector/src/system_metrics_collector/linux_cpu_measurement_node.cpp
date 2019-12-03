@@ -127,7 +127,7 @@ system_metrics_collector::ProcCpuData LinuxCpuMeasurementNode::makeSingleMeasure
 
 void LinuxCpuMeasurementNode::publishStatisticMessage()
 {
-  MetricsMessage msg = generateStatisticMessage();
+  auto msg = generateStatisticMessage(get_name(), "cpu_usage", window_start_, now(), getStatisticsResults());
   publisher_->publish(msg);
 }
 

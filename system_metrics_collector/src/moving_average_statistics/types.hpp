@@ -16,6 +16,7 @@
 #define MOVING_AVERAGE_STATISTICS__TYPES_HPP_
 
 #include <array>
+#include <cmath>
 #include <sstream>
 #include <string>
 

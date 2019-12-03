@@ -128,7 +128,7 @@ double LinuxMemoryMeasurementNode::periodicMeasurement()
 
 void LinuxMemoryMeasurementNode::publishStatisticMessage()
 {
-  MetricsMessage msg = generateStatisticMessage();
+  auto msg = generateStatisticMessage(get_name(), "memory_usage", window_start_, now(), getStatisticsResults());
   publisher_->publish(msg);
 }
 

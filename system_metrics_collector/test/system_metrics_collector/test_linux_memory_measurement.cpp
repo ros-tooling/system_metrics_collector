@@ -147,16 +147,6 @@ constexpr const std::array<const char *, 10> SAMPLES = {
 
 constexpr const double MEMORY_USED_PERCENTAGE = 44.148416198995363;
 
-void StatisticDataToStatisticDataPoints(const StatisticData & src, StatisticDataPoint * dst)
-{
-  dst[StatisticDataType::STATISTICS_DATA_TYPE_AVERAGE - 1].data = src.average;
-  dst[StatisticDataType::STATISTICS_DATA_TYPE_MINIMUM - 1].data = src.min;
-  dst[StatisticDataType::STATISTICS_DATA_TYPE_MAXIMUM - 1].data = src.max;
-  dst[StatisticDataType::STATISTICS_DATA_TYPE_STDDEV - 1].data = src.standard_deviation;
-  dst[StatisticDataType::STATISTICS_DATA_TYPE_SAMPLE_COUNT - 1].data =
-    static_cast<double>(src.sample_count);
-}
-
 }  // namespace
 
 
@@ -237,50 +227,61 @@ public:
     subscription = create_subscription<MetricsMessage,
         std::function<void(MetricsMessage::UniquePtr)>>(TEST_TOPIC, 10, callback);
 
-    for (auto & stats : expected_stats) {
-      for (int i = 0; i < STATISTICS_DATA_TYPES.size(); ++i) {
-        stats[i].data_type = STATISTICS_DATA_TYPES[i];
-        stats[i].data = std::nan("");
-      }
-    }
+    // tools for calculating expected statistics values
+    moving_average_statistics::MovingAverageStatistics stats_calc;
+    StatisticData data;
 
     // setting expected_stats[0]
-    moving_average_statistics::MovingAverageStatistics stats_calc;
+    // round 1 50 ms: SAMPLES[0] is collected
+    // round 1 80 ms: statistics derived from SAMPLES[0] is published
+    stats_calc.reset();
     stats_calc.addMeasurement(processMemInfoLines(SAMPLES[0]));
-    StatisticData data = stats_calc.getStatistics();
-    StatisticDataToStatisticDataPoints(data, expected_stats[0]);
+    data = stats_calc.getStatistics();
+    StatisticDataToExpectedStatistics(data, expected_stats[0]);
 
     // setting expected_stats[1]
+    // round 1 100 ms: SAMPLES[1] is collected
+    // round 1 150 ms: SAMPLES[2] is collected
+    // round 1 160 ms: statistics derived from SAMPLES[1 & 2] is published
     stats_calc.reset();
     stats_calc.addMeasurement(processMemInfoLines(SAMPLES[1]));
     stats_calc.addMeasurement(processMemInfoLines(SAMPLES[2]));
     data = stats_calc.getStatistics();
-    StatisticDataToStatisticDataPoints(data, expected_stats[1]);
+    StatisticDataToExpectedStatistics(data, expected_stats[1]);
 
     // setting expected_stats[2]
+    // round 1 200 ms: SAMPLES[3] is collected
+    // round 1 240 ms: statistics derived from SAMPLES[3] is published
     stats_calc.reset();
     stats_calc.addMeasurement(processMemInfoLines(SAMPLES[3]));
     data = stats_calc.getStatistics();
-    StatisticDataToStatisticDataPoints(data, expected_stats[2]);
+    StatisticDataToExpectedStatistics(data, expected_stats[2]);
 
     // setting expected_stats[3]
+    // round 2 50 ms: SAMPLES[5] is collected
+    // round 2 80 ms: statistics derived from SAMPLES[5] is published
     stats_calc.reset();
     stats_calc.addMeasurement(processMemInfoLines(SAMPLES[5]));
     data = stats_calc.getStatistics();
-    StatisticDataToStatisticDataPoints(data, expected_stats[3]);
+    StatisticDataToExpectedStatistics(data, expected_stats[3]);
 
     // setting expected_stats[4]
+    // round 2 100 ms: SAMPLES[6] is collected
+    // round 2 150 ms: SAMPLES[7] is collected
+    // round 2 160 ms: statistics derived from SAMPLES[6 & 7] is published
     stats_calc.reset();
     stats_calc.addMeasurement(processMemInfoLines(SAMPLES[6]));
     stats_calc.addMeasurement(processMemInfoLines(SAMPLES[7]));
     data = stats_calc.getStatistics();
-    StatisticDataToStatisticDataPoints(data, expected_stats[4]);
+    StatisticDataToExpectedStatistics(data, expected_stats[4]);
 
     // setting expected_stats[5]
+    // round 2 200 ms: SAMPLES[8] is collected
+    // round 2 240 ms: statistics derived from SAMPLES[8] is published
     stats_calc.reset();
     stats_calc.addMeasurement(processMemInfoLines(SAMPLES[8]));
     data = stats_calc.getStatistics();
-    StatisticDataToStatisticDataPoints(data, expected_stats[5]);
+    StatisticDataToExpectedStatistics(data, expected_stats[5]);
   }
 
   int getNumReceived() const
@@ -289,7 +290,18 @@ public:
   }
 
 private:
-  void MetricsMessageCallback(const MetricsMessage & msg)
+  using ExpectedStatistics = std::unordered_map<decltype(StatisticDataPoint::data_type), decltype(StatisticDataPoint::data)>;
+
+  void StatisticDataToExpectedStatistics(const StatisticData & src, ExpectedStatistics & dst)
+  {
+    dst[StatisticDataType::STATISTICS_DATA_TYPE_AVERAGE] = src.average;
+    dst[StatisticDataType::STATISTICS_DATA_TYPE_MINIMUM] = src.min;
+    dst[StatisticDataType::STATISTICS_DATA_TYPE_MAXIMUM] = src.max;
+    dst[StatisticDataType::STATISTICS_DATA_TYPE_STDDEV] = src.standard_deviation;
+    dst[StatisticDataType::STATISTICS_DATA_TYPE_SAMPLE_COUNT] = src.sample_count;
+  }
+
+  void MetricsMessageCallback(const MetricsMessage & msg) const
   {
     ASSERT_GT(expected_stats.size(), times_received);
 
@@ -305,12 +317,15 @@ private:
     // EXPECT_GT(5, std::abs(window.count() - PUBLISH_PERIOD.count()));
 
     // check measurements
-    for (int i = 0; i < STATISTICS_DATA_TYPES.size(); ++i) {
-      EXPECT_EQ(STATISTICS_DATA_TYPES[i], msg.statistics[i].data_type);
-      if (std::isnan(expected_stats[times_received][i].data)) {
-        EXPECT_TRUE(std::isnan(msg.statistics[i].data));
+    const ExpectedStatistics & expected_stat = expected_stats[times_received];
+    EXPECT_EQ(expected_stat.size(), msg.statistics.size());
+
+    for (const StatisticDataPoint & stat : msg.statistics) {
+      EXPECT_GT(expected_stat.count(stat.data_type), 0);
+      if (std::isnan(expected_stat.at(stat.data_type))) {
+        EXPECT_TRUE(std::isnan(stat.data));
       } else {
-        EXPECT_DOUBLE_EQ(expected_stats[times_received][i].data, msg.statistics[i].data);
+        EXPECT_DOUBLE_EQ(expected_stat.at(stat.data_type), stat.data);
       }
     }
 
@@ -318,8 +333,8 @@ private:
   }
 
   rclcpp::Subscription<MetricsMessage>::SharedPtr subscription;
-  std::array<StatisticDataPoint[STATISTICS_DATA_TYPES.size()], 6> expected_stats;
-  int times_received;
+  std::array<ExpectedStatistics, 6> expected_stats;
+  mutable int times_received;
 };
 
 TEST(LinuxMemoryMeasurementTest, testReadInvalidFile)
@@ -426,11 +441,4 @@ TEST_F(LinuxMemoryMeasurementTestFixture, testPublishMetricsMessage)
   // 250 ms: SAMPLES[9] is collected. last getStatisticsResults() is of SAMPLES[9]
   data = test_measure_linux_memory->getStatisticsResults();
   EXPECT_EQ(1, data.sample_count);
-
-  //
-  // stop the node to finish off the test
-  //
-  stop_success = test_measure_linux_memory->stop();
-  ASSERT_TRUE(stop_success);
-  ASSERT_FALSE(test_measure_linux_memory->isStarted());
 }

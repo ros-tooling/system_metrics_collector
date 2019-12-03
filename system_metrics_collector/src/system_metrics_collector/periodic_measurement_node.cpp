@@ -56,7 +56,6 @@ bool PeriodicMeasurementNode::setupStart()
 
     measurement_timer_ = this->create_wall_timer(
       measurement_period_, [this]() {this->performPeriodicMeasurement();});
-    measurement_start_ = this->now();
   } else {
     RCLCPP_WARN(this->get_logger(), "setupStart: measurement_timer_ already exists!");
   }
@@ -69,7 +68,7 @@ bool PeriodicMeasurementNode::setupStart()
         this->publishStatisticMessage();
         if (this->clear_measurements_on_publish_) {
           this->clearCurrentMeasurements();
-          this->measurement_start_ = this->now();
+          this->window_start_ = this->now();
         }
       });
   } else if (publish_timer_) {

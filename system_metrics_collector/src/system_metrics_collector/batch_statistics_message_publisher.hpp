@@ -17,10 +17,12 @@
 
 #include <chrono>
 
+#include "builtin_interfaces/msg/time.hpp"
 #include "metrics_statistics_msgs/msg/metrics_message.hpp"
 
-namespace system_metrics_collector
-{
+#include "../moving_average_statistics/types.hpp"
+
+namespace system_metrics_collector {
 
 class BatchStatisticsMessagePublisher
 {
@@ -28,7 +30,13 @@ public:
   static constexpr const std::chrono::milliseconds INVALID_PUBLISH_WINDOW =
     std::chrono::milliseconds(0);
 
-  static metrics_statistics_msgs::msg::MetricsMessage generateStatisticMessage();
+  static metrics_statistics_msgs::msg::MetricsMessage generateStatisticMessage(
+    std::string node_name,
+    std::string source_name,
+    builtin_interfaces::msg::Time window_start,
+    builtin_interfaces::msg::Time window_end,
+    const moving_average_statistics::StatisticData & data
+  );
 
   /**
    * Called via a ROS2 timer per the publish_period_. This publishes the statistics derived from

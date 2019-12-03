@@ -21,6 +21,7 @@
 #include <memory>
 #include <mutex>
 #include <string>
+#include <unordered_map>
 
 #include "metrics_statistics_msgs/msg/metrics_message.hpp"
 
@@ -34,8 +35,7 @@ using moving_average_statistics::StatisticData;
 using moving_average_statistics::STATISTICS_DATA_TYPES;
 using system_metrics_collector::processStatCpuLine;
 
-namespace
-{
+namespace {
 
 constexpr const char TEST_NODE_NAME[] = "test_measure_linux_cpu";
 constexpr const char TEST_TOPIC[] = "test_cpu_measure_topic";
@@ -60,7 +60,7 @@ constexpr const std::array<const char *, 10> proc_samples = {
   "cpu 6134250 6371 1634411 675446 5285 0 233478 0 0 0\n"
 };
 
-double computeCpuActivePercentage(const char * data1, const char * data2)
+double computeCpuActivePercentage(const std::string & data1, const std::string & data2)
 {
   auto parsed_data1 = processStatCpuLine(data1);
   auto parsed_data2 = processStatCpuLine(data2);
@@ -68,16 +68,6 @@ double computeCpuActivePercentage(const char * data1, const char * data2)
 }
 
 constexpr const double CPU_ACTIVE_PROC_SAMPLE_0_1 = 2.7239908106334099;
-
-void StatisticDataToStatisticDataPoints(const StatisticData & src, StatisticDataPoint * dst)
-{
-  dst[StatisticDataType::STATISTICS_DATA_TYPE_AVERAGE - 1].data = src.average;
-  dst[StatisticDataType::STATISTICS_DATA_TYPE_MINIMUM - 1].data = src.min;
-  dst[StatisticDataType::STATISTICS_DATA_TYPE_MAXIMUM - 1].data = src.max;
-  dst[StatisticDataType::STATISTICS_DATA_TYPE_STDDEV - 1].data = src.standard_deviation;
-  dst[StatisticDataType::STATISTICS_DATA_TYPE_SAMPLE_COUNT - 1].data =
-    static_cast<double>(src.sample_count);
-}
 
 }  // namespace
 
@@ -90,7 +80,7 @@ public:
     const std::chrono::milliseconds measurement_period,
     const std::string & publishing_topic,
     const std::chrono::milliseconds publish_period)
-  : LinuxCpuMeasurementNode(name, measurement_period, publishing_topic, publish_period) {}
+    : LinuxCpuMeasurementNode(name, measurement_period, publishing_topic, publish_period) {}
 
   virtual ~TestLinuxCpuMeasurementNode() = default;
 
@@ -113,50 +103,65 @@ class TestReceiveCpuMeasurementNode : public rclcpp::Node
 {
 public:
   explicit TestReceiveCpuMeasurementNode(const std::string & name)
-  : rclcpp::Node(name), times_received(0)
+    : rclcpp::Node(name), times_received(0)
   {
     auto callback = [this](MetricsMessage::UniquePtr msg) {this->MetricsMessageCallback(*msg);};
     subscription = create_subscription<MetricsMessage,
-        std::function<void(MetricsMessage::UniquePtr)>>(TEST_TOPIC, 10, callback);
+    std::function<void(MetricsMessage::UniquePtr)>>(TEST_TOPIC, 10, callback);
 
-    for (auto & stats : expected_stats) {
-      for (int i = 0; i < STATISTICS_DATA_TYPES.size(); ++i) {
-        stats[i].data_type = STATISTICS_DATA_TYPES[i];
-        stats[i].data = std::nan("");
-      }
-    }
+    // tools for calculating expected statistics values
+    moving_average_statistics::MovingAverageStatistics stats_calc;
+    StatisticData data;
 
     // setting expected_stats[0]
-    expected_stats[0][StatisticDataType::STATISTICS_DATA_TYPE_SAMPLE_COUNT - 1].data = 0;
+    // round 1 50 ms: proc_samples[0] is collected
+    // round 1 80 ms: statistics derived from proc_samples[N/A-0] is published
+    stats_calc.reset();
+    data = StatisticData();
+    StatisticDataToExpectedStatistics(data, expected_stats[0]);
 
     // setting expected_stats[1]
-    moving_average_statistics::MovingAverageStatistics stats_calc;
+    // round 1 100 ms: proc_samples[1] is collected
+    // round 1 150 ms: proc_samples[2] is collected
+    // round 1 160 ms: statistics derived from proc_samples[0-1 & 1-2] is published
+    stats_calc.reset();
     stats_calc.addMeasurement(computeCpuActivePercentage(proc_samples[0], proc_samples[1]));
     stats_calc.addMeasurement(computeCpuActivePercentage(proc_samples[1], proc_samples[2]));
-    StatisticData data = stats_calc.getStatistics();
-    StatisticDataToStatisticDataPoints(data, expected_stats[1]);
+    data = stats_calc.getStatistics();
+    StatisticDataToExpectedStatistics(data, expected_stats[1]);
 
     // setting expected_stats[2]
+    // round 1 200 ms: proc_samples[3] is collected
+    // round 1 240 ms: statistics derived from proc_samples[2-3] is published
     stats_calc.reset();
     stats_calc.addMeasurement(computeCpuActivePercentage(proc_samples[2], proc_samples[3]));
     data = stats_calc.getStatistics();
-    StatisticDataToStatisticDataPoints(data, expected_stats[2]);
+    StatisticDataToExpectedStatistics(data, expected_stats[2]);
 
     // setting expected_stats[3]
-    expected_stats[3][StatisticDataType::STATISTICS_DATA_TYPE_SAMPLE_COUNT - 1].data = 0;
+    // round 2 50 ms: proc_samples[5] is collected
+    // round 2 80 ms: statistics derived from proc_samples[N/A-5] is published
+    stats_calc.reset();
+    data = StatisticData();
+    StatisticDataToExpectedStatistics(data, expected_stats[3]);
 
     // setting expected_stats[4]
+    // round 2 100 ms: proc_samples[6] is collected
+    // round 2 150 ms: proc_samples[7] is collected
+    // round 2 160 ms: statistics derived from proc_samples[5-6 & 6-7] is published
     stats_calc.reset();
     stats_calc.addMeasurement(computeCpuActivePercentage(proc_samples[5], proc_samples[6]));
     stats_calc.addMeasurement(computeCpuActivePercentage(proc_samples[6], proc_samples[7]));
     data = stats_calc.getStatistics();
-    StatisticDataToStatisticDataPoints(data, expected_stats[4]);
+    StatisticDataToExpectedStatistics(data, expected_stats[4]);
 
     // setting expected_stats[5]
+    // round 2 200 ms: proc_samples[8] is collected
+    // round 2 240 ms: statistics derived from proc_samples[7-8] is published
     stats_calc.reset();
     stats_calc.addMeasurement(computeCpuActivePercentage(proc_samples[7], proc_samples[8]));
     data = stats_calc.getStatistics();
-    StatisticDataToStatisticDataPoints(data, expected_stats[5]);
+    StatisticDataToExpectedStatistics(data, expected_stats[5]);
   }
 
   int getNumReceived() const
@@ -165,7 +170,18 @@ public:
   }
 
 private:
-  void MetricsMessageCallback(const MetricsMessage & msg)
+  using ExpectedStatistics = std::unordered_map<decltype(StatisticDataPoint::data_type), decltype(StatisticDataPoint::data)>;
+
+  void StatisticDataToExpectedStatistics(const StatisticData & src, ExpectedStatistics & dst)
+  {
+    dst[StatisticDataType::STATISTICS_DATA_TYPE_AVERAGE] = src.average;
+    dst[StatisticDataType::STATISTICS_DATA_TYPE_MINIMUM] = src.min;
+    dst[StatisticDataType::STATISTICS_DATA_TYPE_MAXIMUM] = src.max;
+    dst[StatisticDataType::STATISTICS_DATA_TYPE_STDDEV] = src.standard_deviation;
+    dst[StatisticDataType::STATISTICS_DATA_TYPE_SAMPLE_COUNT] = src.sample_count;
+  }
+
+  void MetricsMessageCallback(const MetricsMessage & msg) const
   {
     ASSERT_GT(expected_stats.size(), times_received);
 
@@ -181,12 +197,15 @@ private:
     // EXPECT_GT(5, std::abs(window.count() - PUBLISH_PERIOD.count()));
 
     // check measurements
-    for (int i = 0; i < STATISTICS_DATA_TYPES.size(); ++i) {
-      EXPECT_EQ(STATISTICS_DATA_TYPES[i], msg.statistics[i].data_type);
-      if (std::isnan(expected_stats[times_received][i].data)) {
-        EXPECT_TRUE(std::isnan(msg.statistics[i].data));
+    const ExpectedStatistics & expected_stat = expected_stats[times_received];
+    EXPECT_EQ(expected_stat.size(), msg.statistics.size());
+
+    for (const StatisticDataPoint & stat : msg.statistics) {
+      EXPECT_GT(expected_stat.count(stat.data_type), 0);
+      if (std::isnan(expected_stat.at(stat.data_type))) {
+        EXPECT_TRUE(std::isnan(stat.data));
       } else {
-        EXPECT_DOUBLE_EQ(expected_stats[times_received][i].data, msg.statistics[i].data);
+        EXPECT_DOUBLE_EQ(expected_stat.at(stat.data_type), stat.data);
       }
     }
 
@@ -194,8 +213,8 @@ private:
   }
 
   rclcpp::Subscription<MetricsMessage>::SharedPtr subscription;
-  std::array<StatisticDataPoint[STATISTICS_DATA_TYPES.size()], 6> expected_stats;
-  int times_received;
+  std::array<ExpectedStatistics, 6> expected_stats;
+  mutable int times_received;
 };
 
 class LinuxCpuMeasurementTestFixture : public ::testing::Test
@@ -206,7 +225,7 @@ public:
     rclcpp::init(0, nullptr);
 
     test_measure_linux_cpu = std::make_shared<TestLinuxCpuMeasurementNode>(TEST_NODE_NAME,
-        MEASURE_PERIOD, TEST_TOPIC, PUBLISH_PERIOD);
+                                                                           MEASURE_PERIOD, TEST_TOPIC, PUBLISH_PERIOD);
 
     ASSERT_FALSE(test_measure_linux_cpu->isStarted());
 
@@ -261,8 +280,7 @@ TEST(LinuxCpuMeasurementTest, testEmptyProcCpuData)
   ASSERT_EQ(system_metrics_collector::ProcCpuData::EMPTY_LABEL, empty.cpu_label);
 
   for (int i = 0; i < static_cast<int>(system_metrics_collector::ProcCpuStates::kNumProcCpuStates);
-    i++)
-  {
+       i++) {
     ASSERT_EQ(0, empty.times[i]);
   }
 }
@@ -283,7 +301,7 @@ TEST_F(LinuxCpuMeasurementTestFixture, testPublishMetricsMessage)
   ASSERT_FALSE(test_measure_linux_cpu->isStarted());
 
   auto test_receive_measurements = std::make_shared<TestReceiveCpuMeasurementNode>(
-    "test_receive_measurements");
+                                     "test_receive_measurements");
   std::promise<bool> empty_promise;
   std::shared_future<bool> dummy_future = empty_promise.get_future();
   rclcpp::executors::SingleThreadedExecutor ex;
@@ -357,11 +375,4 @@ TEST_F(LinuxCpuMeasurementTestFixture, testPublishMetricsMessage)
   EXPECT_DOUBLE_EQ(expected_cpu_active, data.max);
   EXPECT_DOUBLE_EQ(0, data.standard_deviation);
   EXPECT_EQ(1, data.sample_count);
-
-  //
-  // stop the node to finish off the test
-  //
-  stop_success = test_measure_linux_cpu->stop();
-  ASSERT_TRUE(stop_success);
-  ASSERT_FALSE(test_measure_linux_cpu->isStarted());
 }
