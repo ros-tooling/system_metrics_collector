@@ -15,10 +15,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-          os: [ubuntu-18.04]
+          os: [ubuntu-18.04, windows-latest]
     steps:
-    - uses: ros-tooling/setup-ros2@0.0.6
-    - uses: ros-tooling/action-ros2-ci@0.0.7
+    - uses: ros-tooling/setup-ros2@0.0.7
+    - uses: ros-tooling/action-ros2-ci@tmoulard/win
       with:
         package-name: system_metrics_collector
     # GitHub action support is currently broken on the original upstream
