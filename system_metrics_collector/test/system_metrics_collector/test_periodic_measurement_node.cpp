@@ -75,7 +75,7 @@ private:
    *
    * @return
    */
-  void publishStatistics() override
+  void publishStatisticMessage() override
   {
     ++times_published;
   }

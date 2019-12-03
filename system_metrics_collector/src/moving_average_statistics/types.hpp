@@ -29,10 +29,10 @@ namespace moving_average_statistics
  */
 constexpr const std::array<uint8_t, 5> STATISTICS_DATA_TYPES = {
   metrics_statistics_msgs::msg::StatisticDataType::STATISTICS_DATA_TYPE_AVERAGE,
-  metrics_statistics_msgs::msg::StatisticDataType::STATISTICS_DATA_TYPE_MINIMUM,
   metrics_statistics_msgs::msg::StatisticDataType::STATISTICS_DATA_TYPE_MAXIMUM,
-  metrics_statistics_msgs::msg::StatisticDataType::STATISTICS_DATA_TYPE_STDDEV,
-  metrics_statistics_msgs::msg::StatisticDataType::STATISTICS_DATA_TYPE_SAMPLE_COUNT
+  metrics_statistics_msgs::msg::StatisticDataType::STATISTICS_DATA_TYPE_MINIMUM,
+  metrics_statistics_msgs::msg::StatisticDataType::STATISTICS_DATA_TYPE_SAMPLE_COUNT,
+  metrics_statistics_msgs::msg::StatisticDataType::STATISTICS_DATA_TYPE_STDDEV
 };
 
 /**

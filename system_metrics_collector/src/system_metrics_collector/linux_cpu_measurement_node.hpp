@@ -20,8 +20,8 @@
 #include <sstream>
 #include <string>
 
-#include "periodic_measurement_node.hpp"
-#include "proc_cpu_data.hpp"
+#include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
+#include "../../src/system_metrics_collector/proc_cpu_data.hpp"
 
 namespace system_metrics_collector
 {
@@ -56,16 +56,15 @@ public:
    * Construct a LinuxCpuMeasurementNode
    *
    * @param name the name of this node
-   * @param measurement_period the period of this node, used to
-   * read measurements
+   * @param measurement_period the period of this node, used to read measurements
    * @param topic the topic name used for publishing
+   * @param publish_period the period at which metrics are published. 0 ms means don't publish
    */
   LinuxCpuMeasurementNode(
     const std::string & name,
     const std::chrono::milliseconds measurement_period,
-    const std::string & statistics_topic,
-    const std::chrono::milliseconds publish_period =
-    PeriodicMeasurementNode::INVALID_PUBLISH_WINDOW);
+    const std::string & topic,
+    const std::chrono::milliseconds publish_period);
 
   virtual ~LinuxCpuMeasurementNode() = default;
 
@@ -88,7 +87,7 @@ private:
   /**
    * This publishes the statistics derived from the collected measurements
    */
-  void publishStatistics() override;
+  void publishStatisticMessage() override;
 
   /**
    * Creates a ROS2 timer with a period of measurement_period_.

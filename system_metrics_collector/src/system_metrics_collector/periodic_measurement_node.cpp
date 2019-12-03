@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
 #include "periodic_measurement_node.hpp"
 
 #include <chrono>
+#include <stdexcept>
 #include <string>
 
 #include "rclcpp/rclcpp.hpp"
 
-namespace system_metrics_collector
-{
-
 using metrics_statistics_msgs::msg::MetricsMessage;
 
-constexpr const std::chrono::milliseconds PeriodicMeasurementNode::INVALID_PUBLISH_WINDOW;
+namespace system_metrics_collector
+{
 
 PeriodicMeasurementNode::PeriodicMeasurementNode(
   const std::string & name,
@@ -33,10 +33,17 @@ PeriodicMeasurementNode::PeriodicMeasurementNode(
   const std::chrono::milliseconds publish_period,
   const bool clear_measurements_on_publish)
 : Node(name),
-  publishing_topic_(publishing_topic),
   measurement_period_(measurement_period),
+  publishing_topic_(publishing_topic),
+  measurement_timer_(nullptr),
+  publish_timer_(nullptr),
   publish_period_(publish_period),
-  clear_measurements_on_publish_(clear_measurements_on_publish) {}
+  clear_measurements_on_publish_(clear_measurements_on_publish)
+{
+  if (publish_period_ < std::chrono::milliseconds(0)) {
+    throw std::invalid_argument("publish period cannot be negative");
+  }
+}
 
 bool PeriodicMeasurementNode::setupStart()
 {
@@ -45,7 +52,7 @@ bool PeriodicMeasurementNode::setupStart()
   }
 
   if (!measurement_timer_) {
-    RCLCPP_DEBUG(get_logger(), "setupStart: creating measurement_timer_");
+    RCLCPP_DEBUG(this->get_logger(), "setupStart: creating measurement_timer_");
 
     measurement_timer_ = this->create_wall_timer(
       measurement_period_, [this]() {this->performPeriodicMeasurement();});
@@ -54,12 +61,12 @@ bool PeriodicMeasurementNode::setupStart()
     RCLCPP_WARN(this->get_logger(), "setupStart: measurement_timer_ already exists!");
   }
 
-  if (!publish_timer_ && publish_period_ != PeriodicMeasurementNode::INVALID_PUBLISH_WINDOW) {
-    RCLCPP_DEBUG(get_logger(), "setupStart: creating publish_timer_");
+  if (!publish_timer_ && publish_period_ != INVALID_PUBLISH_WINDOW) {
+    RCLCPP_DEBUG(this->get_logger(), "setupStart: creating publish_timer_");
 
     publish_timer_ = this->create_wall_timer(
       publish_period_, [this]() {
-        this->publishStatistics();
+        this->publishStatisticMessage();
         if (this->clear_measurements_on_publish_) {
           this->clearCurrentMeasurements();
           this->measurement_start_ = this->now();
@@ -92,7 +99,7 @@ std::string PeriodicMeasurementNode::getStatusString() const
     ", measurement_period=" << std::to_string(measurement_period_.count()) << "ms" <<
     ", publishing_topic=" << publishing_topic_ <<
     ", publish_period=" <<
-  (publish_period_ != PeriodicMeasurementNode::INVALID_PUBLISH_WINDOW ?
+  (publish_period_ != INVALID_PUBLISH_WINDOW ?
   std::to_string(publish_period_.count()) + "ms" : "None") <<
     ", clear_measurements_on_publish_=" << clear_measurements_on_publish_ <<
     ", " << Collector::getStatusString();
@@ -106,15 +113,6 @@ void PeriodicMeasurementNode::performPeriodicMeasurement()
 
   acceptData(measurement);
   RCLCPP_DEBUG(this->get_logger(), getStatusString());
-}
-
-MetricsMessage PeriodicMeasurementNode::newMetricsMessage()
-{
-  MetricsMessage msg;
-  msg.measurement_source_name = get_name();
-  msg.window_start = measurement_start_;
-  msg.window_stop = now();
-  return msg;
 }
 
 }  // namespace system_metrics_collector

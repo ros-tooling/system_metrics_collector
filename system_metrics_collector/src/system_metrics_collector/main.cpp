@@ -22,8 +22,10 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/logging_macros.h"
 
-#include "linux_cpu_measurement_node.hpp"
-#include "linux_memory_measurement_node.hpp"
+#include "../../src/system_metrics_collector/linux_cpu_measurement_node.hpp"
+#include "../../src/system_metrics_collector/linux_memory_measurement_node.hpp"
+
+static constexpr const char STATISTICS_TOPIC_NAME[] = "system_metrics";
 
 /**
  * This is current a "test" main in order to manually test the measurement nodes.
@@ -39,13 +41,13 @@ int main(int argc, char ** argv)
   auto cpu_node = std::make_shared<system_metrics_collector::LinuxCpuMeasurementNode>(
     "linuxCpuCollector",
     std::chrono::milliseconds(1000),
-    "system_metrics",
+    STATISTICS_TOPIC_NAME,
     std::chrono::milliseconds(1000 * 60));
 
   auto mem_node = std::make_shared<system_metrics_collector::LinuxMemoryMeasurementNode>(
     "linuxMemoryCollector",
     std::chrono::milliseconds(1000),
-    "system_metrics",
+    STATISTICS_TOPIC_NAME,
     std::chrono::milliseconds(1000 * 60));
 
   rclcpp::executors::MultiThreadedExecutor ex;

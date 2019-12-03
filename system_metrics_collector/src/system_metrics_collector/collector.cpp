@@ -18,8 +18,8 @@
 #include <sstream>
 #include <string>
 
-#include "../moving_average_statistics/moving_average.hpp"
-#include "../moving_average_statistics/types.hpp"
+#include "../../src/moving_average_statistics/moving_average.hpp"
+#include "../../src/moving_average_statistics/types.hpp"
 
 namespace system_metrics_collector
 {

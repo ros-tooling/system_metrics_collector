@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "linux_memory_measurement_node.hpp"
-
 #include <chrono>
 #include <fstream>
 #include <sstream>
 #include <streambuf>
 #include <string>
+
+#include "../../src/system_metrics_collector/linux_memory_measurement_node.hpp"
+#include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
 
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/logging_macros.h"
@@ -125,29 +126,9 @@ double LinuxMemoryMeasurementNode::periodicMeasurement()
   return processMemInfoLines(read_string);
 }
 
-void LinuxMemoryMeasurementNode::publishStatistics()
+void LinuxMemoryMeasurementNode::publishStatisticMessage()
 {
-  if (publisher_ == nullptr) {
-    return;
-  }
-
-  const moving_average_statistics::StatisticData statistic_data = getStatisticsResults();
-  const double data[moving_average_statistics::STATISTICS_DATA_TYPES.size()] = {
-    statistic_data.average,
-    statistic_data.min,
-    statistic_data.max,
-    statistic_data.standard_deviation,
-    static_cast<double>(statistic_data.sample_count)
-  };
-
-  MetricsMessage msg = newMetricsMessage();
-  msg.metrics_source = "memory_usage";
-  for (int i = 0; i < moving_average_statistics::STATISTICS_DATA_TYPES.size(); ++i) {
-    msg.statistics.emplace_back();
-    msg.statistics.back().data_type = moving_average_statistics::STATISTICS_DATA_TYPES[i];
-    msg.statistics.back().data = data[i];
-  }
-
+  MetricsMessage msg = generateStatisticMessage();
   publisher_->publish(msg);
 }
 

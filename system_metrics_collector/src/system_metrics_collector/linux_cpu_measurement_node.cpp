@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "linux_cpu_measurement_node.hpp"
-
 #include <chrono>
 #include <fstream>
 #include <sstream>
 #include <string>
+
+#include "../../src/system_metrics_collector/linux_cpu_measurement_node.hpp"
+#include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
 
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/logging_macros.h"
@@ -81,11 +82,17 @@ double computeCpuActivePercentage(
 LinuxCpuMeasurementNode::LinuxCpuMeasurementNode(
   const std::string & name,
   const std::chrono::milliseconds measurement_period,
-  const std::string & statistics_topic,
+  const std::string & topic,
   const std::chrono::milliseconds publish_period)
-: PeriodicMeasurementNode(name, measurement_period, statistics_topic, publish_period),
+: PeriodicMeasurementNode(name, measurement_period, topic, publish_period),
   last_measurement_()
 {}
+
+bool LinuxCpuMeasurementNode::setupStart()
+{
+  last_measurement_ = ProcCpuData();
+  return PeriodicMeasurementNode::setupStart();
+}
 
 double LinuxCpuMeasurementNode::periodicMeasurement()
 {
@@ -118,36 +125,10 @@ system_metrics_collector::ProcCpuData LinuxCpuMeasurementNode::makeSingleMeasure
   }
 }
 
-void LinuxCpuMeasurementNode::publishStatistics()
+void LinuxCpuMeasurementNode::publishStatisticMessage()
 {
-  if (publisher_ == nullptr) {
-    return;
-  }
-
-  const moving_average_statistics::StatisticData statistic_data = getStatisticsResults();
-  const double data[moving_average_statistics::STATISTICS_DATA_TYPES.size()] = {
-    statistic_data.average,
-    statistic_data.min,
-    statistic_data.max,
-    statistic_data.standard_deviation,
-    static_cast<double>(statistic_data.sample_count)
-  };
-
-  MetricsMessage msg = newMetricsMessage();
-  msg.metrics_source = "cpu_usage";
-  for (int i = 0; i < moving_average_statistics::STATISTICS_DATA_TYPES.size(); ++i) {
-    msg.statistics.emplace_back();
-    msg.statistics.back().data_type = moving_average_statistics::STATISTICS_DATA_TYPES[i];
-    msg.statistics.back().data = data[i];
-  }
-
+  MetricsMessage msg = generateStatisticMessage();
   publisher_->publish(msg);
-}
-
-bool LinuxCpuMeasurementNode::setupStart()
-{
-  last_measurement_ = ProcCpuData();
-  return PeriodicMeasurementNode::setupStart();
 }
 
 }  // namespace system_metrics_collector
