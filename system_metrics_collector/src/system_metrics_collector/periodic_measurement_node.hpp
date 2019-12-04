@@ -99,6 +99,8 @@ private:
    */
   bool setupStop() override;
 
+  // todo implement on publish timer callback, check if we need to clear the window
+
   /**
    * Topic used for publishing
    */
