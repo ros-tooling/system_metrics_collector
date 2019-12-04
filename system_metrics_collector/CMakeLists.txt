@@ -61,6 +61,11 @@ if(BUILD_TESTING)
   target_link_libraries(test_collector system_metrics_collector)
   ament_target_dependencies(test_collector rclcpp)
 
+  ament_add_gtest(test_metrics_message_publisher
+    test/system_metrics_collector/test_metrics_message_publisher.cpp)
+  target_link_libraries(test_metrics_message_publisher system_metrics_collector)
+  ament_target_dependencies(test_metrics_message_publisher metrics_statistics_msgs rclcpp)
+
   ament_add_gtest(test_linux_cpu_measurement_node
           test/system_metrics_collector/test_linux_cpu_measurement.cpp)
   target_link_libraries(test_linux_cpu_measurement_node system_metrics_collector)

@@ -26,7 +26,7 @@
 namespace
 {
 constexpr const std::chrono::milliseconds INVALID_PUBLISH_WINDOW =
-    std::chrono::milliseconds(0);
+  std::chrono::milliseconds(0);
 constexpr const char proc_sample_1[] =
   "cpu  22451232 118653 7348045 934943300 5378119 0 419114 0 0 0\n";
 constexpr const char proc_sample_2[] =
