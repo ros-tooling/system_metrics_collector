@@ -26,7 +26,7 @@
 
 namespace
 {
-constexpr const char MEASUREMENT_TYPE[] = "memory_usage";
+constexpr const char MEASUREMENT_TYPE[] = "system_memory_usage";
 constexpr const char PROC_STAT_FILE[] = "/proc/meminfo";
 constexpr const char MEM_TOTAL[] = "MemTotal:";
 constexpr const char MEM_AVAILABLE[] = "MemAvailable:";

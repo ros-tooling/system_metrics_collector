@@ -25,7 +25,7 @@
 
 namespace
 {
-constexpr const char MEASUREMENT_TYPE[] = "cpu_usage";
+constexpr const char MEASUREMENT_TYPE[] = "system_cpu_usage";
 constexpr const char PROC_STAT_FILE[] = "/proc/stat";
 constexpr const char CPU_LABEL[] = "cpu";
 }  // namespace
