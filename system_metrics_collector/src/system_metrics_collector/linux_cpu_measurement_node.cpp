@@ -25,6 +25,7 @@
 
 namespace
 {
+constexpr const char MEASUREMENT_TYPE[] = "cpu_usage";
 constexpr const char PROC_STAT_FILE[] = "/proc/stat";
 constexpr const char CPU_LABEL[] = "cpu";
 }  // namespace
@@ -119,7 +120,7 @@ system_metrics_collector::ProcCpuData LinuxCpuMeasurementNode::makeSingleMeasure
 
 void LinuxCpuMeasurementNode::publishStatisticMessage()
 {
-  auto msg = generateStatisticMessage(get_name(), "cpu_usage", window_start_,
+  auto msg = generateStatisticMessage(get_name(), MEASUREMENT_TYPE, window_start_,
       now(), getStatisticsResults());
   publisher_->publish(msg);
 }

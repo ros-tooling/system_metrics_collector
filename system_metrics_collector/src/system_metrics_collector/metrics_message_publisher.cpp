@@ -30,30 +30,40 @@ namespace system_metrics_collector
 constexpr const std::chrono::milliseconds MetricsMessagePublisher::INVALID_PUBLISH_WINDOW;
 
 MetricsMessage MetricsMessagePublisher::generateStatisticMessage(
-  std::string node_name,
-  std::string source_name,
-  builtin_interfaces::msg::Time window_start,
-  builtin_interfaces::msg::Time window_stop,
+  const std::string & node_name,
+  const std::string & source_name,
+  const builtin_interfaces::msg::Time & window_start,
+  const builtin_interfaces::msg::Time & window_stop,
   const moving_average_statistics::StatisticData & data)
 {
   MetricsMessage msg;
 
-  msg.measurement_source_name = std::move(node_name);
-  msg.metrics_source = std::move(source_name);
-  msg.window_start = std::move(window_start);
-  msg.window_stop = std::move(window_stop);
+  msg.measurement_source_name = node_name;
+  msg.metrics_source = source_name;
+  msg.window_start = window_start;
+  msg.window_stop = window_stop;
 
-  msg.statistics.resize(moving_average_statistics::STATISTICS_DATA_TYPES.size());
-  msg.statistics[0].data_type = StatisticDataType::STATISTICS_DATA_TYPE_AVERAGE;
-  msg.statistics[0].data = data.average;
-  msg.statistics[1].data_type = StatisticDataType::STATISTICS_DATA_TYPE_MAXIMUM;
-  msg.statistics[1].data = data.max;
-  msg.statistics[2].data_type = StatisticDataType::STATISTICS_DATA_TYPE_MINIMUM;
-  msg.statistics[2].data = data.min;
-  msg.statistics[3].data_type = StatisticDataType::STATISTICS_DATA_TYPE_SAMPLE_COUNT;
-  msg.statistics[3].data = data.sample_count;
-  msg.statistics[4].data_type = StatisticDataType::STATISTICS_DATA_TYPE_STDDEV;
-  msg.statistics[4].data = data.standard_deviation;
+  msg.statistics.reserve(5);
+
+  msg.statistics.emplace_back();
+  msg.statistics.back().data_type = StatisticDataType::STATISTICS_DATA_TYPE_AVERAGE;
+  msg.statistics.back().data = data.average;
+
+  msg.statistics.emplace_back();
+  msg.statistics.back().data_type = StatisticDataType::STATISTICS_DATA_TYPE_MAXIMUM;
+  msg.statistics.back().data = data.max;
+
+  msg.statistics.emplace_back();
+  msg.statistics.back().data_type = StatisticDataType::STATISTICS_DATA_TYPE_MINIMUM;
+  msg.statistics.back().data = data.min;
+
+  msg.statistics.emplace_back();
+  msg.statistics.back().data_type = StatisticDataType::STATISTICS_DATA_TYPE_SAMPLE_COUNT;
+  msg.statistics.back().data = data.sample_count;
+
+  msg.statistics.emplace_back();
+  msg.statistics.back().data_type = StatisticDataType::STATISTICS_DATA_TYPE_STDDEV;
+  msg.statistics.back().data = data.standard_deviation;
 
   return msg;
 }

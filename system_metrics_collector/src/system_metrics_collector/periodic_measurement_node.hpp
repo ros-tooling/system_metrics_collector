@@ -113,7 +113,7 @@ private:
 
 protected:
   /**
-   * The tracking of the starting time of the statistics
+   * Track the starting time of the statistics
    */
   rclcpp::Time window_start_;
 

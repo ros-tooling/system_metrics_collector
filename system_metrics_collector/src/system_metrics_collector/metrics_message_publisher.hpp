@@ -46,16 +46,16 @@ public:
    * @return a MetricsMessage containing the statistics in the data parameter
    */
   static metrics_statistics_msgs::msg::MetricsMessage generateStatisticMessage(
-    std::string node_name,
-    std::string metric_name,
-    builtin_interfaces::msg::Time window_start,
-    builtin_interfaces::msg::Time window_stop,
+    const std::string & node_name,
+    const std::string & metric_name,
+    const builtin_interfaces::msg::Time & window_start,
+    const builtin_interfaces::msg::Time & window_stop,
     const moving_average_statistics::StatisticData & data
   );
 
   /**
-   * Called via a ROS2 timer per the publish_period_. This publishes the statistics derived from
-   * the collected measurements
+   * Publish the statistics derived from the collected measurements (this is to be called via a
+   * ROS2 timer per the publish_period)
    */
   virtual void publishStatisticMessage() = 0;
 };

@@ -61,7 +61,7 @@ private:
     return static_cast<double>(sum.load());
   }
 
-  void publishStatisticMessage() {}
+  void publishStatisticMessage() override {}
 
   std::atomic<int> sum{0};
 };

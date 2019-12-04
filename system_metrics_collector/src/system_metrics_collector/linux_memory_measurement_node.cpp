@@ -26,6 +26,7 @@
 
 namespace
 {
+constexpr const char MEASUREMENT_TYPE[] = "memory_usage";
 constexpr const char PROC_STAT_FILE[] = "/proc/meminfo";
 constexpr const char MEM_TOTAL[] = "MemTotal:";
 constexpr const char MEM_AVAILABLE[] = "MemAvailable:";
@@ -126,7 +127,7 @@ double LinuxMemoryMeasurementNode::periodicMeasurement()
 
 void LinuxMemoryMeasurementNode::publishStatisticMessage()
 {
-  auto msg = generateStatisticMessage(get_name(), "memory_usage", window_start_,
+  auto msg = generateStatisticMessage(get_name(), MEASUREMENT_TYPE, window_start_,
       now(), getStatisticsResults());
   publisher_->publish(msg);
 }
