@@ -19,8 +19,8 @@
 #include <chrono>
 #include <string>
 
-#include "rclcpp/rclcpp.hpp"
 #include "metrics_statistics_msgs/msg/metrics_message.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 #include "collector.hpp"
 #include "metrics_message_publisher.hpp"
@@ -61,6 +61,14 @@ public:
    * @return a string detailing the current status
    */
   std::string getStatusString() const override;
+
+protected:
+  /**
+   * Track the starting time of the statistics
+   */
+  rclcpp::Time window_start_;
+
+  rclcpp::Publisher<metrics_statistics_msgs::msg::MetricsMessage>::SharedPtr publisher_;
 
 private:
   /**
@@ -110,14 +118,6 @@ private:
 
   rclcpp::TimerBase::SharedPtr measurement_timer_;
   rclcpp::TimerBase::SharedPtr publish_timer_;
-
-protected:
-  /**
-   * Track the starting time of the statistics
-   */
-  rclcpp::Time window_start_;
-
-  rclcpp::Publisher<metrics_statistics_msgs::msg::MetricsMessage>::SharedPtr publisher_;
 };
 
 }  // namespace system_metrics_collector

@@ -28,6 +28,8 @@
 
 namespace
 {
+constexpr const std::chrono::milliseconds INVALID_PUBLISH_WINDOW =
+  std::chrono::milliseconds(0);
 constexpr const std::chrono::milliseconds TEST_LENGTH =
   std::chrono::milliseconds(250);
 constexpr const std::chrono::milliseconds TEST_PERIOD =
@@ -80,7 +82,7 @@ public:
       "test_periodic_node",
       TEST_PERIOD,
       "test_topic",
-      ::system_metrics_collector::MetricsMessagePublisher::INVALID_PUBLISH_WINDOW);
+      INVALID_PUBLISH_WINDOW);
 
     ASSERT_FALSE(test_periodic_measurer->isStarted());
 

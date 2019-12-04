@@ -32,9 +32,6 @@ namespace system_metrics_collector
 class MetricsMessagePublisher
 {
 public:
-  static constexpr const std::chrono::milliseconds INVALID_PUBLISH_WINDOW =
-    std::chrono::milliseconds(0);
-
   /**
    * Return a valid MetricsMessage ready to be published to a ROS topic
    *

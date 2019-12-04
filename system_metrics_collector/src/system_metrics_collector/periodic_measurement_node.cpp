@@ -45,43 +45,23 @@ PeriodicMeasurementNode::PeriodicMeasurementNode(
 
 bool PeriodicMeasurementNode::setupStart()
 {
-  if (!measurement_timer_) {
-    RCLCPP_DEBUG(this->get_logger(), "setupStart: creating measurement_timer_");
+  assert(measurement_timer_ == nullptr);
 
-    measurement_timer_ = this->create_wall_timer(
-      measurement_period_,
-      std::bind(&PeriodicMeasurementNode::performPeriodicMeasurement, this));
-
-  } else {
-    RCLCPP_WARN(this->get_logger(), "setupStart: measurement_timer_ already exists!");
-  }
-
-  if (!publish_timer_ && publish_period_ != INVALID_PUBLISH_WINDOW) {
-    RCLCPP_DEBUG(this->get_logger(), "setupStart: creating publish_timer_");
-
-    publish_timer_ = this->create_wall_timer(
-      publish_period_,
-      std::bind(&Collector::clearCurrentMeasurements, this));  // todo fixme, bind to publish method
-
-  } else {
-    if (publish_timer_) {
-      RCLCPP_WARN(this->get_logger(), "setupStart: publish_timer_ already exists!");
-    }
-  }
+  RCLCPP_DEBUG(this->get_logger(), "setupStart: creating measurement_timer_");
+  measurement_timer_ = this->create_wall_timer(
+    measurement_period_,
+    std::bind(&PeriodicMeasurementNode::performPeriodicMeasurement, this));
 
   return true;
 }
 
 bool PeriodicMeasurementNode::setupStop()
 {
-  if (measurement_timer_) {
-    measurement_timer_->cancel();
-    measurement_timer_.reset();
-  }
-  if (publish_timer_) {
-    publish_timer_->cancel();
-    publish_timer_.reset();
-  }
+  assert(measurement_timer_ != nullptr);
+
+  measurement_timer_->cancel();
+  measurement_timer_.reset();
+
   return true;
 }
 
@@ -92,7 +72,7 @@ std::string PeriodicMeasurementNode::getStatusString() const
     ", measurement_period=" << std::to_string(measurement_period_.count()) << "ms" <<
     ", publishing_topic=" << publishing_topic_ <<
     ", publish_period=" <<
-  (publish_period_ != INVALID_PUBLISH_WINDOW ?
+  (publish_period_ > std::chrono::milliseconds(0) ?
   std::to_string(publish_period_.count()) + "ms" : "None") <<
     ", clear_measurements_on_publish_=" << clear_measurements_on_publish_ <<
     ", " << Collector::getStatusString();

@@ -24,6 +24,8 @@
 
 namespace
 {
+constexpr const std::chrono::milliseconds INVALID_PUBLISH_WINDOW =
+  std::chrono::milliseconds(0);
 constexpr const char EMPTY_SAMPLE[] = "";
 constexpr const char GARBAGE_SAMPLE[] = "this is garbage\n";
 constexpr const char INCOMPLETE_SAMPLE[] = "MemTotal:       16302048 kB\n"
