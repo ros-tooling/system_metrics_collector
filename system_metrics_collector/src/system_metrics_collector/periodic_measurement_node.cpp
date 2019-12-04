@@ -24,9 +24,6 @@
 namespace system_metrics_collector
 {
 
-/* static */ constexpr const std::chrono::milliseconds PeriodicMeasurementNode::
-INVALID_PUBLISH_WINDOW;
-
 PeriodicMeasurementNode::PeriodicMeasurementNode(
   const std::string & name,
   const std::chrono::milliseconds measurement_period,
@@ -80,6 +77,10 @@ bool PeriodicMeasurementNode::setupStop()
   if (measurement_timer_) {
     measurement_timer_->cancel();
     measurement_timer_.reset();
+  }
+  if (publish_timer_) {
+    publish_timer_->cancel();
+    publish_timer_.reset();
   }
   return true;
 }

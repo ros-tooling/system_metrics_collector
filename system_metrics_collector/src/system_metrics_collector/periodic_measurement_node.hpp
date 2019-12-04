@@ -19,9 +19,12 @@
 #include <chrono>
 #include <string>
 
-#include "collector.hpp"
-
 #include "rclcpp/rclcpp.hpp"
+#include "metrics_statistics_msgs/msg/metrics_message.hpp"
+
+#include "collector.hpp"
+#include "metrics_message_publisher.hpp"
+
 
 namespace system_metrics_collector
 {
@@ -29,12 +32,10 @@ namespace system_metrics_collector
 /**
  * Class which makes periodic measurements, using a ROS2 timer.
  */
-class PeriodicMeasurementNode : public system_metrics_collector::Collector, public rclcpp::Node
+class PeriodicMeasurementNode : public system_metrics_collector::Collector,
+  public system_metrics_collector::MetricsMessagePublisher, public rclcpp::Node
 {
 public:
-  static constexpr const std::chrono::milliseconds INVALID_PUBLISH_WINDOW =
-    std::chrono::milliseconds(0);
-
   /**
    * Construct a PeriodicMeasurementNode.
    *
@@ -90,9 +91,6 @@ private:
    */
   bool setupStop() override;
 
-  // todo implement on publish timer callback, check if we need to clear the window
-  // todo this is part of the publishing interface
-
   /**
    * Topic used for publishing
    */
@@ -109,8 +107,17 @@ private:
    * If true, then measurements are cleared after publishing data
    */
   const bool clear_measurements_on_publish_;
+
   rclcpp::TimerBase::SharedPtr measurement_timer_;
   rclcpp::TimerBase::SharedPtr publish_timer_;
+
+protected:
+  /**
+   * The tracking of the starting time of the statistics
+   */
+  rclcpp::Time window_start_;
+
+  rclcpp::Publisher<metrics_statistics_msgs::msg::MetricsMessage>::SharedPtr publisher_;
 };
 
 }  // namespace system_metrics_collector

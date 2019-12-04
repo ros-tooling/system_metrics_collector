@@ -61,6 +61,8 @@ private:
     return static_cast<double>(sum.load());
   }
 
+  void publishStatisticMessage() {}
+
   std::atomic<int> sum{0};
 };
 
@@ -78,7 +80,7 @@ public:
       "test_periodic_node",
       TEST_PERIOD,
       "test_topic",
-      ::system_metrics_collector::PeriodicMeasurementNode::INVALID_PUBLISH_WINDOW);
+      ::system_metrics_collector::MetricsMessagePublisher::INVALID_PUBLISH_WINDOW);
 
     ASSERT_FALSE(test_periodic_measurer->isStarted());
 

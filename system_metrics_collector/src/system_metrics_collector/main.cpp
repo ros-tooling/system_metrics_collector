@@ -25,6 +25,8 @@
 #include "../../src/system_metrics_collector/linux_cpu_measurement_node.hpp"
 #include "../../src/system_metrics_collector/linux_memory_measurement_node.hpp"
 
+static constexpr const char STATISTICS_TOPIC_NAME[] = "system_metrics";
+
 /**
  * This is current a "test" main in order to manually test the measurement nodes.
  *
@@ -39,13 +41,13 @@ int main(int argc, char ** argv)
   auto cpu_node = std::make_shared<system_metrics_collector::LinuxCpuMeasurementNode>(
     "linuxCpuCollector",
     std::chrono::milliseconds(1000),
-    "not_publishing_yet",
+    STATISTICS_TOPIC_NAME,
     std::chrono::milliseconds(1000 * 60));
 
   auto mem_node = std::make_shared<system_metrics_collector::LinuxMemoryMeasurementNode>(
     "linuxMemoryCollector",
     std::chrono::milliseconds(1000),
-    "not_publishing_yet",
+    STATISTICS_TOPIC_NAME,
     std::chrono::milliseconds(1000 * 60));
 
   rclcpp::executors::MultiThreadedExecutor ex;
@@ -58,7 +60,6 @@ int main(int argc, char ** argv)
   }
 
   r = rcutils_logging_set_logger_level(mem_node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-
   if (r != 0) {
     RCUTILS_LOG_ERROR_NAMED("main", "Unable to set debug logging for the memory node");
   }

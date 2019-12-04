@@ -124,4 +124,11 @@ double LinuxMemoryMeasurementNode::periodicMeasurement()
   return processMemInfoLines(read_string);
 }
 
+void LinuxMemoryMeasurementNode::publishStatisticMessage()
+{
+  auto msg = generateStatisticMessage(get_name(), "memory_usage", window_start_,
+      now(), getStatisticsResults());
+  publisher_->publish(msg);
+}
+
 }  // namespace system_metrics_collector
