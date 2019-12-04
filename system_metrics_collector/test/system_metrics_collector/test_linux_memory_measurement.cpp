@@ -21,6 +21,7 @@
 #include <mutex>
 
 #include "../../src/system_metrics_collector/linux_memory_measurement_node.hpp"
+#include "../../src/system_metrics_collector/utilities.hpp"
 
 namespace
 {
