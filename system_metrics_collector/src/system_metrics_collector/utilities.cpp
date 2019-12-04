@@ -21,7 +21,6 @@
 #include "utilities.hpp"
 #include "rcutils/logging_macros.h"
 
-
 namespace system_metrics_collector
 {
 

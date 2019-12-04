@@ -81,6 +81,11 @@ if(BUILD_TESTING)
   target_link_libraries(test_periodic_measurement_node system_metrics_collector)
   ament_target_dependencies(test_periodic_measurement_node rclcpp)
 
+  ament_add_gtest(test_utilities
+          test/system_metrics_collector/test_utilities.cpp)
+  target_link_libraries(test_utilities system_metrics_collector)
+  ament_target_dependencies(test_utilities rclcpp)
+
   install(TARGETS
     test_moving_average_statistics
     DESTINATION
