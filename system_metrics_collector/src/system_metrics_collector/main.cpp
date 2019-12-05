@@ -24,6 +24,7 @@
 
 #include "../../src/system_metrics_collector/linux_cpu_measurement_node.hpp"
 #include "../../src/system_metrics_collector/linux_memory_measurement_node.hpp"
+#include "../../src/system_metrics_collector/linux_process_memory_measurement_node.hpp"
 
 namespace
 {
@@ -53,9 +54,17 @@ int main(int argc, char ** argv)
     STATISTICS_TOPIC_NAME,
     std::chrono::milliseconds(1000 * 60));
 
+  auto process_mem_node =
+    std::make_shared<system_metrics_collector::LinuxProcessMemoryMeasurementNode>(
+    "linuxProcessMemoryCollector",
+    std::chrono::milliseconds(1000),
+    "not_publishing_yet",
+    std::chrono::milliseconds(1000 * 60));
+
   rclcpp::executors::MultiThreadedExecutor ex;
   cpu_node->start();
   mem_node->start();
+  process_mem_node->start();
 
   auto r = rcutils_logging_set_logger_level(cpu_node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
   if (r != 0) {
@@ -67,12 +76,22 @@ int main(int argc, char ** argv)
     RCUTILS_LOG_ERROR_NAMED("main", "Unable to set debug logging for the memory node");
   }
 
+  r = rcutils_logging_set_logger_level(process_mem_node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+
+  if (r != 0) {
+    RCUTILS_LOG_ERROR_NAMED("main", "Unable to set debug logging for the process memory node");
+  }
+
   ex.add_node(cpu_node);
   ex.add_node(mem_node);
+  ex.add_node(process_mem_node);
   ex.spin();
 
   rclcpp::shutdown();
+
   cpu_node->stop();
   mem_node->stop();
+  process_mem_node->stop();
+
   return r;
 }

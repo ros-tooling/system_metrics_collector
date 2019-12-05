@@ -16,6 +16,7 @@
 #define SYSTEM_METRICS_COLLECTOR__UTILITIES_HPP_
 
 #include <string>
+#include <unistd.h>
 
 namespace system_metrics_collector
 {
@@ -41,6 +42,12 @@ std::string readFileToString(const std::string & file_name);
  * (MemTotal - MemAvailable) / MemTotal * 100.0
  */
 double processMemInfoLines(const std::string & lines);
+
+/**
+ * Return the pid of the current process
+ * @return the pid of the current process as an int
+ */
+int getPid();
 
 }  // namespace system_metrics_collector
 

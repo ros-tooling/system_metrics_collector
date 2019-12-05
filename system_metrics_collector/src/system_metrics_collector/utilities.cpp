@@ -101,4 +101,9 @@ double processMemInfoLines(const std::string & lines)
          std::nan("") : to_return;
 }
 
+int getPid()
+{
+  return getpid();
+}
+
 }  // namespace system_metrics_collector

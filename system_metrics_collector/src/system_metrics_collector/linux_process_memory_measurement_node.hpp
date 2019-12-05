@@ -15,23 +15,70 @@
 #ifndef SYSTEM_METRICS_COLLECTOR_LINUX_PROCESS_MEMORY_MEASUREMENT_NODE_HPP
 #define SYSTEM_METRICS_COLLECTOR_LINUX_PROCESS_MEMORY_MEASUREMENT_NODE_HPP
 
-// read /proc/[pid]/status _> VmSize, or statm (first field): http://man7.org/linux/man-pages/man5/proc.5.html
+#include <sys/sysinfo.h>
+#include <sys/types.h>
 
+#include <cmath>
 #include <chrono>
 #include <fstream>
 #include <sstream>
 #include <streambuf>
 #include <string>
 
-#include "../../src/system_metrics_collector/linux_memory_measurement_node.hpp"
 #include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
+#include "../../src/system_metrics_collector/utilities.hpp"
 
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/logging_macros.h"
 
+namespace
+{
+    constexpr const char PROC[] = "/proc/";
+    constexpr const char STATM[] = "/statm";
+}  // namespace
 
-class LinuxProcessMemoryMeasurementNode : public LinuxProcessMemoryMeasurementNode
+namespace system_metrics_collector
 {
 
+class LinuxProcessMemoryMeasurementNode : public PeriodicMeasurementNode
+{
+
+public:
+  LinuxProcessMemoryMeasurementNode(
+    const std::string & name,
+    const std::chrono::milliseconds measurement_period,
+    const std::string & topic,
+    const std::chrono::milliseconds publish_period)
+  : PeriodicMeasurementNode(name, measurement_period, topic, publish_period),
+    file_to_read_(PROC + std::to_string(getPid()) + STATM)
+  {
+  }
+
+protected:
+  double periodicMeasurement() override
+  {
+    // get the total amount of memory
+    struct sysinfo si;
+    sysinfo(&si);
+
+    const auto data = readFileToString(file_to_read_);
+    std::istringstream ss(data);
+    if (ss.good()) {
+      int process_memory_used;
+      ss >> process_memory_used;
+      if (ss.good()) {
+        std::cout << (double) process_memory_used / (double) si.totalram * 100.0 << std::endl;
+        return (double) process_memory_used / (double) si.totalram * 100.0;
+      }
+    }
+
+    return std::nan("");
+  }
+
+private:
+  const std::string file_to_read_;
 };
+
+}  // namespace system_metrics_collector
+
 #endif //SYSTEM_METRICS_COLLECTOR_LINUX_PROCESS_MEMORY_MEASUREMENT_NODE_HPP
