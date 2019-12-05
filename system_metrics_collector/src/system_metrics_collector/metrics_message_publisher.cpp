@@ -29,8 +29,8 @@ namespace system_metrics_collector
 MetricsMessage MetricsMessagePublisher::generateStatisticMessage(
   const std::string & node_name,
   const std::string & source_name,
-  const builtin_interfaces::msg::Time & window_start,
-  const builtin_interfaces::msg::Time & window_stop,
+  const builtin_interfaces::msg::Time window_start,
+  const builtin_interfaces::msg::Time window_stop,
   const moving_average_statistics::StatisticData & data)
 {
   MetricsMessage msg;
