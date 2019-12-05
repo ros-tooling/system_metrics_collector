@@ -42,6 +42,7 @@ add_library(system_metrics_collector SHARED
   src/system_metrics_collector/linux_memory_measurement_node.cpp
   src/system_metrics_collector/periodic_measurement_node.cpp
   src/system_metrics_collector/proc_cpu_data.cpp
+  src/system_metrics_collector/utilities.cpp
 )
 ament_target_dependencies(system_metrics_collector metrics_statistics_msgs rclcpp rcpputils rcutils)
 ament_export_libraries(system_metrics_collector)
@@ -85,6 +86,11 @@ if(BUILD_TESTING)
     test/system_metrics_collector/test_periodic_measurement_node.cpp)
   target_link_libraries(test_periodic_measurement_node system_metrics_collector)
   ament_target_dependencies(test_periodic_measurement_node metrics_statistics_msgs rclcpp)
+
+  ament_add_gtest(test_utilities
+          test/system_metrics_collector/test_utilities.cpp)
+  target_link_libraries(test_utilities system_metrics_collector)
+  ament_target_dependencies(test_utilities rclcpp)
 
   install(TARGETS
     test_moving_average_statistics
