@@ -55,6 +55,11 @@ protected:
    * @return percentage of RAM used
    */
   double periodicMeasurement() override;
+
+  /**
+   * Publish the statistics derived from the collected measurements
+   */
+  void publishStatisticMessage() override;
 };
 
 }  // namespace system_metrics_collector

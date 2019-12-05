@@ -85,6 +85,11 @@ private:
   virtual system_metrics_collector::ProcCpuData makeSingleMeasurement();
 
   /**
+   * Publish the statistics derived from the collected measurements
+   */
+  void publishStatisticMessage() override;
+
+  /**
    * The cached measurement used in order to perform the CPU active
    * percentage.
    */

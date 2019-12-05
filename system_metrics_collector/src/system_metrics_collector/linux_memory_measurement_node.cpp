@@ -27,6 +27,7 @@
 
 namespace
 {
+constexpr const char MEASUREMENT_TYPE[] = "system_memory_usage";
 constexpr const char PROC_STAT_FILE[] = "/proc/meminfo";
 }  // namespace
 
@@ -50,6 +51,13 @@ double LinuxMemoryMeasurementNode::periodicMeasurement()
   }
   auto read_string = readFileToString(PROC_STAT_FILE);
   return processMemInfoLines(read_string);
+}
+
+void LinuxMemoryMeasurementNode::publishStatisticMessage()
+{
+  auto msg = generateStatisticMessage(get_name(), MEASUREMENT_TYPE, window_start_,
+      now(), getStatisticsResults());
+  publisher_->publish(msg);
 }
 
 }  // namespace system_metrics_collector

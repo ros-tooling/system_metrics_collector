@@ -27,6 +27,8 @@
 
 namespace
 {
+constexpr const std::chrono::milliseconds INVALID_PUBLISH_WINDOW =
+  std::chrono::milliseconds(0);
 constexpr const auto TEST_PERIOD{std::chrono::milliseconds(50)};
 }  // namespace
 

@@ -28,6 +28,8 @@
 
 namespace
 {
+constexpr const std::chrono::milliseconds INVALID_PUBLISH_WINDOW =
+  std::chrono::milliseconds(0);
 constexpr const std::chrono::milliseconds TEST_LENGTH =
   std::chrono::milliseconds(250);
 constexpr const std::chrono::milliseconds TEST_PERIOD =
@@ -61,6 +63,8 @@ private:
     return static_cast<double>(sum.load());
   }
 
+  void publishStatisticMessage() override {}
+
   std::atomic<int> sum{0};
 };
 
@@ -78,7 +82,7 @@ public:
       "test_periodic_node",
       TEST_PERIOD,
       "test_topic",
-      ::system_metrics_collector::PeriodicMeasurementNode::INVALID_PUBLISH_WINDOW);
+      INVALID_PUBLISH_WINDOW);
 
     ASSERT_FALSE(test_periodic_measurer->isStarted());
 
