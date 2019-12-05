@@ -38,6 +38,7 @@ add_library(system_metrics_collector SHARED
   src/system_metrics_collector/linux_memory_measurement_node.cpp
   src/system_metrics_collector/periodic_measurement_node.cpp
   src/system_metrics_collector/proc_cpu_data.cpp
+  src/system_metrics_collector/utilities.cpp
   src/moving_average_statistics/moving_average.cpp
   src/moving_average_statistics/types.hpp
 )
@@ -79,6 +80,11 @@ if(BUILD_TESTING)
     test/system_metrics_collector/test_periodic_measurement_node.cpp)
   target_link_libraries(test_periodic_measurement_node system_metrics_collector)
   ament_target_dependencies(test_periodic_measurement_node rclcpp)
+
+  ament_add_gtest(test_utilities
+          test/system_metrics_collector/test_utilities.cpp)
+  target_link_libraries(test_utilities system_metrics_collector)
+  ament_target_dependencies(test_utilities rclcpp)
 
   install(TARGETS
     test_moving_average_statistics
