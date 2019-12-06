@@ -116,11 +116,9 @@ system_metrics_collector::ProcCpuData LinuxCpuMeasurementNode::makeSingleMeasure
   }
 }
 
-void LinuxCpuMeasurementNode::publishStatisticMessage()
+std::string LinuxCpuMeasurementNode::getMetricName()
 {
-  auto msg = generateStatisticMessage(get_name(), MEASUREMENT_TYPE, window_start_,
-      now(), getStatisticsResults());
-  publisher_->publish(msg);
+  return MEASUREMENT_TYPE;
 }
 
 }  // namespace system_metrics_collector

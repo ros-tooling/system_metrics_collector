@@ -85,9 +85,10 @@ private:
   virtual system_metrics_collector::ProcCpuData makeSingleMeasurement();
 
   /**
-   * Publish the statistics derived from the collected measurements
+   * Return the name to use for this metric
+   * @return a string of the name for this measured metric
    */
-  void publishStatisticMessage() override;
+  std::string getMetricName() override;
 
   /**
    * The cached measurement used in order to perform the CPU active

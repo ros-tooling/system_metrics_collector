@@ -57,9 +57,10 @@ protected:
   double periodicMeasurement() override;
 
   /**
-   * Publish the statistics derived from the collected measurements
+   * Return the name to use for this metric
+   * @return a string of the name for this measured metric
    */
-  void publishStatisticMessage() override;
+  std::string getMetricName() override;
 };
 
 }  // namespace system_metrics_collector

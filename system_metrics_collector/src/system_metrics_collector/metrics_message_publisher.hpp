@@ -55,8 +55,13 @@ public:
    * ROS2 timer per the publish_period)
    */
   virtual void publishStatisticMessage() = 0;
-};
 
+  /**
+   * Return the name to use for this metric
+   * @return a string of the name for this measured metric
+   */
+  virtual std::string getMetricName() = 0;
+};
 }  // namespace system_metrics_collector
 
 #endif  // SYSTEM_METRICS_COLLECTOR__METRICS_MESSAGE_PUBLISHER_HPP_

@@ -85,6 +85,8 @@ private:
    */
   virtual void performPeriodicMeasurement();
 
+  void publishStatisticMessage() override;
+
   /**
    * Creates a ROS2 timer with a period of measurement_period_.
    *
