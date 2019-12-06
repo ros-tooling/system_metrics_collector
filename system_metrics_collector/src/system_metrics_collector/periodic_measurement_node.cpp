@@ -88,4 +88,14 @@ void PeriodicMeasurementNode::performPeriodicMeasurement()
   RCLCPP_DEBUG(this->get_logger(), getStatusString());
 }
 
+void PeriodicMeasurementNode::publishStatisticMessage()
+{
+  auto msg = generateStatisticMessage(get_name(),
+      getMetricName(),
+      window_start_,
+      now(),
+      getStatisticsResults());
+  publisher_->publish(msg);
+}
+
 }  // namespace system_metrics_collector

@@ -34,6 +34,7 @@ constexpr const std::chrono::milliseconds TEST_LENGTH =
   std::chrono::milliseconds(250);
 constexpr const std::chrono::milliseconds TEST_PERIOD =
   std::chrono::milliseconds(50);
+constexpr const char TEST_METRIC_NAME[] = "test_metric_name";
 }  // namespace
 
 /**
@@ -64,6 +65,11 @@ private:
   }
 
   void publishStatisticMessage() override {}
+
+  std::string getMetricName() const
+  {
+    return TEST_METRIC_NAME;
+  }
 
   std::atomic<int> sum{0};
 };

@@ -86,6 +86,12 @@ private:
   virtual void performPeriodicMeasurement();
 
   /**
+   * Publish the statistics derived from the collected measurements (this is to be called via a
+   * ROS2 timer per the publish_period)
+   */
+  void publishStatisticMessage() override;
+
+  /**
    * Creates a ROS2 timer with a period of measurement_period_.
    *
    * @return if setup was successful
