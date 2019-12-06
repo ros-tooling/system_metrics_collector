@@ -34,6 +34,8 @@ constexpr const char proc_sample_2[] =
 constexpr const std::chrono::milliseconds TEST_PERIOD =
   std::chrono::milliseconds(50);
 constexpr const double CPU_ACTIVE_PERCENTAGE = 2.7239908106334099;
+constexpr const char proc_sample_resolution_test[] =
+  "cpu  57211920 335926 18096939 2526329830 14818556 0 1072048 0 0 0\n";
 }  // namespace
 
 class TestLinuxCpuMeasurementNode : public system_metrics_collector::LinuxCpuMeasurementNode
@@ -125,6 +127,26 @@ TEST(LinuxCpuMeasurementTest, testParseProcLine)
   ASSERT_EQ(
     "cpu_label=cpu, user=22451232, nice=118653, system=7348045, idle=934943300,"
     " iOWait=5378119, irq=0, softIrq=419114, steal=0",
+    parsed_data.toString());
+}
+
+TEST(LinuxCpuMeasurementTest, testParseProcLine2)
+{
+  auto parsed_data = system_metrics_collector::processStatCpuLine(proc_sample_resolution_test);
+
+  ASSERT_EQ("cpu", parsed_data.cpu_label);
+  ASSERT_EQ(57211920, parsed_data.times[0]);
+  ASSERT_EQ(335926, parsed_data.times[1]);
+  ASSERT_EQ(18096939, parsed_data.times[2]);
+  ASSERT_EQ(2526329830, parsed_data.times[3]);
+  ASSERT_EQ(14818556, parsed_data.times[4]);
+  ASSERT_EQ(0, parsed_data.times[5]);
+  ASSERT_EQ(1072048, parsed_data.times[6]);
+  ASSERT_EQ(0, parsed_data.times[7]);
+
+  ASSERT_EQ(
+    "cpu_label=cpu, user=57211920, nice=335926, system=18096939, idle=2526329830,"
+    " iOWait=14818556, irq=0, softIrq=1072048, steal=0",
     parsed_data.toString());
 }
 
