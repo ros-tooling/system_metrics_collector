@@ -75,6 +75,14 @@ protected:
     return std::nan("");
   }
 
+void publishStatisticMessage()
+{
+  auto msg = generateStatisticMessage(get_name(), "asdf", window_start_,
+                                      now(), getStatisticsResults());
+  publisher_->publish(msg);
+}
+
+
 private:
   const std::string file_to_read_;
 };
