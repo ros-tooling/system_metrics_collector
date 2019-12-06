@@ -20,12 +20,9 @@
  */
 namespace test_constants
 {
-constexpr const std::chrono::milliseconds TEST_LENGTH =
-  std::chrono::milliseconds(250);
-constexpr const std::chrono::milliseconds MEASURE_PERIOD =
-  std::chrono::milliseconds(50);
-constexpr const std::chrono::milliseconds PUBLISH_PERIOD =
-  std::chrono::milliseconds(80);
+constexpr const std::chrono::milliseconds TEST_LENGTH{250};
+constexpr const std::chrono::milliseconds MEASURE_PERIOD{50};
+constexpr const std::chrono::milliseconds PUBLISH_PERIOD{80};
 
 constexpr const char EMPTY_SAMPLE[] = "";
 constexpr const char GARBAGE_SAMPLE[] = "this is garbage\n";

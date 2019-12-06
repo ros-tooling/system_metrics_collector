@@ -55,7 +55,7 @@ bool PeriodicMeasurementNode::setupStart()
     measurement_period_, [this]() {this->performPeriodicMeasurement();});
 
   if (publisher_ == nullptr) {
-    publisher_ = create_publisher<MetricsMessage>(publishing_topic_, 10);
+    publisher_ = create_publisher<MetricsMessage>(publishing_topic_, 10 /*history_depth*/);
   }
 
   RCLCPP_DEBUG(this->get_logger(), "setupStart: creating publish_timer_");

@@ -26,16 +26,12 @@
 #include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
 #include "../../src/moving_average_statistics/types.hpp"
 
+#include "test_constants.hpp"
+
 namespace
 {
-constexpr const std::chrono::milliseconds INVALID_PUBLISH_WINDOW =
-  std::chrono::milliseconds(0);
-constexpr const std::chrono::milliseconds TEST_LENGTH =
-  std::chrono::milliseconds(250);
-constexpr const std::chrono::milliseconds MEASURE_PERIOD =
-  std::chrono::milliseconds(50);
-constexpr const std::chrono::milliseconds PUBLISH_PERIOD =
-  std::chrono::milliseconds(80);
+constexpr const char TEST_NODE_NAME[] = "test_periodic_node";
+constexpr const char TEST_TOPIC[] = "test_topic";
 constexpr const char TEST_METRIC_NAME[] = "test_metric_name";
 }  // namespace
 
@@ -102,8 +98,8 @@ public:
   {
     rclcpp::init(0, nullptr);
 
-    test_periodic_measurer = std::make_shared<TestPeriodicMeasurementNode>("test_periodic_node",
-        MEASURE_PERIOD, "test_topic", PUBLISH_PERIOD, false);
+    test_periodic_measurer = std::make_shared<TestPeriodicMeasurementNode>(TEST_NODE_NAME,
+        test_constants::MEASURE_PERIOD, TEST_TOPIC, test_constants::PUBLISH_PERIOD, false);
 
     ASSERT_FALSE(test_periodic_measurer->isStarted());
 
@@ -149,21 +145,24 @@ TEST_F(PeriodicMeasurementTestFixure, test_start_and_stop) {
 
   rclcpp::executors::SingleThreadedExecutor ex;
   ex.add_node(test_periodic_measurer);
-  ex.spin_until_future_complete(dummy_future, TEST_LENGTH);
+  ex.spin_until_future_complete(dummy_future, test_constants::TEST_LENGTH);
 
   moving_average_statistics::StatisticData data = test_periodic_measurer->getStatisticsResults();
   EXPECT_EQ(3, data.average);
   EXPECT_EQ(1, data.min);
-  EXPECT_EQ(TEST_LENGTH.count() / MEASURE_PERIOD.count(), data.max);
+  EXPECT_EQ(test_constants::TEST_LENGTH.count() / test_constants::MEASURE_PERIOD.count(), data.max);
   EXPECT_FALSE(std::isnan(data.standard_deviation));
-  EXPECT_EQ(TEST_LENGTH.count() / MEASURE_PERIOD.count(), data.sample_count);
+  EXPECT_EQ(
+    test_constants::TEST_LENGTH.count() / test_constants::MEASURE_PERIOD.count(),
+    data.sample_count);
 
   const bool stop_success = test_periodic_measurer->stop();
   EXPECT_TRUE(stop_success);
   EXPECT_FALSE(test_periodic_measurer->isStarted());
 
   int times_published = test_periodic_measurer->getNumPublished();
-  EXPECT_EQ(TEST_LENGTH.count() / PUBLISH_PERIOD.count(), times_published);
+  EXPECT_EQ(
+    test_constants::TEST_LENGTH.count() / test_constants::PUBLISH_PERIOD.count(), times_published);
 }
 
 int main(int argc, char ** argv)

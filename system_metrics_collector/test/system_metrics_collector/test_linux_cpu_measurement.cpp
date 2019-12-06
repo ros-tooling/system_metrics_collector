@@ -41,6 +41,7 @@ namespace
 {
 constexpr const char TEST_NODE_NAME[] = "test_measure_linux_cpu";
 constexpr const char TEST_TOPIC[] = "test_cpu_measure_topic";
+constexpr const char TEST_METRIC_NAME[] = "system_cpu_percent_used";
 
 constexpr const std::array<const char *, 10> proc_samples = {
   "cpu 22451232 118653 7348045 934943300 5378119 0 419114 0 0 0\n",
@@ -102,7 +103,7 @@ public:
   {
     auto callback = [this](MetricsMessage::UniquePtr msg) {this->MetricsMessageCallback(*msg);};
     subscription = create_subscription<MetricsMessage,
-        std::function<void(MetricsMessage::UniquePtr)>>(TEST_TOPIC, 10, callback);
+        std::function<void(MetricsMessage::UniquePtr)>>(TEST_TOPIC, 10 /*history_depth*/, callback);
 
     // tools for calculating expected statistics values
     moving_average_statistics::MovingAverageStatistics stats_calc;
@@ -183,7 +184,7 @@ private:
 
     // check source names
     EXPECT_EQ(TEST_NODE_NAME, msg.measurement_source_name);
-    EXPECT_EQ("system_cpu_percent_used", msg.metrics_source);
+    EXPECT_EQ(TEST_METRIC_NAME, msg.metrics_source);
 
     // check measurements
     const ExpectedStatistics & expected_stat = expected_stats[times_received];
