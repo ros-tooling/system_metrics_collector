@@ -82,7 +82,7 @@ protected:
    * @return if teardown was successful
    */
   bool setupStop() override;
- 
+
   /**
    * Track the starting time of the statistics
    */

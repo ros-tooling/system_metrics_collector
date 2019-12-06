@@ -67,7 +67,7 @@ bool PeriodicMeasurementNode::setupStart()
         this->window_start_ = this->now();
       }
     });
-  
+
   window_start_ = now();
 
   return true;

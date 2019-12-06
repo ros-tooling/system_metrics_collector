@@ -127,8 +127,8 @@ public:
   {
     rclcpp::init(0, nullptr);
 
-    test_measure_linux_memory = std::make_shared<TestLinuxMemoryMeasurementNode>(TEST_NODE_NAME, 
-      test_constants::MEASURE_PERIOD, TEST_TOPIC, test_constants::PUBLISH_PERIOD);
+    test_measure_linux_memory = std::make_shared<TestLinuxMemoryMeasurementNode>(TEST_NODE_NAME,
+        test_constants::MEASURE_PERIOD, TEST_TOPIC, test_constants::PUBLISH_PERIOD);
 
     ASSERT_FALSE(test_measure_linux_memory->isStarted());
 
@@ -244,13 +244,6 @@ private:
     // check source names
     EXPECT_EQ(TEST_NODE_NAME, msg.measurement_source_name);
     EXPECT_EQ("system_memory_percent_used", msg.metrics_source);
-
-    // check measurement window
-    std::chrono::seconds window_sec(msg.window_stop.sec - msg.window_start.sec);
-    std::chrono::nanoseconds window_nanosec(msg.window_stop.nanosec - msg.window_start.nanosec);
-    std::chrono::milliseconds window = std::chrono::duration_cast<std::chrono::milliseconds>(
-      window_sec + window_nanosec);
-    EXPECT_GT(5, std::abs(window.count() - test_constants::PUBLISH_PERIOD.count()));
 
     // check measurements
     const ExpectedStatistics & expected_stat = expected_stats[times_received];
