@@ -243,14 +243,14 @@ private:
 
     // check source names
     EXPECT_EQ(TEST_NODE_NAME, msg.measurement_source_name);
-    EXPECT_EQ("memory_usage", msg.metrics_source);
+    EXPECT_EQ("system_memory_percent_used", msg.metrics_source);
 
     // check measurement window
-    // std::chrono::seconds window_sec(msg.window_stop.sec - msg.window_start.sec);
-    // std::chrono::nanoseconds window_nanosec(msg.window_stop.nanosec - msg.window_start.nanosec);
-    // std::chrono::milliseconds window = std::chrono::duration_cast<std::chrono::milliseconds>(
-    //   window_sec + window_nanosec);
-    // EXPECT_GT(5, std::abs(window.count() - PUBLISH_PERIOD.count()));
+    std::chrono::seconds window_sec(msg.window_stop.sec - msg.window_start.sec);
+    std::chrono::nanoseconds window_nanosec(msg.window_stop.nanosec - msg.window_start.nanosec);
+    std::chrono::milliseconds window = std::chrono::duration_cast<std::chrono::milliseconds>(
+      window_sec + window_nanosec);
+    EXPECT_GT(5, std::abs(window.count() - test_constants::PUBLISH_PERIOD.count()));
 
     // check measurements
     const ExpectedStatistics & expected_stat = expected_stats[times_received];
