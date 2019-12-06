@@ -66,7 +66,7 @@ private:
 
   void publishStatisticMessage() override {}
 
-  std::string getMetricName()
+  std::string getMetricName() const
   {
     return TEST_METRIC_NAME;
   }

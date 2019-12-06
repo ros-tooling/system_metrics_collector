@@ -53,7 +53,7 @@ double LinuxMemoryMeasurementNode::periodicMeasurement()
   return processMemInfoLines(read_string);
 }
 
-std::string LinuxMemoryMeasurementNode::getMetricName()
+std::string LinuxMemoryMeasurementNode::getMetricName() const
 {
   return MEASUREMENT_TYPE;
 }

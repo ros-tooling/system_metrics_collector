@@ -116,7 +116,7 @@ system_metrics_collector::ProcCpuData LinuxCpuMeasurementNode::makeSingleMeasure
   }
 }
 
-std::string LinuxCpuMeasurementNode::getMetricName()
+std::string LinuxCpuMeasurementNode::getMetricName() const
 {
   return MEASUREMENT_TYPE;
 }

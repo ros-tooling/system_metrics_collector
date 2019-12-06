@@ -88,7 +88,7 @@ private:
    * Return the name to use for this metric
    * @return a string of the name for this measured metric
    */
-  std::string getMetricName() override;
+  std::string getMetricName() const override;
 
   /**
    * The cached measurement used in order to perform the CPU active

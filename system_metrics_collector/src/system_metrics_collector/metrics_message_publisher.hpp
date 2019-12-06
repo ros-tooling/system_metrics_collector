@@ -60,7 +60,7 @@ public:
    * Return the name to use for this metric
    * @return a string of the name for this measured metric
    */
-  virtual std::string getMetricName() = 0;
+  virtual std::string getMetricName() const = 0;
 };
 }  // namespace system_metrics_collector
 

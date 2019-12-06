@@ -60,7 +60,7 @@ protected:
    * Return the name to use for this metric
    * @return a string of the name for this measured metric
    */
-  std::string getMetricName() override;
+  std::string getMetricName() const override;
 };
 
 }  // namespace system_metrics_collector
