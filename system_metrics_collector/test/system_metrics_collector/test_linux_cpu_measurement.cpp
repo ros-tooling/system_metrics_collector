@@ -24,29 +24,23 @@
 #include <unordered_map>
 
 #include "metrics_statistics_msgs/msg/metrics_message.hpp"
+#include "metrics_statistics_msgs/msg/statistic_data_type.hpp"
 
 #include "../../src/system_metrics_collector/linux_cpu_measurement_node.hpp"
 #include "../../src/system_metrics_collector/proc_cpu_data.hpp"
+
+#include "test_constants.hpp"
 
 using metrics_statistics_msgs::msg::MetricsMessage;
 using metrics_statistics_msgs::msg::StatisticDataPoint;
 using metrics_statistics_msgs::msg::StatisticDataType;
 using moving_average_statistics::StatisticData;
-using moving_average_statistics::STATISTICS_DATA_TYPES;
 using system_metrics_collector::processStatCpuLine;
 
 namespace
 {
-
 constexpr const char TEST_NODE_NAME[] = "test_measure_linux_cpu";
 constexpr const char TEST_TOPIC[] = "test_cpu_measure_topic";
-
-constexpr const std::chrono::milliseconds TEST_LENGTH =
-  std::chrono::milliseconds(250);
-constexpr const std::chrono::milliseconds MEASURE_PERIOD =
-  std::chrono::milliseconds(50);
-constexpr const std::chrono::milliseconds PUBLISH_PERIOD =
-  std::chrono::milliseconds(80);
 
 constexpr const std::array<const char *, 10> proc_samples = {
   "cpu 22451232 118653 7348045 934943300 5378119 0 419114 0 0 0\n",
@@ -60,6 +54,9 @@ constexpr const std::array<const char *, 10> proc_samples = {
   "cpu 6093617 43419 1621953 9161570 48047 0 178792 0 0 0\n",
   "cpu 6134250 6371 1634411 675446 5285 0 233478 0 0 0\n"
 };
+constexpr const double CPU_ACTIVE_PROC_SAMPLE_0_1 = 2.7239908106334099;
+constexpr const char proc_sample_resolution_test[] =
+  "cpu  57211920 335926 18096939 2526329830 14818556 0 1072048 0 0 0\n";
 
 double computeCpuActivePercentage(const std::string & data1, const std::string & data2)
 {
@@ -67,9 +64,6 @@ double computeCpuActivePercentage(const std::string & data1, const std::string &
   auto parsed_data2 = processStatCpuLine(data2);
   return computeCpuActivePercentage(parsed_data1, parsed_data2);
 }
-
-constexpr const double CPU_ACTIVE_PROC_SAMPLE_0_1 = 2.7239908106334099;
-
 }  // namespace
 
 
@@ -227,7 +221,7 @@ public:
     rclcpp::init(0, nullptr);
 
     test_measure_linux_cpu = std::make_shared<TestLinuxCpuMeasurementNode>(TEST_NODE_NAME,
-        MEASURE_PERIOD, TEST_TOPIC, PUBLISH_PERIOD);
+        test_constants::MEASURE_PERIOD, TEST_TOPIC, test_constants::PUBLISH_PERIOD);
 
     ASSERT_FALSE(test_measure_linux_cpu->isStarted());
 
@@ -250,6 +244,16 @@ protected:
   std::shared_ptr<TestLinuxCpuMeasurementNode> test_measure_linux_cpu;
 };
 
+TEST_F(LinuxCpuMeasurementTestFixture, testManualMeasurement)
+{
+  // first measurement caches
+  double cpu_active_percentage = test_measure_linux_cpu->periodicMeasurement();
+  ASSERT_TRUE(std::isnan(cpu_active_percentage));
+  // second measurement compares current and cached
+  cpu_active_percentage = test_measure_linux_cpu->periodicMeasurement();
+  ASSERT_DOUBLE_EQ(CPU_ACTIVE_PROC_SAMPLE_0_1, cpu_active_percentage);
+}
+
 TEST(LinuxCpuMeasurementTest, testParseProcLine)
 {
   auto parsed_data = processStatCpuLine(proc_samples[0]);
@@ -267,6 +271,26 @@ TEST(LinuxCpuMeasurementTest, testParseProcLine)
   ASSERT_EQ(
     "cpu_label=cpu, user=22451232, nice=118653, system=7348045, idle=934943300,"
     " iOWait=5378119, irq=0, softIrq=419114, steal=0",
+    parsed_data.toString());
+}
+
+TEST(LinuxCpuMeasurementTest, testParseProcLine2)
+{
+  auto parsed_data = system_metrics_collector::processStatCpuLine(proc_sample_resolution_test);
+
+  ASSERT_EQ("cpu", parsed_data.cpu_label);
+  ASSERT_EQ(57211920, parsed_data.times[0]);
+  ASSERT_EQ(335926, parsed_data.times[1]);
+  ASSERT_EQ(18096939, parsed_data.times[2]);
+  ASSERT_EQ(2526329830, parsed_data.times[3]);
+  ASSERT_EQ(14818556, parsed_data.times[4]);
+  ASSERT_EQ(0, parsed_data.times[5]);
+  ASSERT_EQ(1072048, parsed_data.times[6]);
+  ASSERT_EQ(0, parsed_data.times[7]);
+
+  ASSERT_EQ(
+    "cpu_label=cpu, user=57211920, nice=335926, system=18096939, idle=2526329830,"
+    " iOWait=14818556, irq=0, softIrq=1072048, steal=0",
     parsed_data.toString());
 }
 
@@ -288,16 +312,6 @@ TEST(LinuxCpuMeasurementTest, testEmptyProcCpuData)
   }
 }
 
-TEST_F(LinuxCpuMeasurementTestFixture, testManualMeasurement)
-{
-  // first measurement caches
-  double cpu_active_percentage = test_measure_linux_cpu->periodicMeasurement();
-  ASSERT_TRUE(std::isnan(cpu_active_percentage));
-  // second measurement compares current and cached
-  cpu_active_percentage = test_measure_linux_cpu->periodicMeasurement();
-  ASSERT_DOUBLE_EQ(CPU_ACTIVE_PROC_SAMPLE_0_1, cpu_active_percentage);
-}
-
 TEST_F(LinuxCpuMeasurementTestFixture, testPublishMetricsMessage)
 {
   ASSERT_NE(test_measure_linux_cpu, nullptr);
@@ -317,7 +331,7 @@ TEST_F(LinuxCpuMeasurementTestFixture, testPublishMetricsMessage)
   bool start_success = test_measure_linux_cpu->start();
   ASSERT_TRUE(start_success);
   ASSERT_TRUE(test_measure_linux_cpu->isStarted());
-  ex.spin_until_future_complete(dummy_future, TEST_LENGTH);
+  ex.spin_until_future_complete(dummy_future, test_constants::TEST_LENGTH);
   EXPECT_EQ(3, test_receive_measurements->getNumReceived());
   // expectation is:
   // 50 ms: proc_samples[0] is collected
@@ -342,7 +356,7 @@ TEST_F(LinuxCpuMeasurementTestFixture, testPublishMetricsMessage)
   bool stop_success = test_measure_linux_cpu->stop();
   ASSERT_TRUE(stop_success);
   ASSERT_FALSE(test_measure_linux_cpu->isStarted());
-  ex.spin_until_future_complete(dummy_future, TEST_LENGTH);
+  ex.spin_until_future_complete(dummy_future, test_constants::TEST_LENGTH);
   EXPECT_EQ(3, test_receive_measurements->getNumReceived());
   // expectation is:
   // upon calling stop, samples are cleared, so getStatisticsResults() would be NaNs
@@ -360,7 +374,7 @@ TEST_F(LinuxCpuMeasurementTestFixture, testPublishMetricsMessage)
   start_success = test_measure_linux_cpu->start();
   ASSERT_TRUE(start_success);
   ASSERT_TRUE(test_measure_linux_cpu->isStarted());
-  ex.spin_until_future_complete(dummy_future, TEST_LENGTH);
+  ex.spin_until_future_complete(dummy_future, test_constants::TEST_LENGTH);
   EXPECT_EQ(6, test_receive_measurements->getNumReceived());
   // expectation is:
   // 50 ms: proc_samples[5] is collected

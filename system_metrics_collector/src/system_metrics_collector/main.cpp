@@ -25,7 +25,10 @@
 #include "../../src/system_metrics_collector/linux_cpu_measurement_node.hpp"
 #include "../../src/system_metrics_collector/linux_memory_measurement_node.hpp"
 
-static constexpr const char STATISTICS_TOPIC_NAME[] = "system_metrics";
+namespace
+{
+constexpr const char STATISTICS_TOPIC_NAME[] = "system_metrics";
+}
 
 /**
  * This is current a "test" main in order to manually test the measurement nodes.

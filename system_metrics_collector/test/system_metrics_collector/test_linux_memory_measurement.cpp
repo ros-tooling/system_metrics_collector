@@ -24,90 +24,26 @@
 #include <unordered_map>
 
 #include "metrics_statistics_msgs/msg/metrics_message.hpp"
+#include "metrics_statistics_msgs/msg/statistic_data_type.hpp"
 
 #include "../../src/system_metrics_collector/linux_memory_measurement_node.hpp"
+#include "../../src/system_metrics_collector/utilities.hpp"
+
+#include "test_constants.hpp"
 
 using metrics_statistics_msgs::msg::MetricsMessage;
 using metrics_statistics_msgs::msg::StatisticDataPoint;
 using metrics_statistics_msgs::msg::StatisticDataType;
 using moving_average_statistics::StatisticData;
-using moving_average_statistics::STATISTICS_DATA_TYPES;
 using system_metrics_collector::processMemInfoLines;
 
 namespace
 {
-
 constexpr const char TEST_NODE_NAME[] = "test_measure_linux_memory";
 constexpr const char TEST_TOPIC[] = "test_memory_measure_topic";
 
-constexpr const std::chrono::milliseconds TEST_LENGTH =
-  std::chrono::milliseconds(250);
-constexpr const std::chrono::milliseconds MEASURE_PERIOD =
-  std::chrono::milliseconds(50);
-constexpr const std::chrono::milliseconds PUBLISH_PERIOD =
-  std::chrono::milliseconds(80);
-
-constexpr const char EMPTY_SAMPLE[] = "";
-constexpr const char GARBAGE_SAMPLE[] = "this is garbage\n";
-constexpr const char INCOMPLETE_SAMPLE[] =
-  "MemTotal:       16302048 kB\n"
-  "MemFree:          443300 kB\n";
-constexpr const char COMPLETE_SAMPLE[] =
-  "MemTotal:       16302048 kB\n"
-  "MemFree:          239124 kB\n"
-  "MemAvailable:    9104952 kB\n";
-constexpr const char FULL_SAMPLE[] =
-  "MemTotal:       16302048 kB\n"
-  "MemFree:          239124 kB\n"
-  "MemAvailable:    9104952 kB\n"
-  "Buffers:         2755028 kB\n"
-  "Cached:          5351344 kB\n"
-  "SwapCached:       202440 kB\n"
-  "Active:          9743384 kB\n"
-  "Inactive:        3662540 kB\n"
-  "Active(anon):    5246708 kB\n"
-  "Inactive(anon):  1084404 kB\n"
-  "Active(file):    4496676 kB\n"
-  "Inactive(file):  2578136 kB\n"
-  "Unevictable:          68 kB\n"
-  "Mlocked:              68 kB\n"
-  "SwapTotal:       8003580 kB\n"
-  "SwapFree:        6510332 kB\n"
-  "Dirty:               436 kB\n"
-  "Writeback:             0 kB\n"
-  "AnonPages:       5294808 kB\n"
-  "Mapped:           823420 kB\n"
-  "Shmem:           1037804 kB\n"
-  "Slab:            2371932 kB\n"
-  "SReclaimable:    2118248 kB\n"
-  "SUnreclaim:       253684 kB\n"
-  "KernelStack:       21968 kB\n"
-  "PageTables:       114360 kB\n"
-  "NFS_Unstable:          0 kB\n"
-  "Bounce:                0 kB\n"
-  "WritebackTmp:          0 kB\n"
-  "CommitLimit:    16154604 kB\n"
-  "Committed_AS:   19520052 kB\n"
-  "VmallocTotal:   34359738367 kB\n"
-  "VmallocUsed:           0 kB\n"
-  "VmallocChunk:          0 kB\n"
-  "HardwareCorrupted:     0 kB\n"
-  "AnonHugePages:         0 kB\n"
-  "ShmemHugePages:        0 kB\n"
-  "ShmemPmdMapped:        0 kB\n"
-  "CmaTotal:              0 kB\n"
-  "CmaFree:               0 kB\n"
-  "HugePages_Total:       0\n"
-  "HugePages_Free:        0\n"
-  "HugePages_Rsvd:        0\n"
-  "HugePages_Surp:        0\n"
-  "Hugepagesize:       2048 kB\n"
-  "DirectMap4k:     3993192 kB\n"
-  "DirectMap2M:    12660736 kB\n"
-  "DirectMap1G:     1048576 kB";
-
 constexpr const std::array<const char *, 10> SAMPLES = {
-  FULL_SAMPLE,
+  test_constants::FULL_SAMPLE,
 
   "MemTotal:       16304208 kB\n"
   "MemFree:          845168 kB\n"
@@ -145,8 +81,6 @@ constexpr const std::array<const char *, 10> SAMPLES = {
   "MemFree:          826968 kB\n"
   "MemAvailable:    4837664 kB\n",
 };
-
-constexpr const double MEMORY_USED_PERCENTAGE = 44.148416198995363;
 
 }  // namespace
 
@@ -193,8 +127,8 @@ public:
   {
     rclcpp::init(0, nullptr);
 
-    test_measure_linux_memory = std::make_shared<TestLinuxMemoryMeasurementNode>(
-      TEST_NODE_NAME, MEASURE_PERIOD, TEST_TOPIC, PUBLISH_PERIOD);
+    test_measure_linux_memory = std::make_shared<TestLinuxMemoryMeasurementNode>(TEST_NODE_NAME, 
+      test_constants::MEASURE_PERIOD, TEST_TOPIC, test_constants::PUBLISH_PERIOD);
 
     ASSERT_FALSE(test_measure_linux_memory->isStarted());
 
@@ -345,32 +279,14 @@ TEST(LinuxMemoryMeasurementTest, testReadInvalidFile)
   ASSERT_EQ("", s);
 }
 
-TEST(LinuxMemoryMeasurementTest, testprocessMemInfoLines)
-{
-  auto d = processMemInfoLines(EMPTY_SAMPLE);
-  ASSERT_TRUE(std::isnan(d));
-
-  d = processMemInfoLines(GARBAGE_SAMPLE);
-  ASSERT_TRUE(std::isnan(d));
-
-  d = processMemInfoLines(INCOMPLETE_SAMPLE);
-  ASSERT_TRUE(std::isnan(d));
-
-  d = processMemInfoLines(COMPLETE_SAMPLE);
-  ASSERT_DOUBLE_EQ(MEMORY_USED_PERCENTAGE, d);
-
-  d = processMemInfoLines(FULL_SAMPLE);
-  ASSERT_DOUBLE_EQ(MEMORY_USED_PERCENTAGE, d);
-}
-
 TEST_F(LinuxMemoryMeasurementTestFixture, testManualMeasurement) {
   test_measure_linux_memory->setTestString("");
   double mem_used_percentage = test_measure_linux_memory->periodicMeasurement();
   ASSERT_TRUE(std::isnan(mem_used_percentage));
 
-  test_measure_linux_memory->setTestString(FULL_SAMPLE);
+  test_measure_linux_memory->setTestString(test_constants::FULL_SAMPLE);
   mem_used_percentage = test_measure_linux_memory->periodicMeasurement();
-  ASSERT_DOUBLE_EQ(MEMORY_USED_PERCENTAGE, mem_used_percentage);
+  ASSERT_DOUBLE_EQ(test_constants::MEMORY_USED_PERCENTAGE, mem_used_percentage);
 }
 
 TEST_F(LinuxMemoryMeasurementTestFixture, testPublishMetricsMessage)
@@ -392,7 +308,7 @@ TEST_F(LinuxMemoryMeasurementTestFixture, testPublishMetricsMessage)
   bool start_success = test_measure_linux_memory->start();
   ASSERT_TRUE(start_success);
   ASSERT_TRUE(test_measure_linux_memory->isStarted());
-  ex.spin_until_future_complete(dummy_future, TEST_LENGTH);
+  ex.spin_until_future_complete(dummy_future, test_constants::TEST_LENGTH);
   EXPECT_EQ(3, test_receive_measurements->getNumReceived());
   // expectation is:
   // 50 ms: SAMPLES[0] is collected
@@ -412,7 +328,7 @@ TEST_F(LinuxMemoryMeasurementTestFixture, testPublishMetricsMessage)
   bool stop_success = test_measure_linux_memory->stop();
   ASSERT_TRUE(stop_success);
   ASSERT_FALSE(test_measure_linux_memory->isStarted());
-  ex.spin_until_future_complete(dummy_future, TEST_LENGTH);
+  ex.spin_until_future_complete(dummy_future, test_constants::TEST_LENGTH);
   EXPECT_EQ(3, test_receive_measurements->getNumReceived());
   // expectation is:
   // upon calling stop, samples are cleared, so getStatisticsResults() would be NaNs
@@ -430,7 +346,7 @@ TEST_F(LinuxMemoryMeasurementTestFixture, testPublishMetricsMessage)
   start_success = test_measure_linux_memory->start();
   ASSERT_TRUE(start_success);
   ASSERT_TRUE(test_measure_linux_memory->isStarted());
-  ex.spin_until_future_complete(dummy_future, TEST_LENGTH);
+  ex.spin_until_future_complete(dummy_future, test_constants::TEST_LENGTH);
   EXPECT_EQ(6, test_receive_measurements->getNumReceived());
   // expectation is:
   // 50 ms: SAMPLES[5] is collected

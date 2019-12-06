@@ -20,6 +20,7 @@
 
 #include "../../src/system_metrics_collector/linux_memory_measurement_node.hpp"
 #include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
+#include "../../src/system_metrics_collector/utilities.hpp"
 
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/logging_macros.h"
@@ -28,84 +29,12 @@ using metrics_statistics_msgs::msg::MetricsMessage;
 
 namespace
 {
+constexpr const char MEASUREMENT_TYPE[] = "system_memory_percent_used";
 constexpr const char PROC_STAT_FILE[] = "/proc/meminfo";
-constexpr const char MEM_TOTAL[] = "MemTotal:";
-constexpr const char MEM_AVAILABLE[] = "MemAvailable:";
-constexpr const char EMPTY_FILE[] = "";
-constexpr const int INVALID_MEMORY_SAMPLE = -1;
 }  // namespace
 
 namespace system_metrics_collector
 {
-
-std::string readFileToString(const std::string & file_name)
-{
-  std::ifstream file_to_read(file_name);
-  if (!file_to_read.good()) {
-    RCUTILS_LOG_ERROR_NAMED("readFileToString", "unable to parse file %s", file_name.c_str());
-    return EMPTY_FILE;
-  }
-
-  std::string to_return((std::istreambuf_iterator<char>(file_to_read)),
-    std::istreambuf_iterator<char>());
-
-  return to_return;
-}
-
-double processMemInfoLines(const std::string & lines)
-{
-  std::istringstream process_lines_stream(lines);
-  if (!process_lines_stream.good()) {
-    RCUTILS_LOG_ERROR("unable to parse input lines");
-    return std::nan("");
-  }
-
-  std::string line;
-
-  int total = INVALID_MEMORY_SAMPLE;
-  int available = INVALID_MEMORY_SAMPLE;
-
-  std::istringstream parse_line("");  // parse each line from the input
-  std::string tlabel;
-
-  while (std::getline(process_lines_stream, line) && process_lines_stream.good()) {
-    parse_line.str(line);
-
-    if (!line.compare(0, strlen(MEM_TOTAL), MEM_TOTAL)) {
-      parse_line >> tlabel;
-      if (!parse_line.good()) {
-        RCUTILS_LOG_ERROR_NAMED("processMemInfoLines", "unable to parse %s label", MEM_TOTAL);
-        return std::nan("");
-      }
-
-      parse_line >> total;
-      if (!parse_line.good()) {
-        RCUTILS_LOG_ERROR_NAMED("processMemInfoLines", "unable to parse %s value", MEM_TOTAL);
-        return std::nan("");
-      }
-    } else if (!line.compare(0, strlen(MEM_AVAILABLE), MEM_AVAILABLE)) {
-      std::string tlabel;
-
-      parse_line >> tlabel;
-      if (!parse_line.good()) {
-        RCUTILS_LOG_ERROR_NAMED("processMemInfoLines", "unable to parse %s label", MEM_AVAILABLE);
-        return std::nan("");
-      }
-
-      parse_line >> available;
-      if (!parse_line.good()) {
-        RCUTILS_LOG_ERROR_NAMED("processMemInfoLines", "unable to parse %s value", MEM_AVAILABLE);
-        return std::nan("");
-      }
-      break;  // no need to parse other lines after this label
-    }
-    parse_line.clear();
-  }
-  const double to_return = static_cast<double>(total - available) / static_cast<double>(total) *
-    100.0;
-  return total == INVALID_MEMORY_SAMPLE || available == INVALID_MEMORY_SAMPLE ?
-         std::nan("") : to_return;
-}
 
 LinuxMemoryMeasurementNode::LinuxMemoryMeasurementNode(
   const std::string & name,
@@ -126,11 +55,10 @@ double LinuxMemoryMeasurementNode::periodicMeasurement()
   return processMemInfoLines(read_string);
 }
 
-void LinuxMemoryMeasurementNode::publishStatisticMessage()
+std::string LinuxMemoryMeasurementNode::getMetricName() const
 {
-  auto msg = generateStatisticMessage(get_name(), "memory_usage", window_start_,
-      now(), getStatisticsResults());
-  publisher_->publish(msg);
+  return MEASUREMENT_TYPE;
 }
+
 
 }  // namespace system_metrics_collector

@@ -27,6 +27,7 @@ using metrics_statistics_msgs::msg::MetricsMessage;
 
 namespace
 {
+constexpr const char MEASUREMENT_TYPE[] = "system_cpu_percent_used";
 constexpr const char PROC_STAT_FILE[] = "/proc/stat";
 constexpr const char CPU_LABEL[] = "cpu";
 }  // namespace
@@ -55,7 +56,6 @@ system_metrics_collector::ProcCpuData processStatCpuLine(const std::string & sta
         }
         ss >> parsed_data.times[i];
       }
-
       return parsed_data;
     }
   }
@@ -71,7 +71,6 @@ double computeCpuActivePercentage(
       "a measurement was empty, unable to compute cpu percentage");
     return std::nan("");
   }
-
   const double active_time = measurement2.getActiveTime() - measurement1.getActiveTime();
   const double total_time = (measurement2.getIdleTime() + measurement2.getActiveTime()) -
     (measurement1.getIdleTime() + measurement1.getActiveTime());
@@ -98,7 +97,7 @@ double LinuxCpuMeasurementNode::periodicMeasurement()
 {
   const system_metrics_collector::ProcCpuData current_measurement = makeSingleMeasurement();
 
-  const double cpu_percentage = computeCpuActivePercentage(
+  const auto cpu_percentage = computeCpuActivePercentage(
     last_measurement_,
     current_measurement);
 
@@ -125,11 +124,9 @@ system_metrics_collector::ProcCpuData LinuxCpuMeasurementNode::makeSingleMeasure
   }
 }
 
-void LinuxCpuMeasurementNode::publishStatisticMessage()
+std::string LinuxCpuMeasurementNode::getMetricName() const
 {
-  auto msg = generateStatisticMessage(get_name(), "cpu_usage", window_start_,
-      now(), getStatisticsResults());
-  publisher_->publish(msg);
+  return MEASUREMENT_TYPE;
 }
 
 }  // namespace system_metrics_collector

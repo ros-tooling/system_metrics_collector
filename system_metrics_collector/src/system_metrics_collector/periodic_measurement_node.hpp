@@ -19,11 +19,11 @@
 #include <chrono>
 #include <string>
 
-#include "rclcpp/rclcpp.hpp"
 #include "metrics_statistics_msgs/msg/metrics_message.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 #include "collector.hpp"
-#include "batch_statistics_message_publisher.hpp"
+#include "metrics_message_publisher.hpp"
 
 
 namespace system_metrics_collector
@@ -33,7 +33,7 @@ namespace system_metrics_collector
  * Class which makes periodic measurements, using a ROS2 timer.
  */
 class PeriodicMeasurementNode : public system_metrics_collector::Collector,
-  public system_metrics_collector::BatchStatisticsMessagePublisher, public rclcpp::Node
+  public system_metrics_collector::MetricsMessagePublisher, public rclcpp::Node
 {
 public:
   /**
@@ -61,6 +61,34 @@ public:
    * @return a string detailing the current status
    */
   std::string getStatusString() const override;
+
+protected:
+  /**
+   * Publish the statistics derived from the collected measurements (this is to be called via a
+   * ROS2 timer per the publish_period)
+   */
+  void publishStatisticMessage() override;
+
+  /**
+   * Creates a ROS2 timer with a period of measurement_period_.
+   *
+   * @return if setup was successful
+   */
+  bool setupStart() override;
+
+  /**
+   * Stops the ROS2 timer
+   *
+   * @return if teardown was successful
+   */
+  bool setupStop() override;
+ 
+  /**
+   * Track the starting time of the statistics
+   */
+  rclcpp::Time window_start_;
+
+  rclcpp::Publisher<metrics_statistics_msgs::msg::MetricsMessage>::SharedPtr publisher_;
 
 private:
   /**
@@ -96,28 +124,6 @@ private:
 
   rclcpp::TimerBase::SharedPtr measurement_timer_;
   rclcpp::TimerBase::SharedPtr publish_timer_;
-
-protected:
-  /**
-   * Creates a ROS2 timer with a period of measurement_period_.
-   *
-   * @return if setup was successful
-   */
-  bool setupStart() override;
-
-  /**
-   * Stops the ROS2 timer
-   *
-   * @return if teardown was successful
-   */
-  bool setupStop() override;
-
-  /**
-   * The tracking of the starting time of the statistics
-   */
-  rclcpp::Time window_start_;
-
-  rclcpp::Publisher<metrics_statistics_msgs::msg::MetricsMessage>::SharedPtr publisher_;
 };
 
 }  // namespace system_metrics_collector

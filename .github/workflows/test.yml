@@ -18,16 +18,18 @@ jobs:
           os: [ubuntu-18.04]
     steps:
     - uses: ros-tooling/setup-ros2@0.0.6
-    - uses: ros-tooling/action-ros2-ci@0.0.7
+    - uses: ros-tooling/action-ros2-ci@0.0.10
       with:
         package-name: system_metrics_collector
+        colcon-mixin-name: coverage-gcc
+        colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
     # GitHub action support is currently broken on the original upstream
     # repository. This fork fixes support until the problem is fixed upstream.
     - uses: ros-tooling/codecov-action@master
       if: matrix.os == 'ubuntu-18.04'
       with:
         token: ${{secrets.CODECOV_TOKEN}}
-        file: ros2_ws/src/launch_ros_sandbox/coverage.xml
+        file: ros2_ws/lcov/total_coverage.info
         # codecov-action is a Docker action, and as such can only run on Linux.
     - uses: actions/upload-artifact@master
       with:
@@ -42,7 +44,7 @@ jobs:
           os: [ubuntu-18.04]
     steps:
     - uses: ros-tooling/setup-ros2@0.0.6
-    - uses: ros-tooling/action-ros2-ci@master
+    - uses: ros-tooling/action-ros2-ci@0.0.10
       with:
         colcon-mixin-name: asan
         colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml

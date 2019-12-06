@@ -28,12 +28,15 @@
 
 namespace
 {
+constexpr const std::chrono::milliseconds INVALID_PUBLISH_WINDOW =
+  std::chrono::milliseconds(0);
 constexpr const std::chrono::milliseconds TEST_LENGTH =
   std::chrono::milliseconds(250);
 constexpr const std::chrono::milliseconds MEASURE_PERIOD =
   std::chrono::milliseconds(50);
 constexpr const std::chrono::milliseconds PUBLISH_PERIOD =
   std::chrono::milliseconds(80);
+constexpr const char TEST_METRIC_NAME[] = "test_metric_name";
 }  // namespace
 
 /**
@@ -78,6 +81,11 @@ private:
   void publishStatisticMessage() override
   {
     ++times_published;
+  }
+
+  std::string getMetricName() const
+  {
+    return TEST_METRIC_NAME;
   }
 
   std::atomic<int> times_measured{0};

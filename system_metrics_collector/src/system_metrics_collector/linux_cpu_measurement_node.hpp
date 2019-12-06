@@ -70,6 +70,13 @@ public:
 
 protected:
   /**
+   * Creates a ROS2 timer with a period of measurement_period_.
+   *
+   * @return if setup was successful
+   */
+  bool setupStart() override;
+
+  /**
    * Perform a periodic measurement calculating the percentage of CPU active.
    *
    * @return percentage of CPU active
@@ -85,16 +92,10 @@ private:
   virtual system_metrics_collector::ProcCpuData makeSingleMeasurement();
 
   /**
-   * This publishes the statistics derived from the collected measurements
+   * Return the name to use for this metric
+   * @return a string of the name for this measured metric
    */
-  void publishStatisticMessage() override;
-
-  /**
-   * Creates a ROS2 timer with a period of measurement_period_.
-   *
-   * @return if setup was successful
-   */
-  bool setupStart() override;
+  std::string getMetricName() const override;
 
   /**
    * The cached measurement used in order to perform the CPU active

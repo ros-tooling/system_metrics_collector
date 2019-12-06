@@ -39,7 +39,7 @@ double MovingAverageStatistics::max() const
 
 double MovingAverageStatistics::min() const
 {
-  return MovingAverageStatistics::getStatistics().min;
+  return getStatistics().min;
 }
 
 double MovingAverageStatistics::standardDeviation() const

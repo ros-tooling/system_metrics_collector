@@ -22,30 +22,6 @@
 
 namespace system_metrics_collector
 {
-
-/**
- * Read the contents of the input filename into a string. Helper function
- * for parsing.
- *
- * @param file_name the file to be read
- * @return the file to be read's contents as a std::string
- */
-std::string readFileToString(const std::string & file_name);
-
-/**
- * Process input lines from the /proc/meminfo file. The expected format to
- * compute memory used is
- *
- *    MemTotal:       16302048 kB
- *    MemFree:          200660 kB
- *    MemAvailable:    9523668 kB
- *
- * @param lines the lines from the /proc/meminfo file
- * @return the percentage of memory used, specifically
- * (MemTotal - MemAvailable) / MemTotal * 100.0
- */
-double processMemInfoLines(const std::string & lines);
-
 /**
  * Node that periodically measures the percentage of RAM used
  * by a linux system. Specifically, the values used to make
@@ -81,9 +57,10 @@ protected:
   double periodicMeasurement() override;
 
   /**
-   * This publishes the statistics derived from the collected measurements
+   * Return the name to use for this metric
+   * @return a string of the name for this measured metric
    */
-  void publishStatisticMessage() override;
+  std::string getMetricName() const override;
 };
 
 }  // namespace system_metrics_collector

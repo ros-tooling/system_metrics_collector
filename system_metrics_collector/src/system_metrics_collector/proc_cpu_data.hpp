@@ -86,7 +86,7 @@ public:
    * Array contained the parsed CPU data, where each index
    * of ProcCpuStates contains its labeled data.
    */
-  std::array<int, static_cast<int>(ProcCpuStates::kNumProcCpuStates)> times{};
+  std::array<size_t, static_cast<int>(ProcCpuStates::kNumProcCpuStates)> times{};
 };
 
 }  // namespace system_metrics_collector
