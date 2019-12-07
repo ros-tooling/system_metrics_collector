@@ -36,7 +36,7 @@ std::string readFileToString(const std::string & file_name)
 {
   std::ifstream file_to_read(file_name);
   if (!file_to_read.good()) {
-    RCUTILS_LOG_ERROR_NAMED("readFileToString", "unable to parse file %s", file_name.c_str());
+    RCUTILS_LOG_ERROR_NAMED("readFileToString", "unable to parse file: %s", file_name.c_str());
     return EMPTY_FILE;
   }
 

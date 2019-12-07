@@ -48,10 +48,13 @@ public:
   void SetUp() override
   {
     test_collector = std::make_unique<TestCollector>();
+    ASSERT_FALSE(test_collector->isStarted());
   }
 
   void TearDown() override
   {
+    test_collector->stop();  // don't assert as tests can call stop
+    ASSERT_FALSE(test_collector->isStarted());
     test_collector.reset();
   }
 
@@ -70,6 +73,7 @@ TEST_F(CollectorTestFixure, test_add_and_clear_measurement) {
   ASSERT_EQ(1, stats.average);
 
   test_collector->clearCurrentMeasurements();
+
   stats = test_collector->getStatisticsResults();
   ASSERT_TRUE(std::isnan(stats.average));
   ASSERT_TRUE(std::isnan(stats.min));
@@ -82,8 +86,12 @@ TEST_F(CollectorTestFixure, test_start_and_stop) {
   ASSERT_FALSE(test_collector->isStarted());
   ASSERT_EQ("started=false, avg=nan, min=nan, max=nan, std_dev=nan, count=0",
     test_collector->getStatusString());
+
   ASSERT_TRUE(test_collector->start());
   ASSERT_TRUE(test_collector->isStarted());
   ASSERT_EQ("started=true, avg=nan, min=nan, max=nan, std_dev=nan, count=0",
     test_collector->getStatusString());
+
+  ASSERT_TRUE(test_collector->stop());
+  ASSERT_FALSE(test_collector->isStarted());
 }

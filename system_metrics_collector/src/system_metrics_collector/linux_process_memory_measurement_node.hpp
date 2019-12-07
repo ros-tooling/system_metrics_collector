@@ -15,12 +15,8 @@
 #ifndef SYSTEM_METRICS_COLLECTOR__LINUX_PROCESS_MEMORY_MEASUREMENT_NODE_HPP_
 #define SYSTEM_METRICS_COLLECTOR__LINUX_PROCESS_MEMORY_MEASUREMENT_NODE_HPP_
 
-#include <sys/sysinfo.h>
-#include <sys/types.h>
-
 #include <chrono>
 #include <cmath>
-#include <sstream>
 #include <string>
 
 #include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
@@ -33,56 +29,71 @@ namespace
 {
 constexpr const char PROC[] = "/proc/";
 constexpr const char STATM[] = "/statm";
-constexpr const char METRIC_NAME[] = "memory_percent_used";
+constexpr const char METRIC_NAME[] = "_memory_percent_used";
 }  // namespace
 
 namespace system_metrics_collector
 {
 
+/**
+* Return the number of bytes used after parsing a process's statm file.
+*
+* @param statm_process_file the statm file to parse
+* @return the number of bytes used for the statm file's process
+*/
+double getProcessUsedMemory(const std::string & statm_process_file_contents);
+
+/**
+ * Return the total system memory.
+ *
+ * @return the total system memory in bytes
+ */
+double getSystemTotalMemory();
+
+/**
+ * Class used to measure the memory percentage used as a process.
+ */
 class LinuxProcessMemoryMeasurementNode : public PeriodicMeasurementNode
 {
 public:
+  /**
+   * Construct a LinuxProcessMemoryMeasurementNode
+   *
+   * @param name the name of this node
+   * @param measurement_period the period of this node, used to read measurements
+   * @param topic the topic name used for publishing
+   * @param publish_period the period at which metrics are published.
+   */
   LinuxProcessMemoryMeasurementNode(
     const std::string & name,
     const std::chrono::milliseconds measurement_period,
     const std::string & topic,
-    const std::chrono::milliseconds publish_period)
-  : PeriodicMeasurementNode(name, measurement_period, topic, publish_period),
-    pid_(std::to_string(getPid())),
-    file_to_read_(PROC + pid_ + STATM)
-  {
-  }
-
-protected:
-  double periodicMeasurement() override
-  {
-    // get the total amount of memory
-    struct sysinfo si;
-    sysinfo(&si);
-
-    // read the /proc/<pid>/statm file to get total process memory
-    const auto data = readFileToString(file_to_read_);
-    std::istringstream ss(data);
-    if (ss.good()) {
-      int process_memory_used;
-      ss >> process_memory_used;
-      if (ss.good()) {
-        return static_cast<double>(process_memory_used) /
-               static_cast<double>(si.totalram) * 100.0;
-      }
-    }
-
-    RCLCPP_ERROR(this->get_logger(), "unable to make measurement");
-    return std::nan("");
-  }
-
-  std::string getMetricName() const override
-  {
-    return pid_ + METRIC_NAME;
-  }
+    const std::chrono::milliseconds publish_period);
 
 private:
+  /**
+   * Perform a periodic measurement calculating the percentage of
+   * memory this process used. This reads and parses the /proc/<pid>/statm file
+   * to obtain the process memory used and divides that by the total system
+   * memory, which is obtained through sys/sysinfo.h.
+   *
+   * @return percentage of memory this process used
+   */
+  double periodicMeasurement() override;
+
+  /**
+   * Return the name to use for this metric
+   * @return a string of the name for this measured metric
+   */
+  std::string getMetricName() const override;
+
+  /**
+   * The pid of this process/
+   */
   const std::string pid_;
+  /**
+   * The statm file to read for this process.
+   */
   const std::string file_to_read_;
 };
 

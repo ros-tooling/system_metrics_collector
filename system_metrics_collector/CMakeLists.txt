@@ -40,7 +40,7 @@ add_library(system_metrics_collector SHARED
   src/system_metrics_collector/collector.cpp
   src/system_metrics_collector/linux_cpu_measurement_node.cpp
   src/system_metrics_collector/linux_memory_measurement_node.cpp
-  src/system_metrics_collector/linux_process_memory_measurement_node.hpp
+  src/system_metrics_collector/linux_process_memory_measurement_node.cpp
   src/system_metrics_collector/periodic_measurement_node.cpp
   src/system_metrics_collector/proc_cpu_data.cpp
   src/system_metrics_collector/utilities.cpp
@@ -77,6 +77,11 @@ if(BUILD_TESTING)
           test/system_metrics_collector/test_linux_memory_measurement.cpp)
   target_link_libraries(test_linux_memory_measurement_node system_metrics_collector)
   ament_target_dependencies(test_linux_memory_measurement_node metrics_statistics_msgs rclcpp)
+
+  ament_add_gtest(test_linux_process_memory_measurement_node
+          test/system_metrics_collector/test_linux_process_memory_measurement_node.cpp)
+  target_link_libraries(test_linux_process_memory_measurement_node system_metrics_collector)
+  ament_target_dependencies(test_linux_process_memory_measurement_node metrics_statistics_msgs rclcpp)
 
   ament_add_gtest(test_moving_average_statistics
           test/moving_average_statistics/test_moving_average_statistics.cpp)
