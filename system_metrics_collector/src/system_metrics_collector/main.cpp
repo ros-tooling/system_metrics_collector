@@ -82,8 +82,8 @@ int main(int argc, char ** argv)
     RCUTILS_LOG_ERROR_NAMED("main", "Unable to set debug logging for the process memory node");
   }
 
-  //ex.add_node(cpu_node);
-  //ex.add_node(mem_node);
+  ex.add_node(cpu_node);
+  ex.add_node(mem_node);
   ex.add_node(process_mem_node);
   ex.spin();
 
