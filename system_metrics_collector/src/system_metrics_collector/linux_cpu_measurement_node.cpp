@@ -23,6 +23,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/logging_macros.h"
 
+using metrics_statistics_msgs::msg::MetricsMessage;
+
 namespace
 {
 constexpr const char MEASUREMENT_TYPE[] = "system_cpu_percent_used";
@@ -84,6 +86,12 @@ LinuxCpuMeasurementNode::LinuxCpuMeasurementNode(
 : PeriodicMeasurementNode(name, measurement_period, topic, publish_period),
   last_measurement_()
 {}
+
+bool LinuxCpuMeasurementNode::setupStart()
+{
+  last_measurement_ = ProcCpuData();
+  return PeriodicMeasurementNode::setupStart();
+}
 
 double LinuxCpuMeasurementNode::periodicMeasurement()
 {

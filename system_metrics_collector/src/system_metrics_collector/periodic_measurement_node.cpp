@@ -21,6 +21,8 @@
 
 #include "rclcpp/rclcpp.hpp"
 
+using metrics_statistics_msgs::msg::MetricsMessage;
+
 namespace system_metrics_collector
 {
 
@@ -38,7 +40,7 @@ PeriodicMeasurementNode::PeriodicMeasurementNode(
   publish_period_(publish_period),
   clear_measurements_on_publish_(clear_measurements_on_publish)
 {
-  if (publish_period_ < std::chrono::milliseconds(0)) {
+  if (publish_period_ <= std::chrono::milliseconds(0)) {
     throw std::invalid_argument("publish period cannot be negative");
   }
 }
@@ -46,11 +48,27 @@ PeriodicMeasurementNode::PeriodicMeasurementNode(
 bool PeriodicMeasurementNode::setupStart()
 {
   assert(measurement_timer_ == nullptr);
+  assert(publish_timer_ == nullptr);
 
   RCLCPP_DEBUG(this->get_logger(), "setupStart: creating measurement_timer_");
   measurement_timer_ = this->create_wall_timer(
-    measurement_period_,
-    std::bind(&PeriodicMeasurementNode::performPeriodicMeasurement, this));
+    measurement_period_, [this]() {this->performPeriodicMeasurement();});
+
+  if (publisher_ == nullptr) {
+    publisher_ = create_publisher<MetricsMessage>(publishing_topic_, 10 /*history_depth*/);
+  }
+
+  RCLCPP_DEBUG(this->get_logger(), "setupStart: creating publish_timer_");
+  publish_timer_ = this->create_wall_timer(
+    publish_period_, [this]() {
+      this->publishStatisticMessage();
+      if (this->clear_measurements_on_publish_) {
+        this->clearCurrentMeasurements();
+        this->window_start_ = this->now();
+      }
+    });
+
+  window_start_ = now();
 
   return true;
 }
@@ -58,9 +76,14 @@ bool PeriodicMeasurementNode::setupStart()
 bool PeriodicMeasurementNode::setupStop()
 {
   assert(measurement_timer_ != nullptr);
+  assert(publish_timer_ != nullptr);
+  assert(publisher_ != nullptr);
 
   measurement_timer_->cancel();
   measurement_timer_.reset();
+
+  publish_timer_->cancel();
+  publish_timer_.reset();
 
   return true;
 }
@@ -71,9 +94,7 @@ std::string PeriodicMeasurementNode::getStatusString() const
   ss << "name=" << get_name() <<
     ", measurement_period=" << std::to_string(measurement_period_.count()) << "ms" <<
     ", publishing_topic=" << publishing_topic_ <<
-    ", publish_period=" <<
-  (publish_period_ > std::chrono::milliseconds(0) ?
-  std::to_string(publish_period_.count()) + "ms" : "None") <<
+    ", publish_period=" << std::to_string(publish_period_.count()) + "ms" <<
     ", clear_measurements_on_publish_=" << clear_measurements_on_publish_ <<
     ", " << Collector::getStatusString();
   return ss.str();

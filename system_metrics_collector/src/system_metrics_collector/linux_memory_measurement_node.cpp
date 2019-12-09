@@ -25,6 +25,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/logging_macros.h"
 
+using metrics_statistics_msgs::msg::MetricsMessage;
+
 namespace
 {
 constexpr const char MEASUREMENT_TYPE[] = "system_memory_percent_used";

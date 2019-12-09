@@ -70,6 +70,14 @@ public:
 
 protected:
   /**
+   * Create ROS2 timers and a publisher for periodically triggering measurements
+   * and publishing MetricsMessages
+   *
+   * @return if setup was successful
+   */
+  bool setupStart() override;
+
+  /**
    * Perform a periodic measurement calculating the percentage of CPU active.
    *
    * @return percentage of CPU active

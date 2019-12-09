@@ -20,15 +20,21 @@
  */
 namespace test_constants
 {
-constexpr const double MEMORY_USED_PERCENTAGE = 44.148416198995363;
+constexpr const std::chrono::milliseconds TEST_DURATION{250};
+constexpr const std::chrono::milliseconds MEASURE_PERIOD{50};
+constexpr const std::chrono::milliseconds PUBLISH_PERIOD{80};
+
 constexpr const char EMPTY_SAMPLE[] = "";
 constexpr const char GARBAGE_SAMPLE[] = "this is garbage\n";
-constexpr const char INCOMPLETE_SAMPLE[] = "MemTotal:       16302048 kB\n"
+constexpr const char INCOMPLETE_SAMPLE[] =
+  "MemTotal:       16302048 kB\n"
   "MemFree:          443300 kB\n";
-constexpr const char COMPLETE_SAMPLE[] = "MemTotal:       16302048 kB\n"
+constexpr const char COMPLETE_SAMPLE[] =
+  "MemTotal:       16302048 kB\n"
   "MemFree:          239124 kB\n"
   "MemAvailable:    9104952 kB\n";
-constexpr const char FULL_SAMPLE[] = "MemTotal:       16302048 kB\n"
+constexpr const char FULL_SAMPLE[] =
+  "MemTotal:       16302048 kB\n"
   "MemFree:          239124 kB\n"
   "MemAvailable:    9104952 kB\n"
   "Buffers:         2755028 kB\n"
@@ -76,6 +82,7 @@ constexpr const char FULL_SAMPLE[] = "MemTotal:       16302048 kB\n"
   "DirectMap4k:     3993192 kB\n"
   "DirectMap2M:    12660736 kB\n"
   "DirectMap1G:     1048576 kB";
+constexpr const double MEMORY_USED_PERCENTAGE = 44.148416198995363;
 }  // namespace test_constants
 
 #endif  // SYSTEM_METRICS_COLLECTOR__TEST_CONSTANTS_HPP_

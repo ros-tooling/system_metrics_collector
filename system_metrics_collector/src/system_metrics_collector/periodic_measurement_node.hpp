@@ -64,6 +64,21 @@ public:
 
 protected:
   /**
+   * Create ROS2 timers and a publisher for periodically triggering measurements
+   * and publishing MetricsMessages
+   *
+   * @return if setup was successful
+   */
+  bool setupStart() override;
+
+  /**
+   * Stop the ROS2 timers that were created by setupStart()
+   *
+   * @return if teardown was successful
+   */
+  bool setupStop() override;
+
+  /**
    * Track the starting time of the statistics
    */
   rclcpp::Time window_start_;
@@ -90,22 +105,6 @@ private:
    * ROS2 timer per the publish_period)
    */
   void publishStatisticMessage() override;
-
-  /**
-   * Creates a ROS2 timer with a period of measurement_period_.
-   *
-   * @return if setup was successful
-   */
-  bool setupStart() override;
-
-  /**
-   * Stops the ROS2 timer
-   *
-   * @return if teardown was successful
-   */
-  bool setupStop() override;
-
-  // todo implement on publish timer callback, check if we need to clear the window
 
   /**
    * Topic used for publishing
