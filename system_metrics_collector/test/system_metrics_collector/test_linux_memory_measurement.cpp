@@ -101,14 +101,14 @@ public:
 
   void setTestString(const std::string & test_string)
   {
-    measurement_index = -1;
+    measurement_index = INVALID_INDEX;
     test_string_ = test_string;
   }
 
   // override to avoid calling methods involved in file i/o
   double periodicMeasurement() override
   {
-    if (measurement_index < 0) {
+    if (measurement_index == INVALID_INDEX) {
       return processMemInfoLines(test_string_);
     } else {
       EXPECT_GT(SAMPLES.size(), measurement_index);
@@ -117,9 +117,12 @@ public:
   }
 
 private:
+  static constexpr int INVALID_INDEX = -1;
   int measurement_index;
   std::string test_string_;
 };
+
+constexpr int TestLinuxMemoryMeasurementNode::INVALID_INDEX;
 
 class LinuxMemoryMeasurementTestFixture : public ::testing::Test
 {
