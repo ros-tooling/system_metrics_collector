@@ -78,13 +78,6 @@ std::string LinuxProcessMemoryMeasurementNode::getMetricName() const
   return pid_ + METRIC_NAME;
 }
 
-/**
-* Return the number of bytes used after parsing a process's statm file.
-*
-* @param statm_process_file the statm file to parse
-* @return the number of bytes used for the statm file's process
- *@throws std::ifstream::failure for std::ios::failbit | std::ios::badbit
-*/
 uint64_t getProcessUsedMemory(const std::string & statm_process_file_contents)
 {
   std::istringstream ss(statm_process_file_contents);

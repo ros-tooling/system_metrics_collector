@@ -67,20 +67,31 @@ int main(int argc, char ** argv)
   mem_node->start();
   process_mem_node->start();
 
-  auto r = rcutils_logging_set_logger_level(cpu_node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-  if (r != 0) {
-    RCUTILS_LOG_ERROR_NAMED("main", "Unable to set debug logging for the cpu node");
+  {
+    const auto r =
+      rcutils_logging_set_logger_level(cpu_node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+    if (r != 0) {
+      RCUTILS_LOG_ERROR_NAMED("main", "Unable to set debug logging for the cpu node: %s\n",
+        rcutils_get_error_string().str);
+    }
   }
-
-  r = rcutils_logging_set_logger_level(mem_node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-  if (r != 0) {
-    RCUTILS_LOG_ERROR_NAMED("main", "Unable to set debug logging for the memory node");
+  {
+    const auto r =
+      rcutils_logging_set_logger_level(mem_node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+    if (r != 0) {
+      RCUTILS_LOG_ERROR_NAMED("main", "Unable to set debug logging for the memory node: %s\n",
+        rcutils_get_error_string().str);
+    }
   }
+  {
+    const auto r = rcutils_logging_set_logger_level(
+      process_mem_node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
 
-  r = rcutils_logging_set_logger_level(process_mem_node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-
-  if (r != 0) {
-    RCUTILS_LOG_ERROR_NAMED("main", "Unable to set debug logging for the process memory node");
+    if (r != 0) {
+      RCUTILS_LOG_ERROR_NAMED("main",
+        "Unable to set debug logging for the process memory node: %s\n",
+        rcutils_get_error_string().str);
+    }
   }
 
   ex.add_node(cpu_node);
@@ -94,5 +105,5 @@ int main(int argc, char ** argv)
   mem_node->stop();
   process_mem_node->stop();
 
-  return r;
+  return 0;
 }
