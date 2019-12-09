@@ -64,14 +64,15 @@ public:
 
 protected:
   /**
-   * Creates a ROS2 timer with a period of measurement_period_.
+   * Create ROS2 timers and a publisher for periodically triggering measurements
+   * and publishing MetricsMessages
    *
    * @return if setup was successful
    */
   bool setupStart() override;
 
   /**
-   * Stops the ROS2 timer
+   * Stop the ROS2 timers that were created by setupStart()
    *
    * @return if teardown was successful
    */

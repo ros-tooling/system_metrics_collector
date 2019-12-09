@@ -70,7 +70,8 @@ public:
 
 protected:
   /**
-   * Creates a ROS2 timer with a period of measurement_period_.
+   * Create ROS2 timers and a publisher for periodically triggering measurements
+   * and publishing MetricsMessages
    *
    * @return if setup was successful
    */

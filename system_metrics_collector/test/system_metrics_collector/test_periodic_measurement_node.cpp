@@ -145,24 +145,26 @@ TEST_F(PeriodicMeasurementTestFixure, test_start_and_stop) {
 
   rclcpp::executors::SingleThreadedExecutor ex;
   ex.add_node(test_periodic_measurer);
-  ex.spin_until_future_complete(dummy_future, test_constants::TEST_LENGTH);
+  ex.spin_until_future_complete(dummy_future, test_constants::TEST_DURATION);
 
   moving_average_statistics::StatisticData data = test_periodic_measurer->getStatisticsResults();
-  EXPECT_EQ(3, data.average);
-  EXPECT_EQ(1, data.min);
-  EXPECT_EQ(test_constants::TEST_LENGTH.count() / test_constants::MEASURE_PERIOD.count(), data.max);
-  EXPECT_FALSE(std::isnan(data.standard_deviation));
-  EXPECT_EQ(
-    test_constants::TEST_LENGTH.count() / test_constants::MEASURE_PERIOD.count(),
+  ASSERT_EQ(3, data.average);
+  ASSERT_EQ(1, data.min);
+  ASSERT_EQ(test_constants::TEST_DURATION.count() / test_constants::MEASURE_PERIOD.count(),
+    data.max);
+  ASSERT_FALSE(std::isnan(data.standard_deviation));
+  ASSERT_EQ(
+    test_constants::TEST_DURATION.count() / test_constants::MEASURE_PERIOD.count(),
     data.sample_count);
 
   const bool stop_success = test_periodic_measurer->stop();
-  EXPECT_TRUE(stop_success);
-  EXPECT_FALSE(test_periodic_measurer->isStarted());
+  ASSERT_TRUE(stop_success);
+  ASSERT_FALSE(test_periodic_measurer->isStarted());
 
   int times_published = test_periodic_measurer->getNumPublished();
-  EXPECT_EQ(
-    test_constants::TEST_LENGTH.count() / test_constants::PUBLISH_PERIOD.count(), times_published);
+  ASSERT_EQ(
+    test_constants::TEST_DURATION.count() / test_constants::PUBLISH_PERIOD.count(),
+    times_published);
 }
 
 int main(int argc, char ** argv)

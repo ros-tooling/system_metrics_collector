@@ -302,7 +302,7 @@ TEST_F(LinuxMemoryMeasurementTestFixture, testPublishMetricsMessage)
   bool start_success = test_measure_linux_memory->start();
   ASSERT_TRUE(start_success);
   ASSERT_TRUE(test_measure_linux_memory->isStarted());
-  ex.spin_until_future_complete(dummy_future, test_constants::TEST_LENGTH);
+  ex.spin_until_future_complete(dummy_future, test_constants::TEST_DURATION);
   EXPECT_EQ(3, test_receive_measurements->getNumReceived());
   // expectation is:
   // 50 ms: SAMPLES[0] is collected
@@ -322,7 +322,7 @@ TEST_F(LinuxMemoryMeasurementTestFixture, testPublishMetricsMessage)
   bool stop_success = test_measure_linux_memory->stop();
   ASSERT_TRUE(stop_success);
   ASSERT_FALSE(test_measure_linux_memory->isStarted());
-  ex.spin_until_future_complete(dummy_future, test_constants::TEST_LENGTH);
+  ex.spin_until_future_complete(dummy_future, test_constants::TEST_DURATION);
   EXPECT_EQ(3, test_receive_measurements->getNumReceived());
   // expectation is:
   // upon calling stop, samples are cleared, so getStatisticsResults() would be NaNs
@@ -340,7 +340,7 @@ TEST_F(LinuxMemoryMeasurementTestFixture, testPublishMetricsMessage)
   start_success = test_measure_linux_memory->start();
   ASSERT_TRUE(start_success);
   ASSERT_TRUE(test_measure_linux_memory->isStarted());
-  ex.spin_until_future_complete(dummy_future, test_constants::TEST_LENGTH);
+  ex.spin_until_future_complete(dummy_future, test_constants::TEST_DURATION);
   EXPECT_EQ(6, test_receive_measurements->getNumReceived());
   // expectation is:
   // 50 ms: SAMPLES[5] is collected

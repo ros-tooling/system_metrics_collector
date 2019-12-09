@@ -20,7 +20,7 @@
  */
 namespace test_constants
 {
-constexpr const std::chrono::milliseconds TEST_LENGTH{250};
+constexpr const std::chrono::milliseconds TEST_DURATION{250};
 constexpr const std::chrono::milliseconds MEASURE_PERIOD{50};
 constexpr const std::chrono::milliseconds PUBLISH_PERIOD{80};
 
