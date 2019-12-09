@@ -14,8 +14,8 @@
 
 #include <gtest/gtest.h>
 
-
 #include <cmath>
+#include <fstream>
 #include "../../src/system_metrics_collector/linux_process_memory_measurement_node.hpp"
 
 #include "test_constants.hpp"
@@ -27,10 +27,11 @@ constexpr const char TEST_STATM_LINE[] = "2084389 308110 7390 1 0 366785 0\n";
 }
 
 TEST(TestLinuxProcessMemoryMeasurement, testGetProcessUsedMemory) {
-  auto ret = system_metrics_collector::getProcessUsedMemory(test_constants::GARBAGE_SAMPLE);
-  EXPECT_TRUE(std::isnan(ret));
-  ret = system_metrics_collector::getProcessUsedMemory(test_constants::EMPTY_SAMPLE);
-  EXPECT_TRUE(std::isnan(ret));
-  ret = system_metrics_collector::getProcessUsedMemory(TEST_STATM_LINE);
+  EXPECT_THROW(system_metrics_collector::getProcessUsedMemory(
+      test_constants::GARBAGE_SAMPLE), std::ifstream::failure);
+  EXPECT_THROW(system_metrics_collector::getProcessUsedMemory(
+      test_constants::EMPTY_SAMPLE), std::ifstream::failure);
+
+  const auto ret = system_metrics_collector::getProcessUsedMemory(TEST_STATM_LINE);
   EXPECT_EQ(2084389, ret);
 }

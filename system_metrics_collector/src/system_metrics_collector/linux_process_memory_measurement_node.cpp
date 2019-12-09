@@ -19,10 +19,28 @@
 
 #include <chrono>
 #include <cmath>
+#include <fstream>
 #include <sstream>
 #include <string>
 
 #include "rcutils/logging_macros.h"
+
+namespace
+{
+
+/**
+ * Return the total system memory.
+ *
+ * @return the total system memory in bytes
+ */
+double getSystemTotalMemory()
+{
+  struct sysinfo si;
+  auto success = sysinfo(&si);
+  return success == -1 ? std::nan("") : static_cast<double>(si.totalram);
+}
+
+}  // namespace
 
 namespace system_metrics_collector
 {
@@ -41,7 +59,15 @@ LinuxProcessMemoryMeasurementNode::LinuxProcessMemoryMeasurementNode(
 double LinuxProcessMemoryMeasurementNode::periodicMeasurement()
 {
   const auto statm_line = readFileToString(file_to_read_);
-  const auto p_mem = getProcessUsedMemory(statm_line);
+  double p_mem;
+  try {
+    p_mem = static_cast<double>(getProcessUsedMemory(statm_line));
+  } catch (std::ifstream::failure e) {
+    RCLCPP_ERROR(
+      this->get_logger(), "caught %s, failed to getProcessUsedMemory from line %s",
+      e.what(), file_to_read_);
+    return std::nan("");
+  }
   const auto total_mem = getSystemTotalMemory();
 
   return p_mem / total_mem * 100.0;
@@ -52,28 +78,20 @@ std::string LinuxProcessMemoryMeasurementNode::getMetricName() const
   return pid_ + METRIC_NAME;
 }
 
-double getProcessUsedMemory(
-  const std::string & statm_process_file_contents)
+/**
+* Return the number of bytes used after parsing a process's statm file.
+*
+* @param statm_process_file the statm file to parse
+* @return the number of bytes used for the statm file's process
+ *@throws std::ifstream::failure for std::ios::failbit | std::ios::badbit
+*/
+uint64_t getProcessUsedMemory(const std::string & statm_process_file_contents)
 {
   std::istringstream ss(statm_process_file_contents);
-  if (ss.good()) {
-    size_t process_memory_used;
-    ss >> process_memory_used;
-    if (ss.good()) {
-      return static_cast<double>(process_memory_used);
-    }
-  }
-
-  RCUTILS_LOG_ERROR_NAMED("getProcessUsedMemory",
-    "unable to parse contents: %s", statm_process_file_contents.c_str());
-  return std::nan("");
-}
-
-double getSystemTotalMemory()
-{
-  struct sysinfo si;
-  auto success = sysinfo(&si);
-  return success == -1 ? std::nan("") : static_cast<double>(si.totalram);
+  ss.exceptions(std::ios::failbit | std::ios::badbit);
+  uint64_t process_memory_used;
+  ss >> process_memory_used;
+  return process_memory_used;
 }
 
 }   // namespace system_metrics_collector

@@ -15,7 +15,6 @@
 #ifndef SYSTEM_METRICS_COLLECTOR__UTILITIES_HPP_
 #define SYSTEM_METRICS_COLLECTOR__UTILITIES_HPP_
 
-#include <unistd.h>
 #include <string>
 
 namespace system_metrics_collector

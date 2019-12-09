@@ -41,14 +41,7 @@ namespace system_metrics_collector
 * @param statm_process_file the statm file to parse
 * @return the number of bytes used for the statm file's process
 */
-double getProcessUsedMemory(const std::string & statm_process_file_contents);
-
-/**
- * Return the total system memory.
- *
- * @return the total system memory in bytes
- */
-double getSystemTotalMemory();
+uint64_t getProcessUsedMemory(const std::string & statm_process_file_contents);
 
 /**
  * Class used to measure the memory percentage used as a process.

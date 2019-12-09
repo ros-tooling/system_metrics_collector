@@ -42,24 +42,25 @@ int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
 
-  auto cpu_node = std::make_shared<system_metrics_collector::LinuxCpuMeasurementNode>(
+  using namespace std::chrono_literals;
+  const auto cpu_node = std::make_shared<system_metrics_collector::LinuxCpuMeasurementNode>(
     "linuxCpuCollector",
-    std::chrono::milliseconds(1000),
+    1000ms,
     STATISTICS_TOPIC_NAME,
-    std::chrono::milliseconds(1000 * 60));
+    60s);
 
-  auto mem_node = std::make_shared<system_metrics_collector::LinuxMemoryMeasurementNode>(
+  const auto mem_node = std::make_shared<system_metrics_collector::LinuxMemoryMeasurementNode>(
     "linuxMemoryCollector",
-    std::chrono::milliseconds(1000),
+    1000ms,
     STATISTICS_TOPIC_NAME,
-    std::chrono::milliseconds(1000 * 60));
+    60s);
 
-  auto process_mem_node =
+  const auto process_mem_node =
     std::make_shared<system_metrics_collector::LinuxProcessMemoryMeasurementNode>(
     "linuxProcessMemoryCollector",
-    std::chrono::milliseconds(1000),
+    1000ms,
     "not_publishing_yet",
-    std::chrono::milliseconds(1000 * 60));
+    60s);
 
   rclcpp::executors::MultiThreadedExecutor ex;
   cpu_node->start();
