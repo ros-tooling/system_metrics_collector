@@ -36,7 +36,7 @@ namespace
 double getSystemTotalMemory()
 {
   struct sysinfo si;
-  auto success = sysinfo(&si);
+  const auto success = sysinfo(&si);
   return success == -1 ? std::nan("") : static_cast<double>(si.totalram);
 }
 
@@ -80,7 +80,7 @@ std::string LinuxProcessMemoryMeasurementNode::getMetricName() const
 
 uint64_t getProcessUsedMemory(const std::string & statm_process_file_contents)
 {
-  std::istringstream ss(statm_process_file_contents);
+  std::istringstream ss{statm_process_file_contents};
   ss.exceptions(std::ios::failbit | std::ios::badbit);
   uint64_t process_memory_used;
   ss >> process_memory_used;
