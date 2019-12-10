@@ -30,15 +30,13 @@ PeriodicMeasurementNode::PeriodicMeasurementNode(
   const std::string & name,
   const std::chrono::milliseconds measurement_period,
   const std::string & publishing_topic,
-  const std::chrono::milliseconds publish_period,
-  const bool clear_measurements_on_publish)
+  const std::chrono::milliseconds publish_period)
 : Node(name),
   measurement_period_(measurement_period),
   publishing_topic_(publishing_topic),
   measurement_timer_(nullptr),
   publish_timer_(nullptr),
-  publish_period_(publish_period),
-  clear_measurements_on_publish_(clear_measurements_on_publish)
+  publish_period_(publish_period)
 {
   if (publish_period_ <= std::chrono::milliseconds(0)) {
     throw std::invalid_argument("publish period cannot be negative");
@@ -62,10 +60,8 @@ bool PeriodicMeasurementNode::setupStart()
   publish_timer_ = this->create_wall_timer(
     publish_period_, [this]() {
       this->publishStatisticMessage();
-      if (this->clear_measurements_on_publish_) {
-        this->clearCurrentMeasurements();
-        this->window_start_ = this->now();
-      }
+      this->clearCurrentMeasurements();
+      this->window_start_ = this->now();
     });
 
   window_start_ = now();
@@ -95,7 +91,6 @@ std::string PeriodicMeasurementNode::getStatusString() const
     ", measurement_period=" << std::to_string(measurement_period_.count()) << "ms" <<
     ", publishing_topic=" << publishing_topic_ <<
     ", publish_period=" << std::to_string(publish_period_.count()) + "ms" <<
-    ", clear_measurements_on_publish_=" << clear_measurements_on_publish_ <<
     ", " << Collector::getStatusString();
   return ss.str();
 }
