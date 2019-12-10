@@ -112,4 +112,16 @@ if(BUILD_TESTING)
     lib/${PROJECT_NAME})
 endif()
 
+install(TARGETS
+  main
+  DESTINATION
+  lib/${PROJECT_NAME}
+)
+
+install(TARGETS ${PROJECT_NAME}
+  DESTINATION lib
+)
+
+ament_export_libraries(${PROJECT_NAME})
+
 ament_package()
