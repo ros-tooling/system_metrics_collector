@@ -17,8 +17,8 @@ jobs:
       matrix:
           os: [ubuntu-18.04]
     steps:
-    - uses: ros-tooling/setup-ros2@0.0.6
-    - uses: ros-tooling/action-ros2-ci@0.0.10
+    - uses: ros-tooling/setup-ros2@0.0.11
+    - uses: ros-tooling/action-ros2-ci@0.0.11
       with:
         package-name: system_metrics_collector
         colcon-mixin-name: coverage-gcc
@@ -37,14 +37,10 @@ jobs:
         path: ros2_ws/log
 
   build_and_test_asan:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-          os: [ubuntu-18.04]
+    runs-on: ubuntu-18.04
     steps:
-    - uses: ros-tooling/setup-ros2@0.0.6
-    - uses: ros-tooling/action-ros2-ci@0.0.10
+    - uses: ros-tooling/setup-ros2@0.0.11
+    - uses: ros-tooling/action-ros2-ci@0.0.11
       with:
         colcon-mixin-name: asan
         colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
@@ -52,4 +48,18 @@ jobs:
     - uses: actions/upload-artifact@master
       with:
         name: colcon-logs-${{ matrix.os }}-asan
+        path: ros2_ws/log
+
+  build_and_test_clang:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: ros-tooling/setup-ros2@0.0.11
+    - uses: ros-tooling/action-ros2-ci@0.0.11
+      with:
+        colcon-mixin-name: clang-libcxx
+        colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
+        package-name: system_metrics_collector
+    - uses: actions/upload-artifact@master
+      with:
+        name: colcon-logs-${{ matrix.os }}-clang-libcxx
         path: ros2_ws/log
