@@ -148,6 +148,7 @@ public:
   void TearDown() override
   {
     test_measure_linux_memory->stop();
+    ASSERT_FALSE(test_measure_linux_memory->isStarted());
     test_measure_linux_memory.reset();
     rclcpp::shutdown();
   }

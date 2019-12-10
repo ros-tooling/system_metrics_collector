@@ -42,6 +42,12 @@ std::string readFileToString(const std::string & file_name);
  */
 double processMemInfoLines(const std::string & lines);
 
+/**
+ * Return the pid of the current process
+ * @return the pid of the current process as an int
+ */
+int getPid();
+
 }  // namespace system_metrics_collector
 
 #endif  // SYSTEM_METRICS_COLLECTOR__UTILITIES_HPP_

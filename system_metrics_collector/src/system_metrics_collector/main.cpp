@@ -24,6 +24,7 @@
 
 #include "../../src/system_metrics_collector/linux_cpu_measurement_node.hpp"
 #include "../../src/system_metrics_collector/linux_memory_measurement_node.hpp"
+#include "../../src/system_metrics_collector/linux_process_memory_measurement_node.hpp"
 
 namespace
 {
@@ -41,38 +42,68 @@ int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
 
-  auto cpu_node = std::make_shared<system_metrics_collector::LinuxCpuMeasurementNode>(
+  using namespace std::chrono_literals;
+  const auto cpu_node = std::make_shared<system_metrics_collector::LinuxCpuMeasurementNode>(
     "linuxCpuCollector",
-    std::chrono::milliseconds(1000),
+    1000ms,
     STATISTICS_TOPIC_NAME,
-    std::chrono::milliseconds(1000 * 60));
+    60s);
 
-  auto mem_node = std::make_shared<system_metrics_collector::LinuxMemoryMeasurementNode>(
+  const auto mem_node = std::make_shared<system_metrics_collector::LinuxMemoryMeasurementNode>(
     "linuxMemoryCollector",
-    std::chrono::milliseconds(1000),
+    1000ms,
     STATISTICS_TOPIC_NAME,
-    std::chrono::milliseconds(1000 * 60));
+    60s);
+
+  const auto process_mem_node =
+    std::make_shared<system_metrics_collector::LinuxProcessMemoryMeasurementNode>(
+    "linuxProcessMemoryCollector",
+    1000ms,
+    "not_publishing_yet",
+    60s);
 
   rclcpp::executors::MultiThreadedExecutor ex;
   cpu_node->start();
   mem_node->start();
+  process_mem_node->start();
 
-  auto r = rcutils_logging_set_logger_level(cpu_node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-  if (r != 0) {
-    RCUTILS_LOG_ERROR_NAMED("main", "Unable to set debug logging for the cpu node");
+  {
+    const auto r =
+      rcutils_logging_set_logger_level(cpu_node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+    if (r != 0) {
+      RCUTILS_LOG_ERROR_NAMED("main", "Unable to set debug logging for the cpu node: %s\n",
+        rcutils_get_error_string().str);
+    }
   }
+  {
+    const auto r =
+      rcutils_logging_set_logger_level(mem_node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+    if (r != 0) {
+      RCUTILS_LOG_ERROR_NAMED("main", "Unable to set debug logging for the memory node: %s\n",
+        rcutils_get_error_string().str);
+    }
+  }
+  {
+    const auto r = rcutils_logging_set_logger_level(
+      process_mem_node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
 
-  r = rcutils_logging_set_logger_level(mem_node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-  if (r != 0) {
-    RCUTILS_LOG_ERROR_NAMED("main", "Unable to set debug logging for the memory node");
+    if (r != 0) {
+      RCUTILS_LOG_ERROR_NAMED("main",
+        "Unable to set debug logging for the process memory node: %s\n",
+        rcutils_get_error_string().str);
+    }
   }
 
   ex.add_node(cpu_node);
   ex.add_node(mem_node);
+  ex.add_node(process_mem_node);
   ex.spin();
 
   rclcpp::shutdown();
+
   cpu_node->stop();
   mem_node->stop();
-  return r;
+  process_mem_node->stop();
+
+  return 0;
 }

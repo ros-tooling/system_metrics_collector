@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <unistd.h>
+
 #include <cmath>
 #include <fstream>
 #include <sstream>
@@ -36,7 +38,7 @@ std::string readFileToString(const std::string & file_name)
 {
   std::ifstream file_to_read(file_name);
   if (!file_to_read.good()) {
-    RCUTILS_LOG_ERROR_NAMED("readFileToString", "unable to parse file %s", file_name.c_str());
+    RCUTILS_LOG_ERROR_NAMED("readFileToString", "unable to parse file: %s", file_name.c_str());
     return EMPTY_FILE;
   }
 
@@ -99,6 +101,11 @@ double processMemInfoLines(const std::string & lines)
     100.0;
   return total == INVALID_MEMORY_SAMPLE || available == INVALID_MEMORY_SAMPLE ?
          std::nan("") : to_return;
+}
+
+int getPid()
+{
+  return getpid();
 }
 
 }  // namespace system_metrics_collector
