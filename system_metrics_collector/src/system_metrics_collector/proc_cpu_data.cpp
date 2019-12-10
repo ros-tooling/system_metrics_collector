@@ -22,13 +22,13 @@ namespace system_metrics_collector
 
 /*static*/ constexpr const char ProcCpuData::EMPTY_LABEL[];
 
-size_t ProcCpuData::getIdleTime() const
+uint64_t ProcCpuData::getIdleTime() const
 {
   return times[static_cast<int>(ProcCpuStates::kIdle)] +
          times[static_cast<int>(ProcCpuStates::kIOWait)];
 }
 
-size_t ProcCpuData::getActiveTime() const
+uint64_t ProcCpuData::getActiveTime() const
 {
   return times[static_cast<int>(ProcCpuStates::kUser)] +
          times[static_cast<int>(ProcCpuStates::kNice)] +

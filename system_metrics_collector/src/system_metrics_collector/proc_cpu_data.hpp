@@ -53,13 +53,13 @@ public:
    * Return the idle time
    * @return the idle time for this data set
    */
-  size_t getIdleTime() const;
+  uint64_t getIdleTime() const;
 
   /**
    * Return the active time
    * @return the active time for this data set
    */
-  size_t getActiveTime() const;
+  uint64_t getActiveTime() const;
 
   /**
    * Return a pretty printed string of the ProcCpuData struct.
@@ -86,7 +86,7 @@ public:
    * Array contained the parsed CPU data, where each index
    * of ProcCpuStates contains its labeled data.
    */
-  std::array<size_t, static_cast<int>(ProcCpuStates::kNumProcCpuStates)> times{};
+  std::array<uint64_t, static_cast<int>(ProcCpuStates::kNumProcCpuStates)> times{};
 };
 
 }  // namespace system_metrics_collector
