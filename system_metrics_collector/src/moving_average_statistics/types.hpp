@@ -41,14 +41,7 @@ struct StatisticData
  * @return std::string formatted struct contents in an easily readable format, e.g.,
  * /"avg=1, min=2, max=3, std_dev=4, count=5/"
  */
-static std::string statisticsDataToString(const StatisticData & results)
-{
-  std::stringstream ss;
-  ss << "avg=" << std::to_string(results.average) << ", min=" << std::to_string(results.min) <<
-    ", max=" << std::to_string(results.max) << ", std_dev=" << std::to_string(
-    results.standard_deviation) << ", count=" << std::to_string(results.sample_count);
-  return ss.str();
-}
+std::string statisticsDataToString(const StatisticData & results);
 
 }  // namespace moving_average_statistics
 
