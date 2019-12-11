@@ -35,6 +35,7 @@ find_package(rcutils REQUIRED)
 
 add_library(system_metrics_collector SHARED
   src/moving_average_statistics/moving_average.cpp
+  src/moving_average_statistics/types.cpp
   src/moving_average_statistics/types.hpp
   src/system_metrics_collector/metrics_message_publisher.cpp
   src/system_metrics_collector/collector.cpp
