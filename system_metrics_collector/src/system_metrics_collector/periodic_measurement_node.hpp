@@ -50,8 +50,7 @@ public:
     const std::string & name,
     const std::chrono::milliseconds measurement_period,
     const std::string & topic,  // todo @dbbonnie think about a default topic
-    const std::chrono::milliseconds publish_period,
-    const bool clear_measurements_on_publish = true);
+    const std::chrono::milliseconds publish_period);
 
   virtual ~PeriodicMeasurementNode() = default;
 
@@ -118,10 +117,6 @@ private:
    * The period used to publish measurement data
    */
   const std::chrono::milliseconds publish_period_;
-  /**
-   * If true, then measurements are cleared after publishing data
-   */
-  const bool clear_measurements_on_publish_;
 
   rclcpp::TimerBase::SharedPtr measurement_timer_;
   rclcpp::TimerBase::SharedPtr publish_timer_;

@@ -45,11 +45,8 @@ public:
     const std::string & name,
     const std::chrono::milliseconds measurement_period,
     const std::string & publishing_topic,
-    const std::chrono::milliseconds publish_period,
-    const bool clear_measurements_on_publish)
-  : PeriodicMeasurementNode(name, measurement_period, publishing_topic, publish_period,
-      clear_measurements_on_publish)
-  {}
+    const std::chrono::milliseconds publish_period)
+  : PeriodicMeasurementNode(name, measurement_period, publishing_topic, publish_period) {}
   virtual ~TestPeriodicMeasurementNode() = default;
 
   int getNumPublished() const
@@ -99,7 +96,7 @@ public:
     rclcpp::init(0, nullptr);
 
     test_periodic_measurer = std::make_shared<TestPeriodicMeasurementNode>(TEST_NODE_NAME,
-        test_constants::MEASURE_PERIOD, TEST_TOPIC, test_constants::PUBLISH_PERIOD, false);
+        test_constants::MEASURE_PERIOD, TEST_TOPIC, DONT_PUBLISH_DURING_TEST);
 
     ASSERT_FALSE(test_periodic_measurer->isStarted());
 
@@ -120,14 +117,20 @@ public:
   }
 
 protected:
+  // this test is not designed to have the statistics published and reset at any point of the test,
+  // so this is defining the publish period to be something amply larger than the test duration
+  // itself
+  static constexpr std::chrono::milliseconds DONT_PUBLISH_DURING_TEST = 2 *
+    test_constants::TEST_DURATION;
   std::shared_ptr<TestPeriodicMeasurementNode> test_periodic_measurer;
 };
+
+constexpr std::chrono::milliseconds PeriodicMeasurementTestFixure::DONT_PUBLISH_DURING_TEST;
 
 TEST_F(PeriodicMeasurementTestFixure, sanity) {
   ASSERT_NE(test_periodic_measurer, nullptr);
   ASSERT_EQ("name=test_periodic_node, measurement_period=50ms,"
-    " publishing_topic=test_topic, publish_period=80ms,"
-    " clear_measurements_on_publish_=0, started=false,"
+    " publishing_topic=test_topic, publish_period=500ms, started=false,"
     " avg=nan, min=nan, max=nan, std_dev=nan, count=0",
     test_periodic_measurer->getStatusString());
 }
@@ -163,8 +166,7 @@ TEST_F(PeriodicMeasurementTestFixure, test_start_and_stop) {
 
   int times_published = test_periodic_measurer->getNumPublished();
   ASSERT_EQ(
-    test_constants::TEST_DURATION.count() / test_constants::PUBLISH_PERIOD.count(),
-    times_published);
+    test_constants::TEST_DURATION.count() / DONT_PUBLISH_DURING_TEST.count(), times_published);
 }
 
 int main(int argc, char ** argv)
