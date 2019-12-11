@@ -96,7 +96,7 @@ public:
     rclcpp::init(0, nullptr);
 
     test_periodic_measurer = std::make_shared<TestPeriodicMeasurementNode>(TEST_NODE_NAME,
-        test_constants::MEASURE_PERIOD, TEST_TOPIC, INFREQUENT_PUBLISH_PERIOD);
+        test_constants::MEASURE_PERIOD, TEST_TOPIC, DONT_PUBLISH_DURING_TEST);
 
     ASSERT_FALSE(test_periodic_measurer->isStarted());
 
@@ -117,12 +117,15 @@ public:
   }
 
 protected:
-  static constexpr std::chrono::milliseconds INFREQUENT_PUBLISH_PERIOD = 2 *
+  // this test is not designed to have the statistics published and reset at any point of the test,
+  // so this is defining the publish period to be something amply larger than the test duration
+  // itself
+  static constexpr std::chrono::milliseconds DONT_PUBLISH_DURING_TEST = 2 *
     test_constants::TEST_DURATION;
   std::shared_ptr<TestPeriodicMeasurementNode> test_periodic_measurer;
 };
 
-constexpr std::chrono::milliseconds PeriodicMeasurementTestFixure::INFREQUENT_PUBLISH_PERIOD;
+constexpr std::chrono::milliseconds PeriodicMeasurementTestFixure::DONT_PUBLISH_DURING_TEST;
 
 TEST_F(PeriodicMeasurementTestFixure, sanity) {
   ASSERT_NE(test_periodic_measurer, nullptr);
@@ -163,7 +166,7 @@ TEST_F(PeriodicMeasurementTestFixure, test_start_and_stop) {
 
   int times_published = test_periodic_measurer->getNumPublished();
   ASSERT_EQ(
-    test_constants::TEST_DURATION.count() / INFREQUENT_PUBLISH_PERIOD.count(), times_published);
+    test_constants::TEST_DURATION.count() / DONT_PUBLISH_DURING_TEST.count(), times_published);
 }
 
 int main(int argc, char ** argv)
