@@ -25,12 +25,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/logging_macros.h"
 
-namespace
-{
-constexpr const char PROC[] = "/proc/";
-constexpr const char STATM[] = "/statm";
-constexpr const char METRIC_NAME[] = "_memory_percent_used";
-}  // namespace
 
 namespace system_metrics_collector
 {

@@ -28,6 +28,10 @@
 namespace
 {
 
+constexpr const char PROC[] = "/proc/";
+constexpr const char STATM[] = "/statm";
+constexpr const char METRIC_NAME[] = "_memory_percent_used";
+
 /**
  * Return the total system memory.
  *
