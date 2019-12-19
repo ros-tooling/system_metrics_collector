@@ -28,10 +28,20 @@ namespace system_metrics_collector
 
 namespace
 {
+
+constexpr const char CPU_LABEL[] = "cpu";
 constexpr const char MEM_TOTAL[] = "MemTotal:";
 constexpr const char MEM_AVAILABLE[] = "MemAvailable:";
 constexpr const char EMPTY_FILE[] = "";
 constexpr const int INVALID_MEMORY_SAMPLE = -1;
+
+double computeCpuTotalTime(const ProcCpuData measurement1, const ProcCpuData measurement2)
+{
+  const double total_time = (measurement2.getIdleTime() + measurement2.getActiveTime()) -
+    (measurement1.getIdleTime() + measurement1.getActiveTime());
+  return total_time;
+}
+
 }  // namespace
 
 std::string readFileToString(const std::string & file_name)
@@ -46,6 +56,49 @@ std::string readFileToString(const std::string & file_name)
     std::istreambuf_iterator<char>());
 
   return to_return;
+}
+
+ProcCpuData processStatCpuLine(const std::string & stat_cpu_line)
+{
+  ProcCpuData parsed_data;
+
+  if (!stat_cpu_line.empty()) {
+    if (!stat_cpu_line.compare(0, strlen(CPU_LABEL), CPU_LABEL)) {
+      std::istringstream ss(stat_cpu_line);
+
+      if (!ss.good()) {
+        return ProcCpuData();
+      }
+      ss >> parsed_data.cpu_label;
+
+      for (int i = 0;
+        i < static_cast<int>(ProcCpuStates::kNumProcCpuStates); ++i)
+      {
+        if (!ss.good()) {
+          return ProcCpuData();
+        }
+        ss >> parsed_data.times[i];
+      }
+      return parsed_data;
+    }
+  }
+  return parsed_data;
+}
+
+double computeCpuActivePercentage(
+  const ProcCpuData & measurement1,
+  const ProcCpuData & measurement2)
+{
+  if (measurement1.isMeasurementEmpty() || measurement2.isMeasurementEmpty()) {
+    RCUTILS_LOG_ERROR_NAMED("computeCpuActivePercentage",
+      "a measurement was empty, unable to compute cpu percentage");
+    return std::nan("");
+  }
+
+  const double active_time = measurement2.getActiveTime() - measurement1.getActiveTime();
+  const double total_time = computeCpuTotalTime(measurement1, measurement2);
+
+  return 100.0 * active_time / total_time;
 }
 
 double processMemInfoLines(const std::string & lines)

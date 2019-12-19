@@ -17,6 +17,8 @@
 
 #include <string>
 
+#include "../../src/system_metrics_collector/proc_cpu_data.hpp"
+
 namespace system_metrics_collector
 {
 /**
@@ -27,6 +29,25 @@ namespace system_metrics_collector
  * @return the file to be read's contents as a std::string
  */
 std::string readFileToString(const std::string & file_name);
+
+/**
+ * Parse a line read from /proc/stat
+ *
+ * @param stat_cpu_line a line from /proc/stat
+ * @return ProcCpuData struct populated if parsed, otherwise empty
+ */
+ProcCpuData processStatCpuLine(const std::string & stat_cpu_line);
+
+/**
+ * Compute the percentage of CPU active.
+ *
+ * @param measurement1 the first measurement
+ * @param measurement2 the second measurement (made after the first)
+ * @return percentage of CPU active
+ */
+double computeCpuActivePercentage(
+  const ProcCpuData & measurement1,
+  const ProcCpuData & measurement2);
 
 /**
  * Process input lines from the /proc/meminfo file. The expected format to

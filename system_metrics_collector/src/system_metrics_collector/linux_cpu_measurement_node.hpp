@@ -27,25 +27,6 @@ namespace system_metrics_collector
 {
 
 /**
- * Parse a line read from /proc/stat
- *
- * @param stat_cpu_line a line from /proc/stat
- * @return ProcCpuData struct populated if parsed, otherwise empty
- */
-system_metrics_collector::ProcCpuData processStatCpuLine(const std::string & stat_cpu_line);
-
-/**
- * Compute the percentage of CPU active.
- *
- * @param measurement1 the first measurement
- * @param measurement2 the second measurement (made after the first)
- * @return percentage of CPU active
- */
-double computeCpuActivePercentage(
-  const system_metrics_collector::ProcCpuData & measurement1,
-  const system_metrics_collector::ProcCpuData & measurement2);
-
-/**
  * Node that periodically calculates the % of active CPU by
  * reading /proc/stat.
  */
