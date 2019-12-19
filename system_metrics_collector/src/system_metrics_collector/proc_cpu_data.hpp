@@ -16,6 +16,7 @@
 #define SYSTEM_METRICS_COLLECTOR__PROC_CPU_DATA_HPP_
 
 #include <array>
+#include <limits>
 #include <sstream>
 #include <string>
 
@@ -87,6 +88,46 @@ public:
    * of ProcCpuStates contains its labeled data.
    */
   std::array<uint64_t, static_cast<int>(ProcCpuStates::kNumProcCpuStates)> times{};
+};
+
+class ProcPidCpuData
+{
+public:
+  ProcPidCpuData() = default;
+  virtual ~ProcPidCpuData() = default;
+
+  static constexpr const uint64_t EMPTY_DATA = std::numeric_limits<uint64_t>::max();
+
+  /**
+   * Return the active time
+   * @return the active time for this data set
+   */
+  uint64_t getActiveTime() const;
+
+  /**
+   * Return true if the struct is not populated with any useful data.
+   * This indicates a parsing error.
+   *
+   * @return true if empty (no valid data), false otherwise.
+   */
+  bool isMeasurementEmpty() const;
+
+  /**
+   * Return a pretty printed string of the ProcCpuData struct.
+   *
+   * @param data the struct to print
+   * @return a formatted string of the input struct
+   */
+  std::string toString() const;
+
+  /**
+   * Parsed CPU data: user mode jiffies
+   */
+  uint64_t utime{EMPTY_DATA};
+  /**
+   * Parsed CPU data: kernel mode jiffies
+   */
+  uint64_t stime{EMPTY_DATA};
 };
 
 }  // namespace system_metrics_collector
