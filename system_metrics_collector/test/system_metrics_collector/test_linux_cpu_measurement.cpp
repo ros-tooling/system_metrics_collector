@@ -28,43 +28,24 @@
 
 #include "../../src/system_metrics_collector/linux_cpu_measurement_node.hpp"
 #include "../../src/system_metrics_collector/proc_cpu_data.hpp"
+#include "../../src/system_metrics_collector/utilities.hpp"
 
 #include "test_constants.hpp"
+#include "test_utilities.hpp"
 
 using metrics_statistics_msgs::msg::MetricsMessage;
 using metrics_statistics_msgs::msg::StatisticDataPoint;
 using metrics_statistics_msgs::msg::StatisticDataType;
 using moving_average_statistics::StatisticData;
 using system_metrics_collector::processStatCpuLine;
+using test_constants::PROC_SAMPLES;
+using test_utilities::computeCpuActivePercentage;
 
 namespace
 {
 constexpr const char TEST_NODE_NAME[] = "test_measure_linux_cpu";
 constexpr const char TEST_TOPIC[] = "test_cpu_measure_topic";
 constexpr const char TEST_METRIC_NAME[] = "system_cpu_percent_used";
-
-constexpr const std::array<const char *, 10> proc_samples = {
-  "cpu 22451232 118653 7348045 934943300 5378119 0 419114 0 0 0\n",
-  "cpu 22451360 118653 7348080 934949227 5378120 0 419117 0 0 0\n",
-  "cpu 24343452 61856 6484430 10645595 58695 0 683052 0 0 0\n",
-  "cpu 6051294 43322 1611333 9021635 47400 0 177494 0 0 0\n",
-  "cpu 6092443 6217 1623536 535731 4143 0 232286 0 0 0\n",
-  "cpu 6097071 6498 1612044 544445 3484 0 135942 0 0 0\n",
-  "cpu 6102643 5818 1637516 543782 3666 0 137329 0 0 0\n",
-  "cpu 24513632 62372 6527524 11205004 62394 0 687176 0 0 0\n",
-  "cpu 6093617 43419 1621953 9161570 48047 0 178792 0 0 0\n",
-  "cpu 6134250 6371 1634411 675446 5285 0 233478 0 0 0\n"
-};
-constexpr const double CPU_ACTIVE_PROC_SAMPLE_0_1 = 2.7239908106334099;
-constexpr const char proc_sample_resolution_test[] =
-  "cpu  57211920 335926 18096939 2526329830 14818556 0 1072048 0 0 0\n";
-
-double computeCpuActivePercentage(const std::string & data1, const std::string & data2)
-{
-  auto parsed_data1 = processStatCpuLine(data1);
-  auto parsed_data2 = processStatCpuLine(data2);
-  return computeCpuActivePercentage(parsed_data1, parsed_data2);
-}
 }  // namespace
 
 
@@ -88,8 +69,8 @@ public:
 private:
   system_metrics_collector::ProcCpuData makeSingleMeasurement() override
   {
-    EXPECT_GT(proc_samples.size(), measurement_index);
-    return processStatCpuLine(proc_samples[measurement_index++]);
+    EXPECT_GT(PROC_SAMPLES.size(), measurement_index);
+    return processStatCpuLine(PROC_SAMPLES[measurement_index++]);
   }
 
   int measurement_index{0};
@@ -110,52 +91,52 @@ public:
     StatisticData data;
 
     // setting expected_stats[0]
-    // round 1 50 ms: proc_samples[0] is collected
-    // round 1 80 ms: statistics derived from proc_samples[N/A-0] is published
+    // round 1 50 ms: PROC_SAMPLES[0] is collected
+    // round 1 80 ms: statistics derived from PROC_SAMPLES[N/A-0] is published
     stats_calc.reset();
     data = StatisticData();
     StatisticDataToExpectedStatistics(data, expected_stats[0]);
 
     // setting expected_stats[1]
-    // round 1 100 ms: proc_samples[1] is collected
-    // round 1 150 ms: proc_samples[2] is collected
-    // round 1 160 ms: statistics derived from proc_samples[0-1 & 1-2] is published
+    // round 1 100 ms: PROC_SAMPLES[1] is collected
+    // round 1 150 ms: PROC_SAMPLES[2] is collected
+    // round 1 160 ms: statistics derived from PROC_SAMPLES[0-1 & 1-2] is published
     stats_calc.reset();
-    stats_calc.addMeasurement(computeCpuActivePercentage(proc_samples[0], proc_samples[1]));
-    stats_calc.addMeasurement(computeCpuActivePercentage(proc_samples[1], proc_samples[2]));
+    stats_calc.addMeasurement(computeCpuActivePercentage(PROC_SAMPLES[0], PROC_SAMPLES[1]));
+    stats_calc.addMeasurement(computeCpuActivePercentage(PROC_SAMPLES[1], PROC_SAMPLES[2]));
     data = stats_calc.getStatistics();
     StatisticDataToExpectedStatistics(data, expected_stats[1]);
 
     // setting expected_stats[2]
-    // round 1 200 ms: proc_samples[3] is collected
-    // round 1 240 ms: statistics derived from proc_samples[2-3] is published
+    // round 1 200 ms: PROC_SAMPLES[3] is collected
+    // round 1 240 ms: statistics derived from PROC_SAMPLES[2-3] is published
     stats_calc.reset();
-    stats_calc.addMeasurement(computeCpuActivePercentage(proc_samples[2], proc_samples[3]));
+    stats_calc.addMeasurement(computeCpuActivePercentage(PROC_SAMPLES[2], PROC_SAMPLES[3]));
     data = stats_calc.getStatistics();
     StatisticDataToExpectedStatistics(data, expected_stats[2]);
 
     // setting expected_stats[3]
-    // round 2 50 ms: proc_samples[5] is collected
-    // round 2 80 ms: statistics derived from proc_samples[N/A-5] is published
+    // round 2 50 ms: PROC_SAMPLES[5] is collected
+    // round 2 80 ms: statistics derived from PROC_SAMPLES[N/A-5] is published
     stats_calc.reset();
     data = StatisticData();
     StatisticDataToExpectedStatistics(data, expected_stats[3]);
 
     // setting expected_stats[4]
-    // round 2 100 ms: proc_samples[6] is collected
-    // round 2 150 ms: proc_samples[7] is collected
-    // round 2 160 ms: statistics derived from proc_samples[5-6 & 6-7] is published
+    // round 2 100 ms: PROC_SAMPLES[6] is collected
+    // round 2 150 ms: PROC_SAMPLES[7] is collected
+    // round 2 160 ms: statistics derived from PROC_SAMPLES[5-6 & 6-7] is published
     stats_calc.reset();
-    stats_calc.addMeasurement(computeCpuActivePercentage(proc_samples[5], proc_samples[6]));
-    stats_calc.addMeasurement(computeCpuActivePercentage(proc_samples[6], proc_samples[7]));
+    stats_calc.addMeasurement(computeCpuActivePercentage(PROC_SAMPLES[5], PROC_SAMPLES[6]));
+    stats_calc.addMeasurement(computeCpuActivePercentage(PROC_SAMPLES[6], PROC_SAMPLES[7]));
     data = stats_calc.getStatistics();
     StatisticDataToExpectedStatistics(data, expected_stats[4]);
 
     // setting expected_stats[5]
-    // round 2 200 ms: proc_samples[8] is collected
-    // round 2 240 ms: statistics derived from proc_samples[7-8] is published
+    // round 2 200 ms: PROC_SAMPLES[8] is collected
+    // round 2 240 ms: statistics derived from PROC_SAMPLES[7-8] is published
     stats_calc.reset();
-    stats_calc.addMeasurement(computeCpuActivePercentage(proc_samples[7], proc_samples[8]));
+    stats_calc.addMeasurement(computeCpuActivePercentage(PROC_SAMPLES[7], PROC_SAMPLES[8]));
     data = stats_calc.getStatistics();
     StatisticDataToExpectedStatistics(data, expected_stats[5]);
   }
@@ -245,65 +226,7 @@ TEST_F(LinuxCpuMeasurementTestFixture, testManualMeasurement)
   ASSERT_TRUE(std::isnan(cpu_active_percentage));
   // second measurement compares current and cached
   cpu_active_percentage = test_measure_linux_cpu->periodicMeasurement();
-  ASSERT_DOUBLE_EQ(CPU_ACTIVE_PROC_SAMPLE_0_1, cpu_active_percentage);
-}
-
-TEST(LinuxCpuMeasurementTest, testParseProcLine)
-{
-  auto parsed_data = processStatCpuLine(proc_samples[0]);
-
-  ASSERT_EQ("cpu", parsed_data.cpu_label);
-  ASSERT_EQ(22451232, parsed_data.times[0]);
-  ASSERT_EQ(118653, parsed_data.times[1]);
-  ASSERT_EQ(7348045, parsed_data.times[2]);
-  ASSERT_EQ(934943300, parsed_data.times[3]);
-  ASSERT_EQ(5378119, parsed_data.times[4]);
-  ASSERT_EQ(0, parsed_data.times[5]);
-  ASSERT_EQ(419114, parsed_data.times[6]);
-  ASSERT_EQ(0, parsed_data.times[7]);
-
-  ASSERT_EQ(
-    "cpu_label=cpu, user=22451232, nice=118653, system=7348045, idle=934943300,"
-    " iOWait=5378119, irq=0, softIrq=419114, steal=0",
-    parsed_data.toString());
-}
-
-TEST(LinuxCpuMeasurementTest, testParseProcLine2)
-{
-  auto parsed_data = system_metrics_collector::processStatCpuLine(proc_sample_resolution_test);
-
-  ASSERT_EQ("cpu", parsed_data.cpu_label);
-  ASSERT_EQ(57211920, parsed_data.times[0]);
-  ASSERT_EQ(335926, parsed_data.times[1]);
-  ASSERT_EQ(18096939, parsed_data.times[2]);
-  ASSERT_EQ(2526329830, parsed_data.times[3]);
-  ASSERT_EQ(14818556, parsed_data.times[4]);
-  ASSERT_EQ(0, parsed_data.times[5]);
-  ASSERT_EQ(1072048, parsed_data.times[6]);
-  ASSERT_EQ(0, parsed_data.times[7]);
-
-  ASSERT_EQ(
-    "cpu_label=cpu, user=57211920, nice=335926, system=18096939, idle=2526329830,"
-    " iOWait=14818556, irq=0, softIrq=1072048, steal=0",
-    parsed_data.toString());
-}
-
-TEST(LinuxCpuMeasurementTest, testCalculateCpuActivePercentage)
-{
-  auto p = computeCpuActivePercentage(proc_samples[0], proc_samples[1]);
-  ASSERT_DOUBLE_EQ(CPU_ACTIVE_PROC_SAMPLE_0_1, p);
-}
-
-TEST(LinuxCpuMeasurementTest, testEmptyProcCpuData)
-{
-  system_metrics_collector::ProcCpuData empty;
-  ASSERT_EQ(system_metrics_collector::ProcCpuData::EMPTY_LABEL, empty.cpu_label);
-
-  for (int i = 0; i < static_cast<int>(system_metrics_collector::ProcCpuStates::kNumProcCpuStates);
-    i++)
-  {
-    ASSERT_EQ(0, empty.times[i]);
-  }
+  ASSERT_DOUBLE_EQ(test_constants::CPU_ACTIVE_PROC_SAMPLE_0_1, cpu_active_percentage);
 }
 
 TEST_F(LinuxCpuMeasurementTestFixture, testPublishMetricsMessage)
@@ -328,16 +251,16 @@ TEST_F(LinuxCpuMeasurementTestFixture, testPublishMetricsMessage)
   ex.spin_until_future_complete(dummy_future, test_constants::TEST_DURATION);
   EXPECT_EQ(3, test_receive_measurements->getNumReceived());
   // expectation is:
-  // 50 ms: proc_samples[0] is collected
-  // 80 ms: statistics derived from proc_samples[N/A-0] is published. statistics are cleared
-  // 100 ms: proc_samples[1] is collected
-  // 150 ms: proc_samples[2] is collected
-  // 160 ms: statistics derived from proc_samples[0-1 & 1-2] is published. statistics are cleared
-  // 200 ms: proc_samples[3] is collected
-  // 240 ms: statistics derived from proc_samples[2-3] is published. statistics are cleared
-  // 250 ms: proc_samples[4] is collected. last getStatisticsResults() is of proc_samples[3-4]
+  // 50 ms: PROC_SAMPLES[0] is collected
+  // 80 ms: statistics derived from PROC_SAMPLES[N/A-0] is published. statistics are cleared
+  // 100 ms: PROC_SAMPLES[1] is collected
+  // 150 ms: PROC_SAMPLES[2] is collected
+  // 160 ms: statistics derived from PROC_SAMPLES[0-1 & 1-2] is published. statistics are cleared
+  // 200 ms: PROC_SAMPLES[3] is collected
+  // 240 ms: statistics derived from PROC_SAMPLES[2-3] is published. statistics are cleared
+  // 250 ms: PROC_SAMPLES[4] is collected. last getStatisticsResults() is of PROC_SAMPLES[3-4]
   StatisticData data = test_measure_linux_cpu->getStatisticsResults();
-  double expected_cpu_active = computeCpuActivePercentage(proc_samples[3], proc_samples[4]);
+  double expected_cpu_active = computeCpuActivePercentage(PROC_SAMPLES[3], PROC_SAMPLES[4]);
   EXPECT_DOUBLE_EQ(expected_cpu_active, data.average);
   EXPECT_DOUBLE_EQ(expected_cpu_active, data.min);
   EXPECT_DOUBLE_EQ(expected_cpu_active, data.max);
@@ -371,16 +294,16 @@ TEST_F(LinuxCpuMeasurementTestFixture, testPublishMetricsMessage)
   ex.spin_until_future_complete(dummy_future, test_constants::TEST_DURATION);
   EXPECT_EQ(6, test_receive_measurements->getNumReceived());
   // expectation is:
-  // 50 ms: proc_samples[5] is collected
-  // 80 ms: statistics derived from proc_samples[N/A-5] is published. statistics are cleared
-  // 100 ms: proc_samples[6] is collected
-  // 150 ms: proc_samples[7] is collected
-  // 160 ms: statistics derived from proc_samples[5-6 & 6-7] is published. statistics are cleared
-  // 200 ms: proc_samples[8] is collected
-  // 240 ms: statistics derived from proc_samples[7-8] is published. statistics are cleared
-  // 250 ms: proc_samples[9] is collected. last getStatisticsResults() is of proc_samples[8-9]
+  // 50 ms: PROC_SAMPLES[5] is collected
+  // 80 ms: statistics derived from PROC_SAMPLES[N/A-5] is published. statistics are cleared
+  // 100 ms: PROC_SAMPLES[6] is collected
+  // 150 ms: PROC_SAMPLES[7] is collected
+  // 160 ms: statistics derived from PROC_SAMPLES[5-6 & 6-7] is published. statistics are cleared
+  // 200 ms: PROC_SAMPLES[8] is collected
+  // 240 ms: statistics derived from PROC_SAMPLES[7-8] is published. statistics are cleared
+  // 250 ms: PROC_SAMPLES[9] is collected. last getStatisticsResults() is of PROC_SAMPLES[8-9]
   data = test_measure_linux_cpu->getStatisticsResults();
-  expected_cpu_active = computeCpuActivePercentage(proc_samples[8], proc_samples[9]);
+  expected_cpu_active = computeCpuActivePercentage(PROC_SAMPLES[8], PROC_SAMPLES[9]);
   EXPECT_DOUBLE_EQ(expected_cpu_active, data.average);
   EXPECT_DOUBLE_EQ(expected_cpu_active, data.min);
   EXPECT_DOUBLE_EQ(expected_cpu_active, data.max);

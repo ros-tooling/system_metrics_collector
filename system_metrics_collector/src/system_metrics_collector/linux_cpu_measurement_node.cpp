@@ -20,6 +20,7 @@
 
 #include "../../src/system_metrics_collector/linux_cpu_measurement_node.hpp"
 #include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
+#include "../../src/system_metrics_collector/utilities.hpp"
 
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/logging_macros.h"
@@ -30,54 +31,10 @@ namespace
 {
 constexpr const char MEASUREMENT_TYPE[] = "system_cpu_percent_used";
 constexpr const char PROC_STAT_FILE[] = "/proc/stat";
-constexpr const char CPU_LABEL[] = "cpu";
 }  // namespace
 
 namespace system_metrics_collector
 {
-
-system_metrics_collector::ProcCpuData processStatCpuLine(const std::string & stat_cpu_line)
-{
-  system_metrics_collector::ProcCpuData parsed_data;
-
-  if (!stat_cpu_line.empty()) {
-    if (!stat_cpu_line.compare(0, strlen(CPU_LABEL), CPU_LABEL)) {
-      std::istringstream ss(stat_cpu_line);
-
-      if (!ss.good()) {
-        return system_metrics_collector::ProcCpuData();
-      }
-      ss >> parsed_data.cpu_label;
-
-      for (int i = 0;
-        i < static_cast<int>(system_metrics_collector::ProcCpuStates::kNumProcCpuStates); ++i)
-      {
-        if (!ss.good()) {
-          return system_metrics_collector::ProcCpuData();
-        }
-        ss >> parsed_data.times[i];
-      }
-      return parsed_data;
-    }
-  }
-  return parsed_data;
-}
-
-double computeCpuActivePercentage(
-  const system_metrics_collector::ProcCpuData & measurement1,
-  const system_metrics_collector::ProcCpuData & measurement2)
-{
-  if (measurement1.isMeasurementEmpty() || measurement2.isMeasurementEmpty()) {
-    RCUTILS_LOG_ERROR_NAMED("computeCpuActivePercentage",
-      "a measurement was empty, unable to compute cpu percentage");
-    return std::nan("");
-  }
-  const double active_time = measurement2.getActiveTime() - measurement1.getActiveTime();
-  const double total_time = (measurement2.getIdleTime() + measurement2.getActiveTime()) -
-    (measurement1.getIdleTime() + measurement1.getActiveTime());
-
-  return 100.0 * active_time / total_time;
-}
 
 LinuxCpuMeasurementNode::LinuxCpuMeasurementNode(
   const std::string & name,

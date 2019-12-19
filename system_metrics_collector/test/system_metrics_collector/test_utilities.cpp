@@ -22,8 +22,71 @@
 
 #include "../../src/system_metrics_collector/utilities.hpp"
 #include "test_constants.hpp"
+#include "test_utilities.hpp"
 
-TEST(UtilitiesTest, testProcessLines)
+
+TEST(UtilitiesTest, testParseProcStatLine)
+{
+  auto parsed_data = system_metrics_collector::processStatCpuLine(test_constants::PROC_SAMPLES[0]);
+
+  ASSERT_EQ("cpu", parsed_data.cpu_label);
+  ASSERT_EQ(22451232, parsed_data.times[0]);
+  ASSERT_EQ(118653, parsed_data.times[1]);
+  ASSERT_EQ(7348045, parsed_data.times[2]);
+  ASSERT_EQ(934943300, parsed_data.times[3]);
+  ASSERT_EQ(5378119, parsed_data.times[4]);
+  ASSERT_EQ(0, parsed_data.times[5]);
+  ASSERT_EQ(419114, parsed_data.times[6]);
+  ASSERT_EQ(0, parsed_data.times[7]);
+
+  ASSERT_EQ(
+    "cpu_label=cpu, user=22451232, nice=118653, system=7348045, idle=934943300,"
+    " iOWait=5378119, irq=0, softIrq=419114, steal=0",
+    parsed_data.toString());
+}
+
+TEST(UtilitiesTest, testParseProcStatLine2)
+{
+  auto parsed_data = system_metrics_collector::processStatCpuLine(
+    test_constants::PROC_SAMPLE_RESOLUTION_TEST);
+
+  ASSERT_EQ("cpu", parsed_data.cpu_label);
+  ASSERT_EQ(57211920, parsed_data.times[0]);
+  ASSERT_EQ(335926, parsed_data.times[1]);
+  ASSERT_EQ(18096939, parsed_data.times[2]);
+  ASSERT_EQ(2526329830, parsed_data.times[3]);
+  ASSERT_EQ(14818556, parsed_data.times[4]);
+  ASSERT_EQ(0, parsed_data.times[5]);
+  ASSERT_EQ(1072048, parsed_data.times[6]);
+  ASSERT_EQ(0, parsed_data.times[7]);
+
+  ASSERT_EQ(
+    "cpu_label=cpu, user=57211920, nice=335926, system=18096939, idle=2526329830,"
+    " iOWait=14818556, irq=0, softIrq=1072048, steal=0",
+    parsed_data.toString());
+}
+
+TEST(UtilitiesTest, testEmptyProcCpuData)
+{
+  system_metrics_collector::ProcCpuData empty;
+
+  ASSERT_EQ(system_metrics_collector::ProcCpuData::EMPTY_LABEL, empty.cpu_label);
+
+  for (int i = 0; i < static_cast<int>(system_metrics_collector::ProcCpuStates::kNumProcCpuStates);
+    i++)
+  {
+    ASSERT_EQ(0, empty.times[i]);
+  }
+}
+
+TEST(UtilitiesTest, testCalculateCpuActivePercentage)
+{
+  auto p = test_utilities::computeCpuActivePercentage(test_constants::PROC_SAMPLES[0],
+      test_constants::PROC_SAMPLES[1]);
+  ASSERT_DOUBLE_EQ(test_constants::CPU_ACTIVE_PROC_SAMPLE_0_1, p);
+}
+
+TEST(UtilitiesTest, testProcMemInfoLines)
 {
   auto d = system_metrics_collector::processMemInfoLines(test_constants::EMPTY_SAMPLE);
   ASSERT_TRUE(std::isnan(d));
