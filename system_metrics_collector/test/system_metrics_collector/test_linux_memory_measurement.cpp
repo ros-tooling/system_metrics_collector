@@ -39,12 +39,12 @@ using system_metrics_collector::processMemInfoLines;
 
 namespace
 {
-constexpr const char TEST_NODE_NAME[] = "test_measure_linux_memory";
-constexpr const char TEST_TOPIC[] = "test_memory_measure_topic";
-constexpr const char TEST_METRIC_NAME[] = "system_memory_percent_used";
+constexpr const char kTestNodeName[] = "test_measure_linux_memory";
+constexpr const char kTestTopic[] = "test_memory_measure_topic";
+constexpr const char kTestMetricName[] = "system_memory_percent_used";
 
 constexpr const std::array<const char *, 10> SAMPLES = {
-  test_constants::FULL_SAMPLE,
+  test_constants::kFullSample,
 
   "MemTotal:       16304208 kB\n"
   "MemFree:          845168 kB\n"
@@ -131,8 +131,8 @@ public:
   {
     rclcpp::init(0, nullptr);
 
-    test_measure_linux_memory = std::make_shared<TestLinuxMemoryMeasurementNode>(TEST_NODE_NAME,
-        test_constants::MEASURE_PERIOD, TEST_TOPIC, test_constants::PUBLISH_PERIOD);
+    test_measure_linux_memory = std::make_shared<TestLinuxMemoryMeasurementNode>(kTestNodeName,
+        test_constants::kMeasurePeriod, kTestTopic, test_constants::kPublishPeriod);
 
     ASSERT_FALSE(test_measure_linux_memory->isStarted());
 
@@ -165,7 +165,7 @@ public:
   {
     auto callback = [this](MetricsMessage::UniquePtr msg) {this->MetricsMessageCallback(*msg);};
     subscription = create_subscription<MetricsMessage,
-        std::function<void(MetricsMessage::UniquePtr)>>(TEST_TOPIC, 10 /*history_depth*/, callback);
+        std::function<void(MetricsMessage::UniquePtr)>>(kTestTopic, 10 /*history_depth*/, callback);
 
     // tools for calculating expected statistics values
     moving_average_statistics::MovingAverageStatistics stats_calc;
@@ -247,8 +247,8 @@ private:
     ASSERT_GT(expected_stats.size(), times_received);
 
     // check source names
-    EXPECT_EQ(TEST_NODE_NAME, msg.measurement_source_name);
-    EXPECT_EQ(TEST_METRIC_NAME, msg.metrics_source);
+    EXPECT_EQ(kTestNodeName, msg.measurement_source_name);
+    EXPECT_EQ(kTestMetricName, msg.metrics_source);
 
     // check measurements
     const ExpectedStatistics & expected_stat = expected_stats[times_received];
@@ -282,9 +282,9 @@ TEST_F(LinuxMemoryMeasurementTestFixture, testManualMeasurement) {
   double mem_used_percentage = test_measure_linux_memory->periodicMeasurement();
   ASSERT_TRUE(std::isnan(mem_used_percentage));
 
-  test_measure_linux_memory->setTestString(test_constants::FULL_SAMPLE);
+  test_measure_linux_memory->setTestString(test_constants::kFullSample);
   mem_used_percentage = test_measure_linux_memory->periodicMeasurement();
-  ASSERT_DOUBLE_EQ(test_constants::MEMORY_USED_PERCENTAGE, mem_used_percentage);
+  ASSERT_DOUBLE_EQ(test_constants::kMemoryUsedPercentage, mem_used_percentage);
 }
 
 TEST_F(LinuxMemoryMeasurementTestFixture, testPublishMetricsMessage)
@@ -306,7 +306,7 @@ TEST_F(LinuxMemoryMeasurementTestFixture, testPublishMetricsMessage)
   bool start_success = test_measure_linux_memory->start();
   ASSERT_TRUE(start_success);
   ASSERT_TRUE(test_measure_linux_memory->isStarted());
-  ex.spin_until_future_complete(dummy_future, test_constants::TEST_DURATION);
+  ex.spin_until_future_complete(dummy_future, test_constants::kTestDuration);
   EXPECT_EQ(3, test_receive_measurements->getNumReceived());
   // expectation is:
   // 50 ms: SAMPLES[0] is collected
@@ -326,7 +326,7 @@ TEST_F(LinuxMemoryMeasurementTestFixture, testPublishMetricsMessage)
   bool stop_success = test_measure_linux_memory->stop();
   ASSERT_TRUE(stop_success);
   ASSERT_FALSE(test_measure_linux_memory->isStarted());
-  ex.spin_until_future_complete(dummy_future, test_constants::TEST_DURATION);
+  ex.spin_until_future_complete(dummy_future, test_constants::kTestDuration);
   EXPECT_EQ(3, test_receive_measurements->getNumReceived());
   // expectation is:
   // upon calling stop, samples are cleared, so getStatisticsResults() would be NaNs
@@ -344,7 +344,7 @@ TEST_F(LinuxMemoryMeasurementTestFixture, testPublishMetricsMessage)
   start_success = test_measure_linux_memory->start();
   ASSERT_TRUE(start_success);
   ASSERT_TRUE(test_measure_linux_memory->isStarted());
-  ex.spin_until_future_complete(dummy_future, test_constants::TEST_DURATION);
+  ex.spin_until_future_complete(dummy_future, test_constants::kTestDuration);
   EXPECT_EQ(6, test_receive_measurements->getNumReceived());
   // expectation is:
   // 50 ms: SAMPLES[5] is collected

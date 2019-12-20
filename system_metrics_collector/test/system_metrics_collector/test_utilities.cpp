@@ -27,7 +27,7 @@
 
 TEST(UtilitiesTest, testParseProcStatLine)
 {
-  auto parsed_data = system_metrics_collector::processStatCpuLine(test_constants::PROC_SAMPLES[0]);
+  auto parsed_data = system_metrics_collector::processStatCpuLine(test_constants::kProcSamples[0]);
 
   ASSERT_EQ("cpu", parsed_data.cpu_label);
   ASSERT_EQ(22451232, parsed_data.times[0]);
@@ -48,7 +48,7 @@ TEST(UtilitiesTest, testParseProcStatLine)
 TEST(UtilitiesTest, testParseProcStatLine2)
 {
   auto parsed_data = system_metrics_collector::processStatCpuLine(
-    test_constants::PROC_SAMPLE_RESOLUTION_TEST);
+    test_constants::kProcSampleResolutionTest);
 
   ASSERT_EQ("cpu", parsed_data.cpu_label);
   ASSERT_EQ(57211920, parsed_data.times[0]);
@@ -81,27 +81,27 @@ TEST(UtilitiesTest, testEmptyProcCpuData)
 
 TEST(UtilitiesTest, testCalculateCpuActivePercentage)
 {
-  auto p = test_utilities::computeCpuActivePercentage(test_constants::PROC_SAMPLES[0],
-      test_constants::PROC_SAMPLES[1]);
-  ASSERT_DOUBLE_EQ(test_constants::CPU_ACTIVE_PROC_SAMPLE_0_1, p);
+  auto p = test_utilities::computeCpuActivePercentage(test_constants::kProcSamples[0],
+      test_constants::kProcSamples[1]);
+  ASSERT_DOUBLE_EQ(test_constants::kCpuActiveProcSample_0_1, p);
 }
 
 TEST(UtilitiesTest, testProcMemInfoLines)
 {
-  auto d = system_metrics_collector::processMemInfoLines(test_constants::EMPTY_SAMPLE);
+  auto d = system_metrics_collector::processMemInfoLines(test_constants::kEmptySample);
   ASSERT_TRUE(std::isnan(d));
 
-  d = system_metrics_collector::processMemInfoLines(test_constants::GARBAGE_SAMPLE);
+  d = system_metrics_collector::processMemInfoLines(test_constants::kGarbageSample);
   ASSERT_TRUE(std::isnan(d));
 
-  d = system_metrics_collector::processMemInfoLines(test_constants::INCOMPLETE_SAMPLE);
+  d = system_metrics_collector::processMemInfoLines(test_constants::kIncompleteSample);
   ASSERT_TRUE(std::isnan(d));
 
-  d = system_metrics_collector::processMemInfoLines(test_constants::COMPLETE_SAMPLE);
-  ASSERT_DOUBLE_EQ(test_constants::MEMORY_USED_PERCENTAGE, d);
+  d = system_metrics_collector::processMemInfoLines(test_constants::kCompleteSample);
+  ASSERT_DOUBLE_EQ(test_constants::kMemoryUsedPercentage, d);
 
-  d = system_metrics_collector::processMemInfoLines(test_constants::FULL_SAMPLE);
-  ASSERT_DOUBLE_EQ(test_constants::MEMORY_USED_PERCENTAGE, d);
+  d = system_metrics_collector::processMemInfoLines(test_constants::kFullSample);
+  ASSERT_DOUBLE_EQ(test_constants::kMemoryUsedPercentage, d);
 }
 
 TEST(UtilitiesTest, testReadInvalidFile)

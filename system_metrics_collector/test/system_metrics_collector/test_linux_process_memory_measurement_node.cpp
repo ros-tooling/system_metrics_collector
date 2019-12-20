@@ -26,7 +26,7 @@
 
 namespace
 {
-constexpr const char TEST_STATM_LINE[] = "2084389 308110 7390 1 0 366785 0\n";
+constexpr const char kTestStatmLine[] = "2084389 308110 7390 1 0 366785 0\n";
 }
 
 class TestLinuxProcessMemoryMeasurementNode : public system_metrics_collector::
@@ -86,11 +86,11 @@ protected:
 
 TEST(TestLinuxProcessMemoryMeasurement, testGetProcessUsedMemory) {
   EXPECT_THROW(system_metrics_collector::getProcessUsedMemory(
-      test_constants::GARBAGE_SAMPLE), std::ifstream::failure);
+      test_constants::kGarbageSample), std::ifstream::failure);
   EXPECT_THROW(system_metrics_collector::getProcessUsedMemory(
-      test_constants::EMPTY_SAMPLE), std::ifstream::failure);
+      test_constants::kEmptySample), std::ifstream::failure);
 
-  const auto ret = system_metrics_collector::getProcessUsedMemory(TEST_STATM_LINE);
+  const auto ret = system_metrics_collector::getProcessUsedMemory(kTestStatmLine);
   EXPECT_EQ(2084389, ret);
 }
 
