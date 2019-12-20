@@ -59,7 +59,7 @@ int main(int argc, char ** argv)
     std::make_shared<system_metrics_collector::LinuxProcessMemoryMeasurementNode>(
     "linuxProcessMemoryCollector",
     1000ms,
-    "not_publishing_yet",
+    STATISTICS_TOPIC_NAME,
     60s);
 
   rclcpp::executors::MultiThreadedExecutor ex;
