@@ -32,6 +32,23 @@ inline double computeCpuActivePercentage(const std::string & data1, const std::s
   return system_metrics_collector::computeCpuActivePercentage(parsed_data1, parsed_data2);
 }
 
+inline double computePidCpuActivePercentage(
+  const std::string & pid_data1,
+  const std::string & sys_data1,
+  const std::string & pid_data2,
+  const std::string & sys_data2)
+{
+  auto parsed_pid_data1 = system_metrics_collector::processPidStatCpuLine(pid_data1);
+  auto parsed_pid_data2 = system_metrics_collector::processPidStatCpuLine(pid_data2);
+  auto parsed_sys_data1 = system_metrics_collector::processStatCpuLine(sys_data1);
+  auto parsed_sys_data2 = system_metrics_collector::processStatCpuLine(sys_data2);
+  return system_metrics_collector::computePidCpuActivePercentage(
+    parsed_pid_data1,
+    parsed_sys_data1,
+    parsed_pid_data2,
+    parsed_sys_data2);
+}
+
 }  // namespace test_utilities
 
 #endif  // SYSTEM_METRICS_COLLECTOR__TEST_UTILITIES_HPP_
