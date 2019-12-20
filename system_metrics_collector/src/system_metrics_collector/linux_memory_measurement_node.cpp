@@ -29,8 +29,8 @@ using metrics_statistics_msgs::msg::MetricsMessage;
 
 namespace
 {
-constexpr const char MEASUREMENT_TYPE[] = "system_memory_percent_used";
-constexpr const char PROC_STAT_FILE[] = "/proc/meminfo";
+constexpr const char kMeasurementType[] = "system_memory_percent_used";
+constexpr const char kProcStatFile[] = "/proc/meminfo";
 }  // namespace
 
 namespace system_metrics_collector
@@ -47,17 +47,17 @@ LinuxMemoryMeasurementNode::LinuxMemoryMeasurementNode(
 
 double LinuxMemoryMeasurementNode::periodicMeasurement()
 {
-  std::ifstream stat_file(PROC_STAT_FILE);
+  std::ifstream stat_file{kProcStatFile};
   if (!stat_file.good()) {
     return std::nan("");
   }
-  auto read_string = readFileToString(PROC_STAT_FILE);
+  auto read_string = readFileToString(kProcStatFile);
   return processMemInfoLines(read_string);
 }
 
 std::string LinuxMemoryMeasurementNode::getMetricName() const
 {
-  return MEASUREMENT_TYPE;
+  return kMeasurementType;
 }
 
 

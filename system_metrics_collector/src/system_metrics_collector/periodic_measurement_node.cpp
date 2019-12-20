@@ -38,7 +38,7 @@ PeriodicMeasurementNode::PeriodicMeasurementNode(
   publish_timer_(nullptr),
   publish_period_(publish_period)
 {
-  if (publish_period_ <= std::chrono::milliseconds(0)) {
+  if (publish_period_ <= std::chrono::milliseconds{0}) {
     throw std::invalid_argument("publish period cannot be negative");
   }
 }

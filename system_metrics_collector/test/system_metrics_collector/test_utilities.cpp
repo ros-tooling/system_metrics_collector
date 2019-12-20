@@ -70,7 +70,7 @@ TEST(UtilitiesTest, testEmptyProcCpuData)
 {
   system_metrics_collector::ProcCpuData empty;
 
-  ASSERT_EQ(system_metrics_collector::ProcCpuData::EMPTY_LABEL, empty.cpu_label);
+  ASSERT_EQ(system_metrics_collector::ProcCpuData::kEmptyLabel, empty.cpu_label);
 
   for (int i = 0; i < static_cast<int>(system_metrics_collector::ProcCpuStates::kNumProcCpuStates);
     i++)

@@ -28,9 +28,9 @@
 namespace
 {
 
-constexpr const char PROC[] = "/proc/";
-constexpr const char STATM[] = "/statm";
-constexpr const char METRIC_NAME[] = "_memory_percent_used";
+constexpr const char kProc[] = "/proc/";
+constexpr const char kStatm[] = "/statm";
+constexpr const char kMetricName[] = "_memory_percent_used";
 
 /**
  * Return the total system memory.
@@ -56,7 +56,7 @@ LinuxProcessMemoryMeasurementNode::LinuxProcessMemoryMeasurementNode(
   const std::chrono::milliseconds publish_period)
 : PeriodicMeasurementNode(name, measurement_period, topic, publish_period),
   pid_(std::to_string(getPid())),
-  file_to_read_(PROC + pid_ + STATM)
+  file_to_read_(kProc + std::to_string(getPid()) + kStatm)
 {
 }
 
@@ -79,7 +79,7 @@ double LinuxProcessMemoryMeasurementNode::periodicMeasurement()
 
 std::string LinuxProcessMemoryMeasurementNode::getMetricName() const
 {
-  return pid_ + METRIC_NAME;
+  return pid_ + kMetricName;
 }
 
 uint64_t getProcessUsedMemory(const std::string & statm_process_file_contents)

@@ -28,8 +28,10 @@
 
 namespace
 {
-constexpr const char STATISTICS_TOPIC_NAME[] = "system_metrics";
-}
+constexpr const char kStatisticsTopicName[] = "system_metrics";
+constexpr const std::chrono::seconds kDefaultCollectPeriod{1};
+constexpr const std::chrono::minutes kDefaultPublishPeriod{1};
+}  // namespace
 
 /**
  * This is current a "test" main in order to manually test the measurement nodes.
@@ -45,22 +47,22 @@ int main(int argc, char ** argv)
   using namespace std::chrono_literals;
   const auto cpu_node = std::make_shared<system_metrics_collector::LinuxCpuMeasurementNode>(
     "linuxCpuCollector",
-    1000ms,
-    STATISTICS_TOPIC_NAME,
-    60s);
+    kDefaultCollectPeriod,
+    kStatisticsTopicName,
+    kDefaultPublishPeriod);
 
   const auto mem_node = std::make_shared<system_metrics_collector::LinuxMemoryMeasurementNode>(
     "linuxMemoryCollector",
-    1000ms,
-    STATISTICS_TOPIC_NAME,
-    60s);
+    kDefaultCollectPeriod,
+    kStatisticsTopicName,
+    kDefaultPublishPeriod);
 
   const auto process_mem_node =
     std::make_shared<system_metrics_collector::LinuxProcessMemoryMeasurementNode>(
     "linuxProcessMemoryCollector",
-    1000ms,
+    kDefaultCollectPeriod,
     "not_publishing_yet",
-    60s);
+    kDefaultPublishPeriod);
 
   rclcpp::executors::MultiThreadedExecutor ex;
   cpu_node->start();
