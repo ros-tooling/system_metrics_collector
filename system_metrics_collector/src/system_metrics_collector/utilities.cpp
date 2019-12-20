@@ -16,7 +16,6 @@
 
 #include <cmath>
 #include <fstream>
-#include <limits>
 #include <sstream>
 #include <streambuf>
 #include <string>
@@ -86,40 +85,6 @@ ProcCpuData processStatCpuLine(const std::string & stat_cpu_line)
   return parsed_data;
 }
 
-ProcPidCpuData processPidStatCpuLine(const std::string & stat_cpu_line)
-{
-  ProcPidCpuData parsed_data;
-
-  if (!stat_cpu_line.empty()) {
-    std::istringstream ss(stat_cpu_line);
-    ss.exceptions(std::ios::failbit | std::ios::badbit);
-
-    try {
-      ss.ignore(std::numeric_limits<std::streamsize>::max(), ' ');  // pid
-      ss.ignore(std::numeric_limits<std::streamsize>::max(), ' ');  // comm
-      ss.ignore(std::numeric_limits<std::streamsize>::max(), ' ');  // state
-      ss.ignore(std::numeric_limits<std::streamsize>::max(), ' ');  // ppid
-      ss.ignore(std::numeric_limits<std::streamsize>::max(), ' ');  // pgrp
-      ss.ignore(std::numeric_limits<std::streamsize>::max(), ' ');  // session
-      ss.ignore(std::numeric_limits<std::streamsize>::max(), ' ');  // tty_nr
-      ss.ignore(std::numeric_limits<std::streamsize>::max(), ' ');  // tpgid
-      ss.ignore(std::numeric_limits<std::streamsize>::max(), ' ');  // flags
-      ss.ignore(std::numeric_limits<std::streamsize>::max(), ' ');  // minflt
-      ss.ignore(std::numeric_limits<std::streamsize>::max(), ' ');  // cminflt
-      ss.ignore(std::numeric_limits<std::streamsize>::max(), ' ');  // majflt
-      ss.ignore(std::numeric_limits<std::streamsize>::max(), ' ');  // cmajflt
-      ss >> parsed_data.utime;
-      ss >> parsed_data.stime;
-    } catch (std::ifstream::failure & e) {
-      RCUTILS_LOG_ERROR_NAMED("processPidStatCpuLine",
-        "unable to parse string for process cpu usage");
-      return ProcPidCpuData();
-    }
-  }
-
-  return parsed_data;
-}
-
 double computeCpuActivePercentage(
   const ProcCpuData & measurement1,
   const ProcCpuData & measurement2)
@@ -132,27 +97,6 @@ double computeCpuActivePercentage(
 
   const double active_time = measurement2.getActiveTime() - measurement1.getActiveTime();
   const double total_time = computeCpuTotalTime(measurement1, measurement2);
-
-  return 100.0 * active_time / total_time;
-}
-
-double computePidCpuActivePercentage(
-  const ProcPidCpuData & process_measurement1,
-  const ProcCpuData & system_measurement1,
-  const ProcPidCpuData & process_measurement2,
-  const ProcCpuData & system_measurement2)
-{
-  if (process_measurement1.isMeasurementEmpty() || system_measurement1.isMeasurementEmpty() ||
-    process_measurement2.isMeasurementEmpty() || system_measurement2.isMeasurementEmpty())
-  {
-    RCUTILS_LOG_ERROR_NAMED("computePidCpuActivePercentage",
-      "a measurement was empty, unable to compute cpu percentage");
-    return std::nan("");
-  }
-
-  const double active_time = process_measurement2.getActiveTime() -
-    process_measurement1.getActiveTime();
-  const double total_time = computeCpuTotalTime(system_measurement1, system_measurement2);
 
   return 100.0 * active_time / total_time;
 }
