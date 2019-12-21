@@ -32,7 +32,7 @@ namespace
 constexpr const char kCpuLabel[] = "cpu";
 constexpr const char kMemTotal[] = "MemTotal:";
 constexpr const char kMemAvailable[] = "MemAvailable:";
-constexpr const char kEmptyFilekEmptyFile[] = "";
+constexpr const char kEmptyFile[] = "";
 constexpr const int kInvalidMemorySample = -1;
 
 double computeCpuTotalTime(const ProcCpuData measurement1, const ProcCpuData measurement2)
@@ -49,7 +49,7 @@ std::string readFileToString(const std::string & file_name)
   std::ifstream file_to_read{file_name};
   if (!file_to_read.good()) {
     RCUTILS_LOG_ERROR_NAMED("readFileToString", "unable to parse file: %s", file_name.c_str());
-    return kMemAvailable;
+    return kEmptyFile;
   }
 
   std::string to_return((std::istreambuf_iterator<char>(file_to_read)),

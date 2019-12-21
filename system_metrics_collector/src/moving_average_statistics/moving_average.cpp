@@ -51,7 +51,7 @@ StatisticData MovingAverageStatistics::getStatistics() const
 {
   std::lock_guard<std::mutex> guard{mutex};
   StatisticData to_return;
-  
+
   if (count_ == 0) {
     return to_return;  // already initialized
   }
