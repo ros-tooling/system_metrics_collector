@@ -20,7 +20,7 @@
 namespace moving_average_statistics
 {
 
-std::string statisticsDataToString(const StatisticData & results)
+std::string StatisticsDataToString(const StatisticData & results)
 {
   std::stringstream ss;
   ss << "avg=" << std::to_string(results.average) << ", min=" << std::to_string(results.min) <<

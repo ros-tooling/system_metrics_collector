@@ -40,9 +40,9 @@ public:
     const std::chrono::milliseconds publish_period)
   : LinuxProcessMemoryMeasurementNode(name, measurement_period, topic, publish_period) {}
 
-  std::string getMetricName() const override
+  std::string GetMetricName() const override
   {
-    return LinuxProcessMemoryMeasurementNode::getMetricName();
+    return LinuxProcessMemoryMeasurementNode::GetMetricName();
   }
 };
 
@@ -54,16 +54,16 @@ public:
     rclcpp::init(0, nullptr);
     using namespace std::chrono_literals;
 
-    test_node = std::make_shared<TestLinuxProcessMemoryMeasurementNode>(
+    test_node_ = std::make_shared<TestLinuxProcessMemoryMeasurementNode>(
       "test_periodic_node",
       1s,
       "test_topic",
       10s);
 
-    ASSERT_FALSE(test_node->isStarted());
+    ASSERT_FALSE(test_node_->IsStarted());
 
     const moving_average_statistics::StatisticData data =
-      test_node->getStatisticsResults();
+      test_node_->GetStatisticsResults();
     ASSERT_TRUE(std::isnan(data.average));
     ASSERT_TRUE(std::isnan(data.min));
     ASSERT_TRUE(std::isnan(data.max));
@@ -73,29 +73,29 @@ public:
 
   void TearDown() override
   {
-    test_node->stop();
-    ASSERT_FALSE(test_node->isStarted());
-    test_node.reset();
+    test_node_->Stop();
+    ASSERT_FALSE(test_node_->IsStarted());
+    test_node_.reset();
     rclcpp::shutdown();
   }
 
 protected:
-  std::shared_ptr<TestLinuxProcessMemoryMeasurementNode> test_node;
+  std::shared_ptr<TestLinuxProcessMemoryMeasurementNode> test_node_;
 };
 
 
 TEST(TestLinuxProcessMemoryMeasurement, testGetProcessUsedMemory) {
-  EXPECT_THROW(system_metrics_collector::getProcessUsedMemory(
+  EXPECT_THROW(system_metrics_collector::GetProcessUsedMemory(
       test_constants::kGarbageSample), std::ifstream::failure);
-  EXPECT_THROW(system_metrics_collector::getProcessUsedMemory(
+  EXPECT_THROW(system_metrics_collector::GetProcessUsedMemory(
       test_constants::kEmptySample), std::ifstream::failure);
 
-  const auto ret = system_metrics_collector::getProcessUsedMemory(kTestStatmLine);
+  const auto ret = system_metrics_collector::GetProcessUsedMemory(kTestStatmLine);
   EXPECT_EQ(2084389, ret);
 }
 
 TEST_F(LinuxProcessMemoryMeasurementTestFixture, testGetMetricName) {
-  const auto pid = system_metrics_collector::getPid();
+  const auto pid = system_metrics_collector::GetPid();
 
-  ASSERT_EQ(std::to_string(pid) + "_memory_percent_used", test_node->getMetricName());
+  ASSERT_EQ(std::to_string(pid) + "_memory_percent_used", test_node_->GetMetricName());
 }

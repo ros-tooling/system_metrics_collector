@@ -50,7 +50,7 @@ TEST(MetricsMessagePublisherTest, test_generate_message) {
   data.standard_deviation = dist(gen);
   data.sample_count = dist(gen);
 
-  MetricsMessage msg = MetricsMessagePublisher::generateStatisticMessage(
+  MetricsMessage msg = MetricsMessagePublisher::GenerateStatisticMessage(
     kTestNodeName, kTestMeasurementType, time1, time2, data);
 
   EXPECT_EQ(kTestNodeName, msg.measurement_source_name);

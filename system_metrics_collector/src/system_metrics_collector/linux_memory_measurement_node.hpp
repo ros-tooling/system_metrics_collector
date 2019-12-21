@@ -54,13 +54,13 @@ protected:
    *
    * @return percentage of RAM used
    */
-  double periodicMeasurement() override;
+  double PeriodicMeasurement() override;
 
   /**
    * Return the name to use for this metric
    * @return a string of the name for this measured metric
    */
-  std::string getMetricName() const override;
+  std::string GetMetricName() const override;
 };
 
 }  // namespace system_metrics_collector

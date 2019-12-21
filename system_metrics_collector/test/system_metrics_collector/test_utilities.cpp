@@ -27,7 +27,7 @@
 
 TEST(UtilitiesTest, testParseProcStatLine)
 {
-  auto parsed_data = system_metrics_collector::processStatCpuLine(test_constants::kProcSamples[0]);
+  auto parsed_data = system_metrics_collector::ProcessStatCpuLine(test_constants::kProcSamples[0]);
 
   ASSERT_EQ("cpu", parsed_data.cpu_label);
   ASSERT_EQ(22451232, parsed_data.times[0]);
@@ -42,12 +42,12 @@ TEST(UtilitiesTest, testParseProcStatLine)
   ASSERT_EQ(
     "cpu_label=cpu, user=22451232, nice=118653, system=7348045, idle=934943300,"
     " iOWait=5378119, irq=0, softIrq=419114, steal=0",
-    parsed_data.toString());
+    parsed_data.ToString());
 }
 
 TEST(UtilitiesTest, testParseProcStatLine2)
 {
-  auto parsed_data = system_metrics_collector::processStatCpuLine(
+  auto parsed_data = system_metrics_collector::ProcessStatCpuLine(
     test_constants::kProcSampleResolutionTest);
 
   ASSERT_EQ("cpu", parsed_data.cpu_label);
@@ -63,7 +63,7 @@ TEST(UtilitiesTest, testParseProcStatLine2)
   ASSERT_EQ(
     "cpu_label=cpu, user=57211920, nice=335926, system=18096939, idle=2526329830,"
     " iOWait=14818556, irq=0, softIrq=1072048, steal=0",
-    parsed_data.toString());
+    parsed_data.ToString());
 }
 
 TEST(UtilitiesTest, testEmptyProcCpuData)
@@ -81,31 +81,31 @@ TEST(UtilitiesTest, testEmptyProcCpuData)
 
 TEST(UtilitiesTest, testCalculateCpuActivePercentage)
 {
-  auto p = test_utilities::computeCpuActivePercentage(test_constants::kProcSamples[0],
+  auto p = test_utilities::ComputeCpuActivePercentage(test_constants::kProcSamples[0],
       test_constants::kProcSamples[1]);
   ASSERT_DOUBLE_EQ(test_constants::kCpuActiveProcSample_0_1, p);
 }
 
 TEST(UtilitiesTest, testProcMemInfoLines)
 {
-  auto d = system_metrics_collector::processMemInfoLines(test_constants::kEmptySample);
+  auto d = system_metrics_collector::ProcessMemInfoLines(test_constants::kEmptySample);
   ASSERT_TRUE(std::isnan(d));
 
-  d = system_metrics_collector::processMemInfoLines(test_constants::kGarbageSample);
+  d = system_metrics_collector::ProcessMemInfoLines(test_constants::kGarbageSample);
   ASSERT_TRUE(std::isnan(d));
 
-  d = system_metrics_collector::processMemInfoLines(test_constants::kIncompleteSample);
+  d = system_metrics_collector::ProcessMemInfoLines(test_constants::kIncompleteSample);
   ASSERT_TRUE(std::isnan(d));
 
-  d = system_metrics_collector::processMemInfoLines(test_constants::kCompleteSample);
+  d = system_metrics_collector::ProcessMemInfoLines(test_constants::kCompleteSample);
   ASSERT_DOUBLE_EQ(test_constants::kMemoryUsedPercentage, d);
 
-  d = system_metrics_collector::processMemInfoLines(test_constants::kFullSample);
+  d = system_metrics_collector::ProcessMemInfoLines(test_constants::kFullSample);
   ASSERT_DOUBLE_EQ(test_constants::kMemoryUsedPercentage, d);
 }
 
 TEST(UtilitiesTest, testReadInvalidFile)
 {
-  const auto s = system_metrics_collector::readFileToString("this_will_fail.txt");
+  const auto s = system_metrics_collector::ReadFileToString("this_will_fail.txt");
   ASSERT_EQ("", s);
 }

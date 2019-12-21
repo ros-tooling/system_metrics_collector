@@ -41,81 +41,81 @@ class MovingAverageStatisticsTestFixture : public ::testing::Test
 public:
   void SetUp() override
   {
-    moving_average_statistics =
+    moving_average_statistics_ =
       std::make_unique<moving_average_statistics::MovingAverageStatistics>();
 
     for (double d : kTestData) {
-      moving_average_statistics->addMeasurement(d);
-      ASSERT_EQ(++expected_count, moving_average_statistics->getCount());
+      moving_average_statistics_->AddMeasurement(d);
+      ASSERT_EQ(++expected_count_, moving_average_statistics_->GetCount());
     }
   }
 
   void TearDown() override
   {
-    moving_average_statistics->reset();
-    moving_average_statistics.reset();
+    moving_average_statistics_->Reset();
+    moving_average_statistics_.reset();
   }
 
 protected:
-  std::unique_ptr<moving_average_statistics::MovingAverageStatistics> moving_average_statistics =
+  std::unique_ptr<moving_average_statistics::MovingAverageStatistics> moving_average_statistics_ =
     nullptr;
-  int expected_count = 0;
+  int expected_count_ = 0;
 };
 
 TEST_F(MovingAverageStatisticsTestFixture, test_add_nan_ignore) {
-  const auto stats1 = statisticsDataToString(moving_average_statistics->getStatistics());
-  moving_average_statistics->addMeasurement(std::nan(""));
-  const auto stats2 = statisticsDataToString(moving_average_statistics->getStatistics());
+  const auto stats1 = StatisticsDataToString(moving_average_statistics_->GetStatistics());
+  moving_average_statistics_->AddMeasurement(std::nan(""));
+  const auto stats2 = StatisticsDataToString(moving_average_statistics_->GetStatistics());
   ASSERT_EQ(stats1, stats2);
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, sanity) {
-  ASSERT_NE(moving_average_statistics, nullptr);
+  ASSERT_NE(moving_average_statistics_, nullptr);
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, test_average) {
-  EXPECT_DOUBLE_EQ(moving_average_statistics->average(), kExpectedAvg);
+  EXPECT_DOUBLE_EQ(moving_average_statistics_->Average(), kExpectedAvg);
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, test_maximum) {
-  EXPECT_EQ(moving_average_statistics->max(), kExpectedMax);
+  EXPECT_EQ(moving_average_statistics_->Max(), kExpectedMax);
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, test_minimum) {
-  EXPECT_EQ(moving_average_statistics->min(), kExpectedMin);
+  EXPECT_EQ(moving_average_statistics_->Min(), kExpectedMin);
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, test_standard_deviation) {
-  EXPECT_DOUBLE_EQ(moving_average_statistics->standardDeviation(), kExpectedStd);
+  EXPECT_DOUBLE_EQ(moving_average_statistics_->StandardDeviation(), kExpectedStd);
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, test_average_empty) {
   moving_average_statistics::MovingAverageStatistics empty;
-  ASSERT_TRUE(std::isnan(empty.average()));
+  ASSERT_TRUE(std::isnan(empty.Average()));
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, test_maximum_empty) {
   moving_average_statistics::MovingAverageStatistics empty;
-  ASSERT_TRUE(std::isnan(empty.max()));
+  ASSERT_TRUE(std::isnan(empty.Max()));
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, test_minimum_empty) {
   moving_average_statistics::MovingAverageStatistics empty;
-  ASSERT_TRUE(std::isnan(empty.min()));
+  ASSERT_TRUE(std::isnan(empty.Min()));
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, test_stddev_empty) {
   moving_average_statistics::MovingAverageStatistics empty;
-  ASSERT_TRUE(std::isnan(empty.standardDeviation()));
+  ASSERT_TRUE(std::isnan(empty.StandardDeviation()));
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, test_count_empty) {
   moving_average_statistics::MovingAverageStatistics empty;
-  ASSERT_EQ(0, empty.getCount());
+  ASSERT_EQ(0, empty.GetCount());
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, test_get_statistics) {
-  auto result = moving_average_statistics->getStatistics();
+  auto result = moving_average_statistics_->GetStatistics();
   EXPECT_DOUBLE_EQ(result.average, kExpectedAvg);
   EXPECT_DOUBLE_EQ(result.min, kExpectedMin);
   EXPECT_DOUBLE_EQ(result.max, kExpectedMax);
@@ -124,22 +124,22 @@ TEST_F(MovingAverageStatisticsTestFixture, test_get_statistics) {
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, test_get_statistics_int) {
-  moving_average_statistics->reset();
+  moving_average_statistics_->Reset();
 
   auto data_int = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
-  const double expected_average = 5.5;
+  const double kExpectedAverage = 5.5;
   const double kExpectedMinimum = 1;
   const double kExpectedMaximum = 10;
   const double kExpectedStd = 2.8722813232690143;
   const int kExpectedSize = 10;
 
   for (int d : data_int) {
-    moving_average_statistics->addMeasurement(d);
+    moving_average_statistics_->AddMeasurement(d);
   }
 
-  auto result = moving_average_statistics->getStatistics();
-  EXPECT_DOUBLE_EQ(result.average, expected_average);
+  auto result = moving_average_statistics_->GetStatistics();
+  EXPECT_DOUBLE_EQ(result.average, kExpectedAverage);
   EXPECT_DOUBLE_EQ(result.min, kExpectedMinimum);
   EXPECT_DOUBLE_EQ(result.max, kExpectedMaximum);
   EXPECT_DOUBLE_EQ(result.standard_deviation, kExpectedStd);
@@ -147,36 +147,36 @@ TEST_F(MovingAverageStatisticsTestFixture, test_get_statistics_int) {
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, test_reset) {
-  moving_average_statistics->addMeasurement(0.6);
-  moving_average_statistics->reset();
-  ASSERT_TRUE(std::isnan(moving_average_statistics->average()));
-  moving_average_statistics->addMeasurement(1.5);
-  EXPECT_EQ(moving_average_statistics->average(), 1.5);
+  moving_average_statistics_->AddMeasurement(0.6);
+  moving_average_statistics_->Reset();
+  ASSERT_TRUE(std::isnan(moving_average_statistics_->Average()));
+  moving_average_statistics_->AddMeasurement(1.5);
+  EXPECT_EQ(moving_average_statistics_->Average(), 1.5);
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, test_thread_safe) {
-  moving_average_statistics->reset();
+  moving_average_statistics_->Reset();
 
   std::atomic<int> total_sum(0);
   std::atomic<int> count(0);
 
   std::thread t1([this, &count, &total_sum]() {
       for (int i = 1; i < 1101; i++) {
-        moving_average_statistics->addMeasurement(static_cast<double>(i));
+        moving_average_statistics_->AddMeasurement(static_cast<double>(i));
         count++;
         total_sum += i;
       }
     });
   std::thread t2([this, &count, &total_sum]() {
       for (int i = 1; i < 2101; i++) {
-        moving_average_statistics->addMeasurement(static_cast<double>(i));
+        moving_average_statistics_->AddMeasurement(static_cast<double>(i));
         count++;
         total_sum += i;
       }
     });
   std::thread t3([this, &count, &total_sum]() {
       for (int i = 1; i < 3101; i++) {
-        moving_average_statistics->addMeasurement(static_cast<double>(i));
+        moving_average_statistics_->AddMeasurement(static_cast<double>(i));
         count++;
         total_sum += i;
       }
@@ -189,15 +189,15 @@ TEST_F(MovingAverageStatisticsTestFixture, test_thread_safe) {
   double control = static_cast<double>(total_sum.load()) / static_cast<double>(count.load());
   double var = 1e-11;
 
-  ASSERT_NEAR(moving_average_statistics->average(), control, var);
+  ASSERT_NEAR(moving_average_statistics_->Average(), control, var);
 }
 
 TEST(MovingAverageStatisticsTest, test_pretty_printing) {
   moving_average_statistics::StatisticData data;
-  ASSERT_EQ("avg=nan, min=nan, max=nan, std_dev=nan, count=0", statisticsDataToString(data));
+  ASSERT_EQ("avg=nan, min=nan, max=nan, std_dev=nan, count=0", StatisticsDataToString(data));
 
   moving_average_statistics::MovingAverageStatistics stats;
-  stats.addMeasurement(1);
+  stats.AddMeasurement(1);
   ASSERT_EQ("avg=1.000000, min=1.000000, max=1.000000, std_dev=0.000000, count=1",
-    moving_average_statistics::statisticsDataToString(stats.getStatistics()));
+    moving_average_statistics::StatisticsDataToString(stats.GetStatistics()));
 }

@@ -49,7 +49,7 @@ public:
   PeriodicMeasurementNode(
     const std::string & name,
     const std::chrono::milliseconds measurement_period,
-    const std::string & topic,  // todo @dbbonnie think about a default topic
+    const std::string & publishing_topic,  // todo @dbbonnie think about a default topic
     const std::chrono::milliseconds publish_period);
 
   virtual ~PeriodicMeasurementNode() = default;
@@ -59,7 +59,7 @@ public:
    *
    * @return a string detailing the current status
    */
-  std::string getStatusString() const override;
+  std::string GetStatusString() const override;
 
 protected:
   /**
@@ -68,14 +68,14 @@ protected:
    *
    * @return if setup was successful
    */
-  bool setupStart() override;
+  bool SetupStart() override;
 
   /**
-   * Stop the ROS2 timers that were created by setupStart()
+   * Stop the ROS2 timers that were created by SetupStart()
    *
    * @return if teardown was successful
    */
-  bool setupStop() override;
+  bool SetupStop() override;
 
   /**
    * Track the starting time of the statistics
@@ -86,24 +86,24 @@ protected:
 
 private:
   /**
-   * Override this method to perform a single measurement. This is called via performPeriodicMeasurement
+   * Override this method to perform a single measurement. This is called via PerformPeriodicMeasurement
    * with the period defined in the constructor.
    *
    * @return the measurement made to be aggregated for statistics
    */
-  virtual double periodicMeasurement() = 0;
+  virtual double PeriodicMeasurement() = 0;
 
   /**
-   * Called via a ROS2 timer per the measurement_period_. This calls periodicMeasurement
-   * and adds the resulting output via Collector::acceptData(double data);
+   * Called via a ROS2 timer per the measurement_period_. This calls PeriodicMeasurement
+   * and adds the resulting output via Collector::AcceptData(double data);
    */
-  virtual void performPeriodicMeasurement();
+  virtual void PerformPeriodicMeasurement();
 
   /**
    * Publish the statistics derived from the collected measurements (this is to be called via a
    * ROS2 timer per the publish_period)
    */
-  void publishStatisticMessage() override;
+  void PublishStatisticMessage() override;
 
   /**
    * Topic used for publishing

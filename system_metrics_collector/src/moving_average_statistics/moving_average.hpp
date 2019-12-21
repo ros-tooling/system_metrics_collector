@@ -53,21 +53,21 @@ public:
    *
    *  @return The arithmetic mean of all data recorded, or NaN if the sample count is 0.
   **/
-  double average() const RCPPUTILS_TSA_REQUIRES(mutex);
+  double Average() const RCPPUTILS_TSA_REQUIRES(mutex);
 
   /**
    *  Returns the maximum value recorded. If size of list is zero, returns NaN.
    *
    *  @return The maximum value recorded, or NaN if size of data is zero.
   **/
-  double max() const RCPPUTILS_TSA_REQUIRES(mutex);
+  double Max() const RCPPUTILS_TSA_REQUIRES(mutex);
 
   /**
    *  Returns the minimum value recorded. If size of list is zero, returns NaN.
    *
    *  @return The minimum value recorded, or NaN if size of data is zero.
   **/
-  double min() const RCPPUTILS_TSA_REQUIRES(mutex);
+  double Min() const RCPPUTILS_TSA_REQUIRES(mutex);
 
   /**
    *  Returns the standard deviation (population) of all data recorded. If size of list is zero, returns NaN.
@@ -77,7 +77,7 @@ public:
    *
    *  @return The standard deviation (population) of all data recorded, or NaN if size of data is zero.
   **/
-  double standardDeviation() const RCPPUTILS_TSA_REQUIRES(mutex);
+  double StandardDeviation() const RCPPUTILS_TSA_REQUIRES(mutex);
 
   /**
    *  Return a StatisticData object, containing average, minimum, maximum, standard deviation (population),
@@ -87,12 +87,12 @@ public:
    *  @return StatisticData object, containing average, minimum, maximum, standard deviation (population),
    *  and sample count.
   **/
-  StatisticData getStatistics() const;
+  StatisticData GetStatistics() const;
 
   /**
    *  Reset all calculated values. Equivalent to a new window for a moving average.
   **/
-  void reset();
+  void Reset();
 
   /**
    *  Observe a sample for the given window. The input item is used to calculate statistics.
@@ -100,17 +100,17 @@ public:
    *
    *  @param item The item that was observed
   **/
-  virtual void addMeasurement(const double item);
+  virtual void AddMeasurement(const double item);
 
   /**
    * Return the number of samples observed
    *
    * @return the number of samples observed
    */
-  uint64_t getCount() const;
+  uint64_t GetCount() const;
 
 private:
-  mutable std::mutex mutex;
+  mutable std::mutex mutex_;
   double average_ = 0                              RCPPUTILS_TSA_GUARDED_BY(mutex);
   double min_ = std::numeric_limits<double>::max() RCPPUTILS_TSA_GUARDED_BY(mutex);
   double max_ = std::numeric_limits<double>::min() RCPPUTILS_TSA_GUARDED_BY(mutex);

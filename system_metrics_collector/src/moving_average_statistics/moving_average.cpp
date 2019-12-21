@@ -27,29 +27,29 @@
 namespace moving_average_statistics
 {
 
-double MovingAverageStatistics::average() const
+double MovingAverageStatistics::Average() const
 {
-  return getStatistics().average;
+  return GetStatistics().average;
 }
 
-double MovingAverageStatistics::max() const
+double MovingAverageStatistics::Max() const
 {
-  return getStatistics().max;
+  return GetStatistics().max;
 }
 
-double MovingAverageStatistics::min() const
+double MovingAverageStatistics::Min() const
 {
-  return getStatistics().min;
+  return GetStatistics().min;
 }
 
-double MovingAverageStatistics::standardDeviation() const
+double MovingAverageStatistics::StandardDeviation() const
 {
-  return getStatistics().standard_deviation;
+  return GetStatistics().standard_deviation;
 }
 
-StatisticData MovingAverageStatistics::getStatistics() const
+StatisticData MovingAverageStatistics::GetStatistics() const
 {
-  std::lock_guard<std::mutex> guard{mutex};
+  std::lock_guard<std::mutex> guard{mutex_};
   StatisticData to_return;
 
   if (count_ == 0) {
@@ -66,9 +66,9 @@ StatisticData MovingAverageStatistics::getStatistics() const
   return to_return;
 }
 
-void MovingAverageStatistics::reset()
+void MovingAverageStatistics::Reset()
 {
-  std::lock_guard<std::mutex> guard{mutex};
+  std::lock_guard<std::mutex> guard{mutex_};
   average_ = 0;
   min_ = std::numeric_limits<double>::max();
   max_ = std::numeric_limits<double>::min();
@@ -76,24 +76,24 @@ void MovingAverageStatistics::reset()
   count_ = 0;
 }
 
-void MovingAverageStatistics::addMeasurement(const double item)
+void MovingAverageStatistics::AddMeasurement(const double item)
 {
-  std::lock_guard<std::mutex> guard{mutex};
+  std::lock_guard<std::mutex> guard{mutex_};
 
   if (!std::isnan(item)) {
     count_++;
-    const double previous_average_ = average_;
-    average_ = previous_average_ + (item - previous_average_) / count_;
+    const double previous_average = average_;
+    average_ = previous_average + (item - previous_average) / count_;
     min_ = std::min(min_, item);
     max_ = std::max(max_, item);
-    sum_of_square_diff_from_mean_ = sum_of_square_diff_from_mean_ + (item - previous_average_) *
+    sum_of_square_diff_from_mean_ = sum_of_square_diff_from_mean_ + (item - previous_average) *
       (item - average_);
   }
 }
 
-uint64_t MovingAverageStatistics::getCount() const
+uint64_t MovingAverageStatistics::GetCount() const
 {
-  std::lock_guard<std::mutex> guard{mutex};
+  std::lock_guard<std::mutex> guard{mutex_};
   return count_;
 }
 

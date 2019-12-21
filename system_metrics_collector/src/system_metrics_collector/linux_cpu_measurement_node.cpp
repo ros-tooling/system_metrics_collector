@@ -41,21 +41,20 @@ LinuxCpuMeasurementNode::LinuxCpuMeasurementNode(
   const std::chrono::milliseconds measurement_period,
   const std::string & topic,
   const std::chrono::milliseconds publish_period)
-: PeriodicMeasurementNode(name, measurement_period, topic, publish_period),
-  last_measurement_()
+: PeriodicMeasurementNode(name, measurement_period, topic, publish_period)
 {}
 
-bool LinuxCpuMeasurementNode::setupStart()
+bool LinuxCpuMeasurementNode::SetupStart()
 {
   last_measurement_ = ProcCpuData();
-  return PeriodicMeasurementNode::setupStart();
+  return PeriodicMeasurementNode::SetupStart();
 }
 
-double LinuxCpuMeasurementNode::periodicMeasurement()
+double LinuxCpuMeasurementNode::PeriodicMeasurement()
 {
-  const system_metrics_collector::ProcCpuData current_measurement = makeSingleMeasurement();
+  const system_metrics_collector::ProcCpuData current_measurement = MakeSingleMeasurement();
 
-  const auto cpu_percentage = computeCpuActivePercentage(
+  const auto cpu_percentage = ComputeCpuActivePercentage(
     last_measurement_,
     current_measurement);
 
@@ -64,7 +63,7 @@ double LinuxCpuMeasurementNode::periodicMeasurement()
   return cpu_percentage;
 }
 
-system_metrics_collector::ProcCpuData LinuxCpuMeasurementNode::makeSingleMeasurement()
+system_metrics_collector::ProcCpuData LinuxCpuMeasurementNode::MakeSingleMeasurement()
 {
   std::ifstream stat_file{kProcStatFile};
   if (!stat_file.good()) {
@@ -78,11 +77,11 @@ system_metrics_collector::ProcCpuData LinuxCpuMeasurementNode::makeSingleMeasure
     RCLCPP_ERROR(this->get_logger(), "unable to get cpu line from file");
     return system_metrics_collector::ProcCpuData();
   } else {
-    return processStatCpuLine(line);
+    return ProcessStatCpuLine(line);
   }
 }
 
-std::string LinuxCpuMeasurementNode::getMetricName() const
+std::string LinuxCpuMeasurementNode::GetMetricName() const
 {
   return kMeasurementType;
 }

@@ -25,11 +25,11 @@
 namespace test_utilities
 {
 
-inline double computeCpuActivePercentage(const std::string & data1, const std::string & data2)
+inline double ComputeCpuActivePercentage(const std::string & data1, const std::string & data2)
 {
-  auto parsed_data1 = system_metrics_collector::processStatCpuLine(data1);
-  auto parsed_data2 = system_metrics_collector::processStatCpuLine(data2);
-  return system_metrics_collector::computeCpuActivePercentage(parsed_data1, parsed_data2);
+  auto parsed_data1 = system_metrics_collector::ProcessStatCpuLine(data1);
+  auto parsed_data2 = system_metrics_collector::ProcessStatCpuLine(data2);
+  return system_metrics_collector::ComputeCpuActivePercentage(parsed_data1, parsed_data2);
 }
 
 }  // namespace test_utilities
