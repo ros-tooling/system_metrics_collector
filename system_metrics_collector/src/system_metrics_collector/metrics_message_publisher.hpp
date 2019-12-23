@@ -44,7 +44,7 @@ public:
    */
   static metrics_statistics_msgs::msg::MetricsMessage GenerateStatisticMessage(
     const std::string & node_name,
-    const std::string & source_name,
+    const std::string & metric_name,
     const builtin_interfaces::msg::Time window_start,
     const builtin_interfaces::msg::Time window_stop,
     const moving_average_statistics::StatisticData & data
