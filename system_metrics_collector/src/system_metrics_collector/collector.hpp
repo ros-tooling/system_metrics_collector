@@ -95,20 +95,20 @@ private:
    *
    * @return true if setup was successful, false otherwise.
    */
-  virtual bool SetupStart() = 0 RCPPUTILS_TSA_REQUIRES(mutex_);
+  virtual bool SetupStart() = 0 RCPPUTILS_TSA_REQUIRES(mutex);
 
   /**
    * Override in order to perform necessary teardown.
    *
    * @return true if teardown was successful, false otherwise.
    */
-  virtual bool SetupStop() = 0 RCPPUTILS_TSA_REQUIRES(mutex_);
+  virtual bool SetupStop() = 0 RCPPUTILS_TSA_REQUIRES(mutex);
 
-  mutable std::mutex mutex_;
+  mutable std::mutex mutex;
 
   moving_average_statistics::MovingAverageStatistics collected_data_;
 
-  bool started_{false} RCPPUTILS_TSA_GUARDED_BY(mutex_);
+  bool started_{false} RCPPUTILS_TSA_GUARDED_BY(mutex);
 };
 
 }  // namespace system_metrics_collector

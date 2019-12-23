@@ -46,7 +46,7 @@ LinuxCpuMeasurementNode::LinuxCpuMeasurementNode(
 
 bool LinuxCpuMeasurementNode::SetupStart()
 {
-  last_measurement_ = ProcCpuData();
+  last_measurement = ProcCpuData();
   return PeriodicMeasurementNode::SetupStart();
 }
 
@@ -55,10 +55,10 @@ double LinuxCpuMeasurementNode::PeriodicMeasurement()
   const system_metrics_collector::ProcCpuData current_measurement = MakeSingleMeasurement();
 
   const auto cpu_percentage = ComputeCpuActivePercentage(
-    last_measurement_,
+    last_measurement,
     current_measurement);
 
-  last_measurement_ = current_measurement;
+  last_measurement = current_measurement;
 
   return cpu_percentage;
 }

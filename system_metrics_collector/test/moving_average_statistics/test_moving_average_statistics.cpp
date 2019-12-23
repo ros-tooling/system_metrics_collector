@@ -41,52 +41,52 @@ class MovingAverageStatisticsTestFixture : public ::testing::Test
 public:
   void SetUp() override
   {
-    moving_average_statistics_ =
+    moving_average_statistics =
       std::make_unique<moving_average_statistics::MovingAverageStatistics>();
 
     for (double d : kTestData) {
-      moving_average_statistics_->AddMeasurement(d);
-      ASSERT_EQ(++expected_count_, moving_average_statistics_->GetCount());
+      moving_average_statistics->AddMeasurement(d);
+      ASSERT_EQ(++expected_count, moving_average_statistics->GetCount());
     }
   }
 
   void TearDown() override
   {
-    moving_average_statistics_->Reset();
-    moving_average_statistics_.reset();
+    moving_average_statistics->Reset();
+    moving_average_statistics.reset();
   }
 
 protected:
-  std::unique_ptr<moving_average_statistics::MovingAverageStatistics> moving_average_statistics_ =
+  std::unique_ptr<moving_average_statistics::MovingAverageStatistics> moving_average_statistics =
     nullptr;
-  int expected_count_ = 0;
+  int expected_count = 0;
 };
 
 TEST_F(MovingAverageStatisticsTestFixture, TestAddNanIgnore) {
-  const auto stats1 = StatisticsDataToString(moving_average_statistics_->GetStatistics());
-  moving_average_statistics_->AddMeasurement(std::nan(""));
-  const auto stats2 = StatisticsDataToString(moving_average_statistics_->GetStatistics());
+  const auto stats1 = StatisticsDataToString(moving_average_statistics->GetStatistics());
+  moving_average_statistics->AddMeasurement(std::nan(""));
+  const auto stats2 = StatisticsDataToString(moving_average_statistics->GetStatistics());
   ASSERT_EQ(stats1, stats2);
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, Sanity) {
-  ASSERT_NE(moving_average_statistics_, nullptr);
+  ASSERT_NE(moving_average_statistics, nullptr);
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, TestAverage) {
-  EXPECT_DOUBLE_EQ(moving_average_statistics_->Average(), kExpectedAvg);
+  EXPECT_DOUBLE_EQ(moving_average_statistics->Average(), kExpectedAvg);
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, TestMaximum) {
-  EXPECT_EQ(moving_average_statistics_->Max(), kExpectedMax);
+  EXPECT_EQ(moving_average_statistics->Max(), kExpectedMax);
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, TestMinimum) {
-  EXPECT_EQ(moving_average_statistics_->Min(), kExpectedMin);
+  EXPECT_EQ(moving_average_statistics->Min(), kExpectedMin);
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, TestStandardDeviation) {
-  EXPECT_DOUBLE_EQ(moving_average_statistics_->StandardDeviation(), kExpectedStd);
+  EXPECT_DOUBLE_EQ(moving_average_statistics->StandardDeviation(), kExpectedStd);
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, TestAverageEmpty) {
@@ -115,7 +115,7 @@ TEST_F(MovingAverageStatisticsTestFixture, TestCountEmpty) {
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, TestGetStatistics) {
-  auto result = moving_average_statistics_->GetStatistics();
+  auto result = moving_average_statistics->GetStatistics();
   EXPECT_DOUBLE_EQ(result.average, kExpectedAvg);
   EXPECT_DOUBLE_EQ(result.min, kExpectedMin);
   EXPECT_DOUBLE_EQ(result.max, kExpectedMax);
@@ -124,7 +124,7 @@ TEST_F(MovingAverageStatisticsTestFixture, TestGetStatistics) {
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, TestGetStatisticsInt) {
-  moving_average_statistics_->Reset();
+  moving_average_statistics->Reset();
 
   auto data_int = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
@@ -135,10 +135,10 @@ TEST_F(MovingAverageStatisticsTestFixture, TestGetStatisticsInt) {
   const int kExpectedSize = 10;
 
   for (int d : data_int) {
-    moving_average_statistics_->AddMeasurement(d);
+    moving_average_statistics->AddMeasurement(d);
   }
 
-  auto result = moving_average_statistics_->GetStatistics();
+  auto result = moving_average_statistics->GetStatistics();
   EXPECT_DOUBLE_EQ(result.average, kExpectedAverage);
   EXPECT_DOUBLE_EQ(result.min, kExpectedMinimum);
   EXPECT_DOUBLE_EQ(result.max, kExpectedMaximum);
@@ -147,36 +147,36 @@ TEST_F(MovingAverageStatisticsTestFixture, TestGetStatisticsInt) {
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, TestReset) {
-  moving_average_statistics_->AddMeasurement(0.6);
-  moving_average_statistics_->Reset();
-  ASSERT_TRUE(std::isnan(moving_average_statistics_->Average()));
-  moving_average_statistics_->AddMeasurement(1.5);
-  EXPECT_EQ(moving_average_statistics_->Average(), 1.5);
+  moving_average_statistics->AddMeasurement(0.6);
+  moving_average_statistics->Reset();
+  ASSERT_TRUE(std::isnan(moving_average_statistics->Average()));
+  moving_average_statistics->AddMeasurement(1.5);
+  EXPECT_EQ(moving_average_statistics->Average(), 1.5);
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, TestThreadSafe) {
-  moving_average_statistics_->Reset();
+  moving_average_statistics->Reset();
 
   std::atomic<int> total_sum(0);
   std::atomic<int> count(0);
 
   std::thread t1([this, &count, &total_sum]() {
       for (int i = 1; i < 1101; i++) {
-        moving_average_statistics_->AddMeasurement(static_cast<double>(i));
+        moving_average_statistics->AddMeasurement(static_cast<double>(i));
         count++;
         total_sum += i;
       }
     });
   std::thread t2([this, &count, &total_sum]() {
       for (int i = 1; i < 2101; i++) {
-        moving_average_statistics_->AddMeasurement(static_cast<double>(i));
+        moving_average_statistics->AddMeasurement(static_cast<double>(i));
         count++;
         total_sum += i;
       }
     });
   std::thread t3([this, &count, &total_sum]() {
       for (int i = 1; i < 3101; i++) {
-        moving_average_statistics_->AddMeasurement(static_cast<double>(i));
+        moving_average_statistics->AddMeasurement(static_cast<double>(i));
         count++;
         total_sum += i;
       }
@@ -189,7 +189,7 @@ TEST_F(MovingAverageStatisticsTestFixture, TestThreadSafe) {
   double control = static_cast<double>(total_sum.load()) / static_cast<double>(count.load());
   double var = 1e-11;
 
-  ASSERT_NEAR(moving_average_statistics_->Average(), control, var);
+  ASSERT_NEAR(moving_average_statistics->Average(), control, var);
 }
 
 TEST(MovingAverageStatisticsTest, TestPrettyPrinting) {

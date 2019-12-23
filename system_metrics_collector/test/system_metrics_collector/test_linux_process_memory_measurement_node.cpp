@@ -54,16 +54,16 @@ public:
     rclcpp::init(0, nullptr);
     using namespace std::chrono_literals;
 
-    test_node_ = std::make_shared<TestLinuxProcessMemoryMeasurementNode>(
+    test_node = std::make_shared<TestLinuxProcessMemoryMeasurementNode>(
       "test_periodic_node",
       1s,
       "test_topic",
       10s);
 
-    ASSERT_FALSE(test_node_->IsStarted());
+    ASSERT_FALSE(test_node->IsStarted());
 
     const moving_average_statistics::StatisticData data =
-      test_node_->GetStatisticsResults();
+      test_node->GetStatisticsResults();
     ASSERT_TRUE(std::isnan(data.average));
     ASSERT_TRUE(std::isnan(data.min));
     ASSERT_TRUE(std::isnan(data.max));
@@ -73,14 +73,14 @@ public:
 
   void TearDown() override
   {
-    test_node_->Stop();
-    ASSERT_FALSE(test_node_->IsStarted());
-    test_node_.reset();
+    test_node->Stop();
+    ASSERT_FALSE(test_node->IsStarted());
+    test_node.reset();
     rclcpp::shutdown();
   }
 
 protected:
-  std::shared_ptr<TestLinuxProcessMemoryMeasurementNode> test_node_;
+  std::shared_ptr<TestLinuxProcessMemoryMeasurementNode> test_node;
 };
 
 
@@ -97,5 +97,5 @@ TEST(TestLinuxProcessMemoryMeasurement, TestGetProcessUsedMemory) {
 TEST_F(LinuxProcessMemoryMeasurementTestFixture, TestGetMetricName) {
   const auto pid = system_metrics_collector::GetPid();
 
-  ASSERT_EQ(std::to_string(pid) + "_memory_percent_used", test_node_->GetMetricName());
+  ASSERT_EQ(std::to_string(pid) + "_memory_percent_used", test_node->GetMetricName());
 }

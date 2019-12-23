@@ -110,7 +110,7 @@ public:
   uint64_t GetCount() const;
 
 private:
-  mutable std::mutex mutex_;
+  mutable std::mutex mutex;
   double average_ = 0                              RCPPUTILS_TSA_GUARDED_BY(mutex);
   double min_ = std::numeric_limits<double>::max() RCPPUTILS_TSA_GUARDED_BY(mutex);
   double max_ = std::numeric_limits<double>::min() RCPPUTILS_TSA_GUARDED_BY(mutex);

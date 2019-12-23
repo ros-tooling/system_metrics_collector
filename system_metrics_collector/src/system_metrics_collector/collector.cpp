@@ -26,7 +26,7 @@ namespace system_metrics_collector
 
 bool Collector::Start()
 {
-  std::unique_lock<std::mutex> ulock(mutex_);
+  std::unique_lock<std::mutex> ulock(mutex);
   if (started_) {
     return false;
   }
@@ -38,7 +38,7 @@ bool Collector::Stop()
 {
   bool ret = false;
   {
-    std::unique_lock<std::mutex> ulock(mutex_);
+    std::unique_lock<std::mutex> ulock(mutex);
     if (!started_) {
       return false;
     }
@@ -67,7 +67,7 @@ void Collector::ClearCurrentMeasurements()
 
 bool Collector::IsStarted() const
 {
-  std::unique_lock<std::mutex> ulock(mutex_);
+  std::unique_lock<std::mutex> ulock(mutex);
   return started_;
 }
 
