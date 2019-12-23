@@ -28,7 +28,7 @@ namespace system_metrics_collector
 
 MetricsMessage MetricsMessagePublisher::GenerateStatisticMessage(
   const std::string & node_name,
-  const std::string & metric_name,
+  const std::string & source_name,
   const builtin_interfaces::msg::Time window_start,
   const builtin_interfaces::msg::Time window_stop,
   const moving_average_statistics::StatisticData & data)
@@ -36,7 +36,7 @@ MetricsMessage MetricsMessagePublisher::GenerateStatisticMessage(
   MetricsMessage msg;
 
   msg.measurement_source_name = node_name;
-  msg.metrics_source = metric_name;
+  msg.metrics_source = source_name;
   msg.window_start = window_start;
   msg.window_stop = window_stop;
 

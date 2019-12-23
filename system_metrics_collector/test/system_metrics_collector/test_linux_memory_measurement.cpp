@@ -43,7 +43,7 @@ constexpr const char kTestNodeName[] = "test_measure_linux_memory";
 constexpr const char kTestTopic[] = "test_memory_measure_topic";
 constexpr const char kTestMetricName[] = "system_memory_percent_used";
 
-constexpr const std::array<const char *, 10> kSamples = {
+constexpr const std::array<const char *, 10> SAMPLES = {
   test_constants::kFullSample,
 
   "MemTotal:       16304208 kB\n"
@@ -101,28 +101,28 @@ public:
 
   void SetTestString(const std::string & test_string)
   {
-    measurement_index = kInvalidIndex;
+    measurement_index = INVALID_INDEX;
     test_string_ = test_string;
   }
 
   // override to avoid calling methods involved in file i/o
   double PeriodicMeasurement() override
   {
-    if (measurement_index == kInvalidIndex) {
+    if (measurement_index == INVALID_INDEX) {
       return ProcessMemInfoLines(test_string_);
     } else {
-      EXPECT_GT(kSamples.size(), measurement_index);
-      return ProcessMemInfoLines(kSamples[measurement_index++]);
+      EXPECT_GT(SAMPLES.size(), measurement_index);
+      return ProcessMemInfoLines(SAMPLES[measurement_index++]);
     }
   }
 
 private:
-  static constexpr int kInvalidIndex = -1;
+  static constexpr int INVALID_INDEX = -1;
   int measurement_index;
   std::string test_string_;
 };
 
-constexpr int TestLinuxMemoryMeasurementNode::kInvalidIndex;
+constexpr int TestLinuxMemoryMeasurementNode::INVALID_INDEX;
 
 class LinuxMemoryMeasurementTestFixture : public ::testing::Test
 {
@@ -175,7 +175,7 @@ public:
     // round 1 50 ms: SAMPLES[0] is collected
     // round 1 80 ms: statistics derived from SAMPLES[0] is published
     stats_calc.Reset();
-    stats_calc.AddMeasurement(ProcessMemInfoLines(kSamples[0]));
+    stats_calc.AddMeasurement(ProcessMemInfoLines(SAMPLES[0]));
     data = stats_calc.GetStatistics();
     StatisticDataToExpectedStatistics(data, expected_stats[0]);
 
@@ -184,8 +184,8 @@ public:
     // round 1 150 ms: SAMPLES[2] is collected
     // round 1 160 ms: statistics derived from SAMPLES[1 & 2] is published
     stats_calc.Reset();
-    stats_calc.AddMeasurement(ProcessMemInfoLines(kSamples[1]));
-    stats_calc.AddMeasurement(ProcessMemInfoLines(kSamples[2]));
+    stats_calc.AddMeasurement(ProcessMemInfoLines(SAMPLES[1]));
+    stats_calc.AddMeasurement(ProcessMemInfoLines(SAMPLES[2]));
     data = stats_calc.GetStatistics();
     StatisticDataToExpectedStatistics(data, expected_stats[1]);
 
@@ -193,7 +193,7 @@ public:
     // round 1 200 ms: SAMPLES[3] is collected
     // round 1 240 ms: statistics derived from SAMPLES[3] is published
     stats_calc.Reset();
-    stats_calc.AddMeasurement(ProcessMemInfoLines(kSamples[3]));
+    stats_calc.AddMeasurement(ProcessMemInfoLines(SAMPLES[3]));
     data = stats_calc.GetStatistics();
     StatisticDataToExpectedStatistics(data, expected_stats[2]);
 
@@ -201,7 +201,7 @@ public:
     // round 2 50 ms: SAMPLES[5] is collected
     // round 2 80 ms: statistics derived from SAMPLES[5] is published
     stats_calc.Reset();
-    stats_calc.AddMeasurement(ProcessMemInfoLines(kSamples[5]));
+    stats_calc.AddMeasurement(ProcessMemInfoLines(SAMPLES[5]));
     data = stats_calc.GetStatistics();
     StatisticDataToExpectedStatistics(data, expected_stats[3]);
 
@@ -210,8 +210,8 @@ public:
     // round 2 150 ms: SAMPLES[7] is collected
     // round 2 160 ms: statistics derived from SAMPLES[6 & 7] is published
     stats_calc.Reset();
-    stats_calc.AddMeasurement(ProcessMemInfoLines(kSamples[6]));
-    stats_calc.AddMeasurement(ProcessMemInfoLines(kSamples[7]));
+    stats_calc.AddMeasurement(ProcessMemInfoLines(SAMPLES[6]));
+    stats_calc.AddMeasurement(ProcessMemInfoLines(SAMPLES[7]));
     data = stats_calc.GetStatistics();
     StatisticDataToExpectedStatistics(data, expected_stats[4]);
 
@@ -219,7 +219,7 @@ public:
     // round 2 200 ms: SAMPLES[8] is collected
     // round 2 240 ms: statistics derived from SAMPLES[8] is published
     stats_calc.Reset();
-    stats_calc.AddMeasurement(ProcessMemInfoLines(kSamples[8]));
+    stats_calc.AddMeasurement(ProcessMemInfoLines(SAMPLES[8]));
     data = stats_calc.GetStatistics();
     StatisticDataToExpectedStatistics(data, expected_stats[5]);
   }

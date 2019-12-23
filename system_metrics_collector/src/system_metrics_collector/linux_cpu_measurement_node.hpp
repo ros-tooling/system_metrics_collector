@@ -83,7 +83,7 @@ private:
    * The cached measurement used in order to perform the CPU active
    * percentage.
    */
-  system_metrics_collector::ProcCpuData last_measurement;
+  system_metrics_collector::ProcCpuData last_measurement_;
 };
 
 }  // namespace system_metrics_collector

@@ -128,7 +128,7 @@ TEST_F(MovingAverageStatisticsTestFixture, TestGetStatisticsInt) {
 
   auto data_int = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
-  const double kExpectedAverage = 5.5;
+  const double expected_average = 5.5;
   const double kExpectedMinimum = 1;
   const double kExpectedMaximum = 10;
   const double kExpectedStd = 2.8722813232690143;
@@ -139,7 +139,7 @@ TEST_F(MovingAverageStatisticsTestFixture, TestGetStatisticsInt) {
   }
 
   auto result = moving_average_statistics->GetStatistics();
-  EXPECT_DOUBLE_EQ(result.average, kExpectedAverage);
+  EXPECT_DOUBLE_EQ(result.average, expected_average);
   EXPECT_DOUBLE_EQ(result.min, kExpectedMinimum);
   EXPECT_DOUBLE_EQ(result.max, kExpectedMaximum);
   EXPECT_DOUBLE_EQ(result.standard_deviation, kExpectedStd);
