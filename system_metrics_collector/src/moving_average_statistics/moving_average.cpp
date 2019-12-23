@@ -49,7 +49,7 @@ double MovingAverageStatistics::standardDeviation() const
 
 StatisticData MovingAverageStatistics::getStatistics() const
 {
-  std::lock_guard<std::mutex> guard(mutex);
+  std::lock_guard<std::mutex> guard{mutex};
   StatisticData to_return;
 
   if (count_ == 0) {
@@ -68,7 +68,7 @@ StatisticData MovingAverageStatistics::getStatistics() const
 
 void MovingAverageStatistics::reset()
 {
-  std::lock_guard<std::mutex> guard(mutex);
+  std::lock_guard<std::mutex> guard{mutex};
   average_ = 0;
   min_ = std::numeric_limits<double>::max();
   max_ = std::numeric_limits<double>::min();
@@ -78,7 +78,7 @@ void MovingAverageStatistics::reset()
 
 void MovingAverageStatistics::addMeasurement(const double item)
 {
-  std::lock_guard<std::mutex> guard(mutex);
+  std::lock_guard<std::mutex> guard{mutex};
 
   if (!std::isnan(item)) {
     count_++;
@@ -93,7 +93,7 @@ void MovingAverageStatistics::addMeasurement(const double item)
 
 uint64_t MovingAverageStatistics::getCount() const
 {
-  std::lock_guard<std::mutex> guard(mutex);
+  std::lock_guard<std::mutex> guard{mutex};
   return count_;
 }
 

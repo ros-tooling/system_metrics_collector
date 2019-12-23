@@ -30,9 +30,9 @@
 
 namespace
 {
-constexpr const char TEST_NODE_NAME[] = "test_periodic_node";
-constexpr const char TEST_TOPIC[] = "test_topic";
-constexpr const char TEST_METRIC_NAME[] = "test_metric_name";
+constexpr const char kTestNodeName[] = "test_periodic_node";
+constexpr const char kTestTopic[] = "test_topic";
+constexpr const char kTestMetricname[] = "test_metric_name";
 }  // namespace
 
 /**
@@ -78,7 +78,7 @@ private:
 
   std::string getMetricName() const
   {
-    return TEST_METRIC_NAME;
+    return kTestMetricname;
   }
 
   std::atomic<int> times_measured{0};
@@ -95,8 +95,8 @@ public:
   {
     rclcpp::init(0, nullptr);
 
-    test_periodic_measurer = std::make_shared<TestPeriodicMeasurementNode>(TEST_NODE_NAME,
-        test_constants::MEASURE_PERIOD, TEST_TOPIC, DONT_PUBLISH_DURING_TEST);
+    test_periodic_measurer = std::make_shared<TestPeriodicMeasurementNode>(kTestNodeName,
+        test_constants::kMeasurePeriod, kTestTopic, DONT_PUBLISH_DURING_TEST);
 
     ASSERT_FALSE(test_periodic_measurer->isStarted());
 
@@ -121,7 +121,7 @@ protected:
   // so this is defining the publish period to be something amply larger than the test duration
   // itself
   static constexpr std::chrono::milliseconds DONT_PUBLISH_DURING_TEST = 2 *
-    test_constants::TEST_DURATION;
+    test_constants::kTestDuration;
   std::shared_ptr<TestPeriodicMeasurementNode> test_periodic_measurer;
 };
 
@@ -148,16 +148,16 @@ TEST_F(PeriodicMeasurementTestFixure, test_start_and_stop) {
 
   rclcpp::executors::SingleThreadedExecutor ex;
   ex.add_node(test_periodic_measurer);
-  ex.spin_until_future_complete(dummy_future, test_constants::TEST_DURATION);
+  ex.spin_until_future_complete(dummy_future, test_constants::kTestDuration);
 
   moving_average_statistics::StatisticData data = test_periodic_measurer->getStatisticsResults();
   ASSERT_EQ(3, data.average);
   ASSERT_EQ(1, data.min);
-  ASSERT_EQ(test_constants::TEST_DURATION.count() / test_constants::MEASURE_PERIOD.count(),
+  ASSERT_EQ(test_constants::kTestDuration.count() / test_constants::kMeasurePeriod.count(),
     data.max);
   ASSERT_FALSE(std::isnan(data.standard_deviation));
   ASSERT_EQ(
-    test_constants::TEST_DURATION.count() / test_constants::MEASURE_PERIOD.count(),
+    test_constants::kTestDuration.count() / test_constants::kMeasurePeriod.count(),
     data.sample_count);
 
   const bool stop_success = test_periodic_measurer->stop();
@@ -166,7 +166,7 @@ TEST_F(PeriodicMeasurementTestFixure, test_start_and_stop) {
 
   int times_published = test_periodic_measurer->getNumPublished();
   ASSERT_EQ(
-    test_constants::TEST_DURATION.count() / DONT_PUBLISH_DURING_TEST.count(), times_published);
+    test_constants::kTestDuration.count() / DONT_PUBLISH_DURING_TEST.count(), times_published);
 }
 
 int main(int argc, char ** argv)

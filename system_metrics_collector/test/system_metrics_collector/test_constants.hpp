@@ -20,13 +20,13 @@
  */
 namespace test_constants
 {
-constexpr const std::chrono::milliseconds TEST_DURATION{250};
-constexpr const std::chrono::milliseconds MEASURE_PERIOD{50};
-constexpr const std::chrono::milliseconds PUBLISH_PERIOD{80};
+constexpr const std::chrono::milliseconds kTestDuration{250};
+constexpr const std::chrono::milliseconds kMeasurePeriod{50};
+constexpr const std::chrono::milliseconds kPublishPeriod{80};
 
-constexpr const char PROC_SAMPLE_RESOLUTION_TEST[] =
+constexpr const char kProcSampleResolutionTest[] =
   "cpu  57211920 335926 18096939 2526329830 14818556 0 1072048 0 0 0\n";
-constexpr const std::array<const char *, 10> PROC_SAMPLES = {
+constexpr const std::array<const char *, 10> kProcSamples = {
   "cpu 22451232 118653 7348045 934943300 5378119 0 419114 0 0 0\n",
   "cpu 22451360 118653 7348080 934949227 5378120 0 419117 0 0 0\n",
   "cpu 24343452 61856 6484430 10645595 58695 0 683052 0 0 0\n",
@@ -38,19 +38,19 @@ constexpr const std::array<const char *, 10> PROC_SAMPLES = {
   "cpu 6093617 43419 1621953 9161570 48047 0 178792 0 0 0\n",
   "cpu 6134250 6371 1634411 675446 5285 0 233478 0 0 0\n"
 };
-constexpr const double CPU_ACTIVE_PROC_SAMPLE_0_1 = 2.7239908106334099;
+constexpr const double kCpuActiveProcSample_0_1 = 2.7239908106334099;
 
 
-constexpr const char EMPTY_SAMPLE[] = "";
-constexpr const char GARBAGE_SAMPLE[] = "this is garbage\n";
-constexpr const char INCOMPLETE_SAMPLE[] =
+constexpr const char kEmptySample[] = "";
+constexpr const char kGarbageSample[] = "this is garbage\n";
+constexpr const char kIncompleteSample[] =
   "MemTotal:       16302048 kB\n"
   "MemFree:          443300 kB\n";
-constexpr const char COMPLETE_SAMPLE[] =
+constexpr const char kCompleteSample[] =
   "MemTotal:       16302048 kB\n"
   "MemFree:          239124 kB\n"
   "MemAvailable:    9104952 kB\n";
-constexpr const char FULL_SAMPLE[] =
+constexpr const char kFullSample[] =
   "MemTotal:       16302048 kB\n"
   "MemFree:          239124 kB\n"
   "MemAvailable:    9104952 kB\n"
@@ -99,7 +99,7 @@ constexpr const char FULL_SAMPLE[] =
   "DirectMap4k:     3993192 kB\n"
   "DirectMap2M:    12660736 kB\n"
   "DirectMap1G:     1048576 kB";
-constexpr const double MEMORY_USED_PERCENTAGE = 44.148416198995363;
+constexpr const double kMemoryUsedPercentage = 44.148416198995363;
 }  // namespace test_constants
 
 #endif  // SYSTEM_METRICS_COLLECTOR__TEST_CONSTANTS_HPP_

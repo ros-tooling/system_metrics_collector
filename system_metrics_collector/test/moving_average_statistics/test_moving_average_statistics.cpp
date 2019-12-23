@@ -24,13 +24,13 @@
 namespace
 {
 // Useful testing constants
-constexpr const uint64_t EXPECTED_SIZE = 9;
-constexpr const std::array<double, EXPECTED_SIZE> TEST_DATA{-3.5, -2.1, -1.1, 0.0, 4.7, 5.0,
+constexpr const uint64_t kExpectedSize = 9;
+constexpr const std::array<double, kExpectedSize> kTestData{-3.5, -2.1, -1.1, 0.0, 4.7, 5.0,
   6.7, 9.9, 11.0};
-constexpr const double EXPECTED_AVG = 3.4;
-constexpr const double EXPECTED_MIN = -3.5;
-constexpr const double EXPECTED_MAX = 11.0;
-constexpr const double EXPECTED_STD = 4.997999599839919955173;
+constexpr const double kExpectedAvg = 3.4;
+constexpr const double kExpectedMin = -3.5;
+constexpr const double kExpectedMax = 11.0;
+constexpr const double kExpectedStd = 4.997999599839919955173;
 }  // namespace
 
 /**
@@ -44,7 +44,7 @@ public:
     moving_average_statistics =
       std::make_unique<moving_average_statistics::MovingAverageStatistics>();
 
-    for (double d : TEST_DATA) {
+    for (double d : kTestData) {
       moving_average_statistics->addMeasurement(d);
       ASSERT_EQ(++expected_count, moving_average_statistics->getCount());
     }
@@ -74,19 +74,19 @@ TEST_F(MovingAverageStatisticsTestFixture, sanity) {
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, test_average) {
-  EXPECT_DOUBLE_EQ(moving_average_statistics->average(), EXPECTED_AVG);
+  EXPECT_DOUBLE_EQ(moving_average_statistics->average(), kExpectedAvg);
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, test_maximum) {
-  EXPECT_EQ(moving_average_statistics->max(), EXPECTED_MAX);
+  EXPECT_EQ(moving_average_statistics->max(), kExpectedMax);
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, test_minimum) {
-  EXPECT_EQ(moving_average_statistics->min(), EXPECTED_MIN);
+  EXPECT_EQ(moving_average_statistics->min(), kExpectedMin);
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, test_standard_deviation) {
-  EXPECT_DOUBLE_EQ(moving_average_statistics->standardDeviation(), EXPECTED_STD);
+  EXPECT_DOUBLE_EQ(moving_average_statistics->standardDeviation(), kExpectedStd);
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, test_average_empty) {
@@ -116,11 +116,11 @@ TEST_F(MovingAverageStatisticsTestFixture, test_count_empty) {
 
 TEST_F(MovingAverageStatisticsTestFixture, test_get_statistics) {
   auto result = moving_average_statistics->getStatistics();
-  EXPECT_DOUBLE_EQ(result.average, EXPECTED_AVG);
-  EXPECT_DOUBLE_EQ(result.min, EXPECTED_MIN);
-  EXPECT_DOUBLE_EQ(result.max, EXPECTED_MAX);
-  EXPECT_DOUBLE_EQ(result.standard_deviation, EXPECTED_STD);
-  EXPECT_DOUBLE_EQ(result.sample_count, EXPECTED_SIZE);
+  EXPECT_DOUBLE_EQ(result.average, kExpectedAvg);
+  EXPECT_DOUBLE_EQ(result.min, kExpectedMin);
+  EXPECT_DOUBLE_EQ(result.max, kExpectedMax);
+  EXPECT_DOUBLE_EQ(result.standard_deviation, kExpectedStd);
+  EXPECT_DOUBLE_EQ(result.sample_count, kExpectedSize);
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, test_get_statistics_int) {
@@ -129,10 +129,10 @@ TEST_F(MovingAverageStatisticsTestFixture, test_get_statistics_int) {
   auto data_int = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
   const double expected_average = 5.5;
-  const double expected_minimum = 1;
-  const double expected_maximum = 10;
-  const double expected_std = 2.8722813232690143;
-  const int expected_size = 10;
+  const double kExpectedMinimum = 1;
+  const double kExpectedMaximum = 10;
+  const double kExpectedStd = 2.8722813232690143;
+  const int kExpectedSize = 10;
 
   for (int d : data_int) {
     moving_average_statistics->addMeasurement(d);
@@ -140,10 +140,10 @@ TEST_F(MovingAverageStatisticsTestFixture, test_get_statistics_int) {
 
   auto result = moving_average_statistics->getStatistics();
   EXPECT_DOUBLE_EQ(result.average, expected_average);
-  EXPECT_DOUBLE_EQ(result.min, expected_minimum);
-  EXPECT_DOUBLE_EQ(result.max, expected_maximum);
-  EXPECT_DOUBLE_EQ(result.standard_deviation, expected_std);
-  EXPECT_DOUBLE_EQ(result.sample_count, expected_size);
+  EXPECT_DOUBLE_EQ(result.min, kExpectedMinimum);
+  EXPECT_DOUBLE_EQ(result.max, kExpectedMaximum);
+  EXPECT_DOUBLE_EQ(result.standard_deviation, kExpectedStd);
+  EXPECT_DOUBLE_EQ(result.sample_count, kExpectedSize);
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, test_reset) {

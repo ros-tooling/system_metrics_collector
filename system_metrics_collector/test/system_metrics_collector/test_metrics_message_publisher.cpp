@@ -31,13 +31,13 @@ using system_metrics_collector::MetricsMessagePublisher;
 
 namespace
 {
-constexpr const char TEST_NODE_NAME[] = "test_publisher";
-constexpr const char TEST_MEASUREMENT_TYPE[] = "test_measurement";
+constexpr const char kTestNodeName[] = "test_publisher";
+constexpr const char kTestMeasurementType[] = "test_measurement";
 }  // namespace
 
 TEST(MetricsMessagePublisherTest, test_generate_message) {
   rclcpp::init(0, nullptr);
-  auto node = std::make_shared<rclcpp::Node>(TEST_NODE_NAME);
+  auto node = std::make_shared<rclcpp::Node>(kTestNodeName);
   rclcpp::Time time1 = node->now();
   rclcpp::Time time2 = node->now();
 
@@ -51,10 +51,10 @@ TEST(MetricsMessagePublisherTest, test_generate_message) {
   data.sample_count = dist(gen);
 
   MetricsMessage msg = MetricsMessagePublisher::generateStatisticMessage(
-    TEST_NODE_NAME, TEST_MEASUREMENT_TYPE, time1, time2, data);
+    kTestNodeName, kTestMeasurementType, time1, time2, data);
 
-  EXPECT_EQ(TEST_NODE_NAME, msg.measurement_source_name);
-  EXPECT_EQ(TEST_MEASUREMENT_TYPE, msg.metrics_source);
+  EXPECT_EQ(kTestNodeName, msg.measurement_source_name);
+  EXPECT_EQ(kTestMeasurementType, msg.metrics_source);
   EXPECT_EQ(time1, msg.window_start);
   EXPECT_EQ(time2, msg.window_stop);
 

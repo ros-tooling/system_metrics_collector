@@ -47,7 +47,7 @@ public:
   ProcCpuData() = default;
   virtual ~ProcCpuData() = default;
 
-  static constexpr const char EMPTY_LABEL[] = "empty";
+  static constexpr const char kEmptyLabel[] = "empty";
 
   /**
    * Return the idle time
@@ -80,7 +80,7 @@ public:
   /**
    * The cpu label of the line parsed
    */
-  std::string cpu_label{EMPTY_LABEL};
+  std::string cpu_label{kEmptyLabel};
 
   /**
    * Array contained the parsed CPU data, where each index

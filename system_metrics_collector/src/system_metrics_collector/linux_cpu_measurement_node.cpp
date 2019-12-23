@@ -29,8 +29,8 @@ using metrics_statistics_msgs::msg::MetricsMessage;
 
 namespace
 {
-constexpr const char MEASUREMENT_TYPE[] = "system_cpu_percent_used";
-constexpr const char PROC_STAT_FILE[] = "/proc/stat";
+constexpr const char kMeasurementType[] = "system_cpu_percent_used";
+constexpr const char kProcStatFile[] = "/proc/stat";
 }  // namespace
 
 namespace system_metrics_collector
@@ -66,9 +66,9 @@ double LinuxCpuMeasurementNode::periodicMeasurement()
 
 system_metrics_collector::ProcCpuData LinuxCpuMeasurementNode::makeSingleMeasurement()
 {
-  std::ifstream stat_file(PROC_STAT_FILE);
+  std::ifstream stat_file{kProcStatFile};
   if (!stat_file.good()) {
-    RCLCPP_ERROR(this->get_logger(), "unable to open file %s", PROC_STAT_FILE);
+    RCLCPP_ERROR(this->get_logger(), "unable to open file %s", kProcStatFile);
     return system_metrics_collector::ProcCpuData();
   }
   std::string line;
@@ -84,7 +84,7 @@ system_metrics_collector::ProcCpuData LinuxCpuMeasurementNode::makeSingleMeasure
 
 std::string LinuxCpuMeasurementNode::getMetricName() const
 {
-  return MEASUREMENT_TYPE;
+  return kMeasurementType;
 }
 
 }  // namespace system_metrics_collector

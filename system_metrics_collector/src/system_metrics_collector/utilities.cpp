@@ -29,11 +29,11 @@ namespace system_metrics_collector
 namespace
 {
 
-constexpr const char CPU_LABEL[] = "cpu";
-constexpr const char MEM_TOTAL[] = "MemTotal:";
-constexpr const char MEM_AVAILABLE[] = "MemAvailable:";
-constexpr const char EMPTY_FILE[] = "";
-constexpr const int INVALID_MEMORY_SAMPLE = -1;
+constexpr const char kCpuLabel[] = "cpu";
+constexpr const char kMemTotal[] = "MemTotal:";
+constexpr const char kMemAvailable[] = "MemAvailable:";
+constexpr const char kEmptyFile[] = "";
+constexpr const int kInvalidMemorySample = -1;
 
 double computeCpuTotalTime(const ProcCpuData measurement1, const ProcCpuData measurement2)
 {
@@ -46,10 +46,10 @@ double computeCpuTotalTime(const ProcCpuData measurement1, const ProcCpuData mea
 
 std::string readFileToString(const std::string & file_name)
 {
-  std::ifstream file_to_read(file_name);
+  std::ifstream file_to_read{file_name};
   if (!file_to_read.good()) {
     RCUTILS_LOG_ERROR_NAMED("readFileToString", "unable to parse file: %s", file_name.c_str());
-    return EMPTY_FILE;
+    return kEmptyFile;
   }
 
   std::string to_return((std::istreambuf_iterator<char>(file_to_read)),
@@ -63,7 +63,7 @@ ProcCpuData processStatCpuLine(const std::string & stat_cpu_line)
   ProcCpuData parsed_data;
 
   if (!stat_cpu_line.empty()) {
-    if (!stat_cpu_line.compare(0, strlen(CPU_LABEL), CPU_LABEL)) {
+    if (!stat_cpu_line.compare(0, strlen(kCpuLabel), kCpuLabel)) {
       std::istringstream ss(stat_cpu_line);
 
       if (!ss.good()) {
@@ -111,8 +111,8 @@ double processMemInfoLines(const std::string & lines)
 
   std::string line;
 
-  int total = INVALID_MEMORY_SAMPLE;
-  int available = INVALID_MEMORY_SAMPLE;
+  int total = kInvalidMemorySample;
+  int available = kInvalidMemorySample;
 
   std::istringstream parse_line("");      // parse each line from the input
   std::string tlabel;
@@ -120,30 +120,30 @@ double processMemInfoLines(const std::string & lines)
   while (std::getline(process_lines_stream, line) && process_lines_stream.good()) {
     parse_line.str(line);
 
-    if (!line.compare(0, strlen(MEM_TOTAL), MEM_TOTAL)) {
+    if (!line.compare(0, strlen(kMemTotal), kMemTotal)) {
       parse_line >> tlabel;
       if (!parse_line.good()) {
-        RCUTILS_LOG_ERROR_NAMED("processMemInfoLines", "unable to parse %s label", MEM_TOTAL);
+        RCUTILS_LOG_ERROR_NAMED("processMemInfoLines", "unable to parse %s label", kMemTotal);
         return std::nan("");
       }
 
       parse_line >> total;
       if (!parse_line.good()) {
-        RCUTILS_LOG_ERROR_NAMED("processMemInfoLines", "unable to parse %s value", MEM_TOTAL);
+        RCUTILS_LOG_ERROR_NAMED("processMemInfoLines", "unable to parse %s value", kMemTotal);
         return std::nan("");
       }
-    } else if (!line.compare(0, strlen(MEM_AVAILABLE), MEM_AVAILABLE)) {
+    } else if (!line.compare(0, strlen(kMemAvailable), kMemAvailable)) {
       std::string tlabel;
 
       parse_line >> tlabel;
       if (!parse_line.good()) {
-        RCUTILS_LOG_ERROR_NAMED("processMemInfoLines", "unable to parse %s label", MEM_AVAILABLE);
+        RCUTILS_LOG_ERROR_NAMED("processMemInfoLines", "unable to parse %s label", kMemAvailable);
         return std::nan("");
       }
 
       parse_line >> available;
       if (!parse_line.good()) {
-        RCUTILS_LOG_ERROR_NAMED("processMemInfoLines", "unable to parse %s value", MEM_AVAILABLE);
+        RCUTILS_LOG_ERROR_NAMED("processMemInfoLines", "unable to parse %s value", kMemAvailable);
         return std::nan("");
       }
       break;      // no need to parse other lines after this label
@@ -152,7 +152,7 @@ double processMemInfoLines(const std::string & lines)
   }
   const double to_return = static_cast<double>(total - available) / static_cast<double>(total) *
     100.0;
-  return total == INVALID_MEMORY_SAMPLE || available == INVALID_MEMORY_SAMPLE ?
+  return total == kInvalidMemorySample || available == kInvalidMemorySample ?
          std::nan("") : to_return;
 }
 
