@@ -39,7 +39,7 @@ constexpr const char kMetricName[] = "_memory_percent_used";
  */
 double GetSystemTotalMemory()
 {
-  struct sysinfo si;
+  struct sysinfo si {};
   const auto success = sysinfo(&si);
   return success == -1 ? std::nan("") : static_cast<double>(si.totalram);
 }
@@ -66,10 +66,10 @@ double LinuxProcessMemoryMeasurementNode::PeriodicMeasurement()
   double p_mem;
   try {
     p_mem = static_cast<double>(GetProcessUsedMemory(statm_line));
-  } catch (std::ifstream::failure e) {
+  } catch (const std::ifstream::failure & e) {
     RCLCPP_ERROR(
       this->get_logger(), "caught %s, failed to GetProcessUsedMemory from line %s",
-      e.what(), file_to_read_);
+      e.what(), file_to_read_.c_str());
     return std::nan("");
   }
   const auto total_mem = GetSystemTotalMemory();

@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <time.h>
 #include <unistd.h>
 
 #include <chrono>
 #include <cmath>
+#include <ctime>
 #include <fstream>
 #include <limits>
 #include <sstream>
