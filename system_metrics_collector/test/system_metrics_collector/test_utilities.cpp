@@ -25,7 +25,7 @@
 #include "test_utilities.hpp"
 
 
-TEST(UtilitiesTest, testParseProcStatLine)
+TEST(UtilitiesTest, TestParseProcStatLine)
 {
   auto parsed_data = system_metrics_collector::ProcessStatCpuLine(test_constants::kProcSamples[0]);
 
@@ -45,7 +45,7 @@ TEST(UtilitiesTest, testParseProcStatLine)
     parsed_data.ToString());
 }
 
-TEST(UtilitiesTest, testParseProcStatLine2)
+TEST(UtilitiesTest, TestParseProcStatLine2)
 {
   auto parsed_data = system_metrics_collector::ProcessStatCpuLine(
     test_constants::kProcSampleResolutionTest);
@@ -66,7 +66,7 @@ TEST(UtilitiesTest, testParseProcStatLine2)
     parsed_data.ToString());
 }
 
-TEST(UtilitiesTest, testEmptyProcCpuData)
+TEST(UtilitiesTest, TestEmptyProcCpuData)
 {
   system_metrics_collector::ProcCpuData empty;
 
@@ -79,14 +79,14 @@ TEST(UtilitiesTest, testEmptyProcCpuData)
   }
 }
 
-TEST(UtilitiesTest, testCalculateCpuActivePercentage)
+TEST(UtilitiesTest, TestCalculateCpuActivePercentage)
 {
   auto p = test_utilities::ComputeCpuActivePercentage(test_constants::kProcSamples[0],
       test_constants::kProcSamples[1]);
   ASSERT_DOUBLE_EQ(test_constants::kCpuActiveProcSample_0_1, p);
 }
 
-TEST(UtilitiesTest, testProcMemInfoLines)
+TEST(UtilitiesTest, TestProcMemInfoLines)
 {
   auto d = system_metrics_collector::ProcessMemInfoLines(test_constants::kEmptySample);
   ASSERT_TRUE(std::isnan(d));
@@ -104,7 +104,7 @@ TEST(UtilitiesTest, testProcMemInfoLines)
   ASSERT_DOUBLE_EQ(test_constants::kMemoryUsedPercentage, d);
 }
 
-TEST(UtilitiesTest, testReadInvalidFile)
+TEST(UtilitiesTest, TestReadInvalidFile)
 {
   const auto s = system_metrics_collector::ReadFileToString("this_will_fail.txt");
   ASSERT_EQ("", s);

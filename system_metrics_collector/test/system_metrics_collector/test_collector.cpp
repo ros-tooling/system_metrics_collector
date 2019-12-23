@@ -62,11 +62,11 @@ protected:
   std::unique_ptr<TestCollector> test_collector_{};
 };
 
-TEST_F(CollectorTestFixure, sanity) {
+TEST_F(CollectorTestFixure, Sanity) {
   ASSERT_NE(test_collector_, nullptr);
 }
 
-TEST_F(CollectorTestFixure, test_add_and_clear_measurement) {
+TEST_F(CollectorTestFixure, TestAddAndClearMeasurement) {
   test_collector_->AcceptData(1);
   auto stats = test_collector_->GetStatisticsResults();
   ASSERT_EQ(1, stats.sample_count);
@@ -82,7 +82,7 @@ TEST_F(CollectorTestFixure, test_add_and_clear_measurement) {
   ASSERT_EQ(0, stats.sample_count);
 }
 
-TEST_F(CollectorTestFixure, test_start_and_stop) {
+TEST_F(CollectorTestFixure, TestStartAndStop) {
   ASSERT_FALSE(test_collector_->IsStarted());
   ASSERT_EQ("started=false, avg=nan, min=nan, max=nan, std_dev=nan, count=0",
     test_collector_->GetStatusString());

@@ -127,7 +127,7 @@ protected:
 
 constexpr std::chrono::milliseconds PeriodicMeasurementTestFixure::kDontPublishDuringTest;
 
-TEST_F(PeriodicMeasurementTestFixure, sanity) {
+TEST_F(PeriodicMeasurementTestFixure, Sanity) {
   ASSERT_NE(test_periodic_measurer_, nullptr);
   ASSERT_EQ("name=test_periodic_node, measurement_period=50ms,"
     " publishing_topic=test_topic, publish_period=500ms, started=false,"
@@ -135,7 +135,7 @@ TEST_F(PeriodicMeasurementTestFixure, sanity) {
     test_periodic_measurer_->GetStatusString());
 }
 
-TEST_F(PeriodicMeasurementTestFixure, test_start_and_stop) {
+TEST_F(PeriodicMeasurementTestFixure, TestStartAndStop) {
   ASSERT_NE(test_periodic_measurer_, nullptr);
   ASSERT_FALSE(test_periodic_measurer_->IsStarted());
 

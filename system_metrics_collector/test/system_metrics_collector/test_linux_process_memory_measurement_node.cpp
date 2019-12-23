@@ -84,7 +84,7 @@ protected:
 };
 
 
-TEST(TestLinuxProcessMemoryMeasurement, testGetProcessUsedMemory) {
+TEST(TestLinuxProcessMemoryMeasurement, TestGetProcessUsedMemory) {
   EXPECT_THROW(system_metrics_collector::GetProcessUsedMemory(
       test_constants::kGarbageSample), std::ifstream::failure);
   EXPECT_THROW(system_metrics_collector::GetProcessUsedMemory(
@@ -94,7 +94,7 @@ TEST(TestLinuxProcessMemoryMeasurement, testGetProcessUsedMemory) {
   EXPECT_EQ(2084389, ret);
 }
 
-TEST_F(LinuxProcessMemoryMeasurementTestFixture, testGetMetricName) {
+TEST_F(LinuxProcessMemoryMeasurementTestFixture, TestGetMetricName) {
   const auto pid = system_metrics_collector::GetPid();
 
   ASSERT_EQ(std::to_string(pid) + "_memory_percent_used", test_node_->GetMetricName());

@@ -219,7 +219,7 @@ protected:
   std::shared_ptr<TestLinuxCpuMeasurementNode> test_measure_linux_cpu_;
 };
 
-TEST_F(LinuxCpuMeasurementTestFixture, testManualMeasurement)
+TEST_F(LinuxCpuMeasurementTestFixture, TestManualMeasurement)
 {
   // first measurement caches
   double cpu_active_percentage = test_measure_linux_cpu_->PeriodicMeasurement();
@@ -229,7 +229,7 @@ TEST_F(LinuxCpuMeasurementTestFixture, testManualMeasurement)
   ASSERT_DOUBLE_EQ(test_constants::kCpuActiveProcSample_0_1, cpu_active_percentage);
 }
 
-TEST_F(LinuxCpuMeasurementTestFixture, testPublishMetricsMessage)
+TEST_F(LinuxCpuMeasurementTestFixture, TestPublishMetricsMessage)
 {
   ASSERT_NE(test_measure_linux_cpu_, nullptr);
   ASSERT_FALSE(test_measure_linux_cpu_->IsStarted());

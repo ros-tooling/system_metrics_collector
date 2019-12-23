@@ -35,7 +35,7 @@ constexpr const char kTestNodeName[] = "test_publisher";
 constexpr const char kTestMeasurementType[] = "test_measurement";
 }  // namespace
 
-TEST(MetricsMessagePublisherTest, test_generate_message) {
+TEST(MetricsMessagePublisherTest, TestGenerateMessage) {
   rclcpp::init(0, nullptr);
   auto node = std::make_shared<rclcpp::Node>(kTestNodeName);
   rclcpp::Time time1 = node->now();

@@ -271,7 +271,7 @@ private:
   mutable int times_received_;
 };
 
-TEST(LinuxMemoryMeasurementTest, testReadInvalidFile)
+TEST(LinuxMemoryMeasurementTest, TestReadInvalidFile)
 {
   const auto s = system_metrics_collector::ReadFileToString("this_will_fail.txt");
   ASSERT_EQ("", s);
@@ -287,7 +287,7 @@ TEST_F(LinuxMemoryMeasurementTestFixture, testManualMeasurement) {
   ASSERT_DOUBLE_EQ(test_constants::kMemoryUsedPercentage, mem_used_percentage);
 }
 
-TEST_F(LinuxMemoryMeasurementTestFixture, testPublishMetricsMessage)
+TEST_F(LinuxMemoryMeasurementTestFixture, TestPublishMetricsMessage)
 {
   ASSERT_NE(test_measure_linux_memory_, nullptr);
   ASSERT_FALSE(test_measure_linux_memory_->IsStarted());
