@@ -17,8 +17,8 @@ jobs:
       matrix:
           os: [ubuntu-18.04]
     steps:
-    - uses: ros-tooling/setup-ros2@0.0.6
-    - uses: ros-tooling/action-ros2-ci@0.0.10
+    - uses: ros-tooling/setup-ros@0.0.12
+    - uses: ros-tooling/action-ros-ci@0.0.12
       with:
         package-name: system_metrics_collector
         colcon-mixin-name: coverage-gcc
@@ -29,7 +29,7 @@ jobs:
       if: matrix.os == 'ubuntu-18.04'
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        file: ros2_ws/lcov/total_coverage.info
+        file: ros_ws/lcov/total_coverage.info
         flags: unittests
         name: codecov-umbrella
         yml: ./codecov.yml
@@ -37,7 +37,35 @@ jobs:
     - uses: actions/upload-artifact@master
       with:
         name: colcon-logs-${{ matrix.os }}
-        path: ros2_ws/log
+        path: ros_ws/log
+
+  build_and_test_release:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+          os: [ubuntu-18.04]
+    steps:
+    - uses: ros-tooling/setup-ros@0.0.12
+    - uses: ros-tooling/action-ros-ci@0.0.12
+      with:
+        extra-cmake-args: -DCMAKE_BUILD_TYPE:STRING=Release
+        package-name: system_metrics_collector
+    - uses: codecov/codecov-action@v1
+      # Prevent being rate limited by only reporting coverage from the Ubuntu
+      # build.
+      if: matrix.os == 'ubuntu-18.04'
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        file: ros_ws/lcov/total_coverage.info
+        flags: unittests_release
+        name: codecov-umbrella
+        yml: ./codecov.yml
+        fail_ci_if_error: true
+    - uses: actions/upload-artifact@master
+      with:
+        name: colcon-logs-${{ matrix.os }}-release
+        path: ros_ws/log
 
   build_and_test_asan:
     runs-on: ${{ matrix.os }}
@@ -46,8 +74,8 @@ jobs:
       matrix:
           os: [ubuntu-18.04]
     steps:
-    - uses: ros-tooling/setup-ros2@0.0.6
-    - uses: ros-tooling/action-ros2-ci@0.0.10
+    - uses: ros-tooling/setup-ros@0.0.12
+    - uses: ros-tooling/action-ros-ci@0.0.12
       with:
         colcon-mixin-name: asan
         colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
@@ -55,4 +83,4 @@ jobs:
     - uses: actions/upload-artifact@master
       with:
         name: colcon-logs-${{ matrix.os }}-asan
-        path: ros2_ws/log
+        path: ros_ws/log
