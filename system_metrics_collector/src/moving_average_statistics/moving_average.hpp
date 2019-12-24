@@ -53,21 +53,21 @@ public:
    *
    *  @return The arithmetic mean of all data recorded, or NaN if the sample count is 0.
   **/
-  double Average() const RCPPUTILS_TSA_REQUIRES(mutex);
+  double Average() const RCPPUTILS_TSA_REQUIRES(mutex_);
 
   /**
    *  Returns the maximum value recorded. If size of list is zero, returns NaN.
    *
    *  @return The maximum value recorded, or NaN if size of data is zero.
   **/
-  double Max() const RCPPUTILS_TSA_REQUIRES(mutex);
+  double Max() const RCPPUTILS_TSA_REQUIRES(mutex_);
 
   /**
    *  Returns the minimum value recorded. If size of list is zero, returns NaN.
    *
    *  @return The minimum value recorded, or NaN if size of data is zero.
   **/
-  double Min() const RCPPUTILS_TSA_REQUIRES(mutex);
+  double Min() const RCPPUTILS_TSA_REQUIRES(mutex_);
 
   /**
    *  Returns the standard deviation (population) of all data recorded. If size of list is zero, returns NaN.
@@ -77,7 +77,7 @@ public:
    *
    *  @return The standard deviation (population) of all data recorded, or NaN if size of data is zero.
   **/
-  double StandardDeviation() const RCPPUTILS_TSA_REQUIRES(mutex);
+  double StandardDeviation() const RCPPUTILS_TSA_REQUIRES(mutex_);
 
   /**
    *  Return a StatisticData object, containing average, minimum, maximum, standard deviation (population),
@@ -110,12 +110,12 @@ public:
   uint64_t GetCount() const;
 
 private:
-  mutable std::mutex mutex;
-  double average_ = 0                              RCPPUTILS_TSA_GUARDED_BY(mutex);
-  double min_ = std::numeric_limits<double>::max() RCPPUTILS_TSA_GUARDED_BY(mutex);
-  double max_ = std::numeric_limits<double>::min() RCPPUTILS_TSA_GUARDED_BY(mutex);
-  double sum_of_square_diff_from_mean_ = 0         RCPPUTILS_TSA_GUARDED_BY(mutex);
-  uint64_t count_ = 0                              RCPPUTILS_TSA_GUARDED_BY(mutex);
+  mutable std::mutex mutex_;
+  double average_ = 0                              RCPPUTILS_TSA_GUARDED_BY(mutex_);
+  double min_ = std::numeric_limits<double>::max() RCPPUTILS_TSA_GUARDED_BY(mutex_);
+  double max_ = std::numeric_limits<double>::min() RCPPUTILS_TSA_GUARDED_BY(mutex_);
+  double sum_of_square_diff_from_mean_ = 0         RCPPUTILS_TSA_GUARDED_BY(mutex_);
+  uint64_t count_ = 0                              RCPPUTILS_TSA_GUARDED_BY(mutex_);
 };
 
 }  // namespace moving_average_statistics

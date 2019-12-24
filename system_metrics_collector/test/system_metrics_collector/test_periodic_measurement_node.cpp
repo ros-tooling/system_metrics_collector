@@ -51,7 +51,7 @@ public:
 
   int GetNumPublished() const
   {
-    return times_published;
+    return times_published_;
   }
 
 private:
@@ -62,8 +62,8 @@ private:
    */
   double PeriodicMeasurement() override
   {
-    ++times_measured;
-    return static_cast<double>(times_measured.load());
+    ++times_measured_;
+    return static_cast<double>(times_measured_.load());
   }
 
   /**
@@ -73,7 +73,7 @@ private:
    */
   void PublishStatisticMessage() override
   {
-    ++times_published;
+    ++times_published_;
   }
 
   std::string GetMetricName() const
@@ -81,8 +81,8 @@ private:
     return kTestMetricname;
   }
 
-  std::atomic<int> times_measured{0};
-  std::atomic<int> times_published{0};
+  std::atomic<int> times_measured_{0};
+  std::atomic<int> times_published_{0};
 };
 
 /**
@@ -95,13 +95,13 @@ public:
   {
     rclcpp::init(0, nullptr);
 
-    test_periodic_measurer = std::make_shared<TestPeriodicMeasurementNode>(kTestNodeName,
+    test_periodic_measurer_ = std::make_shared<TestPeriodicMeasurementNode>(kTestNodeName,
         test_constants::kMeasurePeriod, kTestTopic, kDontPublishDuringTest);
 
-    ASSERT_FALSE(test_periodic_measurer->IsStarted());
+    ASSERT_FALSE(test_periodic_measurer_->IsStarted());
 
     const moving_average_statistics::StatisticData data =
-      test_periodic_measurer->GetStatisticsResults();
+      test_periodic_measurer_->GetStatisticsResults();
     ASSERT_TRUE(std::isnan(data.average));
     ASSERT_TRUE(std::isnan(data.min));
     ASSERT_TRUE(std::isnan(data.max));
@@ -111,8 +111,8 @@ public:
 
   void TearDown() override
   {
-    test_periodic_measurer->Stop();
-    test_periodic_measurer.reset();
+    test_periodic_measurer_->Stop();
+    test_periodic_measurer_.reset();
     rclcpp::shutdown();
   }
 
@@ -122,35 +122,35 @@ protected:
   // itself
   static constexpr std::chrono::milliseconds kDontPublishDuringTest = 2 *
     test_constants::kTestDuration;
-  std::shared_ptr<TestPeriodicMeasurementNode> test_periodic_measurer;
+  std::shared_ptr<TestPeriodicMeasurementNode> test_periodic_measurer_;
 };
 
 constexpr std::chrono::milliseconds PeriodicMeasurementTestFixure::kDontPublishDuringTest;
 
 TEST_F(PeriodicMeasurementTestFixure, Sanity) {
-  ASSERT_NE(test_periodic_measurer, nullptr);
+  ASSERT_NE(test_periodic_measurer_, nullptr);
   ASSERT_EQ("name=test_periodic_node, measurement_period=50ms,"
     " publishing_topic=test_topic, publish_period=500ms, started=false,"
     " avg=nan, min=nan, max=nan, std_dev=nan, count=0",
-    test_periodic_measurer->GetStatusString());
+    test_periodic_measurer_->GetStatusString());
 }
 
 TEST_F(PeriodicMeasurementTestFixure, TestStartAndStop) {
-  ASSERT_NE(test_periodic_measurer, nullptr);
-  ASSERT_FALSE(test_periodic_measurer->IsStarted());
+  ASSERT_NE(test_periodic_measurer_, nullptr);
+  ASSERT_FALSE(test_periodic_measurer_->IsStarted());
 
-  const bool start_success = test_periodic_measurer->Start();
+  const bool start_success = test_periodic_measurer_->Start();
   ASSERT_TRUE(start_success);
-  ASSERT_TRUE(test_periodic_measurer->IsStarted());
+  ASSERT_TRUE(test_periodic_measurer_->IsStarted());
 
   std::promise<bool> empty_promise;
   std::shared_future<bool> dummy_future = empty_promise.get_future();
 
   rclcpp::executors::SingleThreadedExecutor ex;
-  ex.add_node(test_periodic_measurer);
+  ex.add_node(test_periodic_measurer_);
   ex.spin_until_future_complete(dummy_future, test_constants::kTestDuration);
 
-  moving_average_statistics::StatisticData data = test_periodic_measurer->GetStatisticsResults();
+  moving_average_statistics::StatisticData data = test_periodic_measurer_->GetStatisticsResults();
   ASSERT_EQ(3, data.average);
   ASSERT_EQ(1, data.min);
   ASSERT_EQ(test_constants::kTestDuration.count() / test_constants::kMeasurePeriod.count(),
@@ -160,13 +160,13 @@ TEST_F(PeriodicMeasurementTestFixure, TestStartAndStop) {
     test_constants::kTestDuration.count() / test_constants::kMeasurePeriod.count(),
     data.sample_count);
 
-  const bool stop_success = test_periodic_measurer->Stop();
+  const bool stop_success = test_periodic_measurer_->Stop();
   ASSERT_TRUE(stop_success);
-  ASSERT_FALSE(test_periodic_measurer->IsStarted());
+  ASSERT_FALSE(test_periodic_measurer_->IsStarted());
 
-  int times_published = test_periodic_measurer->GetNumPublished();
+  int times_published_ = test_periodic_measurer_->GetNumPublished();
   ASSERT_EQ(
-    test_constants::kTestDuration.count() / kDontPublishDuringTest.count(), times_published);
+    test_constants::kTestDuration.count() / kDontPublishDuringTest.count(), times_published_);
 }
 
 int main(int argc, char ** argv)

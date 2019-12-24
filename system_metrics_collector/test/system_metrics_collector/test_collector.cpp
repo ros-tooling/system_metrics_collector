@@ -47,34 +47,34 @@ class CollectorTestFixure : public ::testing::Test
 public:
   void SetUp() override
   {
-    test_collector = std::make_unique<TestCollector>();
-    ASSERT_FALSE(test_collector->IsStarted());
+    test_collector_ = std::make_unique<TestCollector>();
+    ASSERT_FALSE(test_collector_->IsStarted());
   }
 
   void TearDown() override
   {
-    test_collector->Stop();  // don't assert as tests can call stop
-    ASSERT_FALSE(test_collector->IsStarted());
-    test_collector.reset();
+    test_collector_->Stop();  // don't assert as tests can call stop
+    ASSERT_FALSE(test_collector_->IsStarted());
+    test_collector_.reset();
   }
 
 protected:
-  std::unique_ptr<TestCollector> test_collector{};
+  std::unique_ptr<TestCollector> test_collector_{};
 };
 
 TEST_F(CollectorTestFixure, Sanity) {
-  ASSERT_NE(test_collector, nullptr);
+  ASSERT_NE(test_collector_, nullptr);
 }
 
 TEST_F(CollectorTestFixure, TestAddAndClearMeasurement) {
-  test_collector->AcceptData(1);
-  auto stats = test_collector->GetStatisticsResults();
+  test_collector_->AcceptData(1);
+  auto stats = test_collector_->GetStatisticsResults();
   ASSERT_EQ(1, stats.sample_count);
   ASSERT_EQ(1, stats.average);
 
-  test_collector->ClearCurrentMeasurements();
+  test_collector_->ClearCurrentMeasurements();
 
-  stats = test_collector->GetStatisticsResults();
+  stats = test_collector_->GetStatisticsResults();
   ASSERT_TRUE(std::isnan(stats.average));
   ASSERT_TRUE(std::isnan(stats.min));
   ASSERT_TRUE(std::isnan(stats.max));
@@ -83,15 +83,15 @@ TEST_F(CollectorTestFixure, TestAddAndClearMeasurement) {
 }
 
 TEST_F(CollectorTestFixure, TestStartAndStop) {
-  ASSERT_FALSE(test_collector->IsStarted());
+  ASSERT_FALSE(test_collector_->IsStarted());
   ASSERT_EQ("started=false, avg=nan, min=nan, max=nan, std_dev=nan, count=0",
-    test_collector->GetStatusString());
+    test_collector_->GetStatusString());
 
-  ASSERT_TRUE(test_collector->Start());
-  ASSERT_TRUE(test_collector->IsStarted());
+  ASSERT_TRUE(test_collector_->Start());
+  ASSERT_TRUE(test_collector_->IsStarted());
   ASSERT_EQ("started=true, avg=nan, min=nan, max=nan, std_dev=nan, count=0",
-    test_collector->GetStatusString());
+    test_collector_->GetStatusString());
 
-  ASSERT_TRUE(test_collector->Stop());
-  ASSERT_FALSE(test_collector->IsStarted());
+  ASSERT_TRUE(test_collector_->Stop());
+  ASSERT_FALSE(test_collector_->IsStarted());
 }
