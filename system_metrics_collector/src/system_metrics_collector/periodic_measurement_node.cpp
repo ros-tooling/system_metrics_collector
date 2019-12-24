@@ -43,24 +43,24 @@ PeriodicMeasurementNode::PeriodicMeasurementNode(
   }
 }
 
-bool PeriodicMeasurementNode::setupStart()
+bool PeriodicMeasurementNode::SetupStart()
 {
   assert(measurement_timer_ == nullptr);
   assert(publish_timer_ == nullptr);
 
-  RCLCPP_DEBUG(this->get_logger(), "setupStart: creating measurement_timer_");
+  RCLCPP_DEBUG(this->get_logger(), "SetupStart: creating measurement_timer_");
   measurement_timer_ = this->create_wall_timer(
-    measurement_period_, [this]() {this->performPeriodicMeasurement();});
+    measurement_period_, [this]() {this->PerformPeriodicMeasurement();});
 
   if (publisher_ == nullptr) {
     publisher_ = create_publisher<MetricsMessage>(publishing_topic_, 10 /*history_depth*/);
   }
 
-  RCLCPP_DEBUG(this->get_logger(), "setupStart: creating publish_timer_");
+  RCLCPP_DEBUG(this->get_logger(), "SetupStart: creating publish_timer_");
   publish_timer_ = this->create_wall_timer(
     publish_period_, [this]() {
-      this->publishStatisticMessage();
-      this->clearCurrentMeasurements();
+      this->PublishStatisticMessage();
+      this->ClearCurrentMeasurements();
       this->window_start_ = this->now();
     });
 
@@ -69,7 +69,7 @@ bool PeriodicMeasurementNode::setupStart()
   return true;
 }
 
-bool PeriodicMeasurementNode::setupStop()
+bool PeriodicMeasurementNode::SetupStop()
 {
   assert(measurement_timer_ != nullptr);
   assert(publish_timer_ != nullptr);
@@ -84,33 +84,33 @@ bool PeriodicMeasurementNode::setupStop()
   return true;
 }
 
-std::string PeriodicMeasurementNode::getStatusString() const
+std::string PeriodicMeasurementNode::GetStatusString() const
 {
   std::stringstream ss;
   ss << "name=" << get_name() <<
     ", measurement_period=" << std::to_string(measurement_period_.count()) << "ms" <<
     ", publishing_topic=" << publishing_topic_ <<
     ", publish_period=" << std::to_string(publish_period_.count()) + "ms" <<
-    ", " << Collector::getStatusString();
+    ", " << Collector::GetStatusString();
   return ss.str();
 }
 
-void PeriodicMeasurementNode::performPeriodicMeasurement()
+void PeriodicMeasurementNode::PerformPeriodicMeasurement()
 {
-  const double measurement = periodicMeasurement();
-  RCLCPP_DEBUG(this->get_logger(), "performPeriodicMeasurement: %f", measurement);
+  const double measurement = PeriodicMeasurement();
+  RCLCPP_DEBUG(this->get_logger(), "PerformPeriodicMeasurement: %f", measurement);
 
-  acceptData(measurement);
-  RCLCPP_DEBUG(this->get_logger(), getStatusString());
+  AcceptData(measurement);
+  RCLCPP_DEBUG(this->get_logger(), GetStatusString());
 }
 
-void PeriodicMeasurementNode::publishStatisticMessage()
+void PeriodicMeasurementNode::PublishStatisticMessage()
 {
-  auto msg = generateStatisticMessage(get_name(),
-      getMetricName(),
+  auto msg = GenerateStatisticMessage(get_name(),
+      GetMetricName(),
       window_start_,
       now(),
-      getStatisticsResults());
+      GetStatisticsResults());
   publisher_->publish(msg);
 }
 

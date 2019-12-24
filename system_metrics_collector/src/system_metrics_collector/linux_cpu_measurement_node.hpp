@@ -56,14 +56,14 @@ protected:
    *
    * @return if setup was successful
    */
-  bool setupStart() override;
+  bool SetupStart() override;
 
   /**
    * Perform a periodic measurement calculating the percentage of CPU active.
    *
    * @return percentage of CPU active
    */
-  double periodicMeasurement() override;
+  double PeriodicMeasurement() override;
 
 private:
   /**
@@ -71,13 +71,13 @@ private:
    *
    * @return ProcCpuData the measurement made
    */
-  virtual system_metrics_collector::ProcCpuData makeSingleMeasurement();
+  virtual system_metrics_collector::ProcCpuData MakeSingleMeasurement();
 
   /**
    * Return the name to use for this metric
    * @return a string of the name for this measured metric
    */
-  std::string getMetricName() const override;
+  std::string GetMetricName() const override;
 
   /**
    * The cached measurement used in order to perform the CPU active

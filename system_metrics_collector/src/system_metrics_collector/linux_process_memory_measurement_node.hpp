@@ -36,7 +36,7 @@ namespace system_metrics_collector
 * @return the number of bytes used for the statm file's process
  *@throws std::ifstream::failure for std::ios::failbit | std::ios::badbit
 */
-uint64_t getProcessUsedMemory(const std::string & statm_process_file_contents);
+uint64_t GetProcessUsedMemory(const std::string & statm_process_file_contents);
 
 /**
  * Class used to measure the memory percentage used as a process.
@@ -63,7 +63,7 @@ protected:
    * Return the name to use for this metric
    * @return a string of the name for this measured metric
    */
-  std::string getMetricName() const override;
+  std::string GetMetricName() const override;
 
 private:
   /**
@@ -74,7 +74,7 @@ private:
    *
    * @return percentage of memory this process used
    */
-  double periodicMeasurement() override;
+  double PeriodicMeasurement() override;
 
   /**
    * The pid of this process/

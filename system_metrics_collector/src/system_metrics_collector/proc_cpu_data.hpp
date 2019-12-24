@@ -53,13 +53,13 @@ public:
    * Return the idle time
    * @return the idle time for this data set
    */
-  uint64_t getIdleTime() const;
+  uint64_t GetIdleTime() const;
 
   /**
    * Return the active time
    * @return the active time for this data set
    */
-  uint64_t getActiveTime() const;
+  uint64_t GetActiveTime() const;
 
   /**
    * Return a pretty printed string of the ProcCpuData struct.
@@ -67,7 +67,7 @@ public:
    * @param data the struct to print
    * @return a formatted string of the input struct
    */
-  std::string toString() const;
+  std::string ToString() const;
 
   /**
    * Return true if the struct is not populated with any useful data.
@@ -75,7 +75,7 @@ public:
    *
    * @return true if empty (no valid data), false otherwise.
    */
-  bool isMeasurementEmpty() const;
+  bool IsMeasurementEmpty() const;
 
   /**
    * The cpu label of the line parsed

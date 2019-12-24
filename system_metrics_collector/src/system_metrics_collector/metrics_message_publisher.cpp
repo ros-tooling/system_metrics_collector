@@ -26,7 +26,7 @@ using metrics_statistics_msgs::msg::StatisticDataType;
 namespace system_metrics_collector
 {
 
-MetricsMessage MetricsMessagePublisher::generateStatisticMessage(
+MetricsMessage MetricsMessagePublisher::GenerateStatisticMessage(
   const std::string & node_name,
   const std::string & source_name,
   const builtin_interfaces::msg::Time window_start,

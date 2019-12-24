@@ -28,7 +28,7 @@ namespace system_metrics_collector
  * @param file_name the file to be read
  * @return the file to be read's contents as a std::string
  */
-std::string readFileToString(const std::string & file_name);
+std::string ReadFileToString(const std::string & file_name);
 
 /**
  * Parse a line read from /proc/stat
@@ -36,7 +36,7 @@ std::string readFileToString(const std::string & file_name);
  * @param stat_cpu_line a line from /proc/stat
  * @return ProcCpuData struct populated if parsed, otherwise empty
  */
-ProcCpuData processStatCpuLine(const std::string & stat_cpu_line);
+ProcCpuData ProcessStatCpuLine(const std::string & stat_cpu_line);
 
 /**
  * Compute the percentage of CPU active.
@@ -45,7 +45,7 @@ ProcCpuData processStatCpuLine(const std::string & stat_cpu_line);
  * @param measurement2 the second measurement (made after the first)
  * @return percentage of CPU active
  */
-double computeCpuActivePercentage(
+double ComputeCpuActivePercentage(
   const ProcCpuData & measurement1,
   const ProcCpuData & measurement2);
 
@@ -61,13 +61,13 @@ double computeCpuActivePercentage(
  * @return the percentage of memory used, specifically
  * (MemTotal - MemAvailable) / MemTotal * 100.0
  */
-double processMemInfoLines(const std::string & lines);
+double ProcessMemInfoLines(const std::string & lines);
 
 /**
  * Return the pid of the current process
  * @return the pid of the current process as an int
  */
-int getPid();
+int GetPid();
 
 }  // namespace system_metrics_collector
 

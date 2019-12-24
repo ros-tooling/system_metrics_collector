@@ -40,9 +40,9 @@ public:
     const std::chrono::milliseconds publish_period)
   : LinuxProcessMemoryMeasurementNode(name, measurement_period, topic, publish_period) {}
 
-  std::string getMetricName() const override
+  std::string GetMetricName() const override
   {
-    return LinuxProcessMemoryMeasurementNode::getMetricName();
+    return LinuxProcessMemoryMeasurementNode::GetMetricName();
   }
 };
 
@@ -60,10 +60,10 @@ public:
       "test_topic",
       10s);
 
-    ASSERT_FALSE(test_node->isStarted());
+    ASSERT_FALSE(test_node->IsStarted());
 
     const moving_average_statistics::StatisticData data =
-      test_node->getStatisticsResults();
+      test_node->GetStatisticsResults();
     ASSERT_TRUE(std::isnan(data.average));
     ASSERT_TRUE(std::isnan(data.min));
     ASSERT_TRUE(std::isnan(data.max));
@@ -73,8 +73,8 @@ public:
 
   void TearDown() override
   {
-    test_node->stop();
-    ASSERT_FALSE(test_node->isStarted());
+    test_node->Stop();
+    ASSERT_FALSE(test_node->IsStarted());
     test_node.reset();
     rclcpp::shutdown();
   }
@@ -84,18 +84,18 @@ protected:
 };
 
 
-TEST(TestLinuxProcessMemoryMeasurement, testGetProcessUsedMemory) {
-  EXPECT_THROW(system_metrics_collector::getProcessUsedMemory(
+TEST(TestLinuxProcessMemoryMeasurement, TestGetProcessUsedMemory) {
+  EXPECT_THROW(system_metrics_collector::GetProcessUsedMemory(
       test_constants::kGarbageSample), std::ifstream::failure);
-  EXPECT_THROW(system_metrics_collector::getProcessUsedMemory(
+  EXPECT_THROW(system_metrics_collector::GetProcessUsedMemory(
       test_constants::kEmptySample), std::ifstream::failure);
 
-  const auto ret = system_metrics_collector::getProcessUsedMemory(kTestStatmLine);
+  const auto ret = system_metrics_collector::GetProcessUsedMemory(kTestStatmLine);
   EXPECT_EQ(2084389, ret);
 }
 
-TEST_F(LinuxProcessMemoryMeasurementTestFixture, testGetMetricName) {
-  const auto pid = system_metrics_collector::getPid();
+TEST_F(LinuxProcessMemoryMeasurementTestFixture, TestGetMetricName) {
+  const auto pid = system_metrics_collector::GetPid();
 
-  ASSERT_EQ(std::to_string(pid) + "_memory_percent_used", test_node->getMetricName());
+  ASSERT_EQ(std::to_string(pid) + "_memory_percent_used", test_node->GetMetricName());
 }

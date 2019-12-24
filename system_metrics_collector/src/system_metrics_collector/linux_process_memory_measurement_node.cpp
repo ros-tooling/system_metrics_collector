@@ -37,7 +37,7 @@ constexpr const char kMetricName[] = "_memory_percent_used";
  *
  * @return the total system memory in bytes
  */
-double getSystemTotalMemory()
+double GetSystemTotalMemory()
 {
   struct sysinfo si;
   const auto success = sysinfo(&si);
@@ -55,34 +55,34 @@ LinuxProcessMemoryMeasurementNode::LinuxProcessMemoryMeasurementNode(
   const std::string & topic,
   const std::chrono::milliseconds publish_period)
 : PeriodicMeasurementNode(name, measurement_period, topic, publish_period),
-  pid_(std::to_string(getPid())),
-  file_to_read_(kProc + std::to_string(getPid()) + kStatm)
+  pid_(std::to_string(GetPid())),
+  file_to_read_(kProc + std::to_string(GetPid()) + kStatm)
 {
 }
 
-double LinuxProcessMemoryMeasurementNode::periodicMeasurement()
+double LinuxProcessMemoryMeasurementNode::PeriodicMeasurement()
 {
-  const auto statm_line = readFileToString(file_to_read_);
+  const auto statm_line = ReadFileToString(file_to_read_);
   double p_mem;
   try {
-    p_mem = static_cast<double>(getProcessUsedMemory(statm_line));
+    p_mem = static_cast<double>(GetProcessUsedMemory(statm_line));
   } catch (std::ifstream::failure e) {
     RCLCPP_ERROR(
-      this->get_logger(), "caught %s, failed to getProcessUsedMemory from line %s",
+      this->get_logger(), "caught %s, failed to GetProcessUsedMemory from line %s",
       e.what(), file_to_read_);
     return std::nan("");
   }
-  const auto total_mem = getSystemTotalMemory();
+  const auto total_mem = GetSystemTotalMemory();
 
   return p_mem / total_mem * 100.0;
 }
 
-std::string LinuxProcessMemoryMeasurementNode::getMetricName() const
+std::string LinuxProcessMemoryMeasurementNode::GetMetricName() const
 {
   return pid_ + kMetricName;
 }
 
-uint64_t getProcessUsedMemory(const std::string & statm_process_file_contents)
+uint64_t GetProcessUsedMemory(const std::string & statm_process_file_contents)
 {
   std::istringstream ss{statm_process_file_contents};
   ss.exceptions(std::ios::failbit | std::ios::badbit);

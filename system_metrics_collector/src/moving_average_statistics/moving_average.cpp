@@ -27,27 +27,27 @@
 namespace moving_average_statistics
 {
 
-double MovingAverageStatistics::average() const
+double MovingAverageStatistics::Average() const
 {
-  return getStatistics().average;
+  return GetStatistics().average;
 }
 
-double MovingAverageStatistics::max() const
+double MovingAverageStatistics::Max() const
 {
-  return getStatistics().max;
+  return GetStatistics().max;
 }
 
-double MovingAverageStatistics::min() const
+double MovingAverageStatistics::Min() const
 {
-  return getStatistics().min;
+  return GetStatistics().min;
 }
 
-double MovingAverageStatistics::standardDeviation() const
+double MovingAverageStatistics::StandardDeviation() const
 {
-  return getStatistics().standard_deviation;
+  return GetStatistics().standard_deviation;
 }
 
-StatisticData MovingAverageStatistics::getStatistics() const
+StatisticData MovingAverageStatistics::GetStatistics() const
 {
   std::lock_guard<std::mutex> guard{mutex};
   StatisticData to_return;
@@ -66,7 +66,7 @@ StatisticData MovingAverageStatistics::getStatistics() const
   return to_return;
 }
 
-void MovingAverageStatistics::reset()
+void MovingAverageStatistics::Reset()
 {
   std::lock_guard<std::mutex> guard{mutex};
   average_ = 0;
@@ -76,7 +76,7 @@ void MovingAverageStatistics::reset()
   count_ = 0;
 }
 
-void MovingAverageStatistics::addMeasurement(const double item)
+void MovingAverageStatistics::AddMeasurement(const double item)
 {
   std::lock_guard<std::mutex> guard{mutex};
 
@@ -91,7 +91,7 @@ void MovingAverageStatistics::addMeasurement(const double item)
   }
 }
 
-uint64_t MovingAverageStatistics::getCount() const
+uint64_t MovingAverageStatistics::GetCount() const
 {
   std::lock_guard<std::mutex> guard{mutex};
   return count_;

@@ -35,7 +35,7 @@ constexpr const char kTestNodeName[] = "test_publisher";
 constexpr const char kTestMeasurementType[] = "test_measurement";
 }  // namespace
 
-TEST(MetricsMessagePublisherTest, test_generate_message) {
+TEST(MetricsMessagePublisherTest, TestGenerateMessage) {
   rclcpp::init(0, nullptr);
   auto node = std::make_shared<rclcpp::Node>(kTestNodeName);
   rclcpp::Time time1 = node->now();
@@ -50,7 +50,7 @@ TEST(MetricsMessagePublisherTest, test_generate_message) {
   data.standard_deviation = dist(gen);
   data.sample_count = dist(gen);
 
-  MetricsMessage msg = MetricsMessagePublisher::generateStatisticMessage(
+  MetricsMessage msg = MetricsMessagePublisher::GenerateStatisticMessage(
     kTestNodeName, kTestMeasurementType, time1, time2, data);
 
   EXPECT_EQ(kTestNodeName, msg.measurement_source_name);

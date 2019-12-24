@@ -24,58 +24,58 @@
 namespace system_metrics_collector
 {
 
-bool Collector::start()
+bool Collector::Start()
 {
-  std::unique_lock<std::mutex> ulock(mutex);
+  std::unique_lock<std::mutex> ulock{mutex};
   if (started_) {
     return false;
   }
   started_ = true;
-  return setupStart();
+  return SetupStart();
 }
 
-bool Collector::stop()
+bool Collector::Stop()
 {
   bool ret = false;
   {
-    std::unique_lock<std::mutex> ulock(mutex);
+    std::unique_lock<std::mutex> ulock{mutex};
     if (!started_) {
       return false;
     }
     started_ = false;
 
-    ret = setupStop();
+    ret = SetupStop();
   }
-  clearCurrentMeasurements();
+  ClearCurrentMeasurements();
   return ret;
 }
 
-void Collector::acceptData(const double measurement)
+void Collector::AcceptData(const double measurement)
 {
-  collected_data_.addMeasurement(measurement);
+  collected_data_.AddMeasurement(measurement);
 }
 
-moving_average_statistics::StatisticData Collector::getStatisticsResults() const
+moving_average_statistics::StatisticData Collector::GetStatisticsResults() const
 {
-  return collected_data_.getStatistics();
+  return collected_data_.GetStatistics();
 }
 
-void Collector::clearCurrentMeasurements()
+void Collector::ClearCurrentMeasurements()
 {
-  collected_data_.reset();
+  collected_data_.Reset();
 }
 
-bool Collector::isStarted() const
+bool Collector::IsStarted() const
 {
-  std::unique_lock<std::mutex> ulock(mutex);
+  std::unique_lock<std::mutex> ulock{mutex};
   return started_;
 }
 
-std::string Collector::getStatusString() const
+std::string Collector::GetStatusString() const
 {
   std::stringstream ss;
-  ss << "started=" << (isStarted() ? "true" : "false") <<
-    ", " << statisticsDataToString(getStatisticsResults());
+  ss << "started=" << (IsStarted() ? "true" : "false") <<
+    ", " << StatisticsDataToString(GetStatisticsResults());
   return ss.str();
 }
 

@@ -45,17 +45,17 @@ LinuxMemoryMeasurementNode::LinuxMemoryMeasurementNode(
 {
 }
 
-double LinuxMemoryMeasurementNode::periodicMeasurement()
+double LinuxMemoryMeasurementNode::PeriodicMeasurement()
 {
   std::ifstream stat_file{kProcStatFile};
   if (!stat_file.good()) {
     return std::nan("");
   }
-  auto read_string = readFileToString(kProcStatFile);
-  return processMemInfoLines(read_string);
+  auto read_string = ReadFileToString(kProcStatFile);
+  return ProcessMemInfoLines(read_string);
 }
 
-std::string LinuxMemoryMeasurementNode::getMetricName() const
+std::string LinuxMemoryMeasurementNode::GetMetricName() const
 {
   return kMeasurementType;
 }

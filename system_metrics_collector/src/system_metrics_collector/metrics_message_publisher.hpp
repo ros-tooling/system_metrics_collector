@@ -42,7 +42,7 @@ public:
    * @param data statistics derived from the measurements made in the window
    * @return a MetricsMessage containing the statistics in the data parameter
    */
-  static metrics_statistics_msgs::msg::MetricsMessage generateStatisticMessage(
+  static metrics_statistics_msgs::msg::MetricsMessage GenerateStatisticMessage(
     const std::string & node_name,
     const std::string & metric_name,
     const builtin_interfaces::msg::Time window_start,
@@ -54,13 +54,13 @@ public:
    * Publish the statistics derived from the collected measurements (this is to be called via a
    * ROS2 timer per the publish_period)
    */
-  virtual void publishStatisticMessage() = 0;
+  virtual void PublishStatisticMessage() = 0;
 
   /**
    * Return the name to use for this metric
    * @return a string of the name for this measured metric
    */
-  virtual std::string getMetricName() const = 0;
+  virtual std::string GetMetricName() const = 0;
 };
 }  // namespace system_metrics_collector
 

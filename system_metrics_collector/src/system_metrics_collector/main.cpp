@@ -65,9 +65,9 @@ int main(int argc, char ** argv)
     kDefaultPublishPeriod);
 
   rclcpp::executors::MultiThreadedExecutor ex;
-  cpu_node->start();
-  mem_node->start();
-  process_mem_node->start();
+  cpu_node->Start();
+  mem_node->Start();
+  process_mem_node->Start();
 
   {
     const auto r =
@@ -103,9 +103,9 @@ int main(int argc, char ** argv)
 
   rclcpp::shutdown();
 
-  cpu_node->stop();
-  mem_node->stop();
-  process_mem_node->stop();
+  cpu_node->Stop();
+  mem_node->Stop();
+  process_mem_node->Stop();
 
   return 0;
 }

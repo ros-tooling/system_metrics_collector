@@ -22,13 +22,13 @@ namespace system_metrics_collector
 
 /*static*/ constexpr const char ProcCpuData::kEmptyLabel[];
 
-uint64_t ProcCpuData::getIdleTime() const
+uint64_t ProcCpuData::GetIdleTime() const
 {
   return times[static_cast<int>(ProcCpuStates::kIdle)] +
          times[static_cast<int>(ProcCpuStates::kIOWait)];
 }
 
-uint64_t ProcCpuData::getActiveTime() const
+uint64_t ProcCpuData::GetActiveTime() const
 {
   return times[static_cast<int>(ProcCpuStates::kUser)] +
          times[static_cast<int>(ProcCpuStates::kNice)] +
@@ -38,7 +38,7 @@ uint64_t ProcCpuData::getActiveTime() const
          times[static_cast<int>(ProcCpuStates::kSteal)];
 }
 
-std::string ProcCpuData::toString() const
+std::string ProcCpuData::ToString() const
 {
   std::stringstream ss;
   ss << "cpu_label=" << cpu_label <<
@@ -53,7 +53,7 @@ std::string ProcCpuData::toString() const
   return ss.str();
 }
 
-bool ProcCpuData::isMeasurementEmpty() const
+bool ProcCpuData::IsMeasurementEmpty() const
 {
   return cpu_label == ProcCpuData::kEmptyLabel;
 }
