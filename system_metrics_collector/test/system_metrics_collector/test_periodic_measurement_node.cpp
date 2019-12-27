@@ -164,9 +164,9 @@ TEST_F(PeriodicMeasurementTestFixure, TestStartAndStop) {
   ASSERT_TRUE(stop_success);
   ASSERT_FALSE(test_periodic_measurer_->IsStarted());
 
-  int times_published_ = test_periodic_measurer_->GetNumPublished();
+  int times_published = test_periodic_measurer_->GetNumPublished();
   ASSERT_EQ(
-    test_constants::kTestDuration.count() / kDontPublishDuringTest.count(), times_published_);
+    test_constants::kTestDuration.count() / kDontPublishDuringTest.count(), times_published);
 }
 
 int main(int argc, char ** argv)
