@@ -12,10 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <time.h>
 #include <unistd.h>
 
 #include <cmath>
+#include <chrono>
 #include <fstream>
+#include <limits>
 #include <sstream>
 #include <streambuf>
 #include <string>
@@ -35,11 +38,10 @@ constexpr const char kMemAvailable[] = "MemAvailable:";
 constexpr const char kEmptyFile[] = "";
 constexpr const int kInvalidMemorySample = -1;
 
-double ComputeCpuTotalTime(const ProcCpuData measurement1, const ProcCpuData measurement2)
+uint64_t TimespecToNanoseconds(const timespec * ts)
 {
-  const double total_time = (measurement2.GetIdleTime() + measurement2.GetActiveTime()) -
-    (measurement1.GetIdleTime() + measurement1.GetActiveTime());
-  return total_time;
+  auto duration = std::chrono::seconds{ts->tv_sec} + std::chrono::nanoseconds{ts->tv_nsec};
+  return std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
 }
 
 }  // namespace
@@ -85,6 +87,28 @@ ProcCpuData ProcessStatCpuLine(const std::string & stat_cpu_line)
   return parsed_data;
 }
 
+ProcPidCpuData MeasurePidCpuTime()
+{
+  static const int kNumCpus = sysconf(_SC_NPROCESSORS_ONLN);
+  timespec process_time{};
+  timespec monotonic_time{};
+
+  if (clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &process_time) != 0) {
+    RCUTILS_LOG_ERROR_NAMED("MeasurePidCpuTime", "unable to get process cpu time");
+    return ProcPidCpuData();
+  }
+  if (clock_gettime(CLOCK_MONOTONIC_RAW, &monotonic_time) != 0) {
+    RCUTILS_LOG_ERROR_NAMED("MeasurePidCpuTime", "unable to get monotonic cpu time");
+    return ProcPidCpuData();
+  }
+
+  ProcPidCpuData measured_data;
+  measured_data.pid_cpu_time_ = TimespecToNanoseconds(&process_time);
+  measured_data.total_cpu_time_ = kNumCpus * TimespecToNanoseconds(&monotonic_time);
+
+  return measured_data;
+}
+
 double ComputeCpuActivePercentage(
   const ProcCpuData & measurement1,
   const ProcCpuData & measurement2)
@@ -96,7 +120,24 @@ double ComputeCpuActivePercentage(
   }
 
   const double active_time = measurement2.GetActiveTime() - measurement1.GetActiveTime();
-  const double total_time = ComputeCpuTotalTime(measurement1, measurement2);
+  const double total_time = (measurement2.GetIdleTime() + measurement2.GetActiveTime()) -
+    (measurement1.GetIdleTime() + measurement1.GetActiveTime());
+
+  return 100.0 * active_time / total_time;
+}
+
+double ComputePidCpuActivePercentage(
+  const ProcPidCpuData & measurement1,
+  const ProcPidCpuData & measurement2)
+{
+  if (measurement1.IsMeasurementEmpty() || measurement2.IsMeasurementEmpty()) {
+    RCUTILS_LOG_ERROR_NAMED("computePidCpuActivePercentage",
+      "a measurement was empty, unable to compute cpu percentage");
+    return std::nan("");
+  }
+
+  const double active_time = measurement2.GetActiveTime() - measurement1.GetActiveTime();
+  const double total_time = measurement2.GetTotalTime() - measurement1.GetTotalTime();
 
   return 100.0 * active_time / total_time;
 }

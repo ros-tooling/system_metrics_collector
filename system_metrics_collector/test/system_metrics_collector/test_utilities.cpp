@@ -17,8 +17,10 @@
 #include <cmath>
 #include <iostream>
 #include <string>
+#include <limits>
 #include <memory>
 #include <mutex>
+#include <random>
 
 #include "../../src/system_metrics_collector/utilities.hpp"
 #include "test_constants.hpp"
@@ -66,6 +68,12 @@ TEST(UtilitiesTest, TestParseProcStatLine2)
     parsed_data.ToString());
 }
 
+TEST(UtilitiesTest, TestMeasurePidCpuTime)
+{
+  auto parsed_data = system_metrics_collector::MeasurePidCpuTime();
+  ASSERT_FALSE(parsed_data.IsMeasurementEmpty());
+}
+
 TEST(UtilitiesTest, TestEmptyProcCpuData)
 {
   system_metrics_collector::ProcCpuData empty;
@@ -84,6 +92,26 @@ TEST(UtilitiesTest, TestCalculateCpuActivePercentage)
   auto p = test_utilities::ComputeCpuActivePercentage(test_constants::kProcSamples[0],
       test_constants::kProcSamples[1]);
   ASSERT_DOUBLE_EQ(test_constants::kCpuActiveProcSample_0_1, p);
+}
+
+TEST(UtilitiesTest, TestCalculatePidCpuActivePercentage)
+{
+  using IntType = decltype(system_metrics_collector::ProcPidCpuData::total_cpu_time_);
+
+  std::default_random_engine gen;
+  std::uniform_int_distribution<IntType> dist(0, std::numeric_limits<IntType>::max() - 1);
+  system_metrics_collector::ProcPidCpuData measurement1, measurement2;
+
+  while (measurement1.total_cpu_time_ == measurement2.total_cpu_time_) {
+    measurement1.pid_cpu_time_ = 100;
+    measurement1.total_cpu_time_ = dist(gen);
+    measurement2.pid_cpu_time_ = measurement1.pid_cpu_time_;
+    measurement2.total_cpu_time_ = dist(gen);
+  }
+
+  auto p = system_metrics_collector::ComputePidCpuActivePercentage(measurement1, measurement2);
+
+  ASSERT_DOUBLE_EQ(p, 0.0);
 }
 
 TEST(UtilitiesTest, TestProcMemInfoLines)

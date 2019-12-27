@@ -18,6 +18,7 @@
 #include <string>
 
 #include "../../src/system_metrics_collector/proc_cpu_data.hpp"
+#include "../../src/system_metrics_collector/proc_pid_cpu_data.hpp"
 
 namespace system_metrics_collector
 {
@@ -39,6 +40,13 @@ std::string ReadFileToString(const std::string & file_name);
 ProcCpuData ProcessStatCpuLine(const std::string & stat_cpu_line);
 
 /**
+ * Measure process-specific and system-wide CPU times using clock_gettime()
+ *
+ * @return ProcPidCpuData struct populated if measurements were successful, otherwise empty
+ */
+ProcPidCpuData MeasurePidCpuTime();
+
+/**
  * Compute the percentage of CPU active.
  *
  * @param measurement1 the first measurement
@@ -48,6 +56,17 @@ ProcCpuData ProcessStatCpuLine(const std::string & stat_cpu_line);
 double ComputeCpuActivePercentage(
   const ProcCpuData & measurement1,
   const ProcCpuData & measurement2);
+
+/**
+ * Computes the percentage of CPU active for a given process.
+ *
+ * @param measurement1 the first measurement for the process and system
+ * @param measurement2 the second measurement for the process and system (made after the first)
+ * @return percentage of CPU active for the process
+ */
+double ComputePidCpuActivePercentage(
+  const ProcPidCpuData & measurement1,
+  const ProcPidCpuData & measurement2);
 
 /**
  * Process input lines from the /proc/meminfo file. The expected format to
