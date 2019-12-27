@@ -43,7 +43,7 @@ constexpr const char kTestNodeName[] = "test_measure_linux_memory";
 constexpr const char kTestTopic[] = "test_memory_measure_topic";
 constexpr const char kTestMetricName[] = "system_memory_percent_used";
 
-constexpr const std::array<const char *, 10> SAMPLES = {
+constexpr const std::array<const char *, 10> kSamples = {
   test_constants::kFullSample,
 
   "MemTotal:       16304208 kB\n"
@@ -95,34 +95,34 @@ public:
     const std::string & publishing_topic,
     const std::chrono::milliseconds publish_period)
   : LinuxMemoryMeasurementNode(name, measurement_period, publishing_topic, publish_period),
-    measurement_index(0) {}
+    measurement_index_(0) {}
 
   virtual ~TestLinuxMemoryMeasurementNode() = default;
 
   void SetTestString(const std::string & test_string)
   {
-    measurement_index = INVALID_INDEX;
+    measurement_index_ = kInvalidIndex;
     test_string_ = test_string;
   }
 
   // override to avoid calling methods involved in file i/o
   double PeriodicMeasurement() override
   {
-    if (measurement_index == INVALID_INDEX) {
+    if (measurement_index_ == kInvalidIndex) {
       return ProcessMemInfoLines(test_string_);
     } else {
-      EXPECT_GT(SAMPLES.size(), measurement_index);
-      return ProcessMemInfoLines(SAMPLES[measurement_index++]);
+      EXPECT_GT(kSamples.size(), measurement_index_);
+      return ProcessMemInfoLines(kSamples[measurement_index_++]);
     }
   }
 
 private:
-  static constexpr int INVALID_INDEX = -1;
-  int measurement_index;
+  static constexpr int kInvalidIndex = -1;
+  int measurement_index_;
   std::string test_string_;
 };
 
-constexpr int TestLinuxMemoryMeasurementNode::INVALID_INDEX;
+constexpr int TestLinuxMemoryMeasurementNode::kInvalidIndex;
 
 class LinuxMemoryMeasurementTestFixture : public ::testing::Test
 {
@@ -131,13 +131,13 @@ public:
   {
     rclcpp::init(0, nullptr);
 
-    test_measure_linux_memory = std::make_shared<TestLinuxMemoryMeasurementNode>(kTestNodeName,
+    test_measure_linux_memory_ = std::make_shared<TestLinuxMemoryMeasurementNode>(kTestNodeName,
         test_constants::kMeasurePeriod, kTestTopic, test_constants::kPublishPeriod);
 
-    ASSERT_FALSE(test_measure_linux_memory->IsStarted());
+    ASSERT_FALSE(test_measure_linux_memory_->IsStarted());
 
     const moving_average_statistics::StatisticData data =
-      test_measure_linux_memory->GetStatisticsResults();
+      test_measure_linux_memory_->GetStatisticsResults();
     ASSERT_TRUE(std::isnan(data.average));
     ASSERT_TRUE(std::isnan(data.min));
     ASSERT_TRUE(std::isnan(data.max));
@@ -147,86 +147,86 @@ public:
 
   void TearDown() override
   {
-    test_measure_linux_memory->Stop();
-    ASSERT_FALSE(test_measure_linux_memory->IsStarted());
-    test_measure_linux_memory.reset();
+    test_measure_linux_memory_->Stop();
+    ASSERT_FALSE(test_measure_linux_memory_->IsStarted());
+    test_measure_linux_memory_.reset();
     rclcpp::shutdown();
   }
 
 protected:
-  std::shared_ptr<TestLinuxMemoryMeasurementNode> test_measure_linux_memory;
+  std::shared_ptr<TestLinuxMemoryMeasurementNode> test_measure_linux_memory_;
 };
 
 class TestReceiveMemoryMeasurementNode : public rclcpp::Node
 {
 public:
   explicit TestReceiveMemoryMeasurementNode(const std::string & name)
-  : rclcpp::Node(name), times_received(0)
+  : rclcpp::Node(name), times_received_(0)
   {
     auto callback = [this](MetricsMessage::UniquePtr msg) {this->MetricsMessageCallback(*msg);};
-    subscription = create_subscription<MetricsMessage,
+    subscription_ = create_subscription<MetricsMessage,
         std::function<void(MetricsMessage::UniquePtr)>>(kTestTopic, 10 /*history_depth*/, callback);
 
     // tools for calculating expected statistics values
     moving_average_statistics::MovingAverageStatistics stats_calc;
     StatisticData data;
 
-    // setting expected_stats[0]
+    // setting expected_stats_[0]
     // round 1 50 ms: SAMPLES[0] is collected
     // round 1 80 ms: statistics derived from SAMPLES[0] is published
     stats_calc.Reset();
-    stats_calc.AddMeasurement(ProcessMemInfoLines(SAMPLES[0]));
+    stats_calc.AddMeasurement(ProcessMemInfoLines(kSamples[0]));
     data = stats_calc.GetStatistics();
-    StatisticDataToExpectedStatistics(data, expected_stats[0]);
+    StatisticDataToExpectedStatistics(data, expected_stats_[0]);
 
-    // setting expected_stats[1]
+    // setting expected_stats_[1]
     // round 1 100 ms: SAMPLES[1] is collected
     // round 1 150 ms: SAMPLES[2] is collected
     // round 1 160 ms: statistics derived from SAMPLES[1 & 2] is published
     stats_calc.Reset();
-    stats_calc.AddMeasurement(ProcessMemInfoLines(SAMPLES[1]));
-    stats_calc.AddMeasurement(ProcessMemInfoLines(SAMPLES[2]));
+    stats_calc.AddMeasurement(ProcessMemInfoLines(kSamples[1]));
+    stats_calc.AddMeasurement(ProcessMemInfoLines(kSamples[2]));
     data = stats_calc.GetStatistics();
-    StatisticDataToExpectedStatistics(data, expected_stats[1]);
+    StatisticDataToExpectedStatistics(data, expected_stats_[1]);
 
-    // setting expected_stats[2]
+    // setting expected_stats_[2]
     // round 1 200 ms: SAMPLES[3] is collected
     // round 1 240 ms: statistics derived from SAMPLES[3] is published
     stats_calc.Reset();
-    stats_calc.AddMeasurement(ProcessMemInfoLines(SAMPLES[3]));
+    stats_calc.AddMeasurement(ProcessMemInfoLines(kSamples[3]));
     data = stats_calc.GetStatistics();
-    StatisticDataToExpectedStatistics(data, expected_stats[2]);
+    StatisticDataToExpectedStatistics(data, expected_stats_[2]);
 
-    // setting expected_stats[3]
+    // setting expected_stats_[3]
     // round 2 50 ms: SAMPLES[5] is collected
     // round 2 80 ms: statistics derived from SAMPLES[5] is published
     stats_calc.Reset();
-    stats_calc.AddMeasurement(ProcessMemInfoLines(SAMPLES[5]));
+    stats_calc.AddMeasurement(ProcessMemInfoLines(kSamples[5]));
     data = stats_calc.GetStatistics();
-    StatisticDataToExpectedStatistics(data, expected_stats[3]);
+    StatisticDataToExpectedStatistics(data, expected_stats_[3]);
 
-    // setting expected_stats[4]
+    // setting expected_stats_[4]
     // round 2 100 ms: SAMPLES[6] is collected
     // round 2 150 ms: SAMPLES[7] is collected
     // round 2 160 ms: statistics derived from SAMPLES[6 & 7] is published
     stats_calc.Reset();
-    stats_calc.AddMeasurement(ProcessMemInfoLines(SAMPLES[6]));
-    stats_calc.AddMeasurement(ProcessMemInfoLines(SAMPLES[7]));
+    stats_calc.AddMeasurement(ProcessMemInfoLines(kSamples[6]));
+    stats_calc.AddMeasurement(ProcessMemInfoLines(kSamples[7]));
     data = stats_calc.GetStatistics();
-    StatisticDataToExpectedStatistics(data, expected_stats[4]);
+    StatisticDataToExpectedStatistics(data, expected_stats_[4]);
 
-    // setting expected_stats[5]
+    // setting expected_stats_[5]
     // round 2 200 ms: SAMPLES[8] is collected
     // round 2 240 ms: statistics derived from SAMPLES[8] is published
     stats_calc.Reset();
-    stats_calc.AddMeasurement(ProcessMemInfoLines(SAMPLES[8]));
+    stats_calc.AddMeasurement(ProcessMemInfoLines(kSamples[8]));
     data = stats_calc.GetStatistics();
-    StatisticDataToExpectedStatistics(data, expected_stats[5]);
+    StatisticDataToExpectedStatistics(data, expected_stats_[5]);
   }
 
   int GetNumReceived() const
   {
-    return times_received;
+    return times_received_;
   }
 
 private:
@@ -244,14 +244,14 @@ private:
 
   void MetricsMessageCallback(const MetricsMessage & msg) const
   {
-    ASSERT_GT(expected_stats.size(), times_received);
+    ASSERT_GT(expected_stats_.size(), times_received_);
 
     // check source names
     EXPECT_EQ(kTestNodeName, msg.measurement_source_name);
     EXPECT_EQ(kTestMetricName, msg.metrics_source);
 
     // check measurements
-    const ExpectedStatistics & expected_stat = expected_stats[times_received];
+    const ExpectedStatistics & expected_stat = expected_stats_[times_received_];
     EXPECT_EQ(expected_stat.size(), msg.statistics.size());
 
     for (const StatisticDataPoint & stat : msg.statistics) {
@@ -263,12 +263,12 @@ private:
       }
     }
 
-    ++times_received;
+    ++times_received_;
   }
 
-  rclcpp::Subscription<MetricsMessage>::SharedPtr subscription;
-  std::array<ExpectedStatistics, 6> expected_stats;
-  mutable int times_received;
+  rclcpp::Subscription<MetricsMessage>::SharedPtr subscription_;
+  std::array<ExpectedStatistics, 6> expected_stats_;
+  mutable int times_received_;
 };
 
 TEST(LinuxMemoryMeasurementTest, TestReadInvalidFile)
@@ -278,34 +278,34 @@ TEST(LinuxMemoryMeasurementTest, TestReadInvalidFile)
 }
 
 TEST_F(LinuxMemoryMeasurementTestFixture, testManualMeasurement) {
-  test_measure_linux_memory->SetTestString("");
-  double mem_used_percentage = test_measure_linux_memory->PeriodicMeasurement();
+  test_measure_linux_memory_->SetTestString("");
+  double mem_used_percentage = test_measure_linux_memory_->PeriodicMeasurement();
   ASSERT_TRUE(std::isnan(mem_used_percentage));
 
-  test_measure_linux_memory->SetTestString(test_constants::kFullSample);
-  mem_used_percentage = test_measure_linux_memory->PeriodicMeasurement();
+  test_measure_linux_memory_->SetTestString(test_constants::kFullSample);
+  mem_used_percentage = test_measure_linux_memory_->PeriodicMeasurement();
   ASSERT_DOUBLE_EQ(test_constants::kMemoryUsedPercentage, mem_used_percentage);
 }
 
 TEST_F(LinuxMemoryMeasurementTestFixture, TestPublishMetricsMessage)
 {
-  ASSERT_NE(test_measure_linux_memory, nullptr);
-  ASSERT_FALSE(test_measure_linux_memory->IsStarted());
+  ASSERT_NE(test_measure_linux_memory_, nullptr);
+  ASSERT_FALSE(test_measure_linux_memory_->IsStarted());
 
   auto test_receive_measurements = std::make_shared<TestReceiveMemoryMeasurementNode>(
     "test_receive_measurements");
   std::promise<bool> empty_promise;
   std::shared_future<bool> dummy_future = empty_promise.get_future();
   rclcpp::executors::SingleThreadedExecutor ex;
-  ex.add_node(test_measure_linux_memory);
+  ex.add_node(test_measure_linux_memory_);
   ex.add_node(test_receive_measurements);
 
   //
   // spin the node with it started
   //
-  bool start_success = test_measure_linux_memory->Start();
+  bool start_success = test_measure_linux_memory_->Start();
   ASSERT_TRUE(start_success);
-  ASSERT_TRUE(test_measure_linux_memory->IsStarted());
+  ASSERT_TRUE(test_measure_linux_memory_->IsStarted());
   ex.spin_until_future_complete(dummy_future, test_constants::kTestDuration);
   EXPECT_EQ(3, test_receive_measurements->GetNumReceived());
   // expectation is:
@@ -317,21 +317,21 @@ TEST_F(LinuxMemoryMeasurementTestFixture, TestPublishMetricsMessage)
   // 200 ms: SAMPLES[3] is collected
   // 240 ms: statistics derived from SAMPLES[3] is published. statistics are cleared
   // 250 ms: SAMPLES[4] is collected. last GetStatisticsResults() is of SAMPLES[4]
-  StatisticData data = test_measure_linux_memory->GetStatisticsResults();
+  StatisticData data = test_measure_linux_memory_->GetStatisticsResults();
   EXPECT_EQ(1, data.sample_count);
 
   //
   // spin the node with it stopped
   //
-  bool stop_success = test_measure_linux_memory->Stop();
+  bool stop_success = test_measure_linux_memory_->Stop();
   ASSERT_TRUE(stop_success);
-  ASSERT_FALSE(test_measure_linux_memory->IsStarted());
+  ASSERT_FALSE(test_measure_linux_memory_->IsStarted());
   ex.spin_until_future_complete(dummy_future, test_constants::kTestDuration);
   EXPECT_EQ(3, test_receive_measurements->GetNumReceived());
   // expectation is:
   // upon calling stop, samples are cleared, so GetStatisticsResults() would be NaNs
   // no MetricsMessages are published
-  data = test_measure_linux_memory->GetStatisticsResults();
+  data = test_measure_linux_memory_->GetStatisticsResults();
   EXPECT_TRUE(std::isnan(data.average));
   EXPECT_TRUE(std::isnan(data.min));
   EXPECT_TRUE(std::isnan(data.max));
@@ -341,9 +341,9 @@ TEST_F(LinuxMemoryMeasurementTestFixture, TestPublishMetricsMessage)
   //
   // spin the node with it restarted
   //
-  start_success = test_measure_linux_memory->Start();
+  start_success = test_measure_linux_memory_->Start();
   ASSERT_TRUE(start_success);
-  ASSERT_TRUE(test_measure_linux_memory->IsStarted());
+  ASSERT_TRUE(test_measure_linux_memory_->IsStarted());
   ex.spin_until_future_complete(dummy_future, test_constants::kTestDuration);
   EXPECT_EQ(6, test_receive_measurements->GetNumReceived());
   // expectation is:
@@ -355,6 +355,6 @@ TEST_F(LinuxMemoryMeasurementTestFixture, TestPublishMetricsMessage)
   // 200 ms: SAMPLES[8] is collected
   // 240 ms: statistics derived from SAMPLES[8] is published. statistics are cleared
   // 250 ms: SAMPLES[9] is collected. last GetStatisticsResults() is of SAMPLES[9]
-  data = test_measure_linux_memory->GetStatisticsResults();
+  data = test_measure_linux_memory_->GetStatisticsResults();
   EXPECT_EQ(1, data.sample_count);
 }
