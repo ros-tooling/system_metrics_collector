@@ -12,15 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string>
 #include <sstream>
+#include <string>
 
 #include "proc_pid_cpu_data.hpp"
 
-namespace
-{
-
-}
 
 namespace system_metrics_collector
 {

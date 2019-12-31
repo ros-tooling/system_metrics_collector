@@ -15,8 +15,8 @@
 #include <time.h>
 #include <unistd.h>
 
-#include <cmath>
 #include <chrono>
+#include <cmath>
 #include <fstream>
 #include <limits>
 #include <sstream>
@@ -38,9 +38,9 @@ constexpr const char kMemAvailable[] = "MemAvailable:";
 constexpr const char kEmptyFile[] = "";
 constexpr const int kInvalidMemorySample = -1;
 
-uint64_t TimespecToNanoseconds(const timespec * ts)
+uint64_t TimespecToNanoseconds(const timespec & ts)
 {
-  auto duration = std::chrono::seconds{ts->tv_sec} + std::chrono::nanoseconds{ts->tv_nsec};
+  auto duration = std::chrono::seconds{ts.tv_sec} + std::chrono::nanoseconds{ts.tv_nsec};
   return std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
 }
 
@@ -103,8 +103,8 @@ ProcPidCpuData MeasurePidCpuTime()
   }
 
   ProcPidCpuData measured_data;
-  measured_data.pid_cpu_time_ = TimespecToNanoseconds(&process_time);
-  measured_data.total_cpu_time_ = kNumCpus * TimespecToNanoseconds(&monotonic_time);
+  measured_data.pid_cpu_time_ = TimespecToNanoseconds(process_time);
+  measured_data.total_cpu_time_ = kNumCpus * TimespecToNanoseconds(monotonic_time);
 
   return measured_data;
 }
@@ -131,8 +131,8 @@ double ComputePidCpuActivePercentage(
   const ProcPidCpuData & measurement2)
 {
   if (measurement1.IsMeasurementEmpty() || measurement2.IsMeasurementEmpty()) {
-    RCUTILS_LOG_ERROR_NAMED("computePidCpuActivePercentage",
-      "a measurement was empty, unable to compute cpu percentage");
+    RCUTILS_LOG_ERROR_NAMED("ComputePidCpuActivePercentage",
+      "a measurement was empty, unable to compute pid cpu percentage");
     return std::nan("");
   }
 

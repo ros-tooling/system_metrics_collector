@@ -99,7 +99,7 @@ TEST(UtilitiesTest, TestCalculatePidCpuActivePercentage)
   using IntType = decltype(system_metrics_collector::ProcPidCpuData::total_cpu_time_);
 
   std::default_random_engine gen;
-  std::uniform_int_distribution<IntType> dist(0, std::numeric_limits<IntType>::max() - 1);
+  std::uniform_int_distribution<IntType> dist{0, std::numeric_limits<IntType>::max() - 1};
   system_metrics_collector::ProcPidCpuData measurement1, measurement2;
 
   while (measurement1.total_cpu_time_ == measurement2.total_cpu_time_) {
