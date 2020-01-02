@@ -24,6 +24,7 @@
 
 #include "../../src/system_metrics_collector/linux_cpu_measurement_node.hpp"
 #include "../../src/system_metrics_collector/linux_memory_measurement_node.hpp"
+#include "../../src/system_metrics_collector/linux_process_cpu_measurement_node.hpp"
 #include "../../src/system_metrics_collector/linux_process_memory_measurement_node.hpp"
 
 namespace
@@ -57,6 +58,13 @@ int main(int argc, char ** argv)
     kStatisticsTopicName,
     kDefaultPublishPeriod);
 
+  const auto process_cpu_node =
+    std::make_shared<system_metrics_collector::LinuxProcessCpuMeasurementNode>(
+    "linuxProcessCpuCollector",
+    kDefaultCollectPeriod,
+    "not_publishing_yet",
+    kDefaultPublishPeriod);
+
   const auto process_mem_node =
     std::make_shared<system_metrics_collector::LinuxProcessMemoryMeasurementNode>(
     "linuxProcessMemoryCollector",
@@ -67,6 +75,7 @@ int main(int argc, char ** argv)
   rclcpp::executors::MultiThreadedExecutor ex;
   cpu_node->Start();
   mem_node->Start();
+  process_cpu_node->Start();
   process_mem_node->Start();
 
   {
@@ -87,6 +96,16 @@ int main(int argc, char ** argv)
   }
   {
     const auto r = rcutils_logging_set_logger_level(
+      process_cpu_node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+
+    if (r != 0) {
+      RCUTILS_LOG_ERROR_NAMED("main",
+        "Unable to set debug logging for the process cpu node: %s\n",
+        rcutils_get_error_string().str);
+    }
+  }
+  {
+    const auto r = rcutils_logging_set_logger_level(
       process_mem_node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
 
     if (r != 0) {
@@ -98,6 +117,7 @@ int main(int argc, char ** argv)
 
   ex.add_node(cpu_node);
   ex.add_node(mem_node);
+  ex.add_node(process_cpu_node);
   ex.add_node(process_mem_node);
   ex.spin();
 
@@ -105,6 +125,7 @@ int main(int argc, char ** argv)
 
   cpu_node->Stop();
   mem_node->Stop();
+  process_cpu_node->Stop();
   process_mem_node->Stop();
 
   return 0;
