@@ -16,11 +16,11 @@
 
 #include <cmath>
 #include <iostream>
-#include <string>
 #include <limits>
 #include <memory>
 #include <mutex>
 #include <random>
+#include <string>
 
 #include "../../src/system_metrics_collector/utilities.hpp"
 #include "test_constants.hpp"
