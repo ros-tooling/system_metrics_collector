@@ -25,23 +25,23 @@ namespace system_metrics_collector
 
 uint64_t ProcPidCpuData::GetActiveTime() const
 {
-  return pid_cpu_time_;
+  return pid_cpu_time;
 }
 
 uint64_t ProcPidCpuData::GetTotalTime() const
 {
-  return total_cpu_time_;
+  return total_cpu_time;
 }
 
 bool ProcPidCpuData::IsMeasurementEmpty() const
 {
-  return pid_cpu_time_ == kEmptyData || total_cpu_time_ == kEmptyData;
+  return pid_cpu_time == kEmptyData || total_cpu_time == kEmptyData;
 }
 
 std::string ProcPidCpuData::ToString() const
 {
   std::stringstream ss;
-  ss << "pid_cpu_time=" << pid_cpu_time_ << ", total_cpu_time=" << total_cpu_time_;
+  ss << "pid_cpu_time=" << pid_cpu_time << ", total_cpu_time=" << total_cpu_time;
   return ss.str();
 }
 

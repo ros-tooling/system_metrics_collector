@@ -40,7 +40,7 @@ std::string ReadFileToString(const std::string & file_name);
 ProcCpuData ProcessStatCpuLine(const std::string & stat_cpu_line);
 
 /**
- * Measure process-specific and system-wide CPU times using clock_gettime()
+ * Measures process-specific and system-wide CPU times using clock_gettime()
  *
  * @return ProcPidCpuData struct populated if measurements were successful, otherwise empty
  */
@@ -59,6 +59,9 @@ double ComputeCpuActivePercentage(
 
 /**
  * Computes the percentage of CPU active for a given process.
+ * The input measurements contain data about the total amount of CPU time that the process and
+ * the entire system were active for. The calculation is to find the delta of the process and
+ * the system CPU times, and then the process CPU time as a percentage of the system CPU time.
  *
  * @param measurement1 the first measurement for the process and system
  * @param measurement2 the second measurement for the process and system (made after the first)

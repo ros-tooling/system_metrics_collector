@@ -92,21 +92,21 @@ ProcPidCpuData MeasurePidCpuTime()
   static const int kNumCpus = sysconf(_SC_NPROCESSORS_ONLN);
   timespec process_time{};
   timespec monotonic_time{};
+  ProcPidCpuData data;
 
   if (clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &process_time) != 0) {
     RCUTILS_LOG_ERROR_NAMED("MeasurePidCpuTime", "unable to get process cpu time");
-    return ProcPidCpuData();
+    return data;
   }
   if (clock_gettime(CLOCK_MONOTONIC_RAW, &monotonic_time) != 0) {
     RCUTILS_LOG_ERROR_NAMED("MeasurePidCpuTime", "unable to get monotonic cpu time");
-    return ProcPidCpuData();
+    return data;
   }
 
-  ProcPidCpuData measured_data;
-  measured_data.pid_cpu_time_ = TimespecToNanoseconds(process_time);
-  measured_data.total_cpu_time_ = kNumCpus * TimespecToNanoseconds(monotonic_time);
+  data.pid_cpu_time = TimespecToNanoseconds(process_time);
+  data.total_cpu_time = kNumCpus * TimespecToNanoseconds(monotonic_time);
 
-  return measured_data;
+  return data;
 }
 
 double ComputeCpuActivePercentage(

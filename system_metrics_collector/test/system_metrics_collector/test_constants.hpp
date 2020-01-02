@@ -15,6 +15,12 @@
 #ifndef SYSTEM_METRICS_COLLECTOR__TEST_CONSTANTS_HPP_
 #define SYSTEM_METRICS_COLLECTOR__TEST_CONSTANTS_HPP_
 
+#include <array>
+#include <chrono>
+
+#include "../../src/system_metrics_collector/proc_pid_cpu_data.hpp"
+
+
 /**
  * Constants used and shared among the various system metrics collector tests.
  */
@@ -40,6 +46,11 @@ constexpr const std::array<const char *, 10> kProcSamples = {
 };
 constexpr const double kCpuActiveProcSample_0_1 = 2.7239908106334099;
 
+constexpr const std::array<system_metrics_collector::ProcPidCpuData, 2> kProcPidSamples = {
+  system_metrics_collector::ProcPidCpuData{7348045, 22451232},
+  system_metrics_collector::ProcPidCpuData{7348080, 22451360}
+};
+constexpr const double kCpuActiveProcPidSample_0_1 = 27.34375;
 
 constexpr const char kEmptySample[] = "";
 constexpr const char kGarbageSample[] = "this is garbage\n";

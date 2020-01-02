@@ -26,8 +26,9 @@ namespace system_metrics_collector
 class ProcPidCpuData
 {
 public:
-  ProcPidCpuData() = default;
-  virtual ~ProcPidCpuData() = default;
+  constexpr ProcPidCpuData() = default;
+  constexpr ProcPidCpuData(uint64_t pid_time, uint64_t total_time)
+  : pid_cpu_time(pid_time), total_cpu_time(total_time) {}
 
   static constexpr const uint64_t kEmptyData = std::numeric_limits<uint64_t>::max();
 
@@ -62,11 +63,11 @@ public:
   /**
    * Stored CPU data: user and system mode cpu time for the process in nanoseconds
    */
-  uint64_t pid_cpu_time_{kEmptyData};
+  uint64_t pid_cpu_time{kEmptyData};
   /**
    * Stored CPU data: wall clock time (cpu time of entire system) in nanoseconds
    */
-  uint64_t total_cpu_time_{kEmptyData};
+  uint64_t total_cpu_time{kEmptyData};
 };
 
 }  // namespace system_metrics_collector
