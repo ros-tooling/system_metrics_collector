@@ -15,8 +15,8 @@
 #include <gtest/gtest.h>
 
 #include <cmath>
-#include <memory>
 #include <fstream>
+#include <memory>
 #include <string>
 #include <tuple>
 #include <unordered_map>
@@ -52,11 +52,23 @@ public:
     const std::chrono::milliseconds publish_period)
   : LinuxProcessCpuMeasurementNode(name, measurement_period, topic, publish_period) {}
 
+  /**
+   * Exposes the protected member function for testing purposes.
+   * See description for LinuxProcessCpuMeasurementNode::PeriodicMeasurement().
+   *
+   * @return percentage of CPU this process used
+   */
   double PeriodicMeasurement() override
   {
     LinuxProcessCpuMeasurementNode::PeriodicMeasurement();
   }
 
+  /**
+   * Exposes the protected member function for testing purposes.
+   * See description for LinuxProcessCpuMeasurementNode::GetMetricName().
+   *
+   * @return a string of the name for this measured metric
+   */
   std::string GetMetricName() const override
   {
     return LinuxProcessCpuMeasurementNode::GetMetricName();
@@ -84,13 +96,20 @@ public:
 private:
   void MetricsMessageCallback(const MetricsMessage & msg) const
   {
+    // Given kPublishPeriod is 80 ms and kTestDuration is 250 ms, the expectation is:
+    // MetricsMessages are published/received at 80 ms, 160 ms, and 240 ms during the first round.
+    // The TestLinuxProcessCpuMeasurementNode is then stopped and restarted and again
+    // MetricsMessages are published/received at 80 ms, 160 ms, and 240 ms during the second round.
+    // This means that no more than 6 MetricsMessages are received.
     ASSERT_GT(6, times_received_);
 
     // check source names
     EXPECT_EQ(kTestNodeName, msg.measurement_source_name);
     EXPECT_EQ(expected_metric_name_, msg.metrics_source);
 
-    // check measurements
+    // Check measurements.
+    // There are five types of statistics:
+    // average, maximum, minimum, standard deviation, number of samples
     EXPECT_EQ(5, msg.statistics.size());
 
     for (const StatisticDataPoint & stat : msg.statistics) {

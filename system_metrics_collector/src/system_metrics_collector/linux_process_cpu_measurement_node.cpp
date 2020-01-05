@@ -57,7 +57,7 @@ bool LinuxProcessCpuMeasurementNode::SetupStart()
 
 double LinuxProcessCpuMeasurementNode::PeriodicMeasurement()
 {
-  const ProcPidCpuData current_measurement = MeasurePidCpuTime();
+  const auto current_measurement = MeasurePidCpuTime();
 
   const auto cpu_percentage = ComputePidCpuActivePercentage(last_measurement_, current_measurement);
 

@@ -20,9 +20,9 @@
 #include <string>
 #include <tuple>
 
-#include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
-#include "../../src/system_metrics_collector/proc_cpu_data.hpp"
-#include "../../src/system_metrics_collector/utilities.hpp"
+#include "periodic_measurement_node.hpp"
+#include "proc_cpu_data.hpp"
+#include "utilities.hpp"
 
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/logging_macros.h"
