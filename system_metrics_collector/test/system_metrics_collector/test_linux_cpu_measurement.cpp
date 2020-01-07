@@ -31,7 +31,6 @@
 #include "../../src/system_metrics_collector/utilities.hpp"
 
 #include "test_constants.hpp"
-#include "test_utilities.hpp"
 
 using metrics_statistics_msgs::msg::MetricsMessage;
 using metrics_statistics_msgs::msg::StatisticDataPoint;
@@ -39,7 +38,6 @@ using metrics_statistics_msgs::msg::StatisticDataType;
 using moving_average_statistics::StatisticData;
 using system_metrics_collector::ProcessStatCpuLine;
 using test_constants::kProcSamples;
-using test_utilities::ComputeCpuActivePercentage;
 
 namespace
 {
@@ -102,8 +100,10 @@ public:
     // round 1 150 ms: kProcSamples[2] is collected
     // round 1 160 ms: statistics derived from kProcSamples[0-1 & 1-2] is published
     stats_calc.Reset();
-    stats_calc.AddMeasurement(ComputeCpuActivePercentage(kProcSamples[0], kProcSamples[1]));
-    stats_calc.AddMeasurement(ComputeCpuActivePercentage(kProcSamples[1], kProcSamples[2]));
+    stats_calc.AddMeasurement(ComputeCpuActivePercentage(ProcessStatCpuLine(kProcSamples[0]),
+      ProcessStatCpuLine(kProcSamples[1])));
+    stats_calc.AddMeasurement(ComputeCpuActivePercentage(ProcessStatCpuLine(kProcSamples[1]),
+      ProcessStatCpuLine(kProcSamples[2])));
     data = stats_calc.GetStatistics();
     StatisticDataToExpectedStatistics(data, expected_stats_[1]);
 
@@ -111,7 +111,8 @@ public:
     // round 1 200 ms: kProcSamples[3] is collected
     // round 1 240 ms: statistics derived from kProcSamples[2-3] is published
     stats_calc.Reset();
-    stats_calc.AddMeasurement(ComputeCpuActivePercentage(kProcSamples[2], kProcSamples[3]));
+    stats_calc.AddMeasurement(ComputeCpuActivePercentage(ProcessStatCpuLine(kProcSamples[2]),
+      ProcessStatCpuLine(kProcSamples[3])));
     data = stats_calc.GetStatistics();
     StatisticDataToExpectedStatistics(data, expected_stats_[2]);
 
@@ -127,8 +128,10 @@ public:
     // round 2 150 ms: kProcSamples[7] is collected
     // round 2 160 ms: statistics derived from kProcSamples[5-6 & 6-7] is published
     stats_calc.Reset();
-    stats_calc.AddMeasurement(ComputeCpuActivePercentage(kProcSamples[5], kProcSamples[6]));
-    stats_calc.AddMeasurement(ComputeCpuActivePercentage(kProcSamples[6], kProcSamples[7]));
+    stats_calc.AddMeasurement(ComputeCpuActivePercentage(ProcessStatCpuLine(kProcSamples[5]),
+      ProcessStatCpuLine(kProcSamples[6])));
+    stats_calc.AddMeasurement(ComputeCpuActivePercentage(ProcessStatCpuLine(kProcSamples[6]),
+      ProcessStatCpuLine(kProcSamples[7])));
     data = stats_calc.GetStatistics();
     StatisticDataToExpectedStatistics(data, expected_stats_[4]);
 
@@ -136,7 +139,8 @@ public:
     // round 2 200 ms: kProcSamples[8] is collected
     // round 2 240 ms: statistics derived from kProcSamples[7-8] is published
     stats_calc.Reset();
-    stats_calc.AddMeasurement(ComputeCpuActivePercentage(kProcSamples[7], kProcSamples[8]));
+    stats_calc.AddMeasurement(ComputeCpuActivePercentage(ProcessStatCpuLine(kProcSamples[7]),
+      ProcessStatCpuLine(kProcSamples[8])));
     data = stats_calc.GetStatistics();
     StatisticDataToExpectedStatistics(data, expected_stats_[5]);
   }
@@ -260,7 +264,8 @@ TEST_F(LinuxCpuMeasurementTestFixture, TestPublishMetricsMessage)
   // 240 ms: statistics derived from kProcSamples[2-3] is published. statistics are cleared
   // 250 ms: kProcSamples[4] is collected. last GetStatisticsResults() is of kProcSamples[3-4]
   StatisticData data = test_measure_linux_cpu_->GetStatisticsResults();
-  double expected_cpu_active = ComputeCpuActivePercentage(kProcSamples[3], kProcSamples[4]);
+  double expected_cpu_active = ComputeCpuActivePercentage(ProcessStatCpuLine(kProcSamples[3]),
+      ProcessStatCpuLine(kProcSamples[4]));
   EXPECT_DOUBLE_EQ(expected_cpu_active, data.average);
   EXPECT_DOUBLE_EQ(expected_cpu_active, data.min);
   EXPECT_DOUBLE_EQ(expected_cpu_active, data.max);
@@ -303,7 +308,9 @@ TEST_F(LinuxCpuMeasurementTestFixture, TestPublishMetricsMessage)
   // 240 ms: statistics derived from kProcSamples[7-8] is published. statistics are cleared
   // 250 ms: kProcSamples[9] is collected. last GetStatisticsResults() is of kProcSamples[8-9]
   data = test_measure_linux_cpu_->GetStatisticsResults();
-  expected_cpu_active = ComputeCpuActivePercentage(kProcSamples[8], kProcSamples[9]);
+  expected_cpu_active =
+    ComputeCpuActivePercentage(ProcessStatCpuLine(
+        kProcSamples[8]), ProcessStatCpuLine(kProcSamples[9]));
   EXPECT_DOUBLE_EQ(expected_cpu_active, data.average);
   EXPECT_DOUBLE_EQ(expected_cpu_active, data.min);
   EXPECT_DOUBLE_EQ(expected_cpu_active, data.max);

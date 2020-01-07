@@ -24,7 +24,6 @@
 
 #include "../../src/system_metrics_collector/utilities.hpp"
 #include "test_constants.hpp"
-#include "test_utilities.hpp"
 
 
 TEST(UtilitiesTest, TestParseProcStatLine)
@@ -89,8 +88,11 @@ TEST(UtilitiesTest, TestEmptyProcCpuData)
 
 TEST(UtilitiesTest, TestCalculateCpuActivePercentage)
 {
-  auto p = test_utilities::ComputeCpuActivePercentage(test_constants::kProcSamples[0],
-      test_constants::kProcSamples[1]);
+  auto p =
+    ComputeCpuActivePercentage(system_metrics_collector::ProcessStatCpuLine(test_constants::
+      kProcSamples
+      [0]),
+      system_metrics_collector::ProcessStatCpuLine(test_constants::kProcSamples[1]));
   ASSERT_DOUBLE_EQ(test_constants::kCpuActiveProcSample_0_1, p);
 }
 
