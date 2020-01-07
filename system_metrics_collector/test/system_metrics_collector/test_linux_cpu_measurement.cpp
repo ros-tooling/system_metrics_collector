@@ -321,9 +321,9 @@ TEST_F(LinuxCpuMeasurementTestFixture, TestPublishMetricsMessage)
   // 240 ms: statistics derived from kProcSamples[7-8] is published. statistics are cleared
   // 250 ms: kProcSamples[9] is collected. last GetStatisticsResults() is of kProcSamples[8-9]
   data = test_measure_linux_cpu_->GetStatisticsResults();
-  expected_cpu_active =
-    ComputeCpuActivePercentage(ProcessStatCpuLine(kProcSamples[8]),
-      ProcessStatCpuLine(kProcSamples[9]));
+  expected_cpu_active = ComputeCpuActivePercentage(
+    ProcessStatCpuLine(kProcSamples[8]),
+    ProcessStatCpuLine(kProcSamples[9]));
   EXPECT_DOUBLE_EQ(expected_cpu_active, data.average);
   EXPECT_DOUBLE_EQ(expected_cpu_active, data.min);
   EXPECT_DOUBLE_EQ(expected_cpu_active, data.max);
