@@ -22,9 +22,29 @@
 #include <random>
 #include <string>
 
+#include "../../src/system_metrics_collector/proc_cpu_data.hpp"
 #include "../../src/system_metrics_collector/utilities.hpp"
+
 #include "test_constants.hpp"
 
+
+TEST(UtilitiesTest, TestParseProcStatLineBadData) {
+  // empty sample
+  auto parsed_data = system_metrics_collector::ProcessStatCpuLine("");
+  ASSERT_TRUE(parsed_data.IsMeasurementEmpty());
+
+  // bad label
+  parsed_data = system_metrics_collector::ProcessStatCpuLine(
+    "boi 22451232 118653 7348045 934943300 5378119 0 419114 0 0 0\n"
+  );
+  ASSERT_TRUE(parsed_data.IsMeasurementEmpty());
+
+  // incomplete data
+  parsed_data = system_metrics_collector::ProcessStatCpuLine(
+    "cpu 22451232 118653 7348045 934943300 5378119\n"
+  );
+  ASSERT_TRUE(parsed_data.IsMeasurementEmpty());
+}
 
 TEST(UtilitiesTest, TestParseProcStatLine)
 {
@@ -67,6 +87,7 @@ TEST(UtilitiesTest, TestParseProcStatLine2)
     parsed_data.ToString());
 }
 
+// todo @dbbonnie this relies on system specific calls and is not stubbed out
 TEST(UtilitiesTest, TestMeasurePidCpuTime)
 {
   auto parsed_data = system_metrics_collector::MeasurePidCpuTime();
@@ -88,10 +109,14 @@ TEST(UtilitiesTest, TestEmptyProcCpuData)
 
 TEST(UtilitiesTest, TestCalculateCpuActivePercentage)
 {
-  auto p =
-    ComputeCpuActivePercentage(system_metrics_collector::ProcessStatCpuLine(test_constants::
-      kProcSamples
-      [0]),
+  system_metrics_collector::ProcCpuData m1;
+  system_metrics_collector::ProcCpuData m2;
+  auto empty = ComputeCpuActivePercentage(m1, m2);
+  ASSERT_TRUE(std::isnan(empty));
+
+  auto p = ComputeCpuActivePercentage(system_metrics_collector::ProcessStatCpuLine(
+        test_constants::kProcSamples
+        [0]),
       system_metrics_collector::ProcessStatCpuLine(test_constants::kProcSamples[1]));
   ASSERT_DOUBLE_EQ(test_constants::kCpuActiveProcSample_0_1, p);
 }
