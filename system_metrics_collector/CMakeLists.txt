@@ -114,6 +114,12 @@ if(BUILD_TESTING)
     lib/${PROJECT_NAME})
 endif()
 
+# Install launch files.
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}/
+)
+
 install(TARGETS
   main
   DESTINATION
