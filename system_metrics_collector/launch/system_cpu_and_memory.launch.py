@@ -24,7 +24,12 @@ def generate_launch_description():
     ld = LaunchDescription([
         Node(
             package='system_metrics_collector',
-            node_executable='main',
+            node_executable='linux_cpu_collector',
             output='screen'),
+        Node(
+            package='system_metrics_collector',
+            node_executable='linux_memory_collector',
+            output='screen'
+        ),
     ])
     return ld
