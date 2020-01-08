@@ -41,6 +41,12 @@ TEST(UtilitiesTest, TestParseProcStatLineBadData) {
 
   // incomplete data
   parsed_data = system_metrics_collector::ProcessStatCpuLine(
+    "cpu\n"
+  );
+  ASSERT_TRUE(parsed_data.IsMeasurementEmpty());
+
+  // incomplete data
+  parsed_data = system_metrics_collector::ProcessStatCpuLine(
     "cpu 22451232 118653 7348045 934943300 5378119\n"
   );
   ASSERT_TRUE(parsed_data.IsMeasurementEmpty());
@@ -109,11 +115,13 @@ TEST(UtilitiesTest, TestEmptyProcCpuData)
 
 TEST(UtilitiesTest, TestCalculateCpuActivePercentage)
 {
+  // test empty
   system_metrics_collector::ProcCpuData m1;
   system_metrics_collector::ProcCpuData m2;
   auto empty = ComputeCpuActivePercentage(m1, m2);
   ASSERT_TRUE(std::isnan(empty));
 
+  // test valid values
   auto p = ComputeCpuActivePercentage(system_metrics_collector::ProcessStatCpuLine(
         test_constants::kProcSamples
         [0]),
@@ -123,6 +131,12 @@ TEST(UtilitiesTest, TestCalculateCpuActivePercentage)
 
 TEST(UtilitiesTest, TestCalculatePidCpuActivePercentage)
 {
+  // test empty
+  system_metrics_collector::ProcPidCpuData m1;
+  system_metrics_collector::ProcPidCpuData m2;
+  auto empty = system_metrics_collector::ComputePidCpuActivePercentage(m1, m2);
+  ASSERT_TRUE(std::isnan(empty));
+
   using IntType = decltype(system_metrics_collector::ProcPidCpuData::total_cpu_time);
   system_metrics_collector::ProcPidCpuData measurement1, measurement2;
 
@@ -156,6 +170,15 @@ TEST(UtilitiesTest, TestProcMemInfoLines)
   ASSERT_TRUE(std::isnan(d));
 
   d = system_metrics_collector::ProcessMemInfoLines(test_constants::kIncompleteSample);
+  ASSERT_TRUE(std::isnan(d));
+
+  d = system_metrics_collector::ProcessMemInfoLines(test_constants::kIncompleteSample2);
+  ASSERT_TRUE(std::isnan(d));
+
+  d = system_metrics_collector::ProcessMemInfoLines(test_constants::kIncompleteSample3);
+  ASSERT_TRUE(std::isnan(d));
+
+  d = system_metrics_collector::ProcessMemInfoLines(test_constants::kIncompleteSample4);
   ASSERT_TRUE(std::isnan(d));
 
   d = system_metrics_collector::ProcessMemInfoLines(test_constants::kCompleteSample);

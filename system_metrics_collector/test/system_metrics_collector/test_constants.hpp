@@ -57,6 +57,14 @@ constexpr const char kGarbageSample[] = "this is garbage\n";
 constexpr const char kIncompleteSample[] =
   "MemTotal:       16302048 kB\n"
   "MemFree:          443300 kB\n";
+constexpr const char kIncompleteSample2[] =
+  "MemTotal:\n";
+constexpr const char kIncompleteSample3[] =
+  "MemTotal:       16302048 kB\n"
+  "MemFree:          239124 kB\n"
+  "MemAvailable:\n";
+constexpr const char kIncompleteSample4[] =
+  "MemTotal:\n";
 constexpr const char kCompleteSample[] =
   "MemTotal:       16302048 kB\n"
   "MemFree:          239124 kB\n"

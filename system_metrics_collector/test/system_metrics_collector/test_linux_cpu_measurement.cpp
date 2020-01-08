@@ -59,6 +59,7 @@ public:
 
   virtual ~TestLinuxCpuMeasurementNode() = default;
 
+  // make this private method public for unit testing purposes
   double PeriodicMeasurement() override
   {
     LinuxCpuMeasurementNode::PeriodicMeasurement();
