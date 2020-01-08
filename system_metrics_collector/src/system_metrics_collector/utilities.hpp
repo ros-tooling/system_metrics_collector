@@ -40,7 +40,7 @@ std::string ReadFileToString(const std::string & file_name);
 ProcCpuData ProcessStatCpuLine(const std::string & stat_cpu_line);
 
 /**
- * Measures process-specific and system-wide CPU times using clock_gettime()
+ * Measures Linux process-specific and system-wide CPU times using clock_gettime()
  *
  * @return ProcPidCpuData struct populated if measurements were successful, otherwise empty
  */

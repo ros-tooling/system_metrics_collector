@@ -115,7 +115,7 @@ TEST_F(MovingAverageStatisticsTestFixture, TestCountEmpty) {
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, TestGetStatistics) {
-  auto result = moving_average_statistics_->GetStatistics();
+  const auto result = moving_average_statistics_->GetStatistics();
   EXPECT_DOUBLE_EQ(result.average, kExpectedAvg);
   EXPECT_DOUBLE_EQ(result.min, kExpectedMin);
   EXPECT_DOUBLE_EQ(result.max, kExpectedMax);
@@ -126,7 +126,7 @@ TEST_F(MovingAverageStatisticsTestFixture, TestGetStatistics) {
 TEST_F(MovingAverageStatisticsTestFixture, TestGetStatisticsInt) {
   moving_average_statistics_->Reset();
 
-  auto data_int = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+  const auto data_int = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
   const double kExpectedAverage = 5.5;
   const double kExpectedMinimum = 1;
@@ -157,8 +157,8 @@ TEST_F(MovingAverageStatisticsTestFixture, TestReset) {
 TEST_F(MovingAverageStatisticsTestFixture, TestThreadSafe) {
   moving_average_statistics_->Reset();
 
-  std::atomic<int> total_sum(0);
-  std::atomic<int> count(0);
+  std::atomic<int> total_sum{0};
+  std::atomic<int> count{0};
 
   std::thread t1([this, &count, &total_sum]() {
       for (int i = 1; i < 1101; i++) {
@@ -186,8 +186,8 @@ TEST_F(MovingAverageStatisticsTestFixture, TestThreadSafe) {
   t2.join();
   t3.join();
 
-  double control = static_cast<double>(total_sum.load()) / static_cast<double>(count.load());
-  double var = 1e-11;
+  const double control = static_cast<double>(total_sum.load()) / static_cast<double>(count.load());
+  const double var = 1e-11;
 
   ASSERT_NEAR(moving_average_statistics_->Average(), control, var);
 }
