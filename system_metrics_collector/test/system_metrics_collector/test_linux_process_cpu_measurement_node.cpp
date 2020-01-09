@@ -41,11 +41,11 @@ constexpr const char kTestNodeName[] = "test_measure_linux_process_cpu";
 constexpr const char kTestTopic[] = "test_process_cpu_measure_topic";
 }
 
-class TestLinuxProcessCpuMeasurementNode : public system_metrics_collector::
+class MockLinuxProcessCpuMeasurementNode : public system_metrics_collector::
   LinuxProcessCpuMeasurementNode
 {
 public:
-  TestLinuxProcessCpuMeasurementNode(
+  MockLinuxProcessCpuMeasurementNode(
     const std::string & name,
     const std::chrono::milliseconds measurement_period,
     const std::string & publishing_topic,
@@ -226,7 +226,7 @@ public:
 
     rclcpp::init(0, nullptr);
 
-    test_node_ = std::make_shared<TestLinuxProcessCpuMeasurementNode>(kTestNodeName,
+    test_node_ = std::make_shared<MockLinuxProcessCpuMeasurementNode>(kTestNodeName,
         test_constants::kMeasurePeriod, kTestTopic, test_constants::kPublishPeriod);
 
     ASSERT_FALSE(test_node_->IsStarted());
@@ -248,7 +248,7 @@ public:
   }
 
 protected:
-  std::shared_ptr<TestLinuxProcessCpuMeasurementNode> test_node_;
+  std::shared_ptr<MockLinuxProcessCpuMeasurementNode> test_node_;
 };
 
 TEST_F(LinuxProcessCpuMeasurementTestFixture, TestGetMetricName) {

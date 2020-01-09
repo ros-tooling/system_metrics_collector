@@ -91,7 +91,7 @@ private:
    */
   const std::string metric_name_;
   /**
-   * The cached processa and system measurements used in order to perform the CPU active percentage.
+   * The cached process and system measurements used in order to perform the CPU active percentage.
    */
   ProcPidCpuData last_measurement_;
 };
