@@ -39,6 +39,7 @@ constexpr const char kMetricName[] = "_memory_percent_used";
  */
 double GetSystemTotalMemory()
 {
+  // the following needs the struct keyword because sysinfo is also a function name
   struct sysinfo si {};
   const auto success = sysinfo(&si);
   return success == -1 ? std::nan("") : static_cast<double>(si.totalram);
