@@ -29,10 +29,10 @@
 #include "../../src/system_metrics_collector/utilities.hpp"
 
 #include "test_constants.hpp"
-#include "test_utilities.hpp"
 
 using metrics_statistics_msgs::msg::MetricsMessage;
 using metrics_statistics_msgs::msg::StatisticDataPoint;
+using metrics_statistics_msgs::msg::StatisticDataType;
 using moving_average_statistics::StatisticData;
 
 namespace
@@ -48,9 +48,9 @@ public:
   TestLinuxProcessCpuMeasurementNode(
     const std::string & name,
     const std::chrono::milliseconds measurement_period,
-    const std::string & topic,
+    const std::string & publishing_topic,
     const std::chrono::milliseconds publish_period)
-  : LinuxProcessCpuMeasurementNode(name, measurement_period, topic, publish_period) {}
+  : LinuxProcessCpuMeasurementNode(name, measurement_period, publishing_topic, publish_period) {}
 
   /**
    * Exposes the protected member function for testing purposes.
@@ -73,6 +73,15 @@ public:
   {
     return LinuxProcessCpuMeasurementNode::GetMetricName();
   }
+
+private:
+  system_metrics_collector::ProcPidCpuData MakeSingleMeasurement() override
+  {
+    EXPECT_GT(test_constants::kProcPidSamples.size(), measurement_index_);
+    return test_constants::kProcPidSamples[measurement_index_++];
+  }
+
+  int measurement_index_{0};
 };
 
 class TestReceiveProcessCpuMeasurementNode : public rclcpp::Node
@@ -86,6 +95,78 @@ public:
     auto callback = [this](MetricsMessage::UniquePtr msg) {this->MetricsMessageCallback(*msg);};
     subscription_ = create_subscription<MetricsMessage,
         std::function<void(MetricsMessage::UniquePtr)>>(kTestTopic, 10 /*history_depth*/, callback);
+
+    // tools for calculating expected statistics values
+    moving_average_statistics::MovingAverageStatistics stats_calc;
+    StatisticData data;
+
+    // setting expected_stats_[0]
+    // round 1 50 ms: kProcPidSamples[0] is collected
+    // round 1 80 ms: statistics derived from kProcPidSamples[N/A-0] is published
+    stats_calc.Reset();
+    data = StatisticData();
+    StatisticDataToExpectedStatistics(data, expected_stats_[0]);
+
+    // setting expected_stats_[1]
+    // round 1 100 ms: kProcPidSamples[1] is collected
+    // round 1 150 ms: kProcPidSamples[2] is collected
+    // round 1 160 ms: statistics derived from kProcPidSamples[0-1 & 1-2] is published
+    stats_calc.Reset();
+    stats_calc.AddMeasurement(
+      system_metrics_collector::ComputePidCpuActivePercentage(
+        test_constants::kProcPidSamples[0],
+        test_constants::kProcPidSamples[1]));
+    stats_calc.AddMeasurement(
+      system_metrics_collector::ComputePidCpuActivePercentage(
+        test_constants::kProcPidSamples[1],
+        test_constants::kProcPidSamples[2]));
+    data = stats_calc.GetStatistics();
+    StatisticDataToExpectedStatistics(data, expected_stats_[1]);
+
+    // setting expected_stats_[2]
+    // round 1 200 ms: kProcPidSamples[3] is collected
+    // round 1 240 ms: statistics derived from kProcPidSamples[2-3] is published
+    stats_calc.Reset();
+    stats_calc.AddMeasurement(
+      system_metrics_collector::ComputePidCpuActivePercentage(
+        test_constants::kProcPidSamples[2],
+        test_constants::kProcPidSamples[3]));
+    data = stats_calc.GetStatistics();
+    StatisticDataToExpectedStatistics(data, expected_stats_[2]);
+
+    // setting expected_stats_[3]
+    // round 2 50 ms: kProcPidSamples[5] is collected
+    // round 2 80 ms: statistics derived from kProcPidSamples[N/A-5] is published
+    stats_calc.Reset();
+    data = StatisticData();
+    StatisticDataToExpectedStatistics(data, expected_stats_[3]);
+
+    // setting expected_stats_[4]
+    // round 2 100 ms: kProcPidSamples[6] is collected
+    // round 2 150 ms: kProcPidSamples[7] is collected
+    // round 2 160 ms: statistics derived from kProcPidSamples[5-6 & 6-7] is published
+    stats_calc.Reset();
+    stats_calc.AddMeasurement(
+      system_metrics_collector::ComputePidCpuActivePercentage(
+        test_constants::kProcPidSamples[5],
+        test_constants::kProcPidSamples[6]));
+    stats_calc.AddMeasurement(
+      system_metrics_collector::ComputePidCpuActivePercentage(
+        test_constants::kProcPidSamples[6],
+        test_constants::kProcPidSamples[7]));
+    data = stats_calc.GetStatistics();
+    StatisticDataToExpectedStatistics(data, expected_stats_[4]);
+
+    // setting expected_stats_[5]
+    // round 2 200 ms: kProcPidSamples[8] is collected
+    // round 2 240 ms: statistics derived from kProcPidSamples[7-8] is published
+    stats_calc.Reset();
+    stats_calc.AddMeasurement(
+      system_metrics_collector::ComputePidCpuActivePercentage(
+        test_constants::kProcPidSamples[7],
+        test_constants::kProcPidSamples[8]));
+    data = stats_calc.GetStatistics();
+    StatisticDataToExpectedStatistics(data, expected_stats_[5]);
   }
 
   int GetNumReceived() const
@@ -94,28 +175,36 @@ public:
   }
 
 private:
+  using ExpectedStatistics =
+    std::unordered_map<decltype(StatisticDataPoint::data_type), decltype(StatisticDataPoint::data)>;
+
+  void StatisticDataToExpectedStatistics(const StatisticData & src, ExpectedStatistics & dst)
+  {
+    dst[StatisticDataType::STATISTICS_DATA_TYPE_AVERAGE] = src.average;
+    dst[StatisticDataType::STATISTICS_DATA_TYPE_MINIMUM] = src.min;
+    dst[StatisticDataType::STATISTICS_DATA_TYPE_MAXIMUM] = src.max;
+    dst[StatisticDataType::STATISTICS_DATA_TYPE_STDDEV] = src.standard_deviation;
+    dst[StatisticDataType::STATISTICS_DATA_TYPE_SAMPLE_COUNT] = src.sample_count;
+  }
+
   void MetricsMessageCallback(const MetricsMessage & msg) const
   {
-    // Given kPublishPeriod is 80 ms and kTestDuration is 250 ms, the expectation is:
-    // MetricsMessages are published/received at 80 ms, 160 ms, and 240 ms during the first round.
-    // The TestLinuxProcessCpuMeasurementNode is then stopped and restarted and again
-    // MetricsMessages are published/received at 80 ms, 160 ms, and 240 ms during the second round.
-    // This means that no more than 6 MetricsMessages are received.
-    ASSERT_GT(6, times_received_);
+    ASSERT_GT(expected_stats_.size(), times_received_);
 
     // check source names
     EXPECT_EQ(kTestNodeName, msg.measurement_source_name);
     EXPECT_EQ(expected_metric_name_, msg.metrics_source);
 
-    // Check measurements.
-    // There are five types of statistics:
-    // average, maximum, minimum, standard deviation, number of samples
-    EXPECT_EQ(5, msg.statistics.size());
+    // check measurements
+    const ExpectedStatistics & expected_stat = expected_stats_[times_received_];
+    EXPECT_EQ(expected_stat.size(), msg.statistics.size());
 
     for (const StatisticDataPoint & stat : msg.statistics) {
-      EXPECT_GT(stat.data_type, 0);
-      if (!std::isnan(stat.data)) {
-        EXPECT_GE(stat.data, 0.0);
+      EXPECT_GT(expected_stat.count(stat.data_type), 0);
+      if (std::isnan(expected_stat.at(stat.data_type))) {
+        EXPECT_TRUE(std::isnan(stat.data));
+      } else {
+        EXPECT_DOUBLE_EQ(expected_stat.at(stat.data_type), stat.data);
       }
     }
 
@@ -124,6 +213,7 @@ private:
 
   rclcpp::Subscription<MetricsMessage>::SharedPtr subscription_;
   std::string expected_metric_name_;
+  std::array<ExpectedStatistics, 6> expected_stats_;
   mutable int times_received_;
 };
 
@@ -173,7 +263,7 @@ TEST_F(LinuxProcessCpuMeasurementTestFixture, TestManualMeasurement)
   ASSERT_TRUE(std::isnan(cpu_active_percentage));
   // second measurement compares current and cached
   cpu_active_percentage = test_node_->PeriodicMeasurement();
-  ASSERT_GE(cpu_active_percentage, 0.0);
+  ASSERT_DOUBLE_EQ(test_constants::kCpuActiveProcPidSample_0_1, cpu_active_percentage);
 }
 
 TEST_F(LinuxProcessCpuMeasurementTestFixture, TestPublishMetricsMessage)
@@ -197,12 +287,22 @@ TEST_F(LinuxProcessCpuMeasurementTestFixture, TestPublishMetricsMessage)
   ASSERT_TRUE(test_node_->IsStarted());
   ex.spin_until_future_complete(dummy_future, test_constants::kTestDuration);
   EXPECT_EQ(3, test_receive_measurements->GetNumReceived());
-
+  // expectation is:
+  // 50 ms: kProcPidSamples[0] is collected
+  // 80 ms: statistics derived from kProcPidSamples[N/A-0] is published. statistics are cleared
+  // 100 ms: kProcPidSamples[1] is collected
+  // 150 ms: kProcPidSamples[2] is collected
+  // 160 ms: statistics derived from kProcPidSamples[0-1 & 1-2] is published. statistics are cleared
+  // 200 ms: kProcPidSamples[3] is collected
+  // 240 ms: statistics derived from kProcPidSamples[2-3] is published. statistics are cleared
+  // 250 ms: kProcPidSamples[4] is collected. last GetStatisticsResults() is of kProcPidSamples[3-4]
   StatisticData data = test_node_->GetStatisticsResults();
-  EXPECT_GE(data.average, 0.0);
-  EXPECT_GE(data.min, 0.0);
-  EXPECT_GE(data.max, 0.0);
-  EXPECT_GE(data.standard_deviation, 0.0);
+  double expected_cpu_active = system_metrics_collector::ComputePidCpuActivePercentage(
+    test_constants::kProcPidSamples[3], test_constants::kProcPidSamples[4]);
+  EXPECT_DOUBLE_EQ(expected_cpu_active, data.average);
+  EXPECT_DOUBLE_EQ(expected_cpu_active, data.min);
+  EXPECT_DOUBLE_EQ(expected_cpu_active, data.max);
+  EXPECT_DOUBLE_EQ(0, data.standard_deviation);
   EXPECT_EQ(1, data.sample_count);
 
   //
@@ -231,11 +331,22 @@ TEST_F(LinuxProcessCpuMeasurementTestFixture, TestPublishMetricsMessage)
   ASSERT_TRUE(test_node_->IsStarted());
   ex.spin_until_future_complete(dummy_future, test_constants::kTestDuration);
   EXPECT_EQ(6, test_receive_measurements->GetNumReceived());
-
+  // expectation is:
+  // 50 ms: kProcPidSamples[5] is collected
+  // 80 ms: statistics derived from kProcPidSamples[N/A-5] is published. statistics are cleared
+  // 100 ms: kProcPidSamples[6] is collected
+  // 150 ms: kProcPidSamples[7] is collected
+  // 160 ms: statistics derived from kProcPidSamples[5-6 & 6-7] is published. statistics are cleared
+  // 200 ms: kProcPidSamples[8] is collected
+  // 240 ms: statistics derived from kProcPidSamples[7-8] is published. statistics are cleared
+  // 250 ms: kProcPidSamples[9] is collected. last GetStatisticsResults() is of kProcPidSamples[8-9]
   data = test_node_->GetStatisticsResults();
-  EXPECT_GE(data.average, 0.0);
-  EXPECT_GE(data.min, 0.0);
-  EXPECT_GE(data.max, 0.0);
-  EXPECT_GE(data.standard_deviation, 0.0);
+  expected_cpu_active = system_metrics_collector::ComputePidCpuActivePercentage(
+    test_constants::kProcPidSamples[8],
+    test_constants::kProcPidSamples[9]);
+  EXPECT_DOUBLE_EQ(expected_cpu_active, data.average);
+  EXPECT_DOUBLE_EQ(expected_cpu_active, data.min);
+  EXPECT_DOUBLE_EQ(expected_cpu_active, data.max);
+  EXPECT_DOUBLE_EQ(0, data.standard_deviation);
   EXPECT_EQ(1, data.sample_count);
 }

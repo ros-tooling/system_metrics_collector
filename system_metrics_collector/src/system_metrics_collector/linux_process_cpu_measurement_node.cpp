@@ -57,13 +57,18 @@ bool LinuxProcessCpuMeasurementNode::SetupStart()
 
 double LinuxProcessCpuMeasurementNode::PeriodicMeasurement()
 {
-  const auto current_measurement = MeasurePidCpuTime();
+  const auto current_measurement = MakeSingleMeasurement();
 
   const auto cpu_percentage = ComputePidCpuActivePercentage(last_measurement_, current_measurement);
 
   last_measurement_ = current_measurement;
 
   return cpu_percentage;
+}
+
+ProcPidCpuData LinuxProcessCpuMeasurementNode::MakeSingleMeasurement()
+{
+  return MeasurePidCpuTime();
 }
 
 std::string LinuxProcessCpuMeasurementNode::GetMetricName() const

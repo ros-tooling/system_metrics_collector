@@ -64,8 +64,8 @@ protected:
 
   /**
    * Performs a periodic measurement and calculation of the percentage of CPU this process used.
-   * This obtains measurements from clock_gettime() to obtain process-specific and system-wide CPU
-   * used.
+   * This obtains measurements from MakeSingleMeasurement() to obtain process-specific
+   * and system-wide CPU used.
    *
    * @return percentage of CPU this process used
    */
@@ -79,6 +79,13 @@ protected:
   std::string GetMetricName() const override;
 
 private:
+  /**
+   * Performs a single measurement of CPU data by using clock_gettime().
+   *
+   * @return ProcCpuData the measurement made
+   */
+  virtual system_metrics_collector::ProcPidCpuData MakeSingleMeasurement();
+
   /**
    * The pid of this process.
    */
