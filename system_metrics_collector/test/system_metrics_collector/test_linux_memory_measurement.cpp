@@ -97,7 +97,7 @@ public:
   : LinuxMemoryMeasurementNode(name, measurement_period, publishing_topic, publish_period),
     measurement_index_(0) {}
 
-  virtual ~TestLinuxMemoryMeasurementNode() = default;
+  ~TestLinuxMemoryMeasurementNode() override = default;
 
   void SetTestString(const std::string & test_string)
   {

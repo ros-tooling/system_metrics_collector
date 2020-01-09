@@ -47,7 +47,7 @@ public:
     const std::string & publishing_topic,
     const std::chrono::milliseconds publish_period)
   : PeriodicMeasurementNode(name, measurement_period, publishing_topic, publish_period) {}
-  virtual ~TestPeriodicMeasurementNode() = default;
+  ~TestPeriodicMeasurementNode() override = default;
 
   int GetNumPublished() const
   {
@@ -76,7 +76,7 @@ private:
     ++times_published_;
   }
 
-  std::string GetMetricName() const
+  std::string GetMetricName() const override
   {
     return kTestMetricname;
   }
