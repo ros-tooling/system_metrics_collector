@@ -17,11 +17,18 @@
 
 #include <chrono>
 
-namespace CollectorNodeConstants
+namespace system_metrics_collector
 {
+
+namespace collector_node_constants
+{
+
 constexpr const char kStatisticsTopicName[] = "system_metrics";
 constexpr const std::chrono::seconds kDefaultCollectPeriod{1};
 constexpr const std::chrono::minutes kDefaultPublishPeriod{1};
-}
+
+}  // namespace collector_node_constants
+
+}  // namespace system_metrics_collector
 
 #endif  // SYSTEM_METRICS_COLLECTOR__CONSTANTS_HPP_

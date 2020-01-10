@@ -30,9 +30,9 @@ int main(int argc, char ** argv)
 
   const auto mem_node = std::make_shared<system_metrics_collector::LinuxMemoryMeasurementNode>(
     "linuxMemoryCollector",
-    CollectorNodeConstants::kDefaultCollectPeriod,
-    CollectorNodeConstants::kStatisticsTopicName,
-    CollectorNodeConstants::kDefaultPublishPeriod);
+    system_metrics_collector::collector_node_constants::kDefaultCollectPeriod,
+    system_metrics_collector::collector_node_constants::kStatisticsTopicName,
+    system_metrics_collector::collector_node_constants::kDefaultPublishPeriod);
 
   rclcpp::executors::MultiThreadedExecutor ex;
   mem_node->Start();
