@@ -54,6 +54,14 @@ add_executable(main src/system_metrics_collector/main.cpp)
 target_link_libraries(main system_metrics_collector)
 ament_target_dependencies(main)
 
+add_executable(linux_cpu_collector src/system_metrics_collector/linux_cpu_collector.cpp)
+target_link_libraries(linux_cpu_collector system_metrics_collector)
+ament_target_dependencies(linux_cpu_collector)
+
+add_executable(linux_memory_collector src/system_metrics_collector/linux_memory_collector.cpp)
+target_link_libraries(linux_memory_collector system_metrics_collector)
+ament_target_dependencies(linux_memory_collector)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   find_package(ament_cmake_gtest REQUIRED)
@@ -114,8 +122,27 @@ if(BUILD_TESTING)
     lib/${PROJECT_NAME})
 endif()
 
+# Install launch files
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}/
+)
+
+# Install entry points
 install(TARGETS
   main
+  DESTINATION
+  lib/${PROJECT_NAME}
+)
+
+install(TARGETS
+  linux_cpu_collector
+  DESTINATION
+  lib/${PROJECT_NAME}
+)
+
+install(TARGETS
+  linux_memory_collector
   DESTINATION
   lib/${PROJECT_NAME}
 )
