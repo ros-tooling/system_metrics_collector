@@ -27,7 +27,7 @@ class TestCollector : public system_metrics_collector::Collector
 {
 public:
   TestCollector() = default;
-  virtual ~TestCollector() = default;
+  ~TestCollector() override = default;
   bool SetupStart() override
   {
     return true;

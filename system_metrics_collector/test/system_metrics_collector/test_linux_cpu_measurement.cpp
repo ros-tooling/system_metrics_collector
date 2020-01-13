@@ -57,7 +57,7 @@ public:
     const std::chrono::milliseconds publish_period)
   : LinuxCpuMeasurementNode(name, measurement_period, publishing_topic, publish_period) {}
 
-  virtual ~TestLinuxCpuMeasurementNode() = default;
+  ~TestLinuxCpuMeasurementNode() override = default;
 
   // make this private method public for unit testing purposes
   double PeriodicMeasurement() override
