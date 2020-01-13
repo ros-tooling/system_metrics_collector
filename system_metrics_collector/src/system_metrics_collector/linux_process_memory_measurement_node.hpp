@@ -19,8 +19,9 @@
 #include <cmath>
 #include <string>
 
-#include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
-#include "../../src/system_metrics_collector/utilities.hpp"
+#include "periodic_measurement_node.hpp"
+#include "utilities.hpp"
+#include "visibility_control.h"
 
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/logging_macros.h"
@@ -56,6 +57,9 @@ public:
   LinuxProcessMemoryMeasurementNode(
     const std::string & name,
     const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
+
+  SYSTEM_METRICS_COLLECTOR_PUBLIC
+  LinuxProcessMemoryMeasurementNode(const rclcpp::NodeOptions & options);
 
 protected:
   /**

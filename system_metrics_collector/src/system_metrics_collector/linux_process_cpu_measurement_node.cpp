@@ -24,6 +24,8 @@
 #include <string>
 #include <tuple>
 
+#include "default_config.hpp"
+
 #include "rcutils/logging_macros.h"
 
 namespace
@@ -45,6 +47,24 @@ LinuxProcessCpuMeasurementNode::LinuxProcessCpuMeasurementNode(
 : PeriodicMeasurementNode{name, options},
   metric_name_{std::to_string(GetPid()) + kMetricName}
 {
+}
+
+LinuxProcessCpuMeasurementNode::LinuxProcessCpuMeasurementNode(
+  const rclcpp::NodeOptions & options)
+: PeriodicMeasurementNode(
+    "linuxProcessCpuCollector",
+    system_metrics_collector::kDefaultCollectPeriod,
+    system_metrics_collector::kStatisticsTopicName,
+    system_metrics_collector::kDefaultPublishPeriod),
+  metric_name_(std::to_string(GetPid()) + kMetricName)
+{
+  const auto r = rcutils_logging_set_logger_level(get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+  if (r != 0) {
+    RCUTILS_LOG_ERROR_NAMED("main", "Unable to set debug logging for the process cpu node: %s\n",
+      rcutils_get_error_string().str);
+  }
+
+  Start();
 }
 
 bool LinuxProcessCpuMeasurementNode::SetupStart()
@@ -75,3 +95,11 @@ std::string LinuxProcessCpuMeasurementNode::GetMetricName() const
 }
 
 }   // namespace system_metrics_collector
+
+
+#include "rclcpp_components/register_node_macro.hpp"
+
+// Register the component with class_loader.
+// This acts as a sort of entry point, allowing the component to be discoverable when its library
+// is being loaded into a running process.
+RCLCPP_COMPONENTS_REGISTER_NODE(system_metrics_collector::LinuxProcessCpuMeasurementNode);
