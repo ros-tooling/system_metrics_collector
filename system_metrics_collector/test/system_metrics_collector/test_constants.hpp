@@ -46,9 +46,17 @@ constexpr const std::array<const char *, 10> kProcSamples = {
 };
 constexpr const double kCpuActiveProcSample_0_1 = 2.7239908106334099;
 
-constexpr const std::array<system_metrics_collector::ProcPidCpuData, 2> kProcPidSamples = {
+constexpr const std::array<system_metrics_collector::ProcPidCpuData, 10> kProcPidSamples = {
   system_metrics_collector::ProcPidCpuData{7348045, 22451232},
-  system_metrics_collector::ProcPidCpuData{7348080, 22451360}
+  system_metrics_collector::ProcPidCpuData{7348080, 22451360},
+  system_metrics_collector::ProcPidCpuData{7348100, 22451471},
+  system_metrics_collector::ProcPidCpuData{7348112, 22451591},
+  system_metrics_collector::ProcPidCpuData{7348240, 22452023},
+  system_metrics_collector::ProcPidCpuData{7348245, 22452730},
+  system_metrics_collector::ProcPidCpuData{7348258, 22452824},
+  system_metrics_collector::ProcPidCpuData{7348390, 22452902},
+  system_metrics_collector::ProcPidCpuData{7348422, 22453047},
+  system_metrics_collector::ProcPidCpuData{7348423, 22454600}
 };
 constexpr const double kCpuActiveProcPidSample_0_1 = 27.34375;
 
