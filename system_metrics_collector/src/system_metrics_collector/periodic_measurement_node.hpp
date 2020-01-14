@@ -39,12 +39,12 @@ public:
   /**
    * Construct a PeriodicMeasurementNode.
    *
-   * @param name the name of this node
-   * @param topic the topic for publishing data
-   * @param measurement_period
-   * @param publish_period the window of active measurements
-   * @param clear_measurements_on_publish whether all measurements should be cleared
-   *        between subsequent publishing windows
+   * @param name the name of this node. This must be non-empty.
+   * @param topic the topic for publishing data. This must be non-empty.
+   * @param measurement_period. This must be non-negative and strictly less than publish_period.
+   * @param publish_period the window of active measurements. This must be non-negative and
+   * strictly greater than measurement_period.
+   * @throws std::invalid_argument for any invalid input
    */
   PeriodicMeasurementNode(
     const std::string & name,

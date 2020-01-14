@@ -38,8 +38,23 @@ PeriodicMeasurementNode::PeriodicMeasurementNode(
   publish_timer_(nullptr),
   publish_period_(publish_period)
 {
-  if (publish_period_ <= std::chrono::milliseconds{0}) {
-    throw std::invalid_argument("publish period cannot be negative");
+  // rclcpp::Node throws if name is empty
+
+  if (measurement_period <= std::chrono::milliseconds{0}) {
+    throw std::invalid_argument{"measurement_period cannot be negative"};
+  }
+
+  if (publishing_topic.empty()) {
+    throw std::invalid_argument{"publishing_topic cannot be empty"};
+  }
+
+  if (publish_period <= std::chrono::milliseconds{0}) {
+    throw std::invalid_argument{"publish_period cannot be negative"};
+  }
+
+  if (publish_period <= measurement_period) {
+    throw std::invalid_argument{
+            "publish_period cannot be less than or equal to the measurement_period"};
   }
 }
 
