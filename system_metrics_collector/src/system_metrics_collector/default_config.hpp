@@ -24,6 +24,6 @@ constexpr const char kStatisticsTopicName[] = "system_metrics";
 constexpr const std::chrono::seconds kDefaultCollectPeriod{1};
 constexpr const std::chrono::minutes kDefaultPublishPeriod{1};
 
-}  // namespace
+}   // namespace system_metrics_collector
 
 #endif  // SYSTEM_METRICS_COLLECTOR__DEFAULT_CONFIG_HPP_

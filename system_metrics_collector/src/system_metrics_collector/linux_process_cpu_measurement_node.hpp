@@ -20,10 +20,10 @@
 #include <string>
 #include <tuple>
 
+#include "./visibility_control.h"
 #include "periodic_measurement_node.hpp"
 #include "proc_cpu_data.hpp"
 #include "utilities.hpp"
-#include "visibility_control.h"
 
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/logging_macros.h"
@@ -52,7 +52,7 @@ public:
     const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
 
   SYSTEM_METRICS_COLLECTOR_PUBLIC
-  LinuxProcessCpuMeasurementNode(const rclcpp::NodeOptions & options);
+  explicit LinuxProcessCpuMeasurementNode(const rclcpp::NodeOptions & options);
 
 protected:
   /**
