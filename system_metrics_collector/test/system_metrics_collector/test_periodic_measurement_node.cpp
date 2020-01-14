@@ -18,9 +18,10 @@
 #include <atomic>
 #include <chrono>
 #include <iostream>
-#include <string>
 #include <memory>
 #include <mutex>
+#include <stdexcept>
+#include <string>
 
 #include "../../src/system_metrics_collector/collector.hpp"
 #include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
@@ -167,6 +168,37 @@ TEST_F(PeriodicMeasurementTestFixure, TestStartAndStop) {
   int times_published = test_periodic_measurer_->GetNumPublished();
   ASSERT_EQ(
     test_constants::kTestDuration.count() / kDontPublishDuringTest.count(), times_published);
+}
+
+TEST_F(PeriodicMeasurementTestFixure, TestConstructorInputValidation) {
+  ASSERT_THROW(TestPeriodicMeasurementNode("throw",
+    std::chrono::milliseconds{-1},
+    "",
+    kDontPublishDuringTest), std::invalid_argument);
+
+  // bad measurement period
+  ASSERT_THROW(TestPeriodicMeasurementNode("throw",
+    std::chrono::milliseconds{-1},
+    "",
+    test_constants::kPublishPeriod), std::invalid_argument);
+
+  // bad node name
+  ASSERT_THROW(TestPeriodicMeasurementNode("throw",
+    test_constants::kMeasurePeriod,
+    kTestTopic,
+    std::chrono::milliseconds{-1}), std::invalid_argument);
+
+  // invalid publish period
+  ASSERT_THROW(TestPeriodicMeasurementNode("throw",
+    std::chrono::milliseconds{2},
+    kTestTopic,
+    std::chrono::milliseconds{1}), std::invalid_argument);
+
+  // invalid node name
+  ASSERT_THROW(TestPeriodicMeasurementNode("",
+    std::chrono::milliseconds{2},
+    kTestTopic,
+    std::chrono::milliseconds{1}), std::invalid_argument);
 }
 
 int main(int argc, char ** argv)
