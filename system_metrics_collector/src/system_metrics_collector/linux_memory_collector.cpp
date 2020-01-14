@@ -35,7 +35,7 @@ int main(int argc, char ** argv)
   rclcpp::executors::MultiThreadedExecutor ex;
   mem_node->Start();
 
-  ex.add_node(mem_node);
+  ex.add_node(mem_node->get_node_base_interface());
   ex.spin();
 
   rclcpp::shutdown();

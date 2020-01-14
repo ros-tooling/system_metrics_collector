@@ -30,6 +30,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(metrics_statistics_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
 find_package(rcpputils REQUIRED)
 find_package(rcutils REQUIRED)
 
@@ -48,7 +49,7 @@ add_library(system_metrics_collector SHARED
   src/system_metrics_collector/proc_pid_cpu_data.cpp
   src/system_metrics_collector/utilities.cpp
 )
-ament_target_dependencies(system_metrics_collector metrics_statistics_msgs rclcpp rcpputils rcutils)
+ament_target_dependencies(system_metrics_collector metrics_statistics_msgs rclcpp rclcpp_lifecycle rcpputils rcutils)
 ament_export_libraries(system_metrics_collector)
 
 add_executable(main src/system_metrics_collector/main.cpp)

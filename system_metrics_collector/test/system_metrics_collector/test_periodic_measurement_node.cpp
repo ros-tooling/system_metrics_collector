@@ -158,7 +158,7 @@ TEST_F(PeriodicMeasurementTestFixure, TestStartAndStop) {
   std::shared_future<bool> dummy_future = empty_promise.get_future();
 
   rclcpp::executors::SingleThreadedExecutor ex;
-  ex.add_node(test_periodic_measurer_);
+  ex.add_node(test_periodic_measurer_->get_node_base_interface());
   ex.spin_until_future_complete(dummy_future, test_constants::kTestDuration);
 
   moving_average_statistics::StatisticData data = test_periodic_measurer_->GetStatisticsResults();

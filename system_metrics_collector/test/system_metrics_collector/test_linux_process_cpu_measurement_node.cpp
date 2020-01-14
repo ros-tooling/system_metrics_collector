@@ -283,8 +283,8 @@ TEST_F(LinuxProcessCpuMeasurementTestFixture, TestPublishMetricsMessage)
   std::promise<bool> empty_promise;
   std::shared_future<bool> dummy_future = empty_promise.get_future();
   rclcpp::executors::SingleThreadedExecutor ex;
-  ex.add_node(test_node_);
-  ex.add_node(test_receive_measurements);
+  ex.add_node(test_node_->get_node_base_interface());
+  ex.add_node(test_receive_measurements->get_node_base_interface());
 
   //
   // spin the node with it started
