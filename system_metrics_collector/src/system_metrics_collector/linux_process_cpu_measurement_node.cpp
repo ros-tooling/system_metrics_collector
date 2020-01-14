@@ -58,12 +58,6 @@ LinuxProcessCpuMeasurementNode::LinuxProcessCpuMeasurementNode(
     system_metrics_collector::kDefaultPublishPeriod),
   metric_name_(std::to_string(GetPid()) + kMetricName)
 {
-  const auto r = rcutils_logging_set_logger_level(get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-  if (r != 0) {
-    RCUTILS_LOG_ERROR_NAMED("main", "Unable to set debug logging for the process cpu node: %s\n",
-      rcutils_get_error_string().str);
-  }
-
   Start();
 }
 

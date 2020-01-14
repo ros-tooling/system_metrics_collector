@@ -71,12 +71,6 @@ LinuxProcessMemoryMeasurementNode::LinuxProcessMemoryMeasurementNode(
   pid_(std::to_string(GetPid())),
   file_to_read_(kProc + std::to_string(GetPid()) + kStatm)
 {
-  const auto r = rcutils_logging_set_logger_level(get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
-  if (r != 0) {
-    RCUTILS_LOG_ERROR_NAMED("main", "Unable to set debug logging for the process memory node: %s\n",
-      rcutils_get_error_string().str);
-  }
-
   Start();
 }
 
