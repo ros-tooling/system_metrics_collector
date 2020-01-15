@@ -16,9 +16,11 @@
 #include "periodic_measurement_node.hpp"
 
 #include <chrono>
+#include <limits>
 #include <stdexcept>
 #include <string>
 
+#include "constants.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 using metrics_statistics_msgs::msg::MetricsMessage;
@@ -28,33 +30,48 @@ namespace system_metrics_collector
 
 PeriodicMeasurementNode::PeriodicMeasurementNode(
   const std::string & name,
-  const std::chrono::milliseconds measurement_period,
-  const std::string & publishing_topic,
-  const std::chrono::milliseconds publish_period)
-: Node(name),
-  measurement_period_(measurement_period),
-  publishing_topic_(publishing_topic),
-  measurement_timer_(nullptr),
-  publish_timer_(nullptr),
-  publish_period_(publish_period)
+  const rclcpp::NodeOptions & options)
+: Node(name, options)
 {
+  rcl_interfaces::msg::IntegerRange positive_range;
+  positive_range.from_value = 1;
+  positive_range.to_value = std::numeric_limits<decltype(rcl_interfaces::msg::IntegerRange::to_value)>::max();
+  positive_range.step = 1;
+
+  rcl_interfaces::msg::ParameterDescriptor descriptor;
+  descriptor.read_only = true;
+  descriptor.integer_range.push_back(positive_range);
+
   // rclcpp::Node throws if name is empty
 
-  if (measurement_period <= std::chrono::milliseconds{0}) {
+  descriptor.description = "The period between each measurement";
+  auto measurement_period = declare_parameter(
+    collector_node_constants::kCollectPeriodParam, 
+    collector_node_constants::kDefaultCollectPeriodInMs, 
+    descriptor);
+  measurement_period_ = std::chrono::milliseconds{measurement_period};
+  if (measurement_period_ <= std::chrono::milliseconds{0}) {
     throw std::invalid_argument{"measurement_period cannot be negative"};
   }
 
-  if (publishing_topic.empty()) {
-    throw std::invalid_argument{"publishing_topic cannot be empty"};
-  }
-
-  if (publish_period <= std::chrono::milliseconds{0}) {
+  descriptor.description = "The period between each published MetricsMessage";
+  auto publish_period = declare_parameter(
+    collector_node_constants::kPublishPeriodParam, 
+    collector_node_constants::kDefaultPublishPeriodInMs, 
+    descriptor);
+  publish_period_ = std::chrono::milliseconds{publish_period};
+  if (publish_period_ <= std::chrono::milliseconds{0}) {
     throw std::invalid_argument{"publish_period cannot be negative"};
   }
 
-  if (publish_period <= measurement_period) {
+  if (publish_period_ <= measurement_period_) {
     throw std::invalid_argument{
-            "publish_period cannot be less than or equal to the measurement_period"};
+      "publish_period cannot be less than or equal to the measurement_period"};
+  }
+
+  publishing_topic_ = collector_node_constants::kStatisticsTopicName;
+  if (publishing_topic_.empty()) {
+    throw std::invalid_argument{"publishing_topic cannot be empty"};
   }
 }
 

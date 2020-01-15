@@ -31,9 +31,7 @@ int main(int argc, char ** argv)
 
   const auto cpu_node = std::make_shared<system_metrics_collector::LinuxCpuMeasurementNode>(
     "linuxCpuCollector",
-    system_metrics_collector::collector_node_constants::kDefaultCollectPeriod,
-    system_metrics_collector::collector_node_constants::kStatisticsTopicName,
-    system_metrics_collector::collector_node_constants::kDefaultPublishPeriod);
+    rclcpp::NodeOptions());
 
   rclcpp::executors::MultiThreadedExecutor ex;
   cpu_node->Start();

@@ -45,11 +45,7 @@ public:
    * @param topic the topic name used for publishing
    * @param publish_period the period at which metrics are published.
    */
-  LinuxProcessCpuMeasurementNode(
-    const std::string & name,
-    const std::chrono::milliseconds measurement_period,
-    const std::string & topic,
-    const std::chrono::milliseconds publish_period);
+  LinuxProcessCpuMeasurementNode(const std::string & name, const rclcpp::NodeOptions & options);
 
 protected:
   /**

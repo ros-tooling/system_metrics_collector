@@ -38,10 +38,8 @@ namespace system_metrics_collector
 
 LinuxMemoryMeasurementNode::LinuxMemoryMeasurementNode(
   const std::string & name,
-  const std::chrono::milliseconds measurement_period,
-  const std::string & topic,
-  const std::chrono::milliseconds publish_period)
-: PeriodicMeasurementNode(name, measurement_period, topic, publish_period)
+  const rclcpp::NodeOptions & options)
+: PeriodicMeasurementNode(name, options)
 {
 }
 

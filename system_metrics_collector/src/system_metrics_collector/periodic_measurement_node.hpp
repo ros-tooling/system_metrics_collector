@@ -46,11 +46,7 @@ public:
    * strictly greater than measurement_period.
    * @throws std::invalid_argument for any invalid input
    */
-  PeriodicMeasurementNode(
-    const std::string & name,
-    const std::chrono::milliseconds measurement_period,
-    const std::string & publishing_topic,  // todo @dbbonnie think about a default topic
-    const std::chrono::milliseconds publish_period);
+  PeriodicMeasurementNode(const std::string & name, const rclcpp::NodeOptions & options);
 
   virtual ~PeriodicMeasurementNode() = default;
 
@@ -108,15 +104,15 @@ private:
   /**
    * Topic used for publishing
    */
-  const std::string publishing_topic_;
+  std::string publishing_topic_;
   /**
    * The period used to take a single measurement
    */
-  const std::chrono::milliseconds measurement_period_;
+  std::chrono::milliseconds measurement_period_;
   /**
    * The period used to publish measurement data
    */
-  const std::chrono::milliseconds publish_period_;
+  std::chrono::milliseconds publish_period_;
 
   rclcpp::TimerBase::SharedPtr measurement_timer_;
   rclcpp::TimerBase::SharedPtr publish_timer_;

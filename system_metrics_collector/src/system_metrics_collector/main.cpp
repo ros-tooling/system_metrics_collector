@@ -27,12 +27,6 @@
 #include "../../src/system_metrics_collector/linux_process_cpu_measurement_node.hpp"
 #include "../../src/system_metrics_collector/linux_process_memory_measurement_node.hpp"
 
-namespace
-{
-constexpr const char kStatisticsTopicName[] = "system_metrics";
-constexpr const std::chrono::seconds kDefaultCollectPeriod{1};
-constexpr const std::chrono::minutes kDefaultPublishPeriod{1};
-}  // namespace
 
 void set_node_to_debug(
   const system_metrics_collector::PeriodicMeasurementNode * node,
@@ -59,29 +53,21 @@ int main(int argc, char ** argv)
   using namespace std::chrono_literals;
   const auto cpu_node = std::make_shared<system_metrics_collector::LinuxCpuMeasurementNode>(
     "linuxCpuCollector",
-    kDefaultCollectPeriod,
-    kStatisticsTopicName,
-    kDefaultPublishPeriod);
+    rclcpp::NodeOptions());
 
   const auto mem_node = std::make_shared<system_metrics_collector::LinuxMemoryMeasurementNode>(
     "linuxMemoryCollector",
-    kDefaultCollectPeriod,
-    kStatisticsTopicName,
-    kDefaultPublishPeriod);
+    rclcpp::NodeOptions());
 
   const auto process_cpu_node =
     std::make_shared<system_metrics_collector::LinuxProcessCpuMeasurementNode>(
     "linuxProcessCpuCollector",
-    kDefaultCollectPeriod,
-    kStatisticsTopicName,
-    kDefaultPublishPeriod);
+    rclcpp::NodeOptions());
 
   const auto process_mem_node =
     std::make_shared<system_metrics_collector::LinuxProcessMemoryMeasurementNode>(
     "linuxProcessMemoryCollector",
-    kDefaultCollectPeriod,
-    kStatisticsTopicName,
-    kDefaultPublishPeriod);
+    rclcpp::NodeOptions());
 
   rclcpp::executors::MultiThreadedExecutor ex;
   cpu_node->Start();
