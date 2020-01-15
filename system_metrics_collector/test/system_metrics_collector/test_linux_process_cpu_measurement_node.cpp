@@ -24,6 +24,7 @@
 #include "metrics_statistics_msgs/msg/metrics_message.hpp"
 #include "metrics_statistics_msgs/msg/statistic_data_type.hpp"
 
+#include "../../src/system_metrics_collector/constants.hpp"
 #include "../../src/system_metrics_collector/linux_process_cpu_measurement_node.hpp"
 #include "../../src/system_metrics_collector/proc_cpu_data.hpp"
 #include "../../src/system_metrics_collector/utilities.hpp"
@@ -45,12 +46,8 @@ class MockLinuxProcessCpuMeasurementNode : public system_metrics_collector::
   LinuxProcessCpuMeasurementNode
 {
 public:
-  MockLinuxProcessCpuMeasurementNode(
-    const std::string & name,
-    const std::chrono::milliseconds measurement_period,
-    const std::string & publishing_topic,
-    const std::chrono::milliseconds publish_period)
-  : LinuxProcessCpuMeasurementNode(name, measurement_period, publishing_topic, publish_period) {}
+  MockLinuxProcessCpuMeasurementNode(const std::string & name, const rclcpp::NodeOptions & options)
+  : LinuxProcessCpuMeasurementNode(name, options) {}
 
   /**
    * Exposes the protected member function for testing purposes.
@@ -226,8 +223,21 @@ public:
 
     rclcpp::init(0, nullptr);
 
-    test_node_ = std::make_shared<MockLinuxProcessCpuMeasurementNode>(kTestNodeName,
-        test_constants::kMeasurePeriod, kTestTopic, test_constants::kPublishPeriod);
+    rclcpp::NodeOptions options;
+    options.append_parameter_override(
+      system_metrics_collector::collector_node_constants::kCollectPeriodParam,
+      test_constants::kMeasurePeriod.count());
+    options.append_parameter_override(
+      system_metrics_collector::collector_node_constants::kPublishPeriodParam,
+      test_constants::kPublishPeriod.count());
+
+    std::vector<std::string> arguments = { "--ros-args", "--remap", std::string(
+      system_metrics_collector::collector_node_constants::kStatisticsTopicName) +
+      ":=" + kTestTopic };
+    options.arguments(arguments);
+
+    test_node_ = std::make_shared<MockLinuxProcessCpuMeasurementNode>(
+      kTestNodeName, options);
 
     ASSERT_FALSE(test_node_->IsStarted());
 

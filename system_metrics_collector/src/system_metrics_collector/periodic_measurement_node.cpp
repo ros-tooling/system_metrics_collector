@@ -44,7 +44,7 @@ PeriodicMeasurementNode::PeriodicMeasurementNode(
 
   // rclcpp::Node throws if name is empty
 
-  descriptor.description = "The period between each measurement";
+  descriptor.description = "The period in milliseconds between each measurement";
   auto measurement_period = declare_parameter(
     collector_node_constants::kCollectPeriodParam, 
     collector_node_constants::kDefaultCollectPeriodInMs, 
@@ -54,7 +54,7 @@ PeriodicMeasurementNode::PeriodicMeasurementNode(
     throw std::invalid_argument{"measurement_period cannot be negative"};
   }
 
-  descriptor.description = "The period between each published MetricsMessage";
+  descriptor.description = "The period in milliseconds between each published MetricsMessage";
   auto publish_period = declare_parameter(
     collector_node_constants::kPublishPeriodParam, 
     collector_node_constants::kDefaultPublishPeriodInMs, 

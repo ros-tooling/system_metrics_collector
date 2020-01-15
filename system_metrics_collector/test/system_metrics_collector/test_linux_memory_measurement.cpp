@@ -26,6 +26,7 @@
 #include "metrics_statistics_msgs/msg/metrics_message.hpp"
 #include "metrics_statistics_msgs/msg/statistic_data_type.hpp"
 
+#include "../../src/system_metrics_collector/constants.hpp"
 #include "../../src/system_metrics_collector/linux_memory_measurement_node.hpp"
 #include "../../src/system_metrics_collector/utilities.hpp"
 
@@ -89,12 +90,8 @@ constexpr const std::array<const char *, 10> kSamples = {
 class TestLinuxMemoryMeasurementNode : public system_metrics_collector::LinuxMemoryMeasurementNode
 {
 public:
-  TestLinuxMemoryMeasurementNode(
-    const std::string & name,
-    const std::chrono::milliseconds measurement_period,
-    const std::string & publishing_topic,
-    const std::chrono::milliseconds publish_period)
-  : LinuxMemoryMeasurementNode(name, measurement_period, publishing_topic, publish_period),
+  TestLinuxMemoryMeasurementNode(const std::string & name, const rclcpp::NodeOptions & options)
+  : LinuxMemoryMeasurementNode(name, options),
     measurement_index_(0) {}
 
   ~TestLinuxMemoryMeasurementNode() override = default;
@@ -131,8 +128,21 @@ public:
   {
     rclcpp::init(0, nullptr);
 
-    test_measure_linux_memory_ = std::make_shared<TestLinuxMemoryMeasurementNode>(kTestNodeName,
-        test_constants::kMeasurePeriod, kTestTopic, test_constants::kPublishPeriod);
+    rclcpp::NodeOptions options;
+    options.append_parameter_override(
+      system_metrics_collector::collector_node_constants::kCollectPeriodParam,
+      test_constants::kMeasurePeriod.count());
+    options.append_parameter_override(
+      system_metrics_collector::collector_node_constants::kPublishPeriodParam,
+      test_constants::kPublishPeriod.count());
+
+    std::vector<std::string> arguments = { "--ros-args", "--remap", std::string(
+      system_metrics_collector::collector_node_constants::kStatisticsTopicName) +
+      ":=" + kTestTopic };
+    options.arguments(arguments);
+
+    test_measure_linux_memory_ = std::make_shared<TestLinuxMemoryMeasurementNode>(
+      kTestNodeName, options);
 
     ASSERT_FALSE(test_measure_linux_memory_->IsStarted());
 

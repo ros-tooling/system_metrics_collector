@@ -19,6 +19,7 @@
 #include <fstream>
 #include <string>
 
+#include "../../src/system_metrics_collector/constants.hpp"
 #include "../../src/system_metrics_collector/linux_process_memory_measurement_node.hpp"
 #include "../../src/system_metrics_collector/utilities.hpp"
 
@@ -33,12 +34,8 @@ class TestLinuxProcessMemoryMeasurementNode : public system_metrics_collector::
   LinuxProcessMemoryMeasurementNode
 {
 public:
-  TestLinuxProcessMemoryMeasurementNode(
-    const std::string & name,
-    const std::chrono::milliseconds measurement_period,
-    const std::string & topic,
-    const std::chrono::milliseconds publish_period)
-  : LinuxProcessMemoryMeasurementNode(name, measurement_period, topic, publish_period) {}
+  TestLinuxProcessMemoryMeasurementNode(const std::string & name, const rclcpp::NodeOptions & options)
+  : LinuxProcessMemoryMeasurementNode(name, options) {}
 
   std::string GetMetricName() const override
   {
@@ -54,11 +51,22 @@ public:
     rclcpp::init(0, nullptr);
     using namespace std::chrono_literals;
 
+
+    rclcpp::NodeOptions options;
+    options.append_parameter_override(
+      system_metrics_collector::collector_node_constants::kCollectPeriodParam,
+      std::chrono::duration_cast<std::chrono::milliseconds>(1s).count());
+    options.append_parameter_override(
+      system_metrics_collector::collector_node_constants::kPublishPeriodParam,
+      std::chrono::duration_cast<std::chrono::milliseconds>(10s).count());
+
+    std::vector<std::string> arguments = { "--ros-args", "--remap", std::string(
+      system_metrics_collector::collector_node_constants::kStatisticsTopicName) + 
+      ":=test_topic" };
+    options.arguments(arguments);
+
     test_node_ = std::make_shared<TestLinuxProcessMemoryMeasurementNode>(
-      "test_periodic_node",
-      1s,
-      "test_topic",
-      10s);
+      "test_periodic_node", options);
 
     ASSERT_FALSE(test_node_->IsStarted());
 

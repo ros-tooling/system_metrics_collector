@@ -26,6 +26,7 @@
 #include "metrics_statistics_msgs/msg/metrics_message.hpp"
 #include "metrics_statistics_msgs/msg/statistic_data_type.hpp"
 
+#include "../../src/system_metrics_collector/constants.hpp"
 #include "../../src/system_metrics_collector/linux_cpu_measurement_node.hpp"
 #include "../../src/system_metrics_collector/proc_cpu_data.hpp"
 #include "../../src/system_metrics_collector/utilities.hpp"
@@ -50,12 +51,8 @@ constexpr const char kTestMetricName[] = "system_cpu_percent_used";
 class TestLinuxCpuMeasurementNode : public system_metrics_collector::LinuxCpuMeasurementNode
 {
 public:
-  TestLinuxCpuMeasurementNode(
-    const std::string & name,
-    const std::chrono::milliseconds measurement_period,
-    const std::string & publishing_topic,
-    const std::chrono::milliseconds publish_period)
-  : LinuxCpuMeasurementNode(name, measurement_period, publishing_topic, publish_period) {}
+  TestLinuxCpuMeasurementNode(const std::string & name, const rclcpp::NodeOptions & options)
+  : LinuxCpuMeasurementNode(name, options) {}
 
   ~TestLinuxCpuMeasurementNode() override = default;
 
@@ -212,8 +209,21 @@ public:
   {
     rclcpp::init(0, nullptr);
 
-    test_measure_linux_cpu_ = std::make_shared<TestLinuxCpuMeasurementNode>(kTestNodeName,
-        test_constants::kMeasurePeriod, kTestTopic, test_constants::kPublishPeriod);
+    rclcpp::NodeOptions options;
+    options.append_parameter_override(
+      system_metrics_collector::collector_node_constants::kCollectPeriodParam,
+      test_constants::kMeasurePeriod.count());
+    options.append_parameter_override(
+      system_metrics_collector::collector_node_constants::kPublishPeriodParam,
+      test_constants::kPublishPeriod.count());
+
+    std::vector<std::string> arguments = { "--ros-args", "--remap", std::string(
+      system_metrics_collector::collector_node_constants::kStatisticsTopicName) +
+      ":=" + kTestTopic };
+    options.arguments(arguments);
+
+    test_measure_linux_cpu_ = std::make_shared<TestLinuxCpuMeasurementNode>(
+      kTestNodeName, options);
 
     ASSERT_FALSE(test_measure_linux_cpu_->IsStarted());
 
