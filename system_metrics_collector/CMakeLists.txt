@@ -35,7 +35,7 @@ find_package(rclcpp_lifecycle REQUIRED)
 find_package(rcpputils REQUIRED)
 find_package(rcutils REQUIRED)
 
-add_library(system_metrics_collector_base STATIC
+add_library(system_metrics_collector_base SHARED
   src/moving_average_statistics/moving_average.cpp
   src/moving_average_statistics/types.cpp
   src/moving_average_statistics/types.hpp
@@ -86,7 +86,6 @@ rclcpp_components_register_nodes(system_metrics_collector_process_memory_compone
 
 add_executable(main src/system_metrics_collector/main.cpp)
 target_link_libraries(main
-  system_metrics_collector_base
   system_metrics_collector
   system_metrics_collector_process_cpu_component
   system_metrics_collector_process_memory_component)
@@ -194,6 +193,7 @@ install(TARGETS
 )
 
 # Install libraries
+install(TARGETS system_metrics_collector_base DESTINATION lib)
 install(TARGETS system_metrics_collector DESTINATION lib)
 install(TARGETS system_metrics_collector_process_cpu_component DESTINATION lib)
 install(TARGETS system_metrics_collector_process_memory_component DESTINATION lib)
