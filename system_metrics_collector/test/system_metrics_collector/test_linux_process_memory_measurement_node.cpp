@@ -18,6 +18,7 @@
 #include <memory>
 #include <fstream>
 #include <string>
+#include <vector>
 
 #include "../../src/system_metrics_collector/constants.hpp"
 #include "../../src/system_metrics_collector/linux_process_memory_measurement_node.hpp"
@@ -34,7 +35,9 @@ class TestLinuxProcessMemoryMeasurementNode : public system_metrics_collector::
   LinuxProcessMemoryMeasurementNode
 {
 public:
-  TestLinuxProcessMemoryMeasurementNode(const std::string & name, const rclcpp::NodeOptions & options)
+  TestLinuxProcessMemoryMeasurementNode(
+    const std::string & name,
+    const rclcpp::NodeOptions & options)
   : LinuxProcessMemoryMeasurementNode(name, options) {}
 
   std::string GetMetricName() const override
@@ -60,9 +63,9 @@ public:
       system_metrics_collector::collector_node_constants::kPublishPeriodParam,
       std::chrono::duration_cast<std::chrono::milliseconds>(10s).count());
 
-    std::vector<std::string> arguments = { "--ros-args", "--remap", std::string(
-      system_metrics_collector::collector_node_constants::kStatisticsTopicName) + 
-      ":=test_topic" };
+    std::vector<std::string> arguments = {"--ros-args", "--remap", std::string(
+        system_metrics_collector::collector_node_constants::kStatisticsTopicName) +
+      ":=test_topic"};
     options.arguments(arguments);
 
     test_node_ = std::make_shared<TestLinuxProcessMemoryMeasurementNode>(

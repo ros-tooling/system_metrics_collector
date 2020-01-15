@@ -22,6 +22,7 @@
 #include <mutex>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include "metrics_statistics_msgs/msg/metrics_message.hpp"
 #include "metrics_statistics_msgs/msg/statistic_data_type.hpp"
@@ -136,9 +137,9 @@ public:
       system_metrics_collector::collector_node_constants::kPublishPeriodParam,
       test_constants::kPublishPeriod.count());
 
-    std::vector<std::string> arguments = { "--ros-args", "--remap", std::string(
-      system_metrics_collector::collector_node_constants::kStatisticsTopicName) +
-      ":=" + kTestTopic };
+    std::vector<std::string> arguments = {"--ros-args", "--remap", std::string(
+        system_metrics_collector::collector_node_constants::kStatisticsTopicName) +
+      ":=" + kTestTopic};
     options.arguments(arguments);
 
     test_measure_linux_memory_ = std::make_shared<TestLinuxMemoryMeasurementNode>(

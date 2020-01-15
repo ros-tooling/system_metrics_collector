@@ -35,7 +35,8 @@ PeriodicMeasurementNode::PeriodicMeasurementNode(
 {
   rcl_interfaces::msg::IntegerRange positive_range;
   positive_range.from_value = 1;
-  positive_range.to_value = std::numeric_limits<decltype(rcl_interfaces::msg::IntegerRange::to_value)>::max();
+  positive_range.to_value =
+    std::numeric_limits<decltype(rcl_interfaces::msg::IntegerRange::to_value)>::max();
   positive_range.step = 1;
 
   rcl_interfaces::msg::ParameterDescriptor descriptor;
@@ -46,8 +47,8 @@ PeriodicMeasurementNode::PeriodicMeasurementNode(
 
   descriptor.description = "The period in milliseconds between each measurement";
   auto measurement_period = declare_parameter(
-    collector_node_constants::kCollectPeriodParam, 
-    collector_node_constants::kDefaultCollectPeriodInMs, 
+    collector_node_constants::kCollectPeriodParam,
+    collector_node_constants::kDefaultCollectPeriodInMs,
     descriptor);
   measurement_period_ = std::chrono::milliseconds{measurement_period};
   if (measurement_period_ <= std::chrono::milliseconds{0}) {
@@ -56,8 +57,8 @@ PeriodicMeasurementNode::PeriodicMeasurementNode(
 
   descriptor.description = "The period in milliseconds between each published MetricsMessage";
   auto publish_period = declare_parameter(
-    collector_node_constants::kPublishPeriodParam, 
-    collector_node_constants::kDefaultPublishPeriodInMs, 
+    collector_node_constants::kPublishPeriodParam,
+    collector_node_constants::kDefaultPublishPeriodInMs,
     descriptor);
   publish_period_ = std::chrono::milliseconds{publish_period};
   if (publish_period_ <= std::chrono::milliseconds{0}) {
@@ -66,7 +67,7 @@ PeriodicMeasurementNode::PeriodicMeasurementNode(
 
   if (publish_period_ <= measurement_period_) {
     throw std::invalid_argument{
-      "publish_period cannot be less than or equal to the measurement_period"};
+            "publish_period cannot be less than or equal to the measurement_period"};
   }
 
   publishing_topic_ = collector_node_constants::kStatisticsTopicName;
