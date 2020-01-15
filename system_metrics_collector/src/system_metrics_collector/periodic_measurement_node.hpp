@@ -116,7 +116,7 @@ private:
   /**
    * The period used to publish measurement data
    */
-  const std::chrono::milliseconds publish_period_;
+  std::chrono::milliseconds publish_period_;
 
   rclcpp::TimerBase::SharedPtr measurement_timer_;
   rclcpp::TimerBase::SharedPtr publish_timer_;

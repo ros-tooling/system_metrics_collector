@@ -48,11 +48,17 @@ PeriodicMeasurementNode::PeriodicMeasurementNode(
     throw std::invalid_argument{"publishing_topic cannot be empty"};
   }
 
-  if (publish_period <= std::chrono::milliseconds{0}) {
+  int publish_period_param = 0;
+  declare_parameter("publish_period");
+  if (get_parameter("publish_period", publish_period_param)) {
+    publish_period_ = std::chrono::milliseconds(publish_period_param);
+  }
+
+  if (publish_period_ <= std::chrono::milliseconds{0}) {
     throw std::invalid_argument{"publish_period cannot be negative"};
   }
 
-  if (publish_period <= measurement_period) {
+  if (publish_period_ <= measurement_period) {
     throw std::invalid_argument{
             "publish_period cannot be less than or equal to the measurement_period"};
   }
