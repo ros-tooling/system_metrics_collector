@@ -79,6 +79,8 @@ bool PeriodicMeasurementNode::SetupStart()
         10 /*history_depth*/);
   }
 
+  publisher_->on_activate();
+
   RCLCPP_DEBUG(this->get_logger(), "SetupStart: creating publish_timer_");
   publish_timer_ = this->create_wall_timer(
     publish_period_, [this]() {
@@ -92,6 +94,32 @@ bool PeriodicMeasurementNode::SetupStart()
   return true;
 }
 
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+PeriodicMeasurementNode::on_activate(const rclcpp_lifecycle::State &)
+{
+  RCLCPP_DEBUG(this->get_logger(), "on_activate");
+  Start();
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+}
+
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+PeriodicMeasurementNode::on_deactivate(const rclcpp_lifecycle::State & state)
+{
+  RCLCPP_DEBUG(this->get_logger(), "on_deactivate");
+  Stop();
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+}
+
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+PeriodicMeasurementNode::on_shutdown(const rclcpp_lifecycle::State & state)
+{
+  RCLCPP_DEBUG(this->get_logger(), "on_shutdown");
+  Stop();
+  publisher_.reset();
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+}
+
+
 bool PeriodicMeasurementNode::SetupStop()
 {
   assert(measurement_timer_ != nullptr);
@@ -103,6 +131,8 @@ bool PeriodicMeasurementNode::SetupStop()
 
   publish_timer_->cancel();
   publish_timer_.reset();
+
+  publisher_->on_deactivate();
 
   return true;
 }
@@ -129,6 +159,12 @@ void PeriodicMeasurementNode::PerformPeriodicMeasurement()
 
 void PeriodicMeasurementNode::PublishStatisticMessage()
 {
+  if (!publisher_->is_activated()) {
+    RCLCPP_WARN(get_logger(), "PublishStatisticMessage: Lifecycle publisher is currently inactive."
+      " Messages will not be published.");
+    return;
+  }
+
   auto msg = GenerateStatisticMessage(get_name(),
       GetMetricName(),
       window_start_,

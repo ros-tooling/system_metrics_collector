@@ -33,12 +33,14 @@ int main(int argc, char ** argv)
     std::make_shared<system_metrics_collector::LinuxCpuMeasurementNode>("linuxCpuCollector");
 
   rclcpp::executors::MultiThreadedExecutor ex;
-  cpu_node->Start();
+  cpu_node->configure();
+  cpu_node->activate();
 
   ex.add_node(cpu_node->get_node_base_interface());
   ex.spin();
 
   rclcpp::shutdown();
-  cpu_node->Stop();
+  cpu_node->deactivate();
+
   return 0;
 }

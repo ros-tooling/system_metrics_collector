@@ -79,7 +79,7 @@ public:
 
   void TearDown() override
   {
-    test_node_->Stop();
+    test_node_->shutdown();
     ASSERT_FALSE(test_node_->IsStarted());
     test_node_.reset();
     rclcpp::shutdown();
@@ -88,7 +88,6 @@ public:
 protected:
   std::shared_ptr<TestLinuxProcessMemoryMeasurementNode> test_node_;
 };
-
 
 TEST(TestLinuxProcessMemoryMeasurement, TestGetProcessUsedMemory) {
   EXPECT_THROW(system_metrics_collector::GetProcessUsedMemory(

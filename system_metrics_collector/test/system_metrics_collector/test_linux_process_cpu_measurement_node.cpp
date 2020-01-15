@@ -248,8 +248,10 @@ public:
 
   void TearDown() override
   {
-    test_node_->Stop();
-    ASSERT_FALSE(test_node_->IsStarted());
+    test_node_->shutdown();
+    EXPECT_FALSE(test_node_->IsStarted());
+    EXPECT_EQ(4, test_node_->get_current_state().id());
+
     test_node_.reset();
     rclcpp::shutdown();
   }
@@ -277,6 +279,7 @@ TEST_F(LinuxProcessCpuMeasurementTestFixture, TestPublishMetricsMessage)
 {
   ASSERT_NE(test_node_, nullptr);
   ASSERT_FALSE(test_node_->IsStarted());
+  ASSERT_EQ(1, test_node_->get_current_state().id());
 
   auto test_receive_measurements = std::make_shared<TestReceiveProcessCpuMeasurementNode>(
     "test_receive_measurements", test_node_->GetMetricName());
@@ -289,9 +292,13 @@ TEST_F(LinuxProcessCpuMeasurementTestFixture, TestPublishMetricsMessage)
   //
   // spin the node with it started
   //
-  bool start_success = test_node_->Start();
-  ASSERT_TRUE(start_success);
+  test_node_->configure();
+  ASSERT_EQ(2, test_node_->get_current_state().id());
+
+  test_node_->activate();
   ASSERT_TRUE(test_node_->IsStarted());
+  ASSERT_EQ(3, test_node_->get_current_state().id());
+
   ex.spin_until_future_complete(dummy_future, test_constants::kTestDuration);
   EXPECT_EQ(3, test_receive_measurements->GetNumReceived());
   // expectation is:
@@ -315,9 +322,11 @@ TEST_F(LinuxProcessCpuMeasurementTestFixture, TestPublishMetricsMessage)
   //
   // spin the node with it stopped
   //
-  bool stop_success = test_node_->Stop();
-  ASSERT_TRUE(stop_success);
+  test_node_->deactivate();
   ASSERT_FALSE(test_node_->IsStarted());
+  ASSERT_EQ(2, test_node_->get_current_state().id());
+
+
   ex.spin_until_future_complete(dummy_future, test_constants::kTestDuration);
   EXPECT_EQ(3, test_receive_measurements->GetNumReceived());
   // expectation is:
@@ -333,9 +342,10 @@ TEST_F(LinuxProcessCpuMeasurementTestFixture, TestPublishMetricsMessage)
   //
   // spin the node with it restarted
   //
-  start_success = test_node_->Start();
-  ASSERT_TRUE(start_success);
+  test_node_->activate();
   ASSERT_TRUE(test_node_->IsStarted());
+  ASSERT_EQ(3, test_node_->get_current_state().id());
+
   ex.spin_until_future_complete(dummy_future, test_constants::kTestDuration);
   EXPECT_EQ(6, test_receive_measurements->GetNumReceived());
   // expectation is:

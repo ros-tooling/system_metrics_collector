@@ -118,7 +118,10 @@ public:
 
   void TearDown() override
   {
-    test_periodic_measurer_->Stop();
+    test_periodic_measurer_->shutdown();
+    EXPECT_EQ(State::PRIMARY_STATE_FINALIZED, test_periodic_measurer_->get_current_state().id());
+    EXPECT_FALSE(test_periodic_measurer_->IsStarted());
+
     test_periodic_measurer_.reset();
     rclcpp::shutdown();
   }
@@ -149,10 +152,15 @@ TEST_F(PeriodicMeasurementTestFixure, Sanity) {
 TEST_F(PeriodicMeasurementTestFixure, TestStartAndStop) {
   ASSERT_NE(test_periodic_measurer_, nullptr);
   ASSERT_FALSE(test_periodic_measurer_->IsStarted());
+  ASSERT_EQ(1, test_periodic_measurer_->get_current_state().id());
 
-  const bool start_success = test_periodic_measurer_->Start();
-  ASSERT_TRUE(start_success);
+  test_periodic_measurer_->configure();
+  ASSERT_EQ(2, test_periodic_measurer_->get_current_state().id());
+
+
+  test_periodic_measurer_->activate();
   ASSERT_TRUE(test_periodic_measurer_->IsStarted());
+  ASSERT_EQ(3, test_periodic_measurer_->get_current_state().id());
 
   std::promise<bool> empty_promise;
   std::shared_future<bool> dummy_future = empty_promise.get_future();
@@ -171,8 +179,8 @@ TEST_F(PeriodicMeasurementTestFixure, TestStartAndStop) {
     test_constants::kTestDuration.count() / test_constants::kMeasurePeriod.count(),
     data.sample_count);
 
-  const bool stop_success = test_periodic_measurer_->Stop();
-  ASSERT_TRUE(stop_success);
+  test_periodic_measurer_->deactivate();
+  ASSERT_EQ(2, test_periodic_measurer_->get_current_state().id());
   ASSERT_FALSE(test_periodic_measurer_->IsStarted());
 
   int times_published = test_periodic_measurer_->GetNumPublished();
@@ -180,56 +188,114 @@ TEST_F(PeriodicMeasurementTestFixure, TestStartAndStop) {
     test_constants::kTestDuration.count() / kDontPublishDuringTest.count(), times_published);
 }
 
+TEST_F(PeriodicMeasurementTestFixure, TestLifecycleManually) {
+  ASSERT_NE(test_periodic_measurer_, nullptr);
+  ASSERT_FALSE(test_periodic_measurer_->IsStarted());
+  ASSERT_EQ(1, test_periodic_measurer_->get_current_state().id());
+
+  // configure the node
+  test_periodic_measurer_->configure();
+  ASSERT_EQ(2, test_periodic_measurer_->get_current_state().id());
+  ASSERT_FALSE(test_periodic_measurer_->IsStarted());
+
+  // activate the node
+  test_periodic_measurer_->activate();
+  ASSERT_EQ(3, test_periodic_measurer_->get_current_state().id());
+  ASSERT_TRUE(test_periodic_measurer_->IsStarted());
+
+  // deactivate the node
+  test_periodic_measurer_->deactivate();
+  ASSERT_EQ(2, test_periodic_measurer_->get_current_state().id());
+  ASSERT_FALSE(test_periodic_measurer_->IsStarted());
+
+  // shutdown the node
+  test_periodic_measurer_->shutdown();
+  ASSERT_EQ(4, test_periodic_measurer_->get_current_state().id());
+  ASSERT_FALSE(test_periodic_measurer_->IsStarted());
+}
+
+TEST_F(PeriodicMeasurementTestFixure, TestLifecycleManually_reactivate) {
+  ASSERT_NE(test_periodic_measurer_, nullptr);
+  ASSERT_FALSE(test_periodic_measurer_->IsStarted());
+
+  ASSERT_EQ(1, test_periodic_measurer_->get_current_state().id());
+
+  // configure the node
+  test_periodic_measurer_->configure();
+  ASSERT_EQ(2, test_periodic_measurer_->get_current_state().id());
+  ASSERT_FALSE(test_periodic_measurer_->IsStarted());
+
+  // activate the node
+  test_periodic_measurer_->activate();
+  ASSERT_EQ(3, test_periodic_measurer_->get_current_state().id());
+  ASSERT_TRUE(test_periodic_measurer_->IsStarted());
+
+  // deactivate the node
+  test_periodic_measurer_->deactivate();
+  ASSERT_EQ(2, test_periodic_measurer_->get_current_state().id());
+  ASSERT_FALSE(test_periodic_measurer_->IsStarted());
+
+  // reactivate the node
+  test_periodic_measurer_->activate();
+  ASSERT_EQ(3, test_periodic_measurer_->get_current_state().id());
+  ASSERT_TRUE(test_periodic_measurer_->IsStarted());
+
+  // shutdown the node
+  test_periodic_measurer_->shutdown();
+  ASSERT_EQ(4, test_periodic_measurer_->get_current_state().id());
+  ASSERT_FALSE(test_periodic_measurer_->IsStarted());
+}
+
 TEST_F(PeriodicMeasurementTestFixure, TestConstructorMeasurementPeriodValidation) {
   rclcpp::NodeOptions options;
   options.append_parameter_override(
-    system_metrics_collector::collector_node_constants::kCollectPeriodParam,
-    std::chrono::milliseconds{-1}.count());
+          system_metrics_collector::collector_node_constants::kCollectPeriodParam,
+          std::chrono::milliseconds{-1}.count());
   options.append_parameter_override(
-    system_metrics_collector::collector_node_constants::kPublishPeriodParam,
-    test_constants::kPublishPeriod.count());
+          system_metrics_collector::collector_node_constants::kPublishPeriodParam,
+          test_constants::kPublishPeriod.count());
 
   ASSERT_THROW(TestPeriodicMeasurementNode("throw", options),
-    rclcpp::exceptions::InvalidParameterValueException);
+          rclcpp::exceptions::InvalidParameterValueException);
 }
 
 TEST_F(PeriodicMeasurementTestFixure, TestConstructorPublishPeriodValidation1) {
   rclcpp::NodeOptions options;
   options.append_parameter_override(
-    system_metrics_collector::collector_node_constants::kCollectPeriodParam,
-    test_constants::kMeasurePeriod.count());
+          system_metrics_collector::collector_node_constants::kCollectPeriodParam,
+          test_constants::kMeasurePeriod.count());
   options.append_parameter_override(
-    system_metrics_collector::collector_node_constants::kPublishPeriodParam,
-    std::chrono::milliseconds{-1}.count());
+          system_metrics_collector::collector_node_constants::kPublishPeriodParam,
+          std::chrono::milliseconds{-1}.count());
 
   ASSERT_THROW(TestPeriodicMeasurementNode("throw", options),
-    rclcpp::exceptions::InvalidParameterValueException);
+          rclcpp::exceptions::InvalidParameterValueException);
 }
 
 TEST_F(PeriodicMeasurementTestFixure, TestConstructorPublishPeriodValidation2) {
   rclcpp::NodeOptions options;
   options.append_parameter_override(
-    system_metrics_collector::collector_node_constants::kCollectPeriodParam,
-    std::chrono::milliseconds{2}.count());
+          system_metrics_collector::collector_node_constants::kCollectPeriodParam,
+          std::chrono::milliseconds{2}.count());
   options.append_parameter_override(
-    system_metrics_collector::collector_node_constants::kPublishPeriodParam,
-    std::chrono::milliseconds{1}.count());
+          system_metrics_collector::collector_node_constants::kPublishPeriodParam,
+          std::chrono::milliseconds{1}.count());
 
   ASSERT_THROW(TestPeriodicMeasurementNode("throw", options),
-    std::invalid_argument);
+          std::invalid_argument);
 }
 
 TEST_F(PeriodicMeasurementTestFixure, TestConstructorNodeNameValidation) {
   rclcpp::NodeOptions options;
   options.append_parameter_override(
-    system_metrics_collector::collector_node_constants::kCollectPeriodParam,
-    test_constants::kMeasurePeriod.count());
+          system_metrics_collector::collector_node_constants::kCollectPeriodParam,
+          test_constants::kMeasurePeriod.count());
   options.append_parameter_override(
-    system_metrics_collector::collector_node_constants::kPublishPeriodParam,
-    test_constants::kPublishPeriod.count());
+          system_metrics_collector::collector_node_constants::kPublishPeriodParam,
+          test_constants::kPublishPeriod.count());
 
   ASSERT_THROW(TestPeriodicMeasurementNode("", options),
-    std::invalid_argument);
+          std::invalid_argument);
 }
 
 int main(int argc, char ** argv)

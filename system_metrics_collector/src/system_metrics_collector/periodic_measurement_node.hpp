@@ -57,6 +57,15 @@ public:
    */
   std::string GetStatusString() const override;
 
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_activate(
+    const rclcpp_lifecycle::State & state);
+
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_deactivate(
+    const rclcpp_lifecycle::State & state);
+
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_shutdown(
+    const rclcpp_lifecycle::State & state);
+
 protected:
   /**
    * Create ROS2 timers and a publisher for periodically triggering measurements
@@ -78,7 +87,8 @@ protected:
    */
   rclcpp::Time window_start_;
 
-  rclcpp::Publisher<metrics_statistics_msgs::msg::MetricsMessage>::SharedPtr publisher_;
+  rclcpp_lifecycle::LifecyclePublisher<metrics_statistics_msgs::msg::MetricsMessage>::SharedPtr
+    publisher_;
 
 private:
   /**

@@ -152,8 +152,10 @@ public:
 
   void TearDown() override
   {
-    test_measure_linux_memory_->Stop();
-    ASSERT_FALSE(test_measure_linux_memory_->IsStarted());
+    test_measure_linux_memory_->shutdown();
+    EXPECT_FALSE(test_measure_linux_memory_->IsStarted());
+    EXPECT_EQ(4, test_measure_linux_memory_->get_current_state().id());
+
     test_measure_linux_memory_.reset();
     rclcpp::shutdown();
   }
@@ -298,6 +300,7 @@ TEST_F(LinuxMemoryMeasurementTestFixture, TestPublishMetricsMessage)
 {
   ASSERT_NE(test_measure_linux_memory_, nullptr);
   ASSERT_FALSE(test_measure_linux_memory_->IsStarted());
+  ASSERT_EQ(1, test_measure_linux_memory_->get_current_state().id());
 
   auto test_receive_measurements = std::make_shared<TestReceiveMemoryMeasurementNode>(
     "test_receive_measurements");
@@ -310,9 +313,14 @@ TEST_F(LinuxMemoryMeasurementTestFixture, TestPublishMetricsMessage)
   //
   // spin the node with it started
   //
-  bool start_success = test_measure_linux_memory_->Start();
-  ASSERT_TRUE(start_success);
+  test_measure_linux_memory_->configure();
+  ASSERT_EQ(2, test_measure_linux_memory_->get_current_state().id());
+  ASSERT_FALSE(test_measure_linux_memory_->IsStarted());
+
+  test_measure_linux_memory_->activate();
+  ASSERT_EQ(3, test_measure_linux_memory_->get_current_state().id());
   ASSERT_TRUE(test_measure_linux_memory_->IsStarted());
+
   ex.spin_until_future_complete(dummy_future, test_constants::kTestDuration);
   EXPECT_EQ(3, test_receive_measurements->GetNumReceived());
   // expectation is:
@@ -328,11 +336,12 @@ TEST_F(LinuxMemoryMeasurementTestFixture, TestPublishMetricsMessage)
   EXPECT_EQ(1, data.sample_count);
 
   //
-  // spin the node with it stopped
+  // spin the node with it deactivated
   //
-  bool stop_success = test_measure_linux_memory_->Stop();
-  ASSERT_TRUE(stop_success);
+  test_measure_linux_memory_->deactivate();
+  ASSERT_EQ(2, test_measure_linux_memory_->get_current_state().id());
   ASSERT_FALSE(test_measure_linux_memory_->IsStarted());
+
   ex.spin_until_future_complete(dummy_future, test_constants::kTestDuration);
   EXPECT_EQ(3, test_receive_measurements->GetNumReceived());
   // expectation is:
@@ -348,8 +357,9 @@ TEST_F(LinuxMemoryMeasurementTestFixture, TestPublishMetricsMessage)
   //
   // spin the node with it restarted
   //
-  start_success = test_measure_linux_memory_->Start();
-  ASSERT_TRUE(start_success);
+  test_measure_linux_memory_->activate();
+  ASSERT_EQ(3, test_measure_linux_memory_->get_current_state().id());
+
   ASSERT_TRUE(test_measure_linux_memory_->IsStarted());
   ex.spin_until_future_complete(dummy_future, test_constants::kTestDuration);
   EXPECT_EQ(6, test_receive_measurements->GetNumReceived());
