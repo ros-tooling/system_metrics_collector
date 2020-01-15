@@ -49,7 +49,9 @@ PeriodicMeasurementNode::PeriodicMeasurementNode(
   }
 
   int publish_period_param = 0;
-  declare_parameter("publish_period");
+  rcl_interfaces::msg::ParameterDescriptor descriptor;
+  descriptor.read_only = true;
+  declare_parameter("publish_period", publish_period_.count(), descriptor);
   if (get_parameter("publish_period", publish_period_param)) {
     publish_period_ = std::chrono::milliseconds(publish_period_param);
   }
