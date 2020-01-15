@@ -122,7 +122,7 @@ std::string PeriodicMeasurementNode::GetStatusString() const
   std::stringstream ss;
   ss << "name=" << get_name() <<
     ", measurement_period=" << std::to_string(measurement_period_.count()) << "ms" <<
-    ", publishing_topic=" << publishing_topic_ <<
+    ", publishing_topic=" << ((publisher_ == nullptr) ? "" : publisher_->get_topic_name()) <<
     ", publish_period=" << std::to_string(publish_period_.count()) + "ms" <<
     ", " << Collector::GetStatusString();
   return ss.str();

@@ -142,8 +142,17 @@ constexpr std::chrono::milliseconds PeriodicMeasurementTestFixure::kDontPublishD
 
 TEST_F(PeriodicMeasurementTestFixure, Sanity) {
   ASSERT_NE(test_periodic_measurer_, nullptr);
+
   ASSERT_EQ("name=test_periodic_node, measurement_period=50ms,"
-    " publishing_topic=test_topic, publish_period=500ms, started=false,"
+    " publishing_topic=, publish_period=500ms, started=false,"
+    " avg=nan, min=nan, max=nan, std_dev=nan, count=0",
+    test_periodic_measurer_->GetStatusString());
+
+  const bool start_success = test_periodic_measurer_->Start();
+  ASSERT_TRUE(start_success);
+
+  ASSERT_EQ("name=test_periodic_node, measurement_period=50ms,"
+    " publishing_topic=/test_topic, publish_period=500ms, started=true,"
     " avg=nan, min=nan, max=nan, std_dev=nan, count=0",
     test_periodic_measurer_->GetStatusString());
 }
@@ -197,7 +206,7 @@ TEST_F(PeriodicMeasurementTestFixure, TestConstructorInputValidation) {
     system_metrics_collector::collector_node_constants::kStatisticsTopicName + ":=");
   ASSERT_THROW(TestPeriodicMeasurementNode("throw",
     rclcpp::NodeOptions().parameter_overrides(parameter_overrides).arguments(arguments)),
-    std::invalid_argument);
+    rclcpp::exceptions::InvalidParameterValueException);
   parameter_overrides.clear();
   arguments.clear();
 
@@ -212,7 +221,7 @@ TEST_F(PeriodicMeasurementTestFixure, TestConstructorInputValidation) {
     system_metrics_collector::collector_node_constants::kStatisticsTopicName + ":=");
   ASSERT_THROW(TestPeriodicMeasurementNode("throw",
     rclcpp::NodeOptions().parameter_overrides(parameter_overrides).arguments(arguments)),
-    std::invalid_argument);
+    rclcpp::exceptions::InvalidParameterValueException);
   parameter_overrides.clear();
   arguments.clear();
 
@@ -227,7 +236,7 @@ TEST_F(PeriodicMeasurementTestFixure, TestConstructorInputValidation) {
     system_metrics_collector::collector_node_constants::kStatisticsTopicName + ":=" + kTestTopic);
   ASSERT_THROW(TestPeriodicMeasurementNode("throw",
     rclcpp::NodeOptions().parameter_overrides(parameter_overrides).arguments(arguments)),
-    std::invalid_argument);
+    rclcpp::exceptions::InvalidParameterValueException);
   parameter_overrides.clear();
   arguments.clear();
 
