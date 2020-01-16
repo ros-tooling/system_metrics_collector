@@ -57,12 +57,33 @@ public:
    */
   std::string GetStatusString() const override;
 
+  /**
+   * Implementation of the on_activate transition for this LifecycleNode. This calls
+   * the Start() method.
+   *
+   * @param state input state
+   * @return CallbackReturn success
+   */
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_activate(
     const rclcpp_lifecycle::State & state);
 
+  /**
+   * Implementation of the on_deactivate transition for this LifecycleNode. This calls
+   * the Stop() method.
+   *
+   * @param input state
+   * @return CallbackReturn success
+   */
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_deactivate(
     const rclcpp_lifecycle::State & state);
 
+  /**
+   * Implementation of the on_shutdown transition for this LifecycleNode. This calls
+   * the Stop() method and resets the publish_timer_ member.
+   *
+   * @param input state
+   * @return CallbackReturn success
+   */
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_shutdown(
     const rclcpp_lifecycle::State & state);
 
@@ -87,13 +108,16 @@ protected:
    */
   rclcpp::Time window_start_;
 
+  /**
+   * LifecyclePublisher publisher that is activated on SetupStart and deactivated on SetupStop().
+   */
   rclcpp_lifecycle::LifecyclePublisher<metrics_statistics_msgs::msg::MetricsMessage>::SharedPtr
-    publisher_;
+    publisher_; //todo unique ptr
 
 private:
   /**
-   * Override this method to perform a single measurement. This is called via PerformPeriodicMeasurement
-   * with the period defined in the constructor.
+   * Override this method to perform a single measurement. This is called via
+   * PerformPeriodicMeasurement with the period defined in the constructor.
    *
    * @return the measurement made to be aggregated for statistics
    */
@@ -120,8 +144,15 @@ private:
    */
   std::chrono::milliseconds publish_period_;
 
-  rclcpp::TimerBase::SharedPtr measurement_timer_;
-  rclcpp::TimerBase::SharedPtr publish_timer_;
+  /**
+   * ROS2 timer used to trigger collection measurements.
+   */
+  rclcpp::TimerBase::SharedPtr measurement_timer_; //todo unique ptr
+
+  /**
+   * ROS2 timer used to publish measurement messages.
+   */
+  rclcpp::TimerBase::SharedPtr publish_timer_; //todo unique ptr
 };
 
 }  // namespace system_metrics_collector

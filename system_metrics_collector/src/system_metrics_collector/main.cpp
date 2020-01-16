@@ -69,9 +69,14 @@ int main(int argc, char ** argv)
   cpu_node->configure();
   cpu_node->activate();
 
-  mem_node->Start();
-  process_cpu_node->Start();
-  process_mem_node->Start();
+  mem_node->configure();
+  mem_node->activate();
+
+  process_cpu_node->configure();
+  process_cpu_node->activate();
+
+  process_mem_node->configure();
+  process_mem_node->activate();
 
   set_node_to_debug(cpu_node.get(), "cpu");
   set_node_to_debug(mem_node.get(), "memory");
@@ -86,10 +91,10 @@ int main(int argc, char ** argv)
 
   rclcpp::shutdown();
 
-  cpu_node->Stop();
-  mem_node->Stop();
-  process_cpu_node->Stop();
-  process_mem_node->Stop();
+  cpu_node->shutdown();
+  mem_node->shutdown();
+  process_cpu_node->shutdown();
+  process_mem_node->shutdown();
 
   return 0;
 }
