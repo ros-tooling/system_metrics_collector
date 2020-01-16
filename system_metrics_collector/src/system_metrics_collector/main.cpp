@@ -79,9 +79,9 @@ int main(int argc, char ** argv)
   set_node_to_debug(process_mem_node.get(), "process memory");
 
   ex.add_node(cpu_node->get_node_base_interface());
-//  ex.add_node(mem_node->get_node_base_interface());
-//  ex.add_node(process_cpu_node->get_node_base_interface());
-//  ex.add_node(process_mem_node->get_node_base_interface());
+  ex.add_node(mem_node->get_node_base_interface());
+  ex.add_node(process_cpu_node->get_node_base_interface());
+  ex.add_node(process_mem_node->get_node_base_interface());
   ex.spin();
 
   rclcpp::shutdown();
