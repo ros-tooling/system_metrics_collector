@@ -67,6 +67,7 @@ ament_target_dependencies(linux_memory_collector)
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   find_package(ament_cmake_gtest REQUIRED)
+  find_package(lifecycle_msgs REQUIRED)
 
   ament_lint_auto_find_test_dependencies()
 
@@ -88,17 +89,17 @@ if(BUILD_TESTING)
   ament_add_gtest(test_linux_memory_measurement_node
           test/system_metrics_collector/test_linux_memory_measurement.cpp)
   target_link_libraries(test_linux_memory_measurement_node system_metrics_collector)
-  ament_target_dependencies(test_linux_memory_measurement_node metrics_statistics_msgs rclcpp)
+  ament_target_dependencies(test_linux_memory_measurement_node lifecycle_msgs metrics_statistics_msgs rclcpp)
 
   ament_add_gtest(test_linux_process_cpu_measurement_node
           test/system_metrics_collector/test_linux_process_cpu_measurement_node.cpp)
   target_link_libraries(test_linux_process_cpu_measurement_node system_metrics_collector)
-  ament_target_dependencies(test_linux_process_cpu_measurement_node metrics_statistics_msgs rclcpp)
+  ament_target_dependencies(test_linux_process_cpu_measurement_node lifecycle_msgs metrics_statistics_msgs rclcpp)
 
   ament_add_gtest(test_linux_process_memory_measurement_node
           test/system_metrics_collector/test_linux_process_memory_measurement_node.cpp)
   target_link_libraries(test_linux_process_memory_measurement_node system_metrics_collector)
-  ament_target_dependencies(test_linux_process_memory_measurement_node metrics_statistics_msgs rclcpp)
+  ament_target_dependencies(test_linux_process_memory_measurement_node lifecycle_msgs metrics_statistics_msgs rclcpp)
 
   ament_add_gtest(test_moving_average_statistics
           test/moving_average_statistics/test_moving_average_statistics.cpp)
@@ -108,7 +109,7 @@ if(BUILD_TESTING)
   ament_add_gtest(test_periodic_measurement_node
     test/system_metrics_collector/test_periodic_measurement_node.cpp)
   target_link_libraries(test_periodic_measurement_node system_metrics_collector)
-  ament_target_dependencies(test_periodic_measurement_node metrics_statistics_msgs rclcpp)
+  ament_target_dependencies(test_periodic_measurement_node lifecycle_msgs metrics_statistics_msgs rclcpp)
 
   ament_add_gtest(test_utilities
           test/system_metrics_collector/test_utilities.cpp)

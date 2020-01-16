@@ -24,6 +24,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "lifecycle_msgs/msg/state.hpp"
+
 #include "metrics_statistics_msgs/msg/metrics_message.hpp"
 #include "metrics_statistics_msgs/msg/statistic_data_type.hpp"
 
@@ -33,6 +35,7 @@
 
 #include "test_constants.hpp"
 
+using lifecycle_msgs::msg::State;
 using metrics_statistics_msgs::msg::MetricsMessage;
 using metrics_statistics_msgs::msg::StatisticDataPoint;
 using metrics_statistics_msgs::msg::StatisticDataType;
@@ -154,7 +157,7 @@ public:
   {
     test_measure_linux_memory_->shutdown();
     EXPECT_FALSE(test_measure_linux_memory_->IsStarted());
-    EXPECT_EQ(4, test_measure_linux_memory_->get_current_state().id());
+    EXPECT_EQ(State::PRIMARY_STATE_FINALIZED, test_measure_linux_memory_->get_current_state().id());
 
     test_measure_linux_memory_.reset();
     rclcpp::shutdown();
@@ -300,7 +303,8 @@ TEST_F(LinuxMemoryMeasurementTestFixture, TestPublishMetricsMessage)
 {
   ASSERT_NE(test_measure_linux_memory_, nullptr);
   ASSERT_FALSE(test_measure_linux_memory_->IsStarted());
-  ASSERT_EQ(1, test_measure_linux_memory_->get_current_state().id());
+  ASSERT_EQ(State::PRIMARY_STATE_UNCONFIGURED,
+    test_measure_linux_memory_->get_current_state().id());
 
   auto test_receive_measurements = std::make_shared<TestReceiveMemoryMeasurementNode>(
     "test_receive_measurements");
@@ -314,11 +318,11 @@ TEST_F(LinuxMemoryMeasurementTestFixture, TestPublishMetricsMessage)
   // spin the node with it started
   //
   test_measure_linux_memory_->configure();
-  ASSERT_EQ(2, test_measure_linux_memory_->get_current_state().id());
+  ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, test_measure_linux_memory_->get_current_state().id());
   ASSERT_FALSE(test_measure_linux_memory_->IsStarted());
 
   test_measure_linux_memory_->activate();
-  ASSERT_EQ(3, test_measure_linux_memory_->get_current_state().id());
+  ASSERT_EQ(State::PRIMARY_STATE_ACTIVE, test_measure_linux_memory_->get_current_state().id());
   ASSERT_TRUE(test_measure_linux_memory_->IsStarted());
 
   ex.spin_until_future_complete(dummy_future, test_constants::kTestDuration);
@@ -339,7 +343,7 @@ TEST_F(LinuxMemoryMeasurementTestFixture, TestPublishMetricsMessage)
   // spin the node with it deactivated
   //
   test_measure_linux_memory_->deactivate();
-  ASSERT_EQ(2, test_measure_linux_memory_->get_current_state().id());
+  ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, test_measure_linux_memory_->get_current_state().id());
   ASSERT_FALSE(test_measure_linux_memory_->IsStarted());
 
   ex.spin_until_future_complete(dummy_future, test_constants::kTestDuration);
@@ -358,7 +362,7 @@ TEST_F(LinuxMemoryMeasurementTestFixture, TestPublishMetricsMessage)
   // spin the node with it restarted
   //
   test_measure_linux_memory_->activate();
-  ASSERT_EQ(3, test_measure_linux_memory_->get_current_state().id());
+  ASSERT_EQ(State::PRIMARY_STATE_ACTIVE, test_measure_linux_memory_->get_current_state().id());
 
   ASSERT_TRUE(test_measure_linux_memory_->IsStarted());
   ex.spin_until_future_complete(dummy_future, test_constants::kTestDuration);
