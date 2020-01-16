@@ -112,7 +112,7 @@ protected:
    * LifecyclePublisher publisher that is activated on SetupStart and deactivated on SetupStop().
    */
   rclcpp_lifecycle::LifecyclePublisher<metrics_statistics_msgs::msg::MetricsMessage>::SharedPtr
-    publisher_; //todo unique ptr
+    publisher_;
 
 private:
   /**
@@ -147,12 +147,12 @@ private:
   /**
    * ROS2 timer used to trigger collection measurements.
    */
-  rclcpp::TimerBase::SharedPtr measurement_timer_; //todo unique ptr
+  rclcpp::TimerBase::SharedPtr measurement_timer_;
 
   /**
    * ROS2 timer used to publish measurement messages.
    */
-  rclcpp::TimerBase::SharedPtr publish_timer_; //todo unique ptr
+  rclcpp::TimerBase::SharedPtr publish_timer_;
 };
 
 }  // namespace system_metrics_collector
