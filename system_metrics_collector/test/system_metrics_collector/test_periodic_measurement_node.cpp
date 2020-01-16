@@ -57,6 +57,16 @@ public:
     return times_published_;
   }
 
+  /**
+   * Return true if the lifecycle publisher is activated, false if null or not activated.
+   *
+   * @return
+   */
+  bool IsPublisherActivated() const
+  {
+    return !(publisher_ == nullptr || !publisher_->is_activated());
+  }
+
 private:
   /**
    * Test measurement for the fixture.
@@ -110,6 +120,7 @@ public:
       kTestNodeName, options);
 
     ASSERT_FALSE(test_periodic_measurer_->IsStarted());
+    ASSERT_FALSE(test_periodic_measurer_->IsPublisherActivated());
 
     const moving_average_statistics::StatisticData data =
       test_periodic_measurer_->GetStatisticsResults();
@@ -125,6 +136,7 @@ public:
     test_periodic_measurer_->shutdown();
     EXPECT_EQ(State::PRIMARY_STATE_FINALIZED, test_periodic_measurer_->get_current_state().id());
     EXPECT_FALSE(test_periodic_measurer_->IsStarted());
+    EXPECT_FALSE(test_periodic_measurer_->IsPublisherActivated());
 
     test_periodic_measurer_.reset();
     rclcpp::shutdown();
@@ -157,14 +169,17 @@ TEST_F(PeriodicMeasurementTestFixure, TestStartAndStop) {
   ASSERT_NE(test_periodic_measurer_, nullptr);
   ASSERT_FALSE(test_periodic_measurer_->IsStarted());
   ASSERT_EQ(State::PRIMARY_STATE_UNCONFIGURED, test_periodic_measurer_->get_current_state().id());
+  ASSERT_FALSE(test_periodic_measurer_->IsPublisherActivated());
 
   test_periodic_measurer_->configure();
   ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, test_periodic_measurer_->get_current_state().id());
+  ASSERT_FALSE(test_periodic_measurer_->IsPublisherActivated());
 
 
   test_periodic_measurer_->activate();
   ASSERT_TRUE(test_periodic_measurer_->IsStarted());
   ASSERT_EQ(State::PRIMARY_STATE_ACTIVE, test_periodic_measurer_->get_current_state().id());
+  ASSERT_TRUE(test_periodic_measurer_->IsPublisherActivated());
 
   std::promise<bool> empty_promise;
   std::shared_future<bool> dummy_future = empty_promise.get_future();
@@ -186,6 +201,7 @@ TEST_F(PeriodicMeasurementTestFixure, TestStartAndStop) {
   test_periodic_measurer_->deactivate();
   ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, test_periodic_measurer_->get_current_state().id());
   ASSERT_FALSE(test_periodic_measurer_->IsStarted());
+  ASSERT_FALSE(test_periodic_measurer_->IsPublisherActivated());
 
   int times_published = test_periodic_measurer_->GetNumPublished();
   ASSERT_EQ(
@@ -196,21 +212,25 @@ TEST_F(PeriodicMeasurementTestFixure, TestLifecycleManually) {
   ASSERT_NE(test_periodic_measurer_, nullptr);
   ASSERT_FALSE(test_periodic_measurer_->IsStarted());
   ASSERT_EQ(State::PRIMARY_STATE_UNCONFIGURED, test_periodic_measurer_->get_current_state().id());
+  ASSERT_FALSE(test_periodic_measurer_->IsPublisherActivated());
 
   // configure the node
   test_periodic_measurer_->configure();
   ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, test_periodic_measurer_->get_current_state().id());
   ASSERT_FALSE(test_periodic_measurer_->IsStarted());
+  ASSERT_FALSE(test_periodic_measurer_->IsPublisherActivated());
 
   // activate the node
   test_periodic_measurer_->activate();
   ASSERT_EQ(State::PRIMARY_STATE_ACTIVE, test_periodic_measurer_->get_current_state().id());
   ASSERT_TRUE(test_periodic_measurer_->IsStarted());
+  ASSERT_TRUE(test_periodic_measurer_->IsPublisherActivated());
 
   // deactivate the node
   test_periodic_measurer_->deactivate();
   ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, test_periodic_measurer_->get_current_state().id());
   ASSERT_FALSE(test_periodic_measurer_->IsStarted());
+  ASSERT_FALSE(test_periodic_measurer_->IsPublisherActivated());
 
   // shutdown happens in teardown
 }
@@ -218,23 +238,26 @@ TEST_F(PeriodicMeasurementTestFixure, TestLifecycleManually) {
 TEST_F(PeriodicMeasurementTestFixure, TestLifecycleManually_reactivate) {
   ASSERT_NE(test_periodic_measurer_, nullptr);
   ASSERT_FALSE(test_periodic_measurer_->IsStarted());
-
   ASSERT_EQ(State::PRIMARY_STATE_UNCONFIGURED, test_periodic_measurer_->get_current_state().id());
+  ASSERT_FALSE(test_periodic_measurer_->IsPublisherActivated());
 
   // configure the node
   test_periodic_measurer_->configure();
   ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, test_periodic_measurer_->get_current_state().id());
   ASSERT_FALSE(test_periodic_measurer_->IsStarted());
+  ASSERT_FALSE(test_periodic_measurer_->IsPublisherActivated());
 
   // activate the node
   test_periodic_measurer_->activate();
   ASSERT_EQ(State::PRIMARY_STATE_ACTIVE, test_periodic_measurer_->get_current_state().id());
   ASSERT_TRUE(test_periodic_measurer_->IsStarted());
+  ASSERT_TRUE(test_periodic_measurer_->IsPublisherActivated());
 
   // deactivate the node
   test_periodic_measurer_->deactivate();
   ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, test_periodic_measurer_->get_current_state().id());
   ASSERT_FALSE(test_periodic_measurer_->IsStarted());
+  ASSERT_FALSE(test_periodic_measurer_->IsPublisherActivated());
 
   // reactivate the node
   test_periodic_measurer_->activate();
