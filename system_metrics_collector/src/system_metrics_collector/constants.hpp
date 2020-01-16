@@ -15,6 +15,7 @@
 #ifndef SYSTEM_METRICS_COLLECTOR__CONSTANTS_HPP_
 #define SYSTEM_METRICS_COLLECTOR__CONSTANTS_HPP_
 
+#include <chrono>
 
 namespace system_metrics_collector
 {
@@ -25,10 +26,11 @@ namespace collector_node_constants
 constexpr const char kStatisticsTopicName[] = "system_metrics";
 
 constexpr const char kCollectPeriodParam[] = "measurement_period";
-constexpr const int64_t kDefaultCollectPeriodInMs = 1000;   // 1 second
+constexpr const std::chrono::milliseconds kDefaultCollectPeriod{1000};    // 1 second
 
 constexpr const char kPublishPeriodParam[] = "publish_period";
-constexpr const int64_t kDefaultPublishPeriodInMs = 60000;  // 1 minute
+constexpr const std::chrono::milliseconds kDefaultPublishPeriod{60000};   // 1 minute
+
 
 }  // namespace collector_node_constants
 

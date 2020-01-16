@@ -34,7 +34,6 @@
 namespace
 {
 constexpr const char kTestNodeName[] = "test_periodic_node";
-constexpr const char kTestTopic[] = "test_topic";
 constexpr const char kTestMetricname[] = "test_metric_name";
 }  // namespace
 
@@ -181,84 +180,69 @@ TEST_F(PeriodicMeasurementTestFixure, TestStartAndStop) {
     test_constants::kTestDuration.count() / kDontPublishDuringTest.count(), times_published);
 }
 
-TEST_F(PeriodicMeasurementTestFixure, TestConstructorInputValidation) {
-  std::vector<rclcpp::Parameter> parameter_overrides;
-  std::vector<std::string> arguments;
+TEST_F(PeriodicMeasurementTestFixure, TestConstructorMeasurementPeriodValidation1) {
+  rclcpp::NodeOptions options;
+  options.append_parameter_override(
+    system_metrics_collector::collector_node_constants::kCollectPeriodParam,
+    std::chrono::milliseconds{-1}.count());
+  options.append_parameter_override(
+    system_metrics_collector::collector_node_constants::kPublishPeriodParam,
+    kDontPublishDuringTest.count());
 
-  // bad measurement period
-  parameter_overrides.push_back(rclcpp::Parameter(
-      system_metrics_collector::collector_node_constants::kCollectPeriodParam,
-      std::chrono::milliseconds{-1}.count()));
-  parameter_overrides.push_back(rclcpp::Parameter(
-      system_metrics_collector::collector_node_constants::kPublishPeriodParam,
-      kDontPublishDuringTest.count()));
-  arguments.push_back(std::string("--ros-args --remap ") +
-    system_metrics_collector::collector_node_constants::kStatisticsTopicName + ":=");
-  ASSERT_THROW(TestPeriodicMeasurementNode("throw",
-    rclcpp::NodeOptions().parameter_overrides(parameter_overrides).arguments(arguments)),
+  ASSERT_THROW(TestPeriodicMeasurementNode("throw", options),
     rclcpp::exceptions::InvalidParameterValueException);
-  parameter_overrides.clear();
-  arguments.clear();
+}
 
-  // bad measurement period
-  parameter_overrides.push_back(rclcpp::Parameter(
-      system_metrics_collector::collector_node_constants::kCollectPeriodParam,
-      std::chrono::milliseconds{-1}.count()));
-  parameter_overrides.push_back(rclcpp::Parameter(
-      system_metrics_collector::collector_node_constants::kPublishPeriodParam,
-      test_constants::kPublishPeriod.count()));
-  arguments.push_back(std::string("--ros-args --remap ") +
-    system_metrics_collector::collector_node_constants::kStatisticsTopicName + ":=");
-  ASSERT_THROW(TestPeriodicMeasurementNode("throw",
-    rclcpp::NodeOptions().parameter_overrides(parameter_overrides).arguments(arguments)),
+TEST_F(PeriodicMeasurementTestFixure, TestConstructorMeasurementPeriodValidation2) {
+  rclcpp::NodeOptions options;
+  options.append_parameter_override(
+    system_metrics_collector::collector_node_constants::kCollectPeriodParam,
+    std::chrono::milliseconds{-1}.count());
+  options.append_parameter_override(
+    system_metrics_collector::collector_node_constants::kPublishPeriodParam,
+    test_constants::kPublishPeriod.count());
+
+  ASSERT_THROW(TestPeriodicMeasurementNode("throw", options),
     rclcpp::exceptions::InvalidParameterValueException);
-  parameter_overrides.clear();
-  arguments.clear();
+}
 
-  // invalid publish period
-  parameter_overrides.push_back(rclcpp::Parameter(
-      system_metrics_collector::collector_node_constants::kCollectPeriodParam,
-      test_constants::kMeasurePeriod.count()));
-  parameter_overrides.push_back(rclcpp::Parameter(
-      system_metrics_collector::collector_node_constants::kPublishPeriodParam,
-      std::chrono::milliseconds{-1}.count()));
-  arguments.push_back(std::string("--ros-args --remap ") +
-    system_metrics_collector::collector_node_constants::kStatisticsTopicName + ":=" + kTestTopic);
-  ASSERT_THROW(TestPeriodicMeasurementNode("throw",
-    rclcpp::NodeOptions().parameter_overrides(parameter_overrides).arguments(arguments)),
+TEST_F(PeriodicMeasurementTestFixure, TestConstructorPublishPeriodValidation1) {
+  rclcpp::NodeOptions options;
+  options.append_parameter_override(
+    system_metrics_collector::collector_node_constants::kCollectPeriodParam,
+    test_constants::kMeasurePeriod.count());
+  options.append_parameter_override(
+    system_metrics_collector::collector_node_constants::kPublishPeriodParam,
+    std::chrono::milliseconds{-1}.count());
+
+  ASSERT_THROW(TestPeriodicMeasurementNode("throw", options),
     rclcpp::exceptions::InvalidParameterValueException);
-  parameter_overrides.clear();
-  arguments.clear();
+}
 
-  // invalid publish period
-  parameter_overrides.push_back(rclcpp::Parameter(
-      system_metrics_collector::collector_node_constants::kCollectPeriodParam,
-      std::chrono::milliseconds{2}.count()));
-  parameter_overrides.push_back(rclcpp::Parameter(
-      system_metrics_collector::collector_node_constants::kPublishPeriodParam,
-      std::chrono::milliseconds{1}.count()));
-  arguments.push_back(std::string("--ros-args --remap ") +
-    system_metrics_collector::collector_node_constants::kStatisticsTopicName + ":=" + kTestTopic);
-  ASSERT_THROW(TestPeriodicMeasurementNode("throw",
-    rclcpp::NodeOptions().parameter_overrides(parameter_overrides).arguments(arguments)),
+TEST_F(PeriodicMeasurementTestFixure, TestConstructorPublishPeriodValidation2) {
+  rclcpp::NodeOptions options;
+  options.append_parameter_override(
+    system_metrics_collector::collector_node_constants::kCollectPeriodParam,
+    std::chrono::milliseconds{2}.count());
+  options.append_parameter_override(
+    system_metrics_collector::collector_node_constants::kPublishPeriodParam,
+    std::chrono::milliseconds{1}.count());
+
+  ASSERT_THROW(TestPeriodicMeasurementNode("throw", options),
     std::invalid_argument);
-  parameter_overrides.clear();
-  arguments.clear();
+}
 
-  // invalid node name
-  parameter_overrides.push_back(rclcpp::Parameter(
-      system_metrics_collector::collector_node_constants::kCollectPeriodParam,
-      std::chrono::milliseconds{2}.count()));
-  parameter_overrides.push_back(rclcpp::Parameter(
-      system_metrics_collector::collector_node_constants::kPublishPeriodParam,
-      std::chrono::milliseconds{1}.count()));
-  arguments.push_back(std::string("--ros-args --remap ") +
-    system_metrics_collector::collector_node_constants::kStatisticsTopicName + ":=" + kTestTopic);
-  ASSERT_THROW(TestPeriodicMeasurementNode("",
-    rclcpp::NodeOptions().parameter_overrides(parameter_overrides).arguments(arguments)),
+TEST_F(PeriodicMeasurementTestFixure, TestConstructorNodeNameValidation) {
+  rclcpp::NodeOptions options;
+  options.append_parameter_override(
+    system_metrics_collector::collector_node_constants::kCollectPeriodParam,
+    test_constants::kMeasurePeriod.count());
+  options.append_parameter_override(
+    system_metrics_collector::collector_node_constants::kPublishPeriodParam,
+    test_constants::kPublishPeriod.count());
+
+  ASSERT_THROW(TestPeriodicMeasurementNode("", options),
     std::invalid_argument);
-  parameter_overrides.clear();
-  arguments.clear();
 }
 
 int main(int argc, char ** argv)
