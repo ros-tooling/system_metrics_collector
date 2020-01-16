@@ -180,20 +180,7 @@ TEST_F(PeriodicMeasurementTestFixure, TestStartAndStop) {
     test_constants::kTestDuration.count() / kDontPublishDuringTest.count(), times_published);
 }
 
-TEST_F(PeriodicMeasurementTestFixure, TestConstructorMeasurementPeriodValidation1) {
-  rclcpp::NodeOptions options;
-  options.append_parameter_override(
-    system_metrics_collector::collector_node_constants::kCollectPeriodParam,
-    std::chrono::milliseconds{-1}.count());
-  options.append_parameter_override(
-    system_metrics_collector::collector_node_constants::kPublishPeriodParam,
-    kDontPublishDuringTest.count());
-
-  ASSERT_THROW(TestPeriodicMeasurementNode("throw", options),
-    rclcpp::exceptions::InvalidParameterValueException);
-}
-
-TEST_F(PeriodicMeasurementTestFixure, TestConstructorMeasurementPeriodValidation2) {
+TEST_F(PeriodicMeasurementTestFixure, TestConstructorMeasurementPeriodValidation) {
   rclcpp::NodeOptions options;
   options.append_parameter_override(
     system_metrics_collector::collector_node_constants::kCollectPeriodParam,

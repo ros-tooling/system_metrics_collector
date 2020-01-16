@@ -37,7 +37,7 @@ public:
    * Construct a LinuxCpuMeasurementNode.
    * The following parameters may be set via the rclcpp::NodeOptions:
    * `measurement_period`: the period of this node, used to read measurements
-   * `publish_period`: the period at which metrics are published. 0 ms means don't publish
+   * `publish_period`: the period at which metrics are published
    *
    * @param name the name of this node
    * @param options the options (arguments, parameters, etc.) for this node
