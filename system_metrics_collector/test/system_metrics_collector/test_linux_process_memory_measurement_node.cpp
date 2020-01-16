@@ -51,9 +51,9 @@ class LinuxProcessMemoryMeasurementTestFixture : public ::testing::Test
 public:
   void SetUp() override
   {
-    rclcpp::init(0, nullptr);
     using namespace std::chrono_literals;
 
+    rclcpp::init(0, nullptr);
 
     rclcpp::NodeOptions options;
     options.append_parameter_override(
@@ -62,11 +62,6 @@ public:
     options.append_parameter_override(
       system_metrics_collector::collector_node_constants::kPublishPeriodParam,
       std::chrono::duration_cast<std::chrono::milliseconds>(10s).count());
-
-    std::vector<std::string> arguments = {"--ros-args", "--remap", std::string(
-        system_metrics_collector::collector_node_constants::kStatisticsTopicName) +
-      ":=test_topic"};
-    options.arguments(arguments);
 
     test_node_ = std::make_shared<TestLinuxProcessMemoryMeasurementNode>(
       "test_periodic_node", options);

@@ -103,11 +103,6 @@ public:
       system_metrics_collector::collector_node_constants::kPublishPeriodParam,
       kDontPublishDuringTest.count());
 
-    std::vector<std::string> arguments = {"--ros-args", "--remap", std::string(
-        system_metrics_collector::collector_node_constants::kStatisticsTopicName) +
-      ":=" + kTestTopic};
-    options.arguments(arguments);
-
     test_periodic_measurer_ = std::make_shared<TestPeriodicMeasurementNode>(
       kTestNodeName, options);
 
@@ -143,16 +138,11 @@ constexpr std::chrono::milliseconds PeriodicMeasurementTestFixure::kDontPublishD
 TEST_F(PeriodicMeasurementTestFixure, Sanity) {
   ASSERT_NE(test_periodic_measurer_, nullptr);
 
-  ASSERT_EQ("name=test_periodic_node, measurement_period=50ms,"
-    " publishing_topic=, publish_period=500ms, started=false,"
-    " avg=nan, min=nan, max=nan, std_dev=nan, count=0",
-    test_periodic_measurer_->GetStatusString());
-
   const bool start_success = test_periodic_measurer_->Start();
   ASSERT_TRUE(start_success);
 
   ASSERT_EQ("name=test_periodic_node, measurement_period=50ms,"
-    " publishing_topic=/test_topic, publish_period=500ms, started=true,"
+    " publishing_topic=/system_metrics, publish_period=500ms, started=true,"
     " avg=nan, min=nan, max=nan, std_dev=nan, count=0",
     test_periodic_measurer_->GetStatusString());
 }

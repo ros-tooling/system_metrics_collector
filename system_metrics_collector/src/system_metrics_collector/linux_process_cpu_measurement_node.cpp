@@ -42,8 +42,8 @@ namespace system_metrics_collector
 LinuxProcessCpuMeasurementNode::LinuxProcessCpuMeasurementNode(
   const std::string & name,
   const rclcpp::NodeOptions & options)
-: PeriodicMeasurementNode(name, options),
-  metric_name_(std::to_string(GetPid()) + kMetricName)
+: PeriodicMeasurementNode{name, options},
+  metric_name_{std::to_string(GetPid()) + kMetricName}
 {
 }
 

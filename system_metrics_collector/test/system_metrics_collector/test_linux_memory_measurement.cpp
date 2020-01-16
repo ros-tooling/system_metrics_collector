@@ -42,7 +42,6 @@ using system_metrics_collector::ProcessMemInfoLines;
 namespace
 {
 constexpr const char kTestNodeName[] = "test_measure_linux_memory";
-constexpr const char kTestTopic[] = "test_memory_measure_topic";
 constexpr const char kTestMetricName[] = "system_memory_percent_used";
 
 constexpr const std::array<const char *, 10> kSamples = {
@@ -137,11 +136,6 @@ public:
       system_metrics_collector::collector_node_constants::kPublishPeriodParam,
       test_constants::kPublishPeriod.count());
 
-    std::vector<std::string> arguments = {"--ros-args", "--remap", std::string(
-        system_metrics_collector::collector_node_constants::kStatisticsTopicName) +
-      ":=" + kTestTopic};
-    options.arguments(arguments);
-
     test_measure_linux_memory_ = std::make_shared<TestLinuxMemoryMeasurementNode>(
       kTestNodeName, options);
 
@@ -176,7 +170,9 @@ public:
   {
     auto callback = [this](MetricsMessage::UniquePtr msg) {this->MetricsMessageCallback(*msg);};
     subscription_ = create_subscription<MetricsMessage,
-        std::function<void(MetricsMessage::UniquePtr)>>(kTestTopic, 10 /*history_depth*/, callback);
+        std::function<void(MetricsMessage::UniquePtr)>>(
+      system_metrics_collector::collector_node_constants::kStatisticsTopicName,
+      10 /*history_depth*/, callback);
 
     // tools for calculating expected statistics values
     moving_average_statistics::MovingAverageStatistics stats_calc;

@@ -39,8 +39,9 @@ namespace system_metrics_collector
 LinuxCpuMeasurementNode::LinuxCpuMeasurementNode(
   const std::string & name,
   const rclcpp::NodeOptions & options)
-: PeriodicMeasurementNode(name, options)
-{}
+: PeriodicMeasurementNode{name, options}
+{
+}
 
 bool LinuxCpuMeasurementNode::SetupStart()
 {

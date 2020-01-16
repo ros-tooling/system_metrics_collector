@@ -52,22 +52,18 @@ int main(int argc, char ** argv)
 
   using namespace std::chrono_literals;
   const auto cpu_node = std::make_shared<system_metrics_collector::LinuxCpuMeasurementNode>(
-    "linuxCpuCollector",
-    rclcpp::NodeOptions());
+    "linuxCpuCollector");
 
   const auto mem_node = std::make_shared<system_metrics_collector::LinuxMemoryMeasurementNode>(
-    "linuxMemoryCollector",
-    rclcpp::NodeOptions());
+    "linuxMemoryCollector");
 
   const auto process_cpu_node =
     std::make_shared<system_metrics_collector::LinuxProcessCpuMeasurementNode>(
-    "linuxProcessCpuCollector",
-    rclcpp::NodeOptions());
+    "linuxProcessCpuCollector");
 
   const auto process_mem_node =
     std::make_shared<system_metrics_collector::LinuxProcessMemoryMeasurementNode>(
-    "linuxProcessMemoryCollector",
-    rclcpp::NodeOptions());
+    "linuxProcessMemoryCollector");
 
   rclcpp::executors::MultiThreadedExecutor ex;
   cpu_node->Start();

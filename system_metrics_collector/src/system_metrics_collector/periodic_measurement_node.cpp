@@ -31,7 +31,7 @@ namespace system_metrics_collector
 PeriodicMeasurementNode::PeriodicMeasurementNode(
   const std::string & name,
   const rclcpp::NodeOptions & options)
-: Node(name, options)
+: Node{name, options}
 {
   rcl_interfaces::msg::IntegerRange positive_range;
   positive_range.from_value = 1;
@@ -51,9 +51,6 @@ PeriodicMeasurementNode::PeriodicMeasurementNode(
     collector_node_constants::kDefaultCollectPeriodInMs,
     descriptor);
   measurement_period_ = std::chrono::milliseconds{measurement_period};
-  if (measurement_period_ <= std::chrono::milliseconds{0}) {
-    throw std::invalid_argument{"measurement_period cannot be negative"};
-  }
 
   descriptor.description = "The period in milliseconds between each published MetricsMessage";
   auto publish_period = declare_parameter(
@@ -61,18 +58,10 @@ PeriodicMeasurementNode::PeriodicMeasurementNode(
     collector_node_constants::kDefaultPublishPeriodInMs,
     descriptor);
   publish_period_ = std::chrono::milliseconds{publish_period};
-  if (publish_period_ <= std::chrono::milliseconds{0}) {
-    throw std::invalid_argument{"publish_period cannot be negative"};
-  }
 
   if (publish_period_ <= measurement_period_) {
     throw std::invalid_argument{
             "publish_period cannot be less than or equal to the measurement_period"};
-  }
-
-  publishing_topic_ = collector_node_constants::kStatisticsTopicName;
-  if (publishing_topic_.empty()) {
-    throw std::invalid_argument{"publishing_topic cannot be empty"};
   }
 }
 
@@ -86,7 +75,8 @@ bool PeriodicMeasurementNode::SetupStart()
     measurement_period_, [this]() {this->PerformPeriodicMeasurement();});
 
   if (publisher_ == nullptr) {
-    publisher_ = create_publisher<MetricsMessage>(publishing_topic_, 10 /*history_depth*/);
+    publisher_ = create_publisher<MetricsMessage>(collector_node_constants::kStatisticsTopicName,
+        10 /*history_depth*/);
   }
 
   RCLCPP_DEBUG(this->get_logger(), "SetupStart: creating publish_timer_");

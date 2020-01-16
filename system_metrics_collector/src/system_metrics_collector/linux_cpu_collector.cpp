@@ -30,8 +30,7 @@ int main(int argc, char ** argv)
   rclcpp::init(argc, argv);
 
   const auto cpu_node = std::make_shared<system_metrics_collector::LinuxCpuMeasurementNode>(
-    "linuxCpuCollector",
-    rclcpp::NodeOptions());
+    "linuxCpuCollector");
 
   rclcpp::executors::MultiThreadedExecutor ex;
   cpu_node->Start();

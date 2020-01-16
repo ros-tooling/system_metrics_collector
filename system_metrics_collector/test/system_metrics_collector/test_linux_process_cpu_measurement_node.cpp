@@ -40,7 +40,6 @@ using moving_average_statistics::StatisticData;
 namespace
 {
 constexpr const char kTestNodeName[] = "test_measure_linux_process_cpu";
-constexpr const char kTestTopic[] = "test_process_cpu_measure_topic";
 }
 
 class MockLinuxProcessCpuMeasurementNode : public system_metrics_collector::
@@ -92,7 +91,9 @@ public:
   {
     auto callback = [this](MetricsMessage::UniquePtr msg) {this->MetricsMessageCallback(*msg);};
     subscription_ = create_subscription<MetricsMessage,
-        std::function<void(MetricsMessage::UniquePtr)>>(kTestTopic, 10 /*history_depth*/, callback);
+        std::function<void(MetricsMessage::UniquePtr)>>(
+      system_metrics_collector::collector_node_constants::kStatisticsTopicName,
+      10 /*history_depth*/, callback);
 
     // tools for calculating expected statistics values
     moving_average_statistics::MovingAverageStatistics stats_calc;
@@ -231,11 +232,6 @@ public:
     options.append_parameter_override(
       system_metrics_collector::collector_node_constants::kPublishPeriodParam,
       test_constants::kPublishPeriod.count());
-
-    std::vector<std::string> arguments = {"--ros-args", "--remap", std::string(
-        system_metrics_collector::collector_node_constants::kStatisticsTopicName) +
-      ":=" + kTestTopic};
-    options.arguments(arguments);
 
     test_node_ = std::make_shared<MockLinuxProcessCpuMeasurementNode>(
       kTestNodeName, options);

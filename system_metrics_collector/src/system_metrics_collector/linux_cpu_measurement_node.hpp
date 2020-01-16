@@ -34,14 +34,17 @@ class LinuxCpuMeasurementNode : public system_metrics_collector::PeriodicMeasure
 {
 public:
   /**
-   * Construct a LinuxCpuMeasurementNode
+   * Construct a LinuxCpuMeasurementNode.
+   * The following parameters may be set via the rclcpp::NodeOptions:
+   * `measurement_period`: the period of this node, used to read measurements
+   * `publish_period`: the period at which metrics are published. 0 ms means don't publish
    *
    * @param name the name of this node
-   * @param measurement_period the period of this node, used to read measurements
-   * @param topic the topic name used for publishing
-   * @param publish_period the period at which metrics are published. 0 ms means don't publish
+   * @param options the options (arguments, parameters, etc.) for this node
    */
-  LinuxCpuMeasurementNode(const std::string & name, const rclcpp::NodeOptions & options);
+  LinuxCpuMeasurementNode(
+    const std::string & name,
+    const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
   virtual ~LinuxCpuMeasurementNode() = default;
 

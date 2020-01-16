@@ -38,12 +38,12 @@ class PeriodicMeasurementNode : public system_metrics_collector::Collector,
 public:
   /**
    * Construct a PeriodicMeasurementNode.
+   * The following parameters may be set via the rclcpp::NodeOptions:
+   * `measurement_period`: the period of this node, used to read measurements
+   * `publish_period`: the period at which metrics are published
    *
    * @param name the name of this node. This must be non-empty.
-   * @param topic the topic for publishing data. This must be non-empty.
-   * @param measurement_period. This must be non-negative and strictly less than publish_period.
-   * @param publish_period the window of active measurements. This must be non-negative and
-   * strictly greater than measurement_period.
+   * @param options the options (arguments, parameters, etc.) for this node
    * @throws std::invalid_argument for any invalid input
    */
   PeriodicMeasurementNode(const std::string & name, const rclcpp::NodeOptions & options);
@@ -101,10 +101,6 @@ private:
    */
   void PublishStatisticMessage() override;
 
-  /**
-   * Topic used for publishing
-   */
-  std::string publishing_topic_;
   /**
    * The period used to take a single measurement
    */

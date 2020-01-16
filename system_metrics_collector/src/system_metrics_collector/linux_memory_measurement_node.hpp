@@ -32,13 +32,16 @@ class LinuxMemoryMeasurementNode : public system_metrics_collector::PeriodicMeas
 public:
   /**
    * Construct a LinuxMemoryMeasurementNode
+   * The following parameters may be set via the rclcpp::NodeOptions:
+   * `measurement_period`: the period of this node, used to read measurements
+   * `publish_period`: the period at which metrics are published
    *
    * @param name the name of this node
-   * @param measurement_period the period of this node, used to read measurements
-   * @param topic the topic name used for publishing
-   * @param publish_period the period at which metrics are published. 0 ms means don't publish
+   * @param options the options (arguments, parameters, etc.) for this node
    */
-  LinuxMemoryMeasurementNode(const std::string & name, const rclcpp::NodeOptions & options);
+  LinuxMemoryMeasurementNode(
+    const std::string & name,
+    const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
 
   virtual ~LinuxMemoryMeasurementNode() = default;
 

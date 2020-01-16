@@ -53,9 +53,9 @@ namespace system_metrics_collector
 LinuxProcessMemoryMeasurementNode::LinuxProcessMemoryMeasurementNode(
   const std::string & name,
   const rclcpp::NodeOptions & options)
-: PeriodicMeasurementNode(name, options),
-  pid_(std::to_string(GetPid())),
-  file_to_read_(kProc + std::to_string(GetPid()) + kStatm)
+: PeriodicMeasurementNode{name, options},
+  pid_{std::to_string(GetPid())},
+  file_to_read_{kProc + std::to_string(GetPid()) + kStatm}
 {
 }
 
