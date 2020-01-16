@@ -47,7 +47,7 @@ class MockLinuxProcessCpuMeasurementNode : public system_metrics_collector::
 {
 public:
   MockLinuxProcessCpuMeasurementNode(const std::string & name, const rclcpp::NodeOptions & options)
-  : LinuxProcessCpuMeasurementNode(name, options) {}
+  : LinuxProcessCpuMeasurementNode{name, options} {}
 
   /**
    * Exposes the protected member function for testing purposes.

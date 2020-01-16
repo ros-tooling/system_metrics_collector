@@ -55,7 +55,7 @@ public:
    */
   LinuxProcessMemoryMeasurementNode(
     const std::string & name,
-    const rclcpp::NodeOptions & options = rclcpp::NodeOptions());
+    const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
 
 protected:
   /**

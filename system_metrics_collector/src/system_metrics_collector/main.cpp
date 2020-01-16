@@ -51,11 +51,11 @@ int main(int argc, char ** argv)
   rclcpp::init(argc, argv);
 
   using namespace std::chrono_literals;
-  const auto cpu_node = std::make_shared<system_metrics_collector::LinuxCpuMeasurementNode>(
-    "linuxCpuCollector");
+  const auto cpu_node =
+    std::make_shared<system_metrics_collector::LinuxCpuMeasurementNode>("linuxCpuCollector");
 
-  const auto mem_node = std::make_shared<system_metrics_collector::LinuxMemoryMeasurementNode>(
-    "linuxMemoryCollector");
+  const auto mem_node =
+    std::make_shared<system_metrics_collector::LinuxMemoryMeasurementNode>("linuxMemoryCollector");
 
   const auto process_cpu_node =
     std::make_shared<system_metrics_collector::LinuxProcessCpuMeasurementNode>(

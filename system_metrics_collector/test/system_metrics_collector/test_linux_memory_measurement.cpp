@@ -91,7 +91,7 @@ class TestLinuxMemoryMeasurementNode : public system_metrics_collector::LinuxMem
 {
 public:
   TestLinuxMemoryMeasurementNode(const std::string & name, const rclcpp::NodeOptions & options)
-  : LinuxMemoryMeasurementNode(name, options),
+  : LinuxMemoryMeasurementNode{name, options},
     measurement_index_(0) {}
 
   ~TestLinuxMemoryMeasurementNode() override = default;

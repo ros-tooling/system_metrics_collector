@@ -45,7 +45,7 @@ class TestPeriodicMeasurementNode : public ::system_metrics_collector::PeriodicM
 {
 public:
   TestPeriodicMeasurementNode(const std::string & name, const rclcpp::NodeOptions & options)
-  : PeriodicMeasurementNode(name, options) {}
+  : PeriodicMeasurementNode{name, options} {}
 
   ~TestPeriodicMeasurementNode() override = default;
 

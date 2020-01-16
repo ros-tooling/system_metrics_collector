@@ -28,7 +28,8 @@ int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
 
-  const auto mem_node = std::make_shared<system_metrics_collector::LinuxMemoryMeasurementNode>(
+  const auto mem_node =
+    std::make_shared<system_metrics_collector::LinuxMemoryMeasurementNode>(
     "linuxMemoryCollector");
 
   rclcpp::executors::MultiThreadedExecutor ex;

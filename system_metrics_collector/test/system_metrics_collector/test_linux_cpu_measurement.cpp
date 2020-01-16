@@ -52,7 +52,7 @@ class TestLinuxCpuMeasurementNode : public system_metrics_collector::LinuxCpuMea
 {
 public:
   TestLinuxCpuMeasurementNode(const std::string & name, const rclcpp::NodeOptions & options)
-  : LinuxCpuMeasurementNode(name, options) {}
+  : LinuxCpuMeasurementNode{name, options} {}
 
   ~TestLinuxCpuMeasurementNode() override = default;
 
