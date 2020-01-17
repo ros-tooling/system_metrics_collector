@@ -61,7 +61,7 @@ public:
    * Implementation of the on_activate transition for this LifecycleNode. This calls
    * the Start() method.
    *
-   * @param state input state
+   * @param state input state unused
    * @return CallbackReturn success
    */
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_activate(
@@ -71,7 +71,7 @@ public:
    * Implementation of the on_deactivate transition for this LifecycleNode. This calls
    * the Stop() method.
    *
-   * @param input state
+   * @param input state unused
    * @return CallbackReturn success
    */
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_deactivate(
@@ -81,7 +81,7 @@ public:
    * Implementation of the on_shutdown transition for this LifecycleNode. This calls
    * the Stop() method and resets the publish_timer_ member.
    *
-   * @param input state
+   * @param input state unused
    * @return CallbackReturn success
    */
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_shutdown(

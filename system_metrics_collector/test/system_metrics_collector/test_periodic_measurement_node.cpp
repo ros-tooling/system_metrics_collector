@@ -64,7 +64,7 @@ public:
    */
   bool IsPublisherActivated() const
   {
-    return !(publisher_ == nullptr || !publisher_->is_activated());
+    return publisher_ != nullptr && publisher_->is_activated();
   }
 
 private:
