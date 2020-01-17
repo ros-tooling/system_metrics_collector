@@ -22,17 +22,18 @@
 #include <mutex>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
-#include "../../src/system_metrics_collector/collector.hpp"
-#include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
 #include "../../src/moving_average_statistics/types.hpp"
+#include "../../src/system_metrics_collector/collector.hpp"
+#include "../../src/system_metrics_collector/constants.hpp"
+#include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
 
 #include "test_constants.hpp"
 
 namespace
 {
 constexpr const char kTestNodeName[] = "test_periodic_node";
-constexpr const char kTestTopic[] = "test_topic";
 constexpr const char kTestMetricname[] = "test_metric_name";
 }  // namespace
 
@@ -42,12 +43,9 @@ constexpr const char kTestMetricname[] = "test_metric_name";
 class TestPeriodicMeasurementNode : public ::system_metrics_collector::PeriodicMeasurementNode
 {
 public:
-  TestPeriodicMeasurementNode(
-    const std::string & name,
-    const std::chrono::milliseconds measurement_period,
-    const std::string & publishing_topic,
-    const std::chrono::milliseconds publish_period)
-  : PeriodicMeasurementNode(name, measurement_period, publishing_topic, publish_period) {}
+  TestPeriodicMeasurementNode(const std::string & name, const rclcpp::NodeOptions & options)
+  : PeriodicMeasurementNode{name, options} {}
+
   ~TestPeriodicMeasurementNode() override = default;
 
   int GetNumPublished() const
@@ -96,8 +94,16 @@ public:
   {
     rclcpp::init(0, nullptr);
 
-    test_periodic_measurer_ = std::make_shared<TestPeriodicMeasurementNode>(kTestNodeName,
-        test_constants::kMeasurePeriod, kTestTopic, kDontPublishDuringTest);
+    rclcpp::NodeOptions options;
+    options.append_parameter_override(
+      system_metrics_collector::collector_node_constants::kCollectPeriodParam,
+      test_constants::kMeasurePeriod.count());
+    options.append_parameter_override(
+      system_metrics_collector::collector_node_constants::kPublishPeriodParam,
+      kDontPublishDuringTest.count());
+
+    test_periodic_measurer_ = std::make_shared<TestPeriodicMeasurementNode>(
+      kTestNodeName, options);
 
     ASSERT_FALSE(test_periodic_measurer_->IsStarted());
 
@@ -130,8 +136,12 @@ constexpr std::chrono::milliseconds PeriodicMeasurementTestFixure::kDontPublishD
 
 TEST_F(PeriodicMeasurementTestFixure, Sanity) {
   ASSERT_NE(test_periodic_measurer_, nullptr);
+
+  const bool start_success = test_periodic_measurer_->Start();
+  ASSERT_TRUE(start_success);
+
   ASSERT_EQ("name=test_periodic_node, measurement_period=50ms,"
-    " publishing_topic=test_topic, publish_period=500ms, started=false,"
+    " publishing_topic=/system_metrics, publish_period=500ms, started=true,"
     " avg=nan, min=nan, max=nan, std_dev=nan, count=0",
     test_periodic_measurer_->GetStatusString());
 }
@@ -170,35 +180,56 @@ TEST_F(PeriodicMeasurementTestFixure, TestStartAndStop) {
     test_constants::kTestDuration.count() / kDontPublishDuringTest.count(), times_published);
 }
 
-TEST_F(PeriodicMeasurementTestFixure, TestConstructorInputValidation) {
-  ASSERT_THROW(TestPeriodicMeasurementNode("throw",
-    std::chrono::milliseconds{-1},
-    "",
-    kDontPublishDuringTest), std::invalid_argument);
+TEST_F(PeriodicMeasurementTestFixure, TestConstructorMeasurementPeriodValidation) {
+  rclcpp::NodeOptions options;
+  options.append_parameter_override(
+    system_metrics_collector::collector_node_constants::kCollectPeriodParam,
+    std::chrono::milliseconds{-1}.count());
+  options.append_parameter_override(
+    system_metrics_collector::collector_node_constants::kPublishPeriodParam,
+    test_constants::kPublishPeriod.count());
 
-  // bad measurement period
-  ASSERT_THROW(TestPeriodicMeasurementNode("throw",
-    std::chrono::milliseconds{-1},
-    "",
-    test_constants::kPublishPeriod), std::invalid_argument);
+  ASSERT_THROW(TestPeriodicMeasurementNode("throw", options),
+    rclcpp::exceptions::InvalidParameterValueException);
+}
 
-  // bad node name
-  ASSERT_THROW(TestPeriodicMeasurementNode("throw",
-    test_constants::kMeasurePeriod,
-    kTestTopic,
-    std::chrono::milliseconds{-1}), std::invalid_argument);
+TEST_F(PeriodicMeasurementTestFixure, TestConstructorPublishPeriodValidation1) {
+  rclcpp::NodeOptions options;
+  options.append_parameter_override(
+    system_metrics_collector::collector_node_constants::kCollectPeriodParam,
+    test_constants::kMeasurePeriod.count());
+  options.append_parameter_override(
+    system_metrics_collector::collector_node_constants::kPublishPeriodParam,
+    std::chrono::milliseconds{-1}.count());
 
-  // invalid publish period
-  ASSERT_THROW(TestPeriodicMeasurementNode("throw",
-    std::chrono::milliseconds{2},
-    kTestTopic,
-    std::chrono::milliseconds{1}), std::invalid_argument);
+  ASSERT_THROW(TestPeriodicMeasurementNode("throw", options),
+    rclcpp::exceptions::InvalidParameterValueException);
+}
 
-  // invalid node name
-  ASSERT_THROW(TestPeriodicMeasurementNode("",
-    std::chrono::milliseconds{2},
-    kTestTopic,
-    std::chrono::milliseconds{1}), std::invalid_argument);
+TEST_F(PeriodicMeasurementTestFixure, TestConstructorPublishPeriodValidation2) {
+  rclcpp::NodeOptions options;
+  options.append_parameter_override(
+    system_metrics_collector::collector_node_constants::kCollectPeriodParam,
+    std::chrono::milliseconds{2}.count());
+  options.append_parameter_override(
+    system_metrics_collector::collector_node_constants::kPublishPeriodParam,
+    std::chrono::milliseconds{1}.count());
+
+  ASSERT_THROW(TestPeriodicMeasurementNode("throw", options),
+    std::invalid_argument);
+}
+
+TEST_F(PeriodicMeasurementTestFixure, TestConstructorNodeNameValidation) {
+  rclcpp::NodeOptions options;
+  options.append_parameter_override(
+    system_metrics_collector::collector_node_constants::kCollectPeriodParam,
+    test_constants::kMeasurePeriod.count());
+  options.append_parameter_override(
+    system_metrics_collector::collector_node_constants::kPublishPeriodParam,
+    test_constants::kPublishPeriod.count());
+
+  ASSERT_THROW(TestPeriodicMeasurementNode("", options),
+    std::invalid_argument);
 }
 
 int main(int argc, char ** argv)

@@ -20,10 +20,12 @@
 #include <string>
 #include <tuple>
 #include <unordered_map>
+#include <vector>
 
 #include "metrics_statistics_msgs/msg/metrics_message.hpp"
 #include "metrics_statistics_msgs/msg/statistic_data_type.hpp"
 
+#include "../../src/system_metrics_collector/constants.hpp"
 #include "../../src/system_metrics_collector/linux_process_cpu_measurement_node.hpp"
 #include "../../src/system_metrics_collector/proc_cpu_data.hpp"
 #include "../../src/system_metrics_collector/utilities.hpp"
@@ -38,19 +40,14 @@ using moving_average_statistics::StatisticData;
 namespace
 {
 constexpr const char kTestNodeName[] = "test_measure_linux_process_cpu";
-constexpr const char kTestTopic[] = "test_process_cpu_measure_topic";
 }
 
 class MockLinuxProcessCpuMeasurementNode : public system_metrics_collector::
   LinuxProcessCpuMeasurementNode
 {
 public:
-  MockLinuxProcessCpuMeasurementNode(
-    const std::string & name,
-    const std::chrono::milliseconds measurement_period,
-    const std::string & publishing_topic,
-    const std::chrono::milliseconds publish_period)
-  : LinuxProcessCpuMeasurementNode(name, measurement_period, publishing_topic, publish_period) {}
+  MockLinuxProcessCpuMeasurementNode(const std::string & name, const rclcpp::NodeOptions & options)
+  : LinuxProcessCpuMeasurementNode{name, options} {}
 
   /**
    * Exposes the protected member function for testing purposes.
@@ -94,7 +91,9 @@ public:
   {
     auto callback = [this](MetricsMessage::UniquePtr msg) {this->MetricsMessageCallback(*msg);};
     subscription_ = create_subscription<MetricsMessage,
-        std::function<void(MetricsMessage::UniquePtr)>>(kTestTopic, 10 /*history_depth*/, callback);
+        std::function<void(MetricsMessage::UniquePtr)>>(
+      system_metrics_collector::collector_node_constants::kStatisticsTopicName,
+      10 /*history_depth*/, callback);
 
     // tools for calculating expected statistics values
     moving_average_statistics::MovingAverageStatistics stats_calc;
@@ -226,8 +225,16 @@ public:
 
     rclcpp::init(0, nullptr);
 
-    test_node_ = std::make_shared<MockLinuxProcessCpuMeasurementNode>(kTestNodeName,
-        test_constants::kMeasurePeriod, kTestTopic, test_constants::kPublishPeriod);
+    rclcpp::NodeOptions options;
+    options.append_parameter_override(
+      system_metrics_collector::collector_node_constants::kCollectPeriodParam,
+      test_constants::kMeasurePeriod.count());
+    options.append_parameter_override(
+      system_metrics_collector::collector_node_constants::kPublishPeriodParam,
+      test_constants::kPublishPeriod.count());
+
+    test_node_ = std::make_shared<MockLinuxProcessCpuMeasurementNode>(
+      kTestNodeName, options);
 
     ASSERT_FALSE(test_node_->IsStarted());
 

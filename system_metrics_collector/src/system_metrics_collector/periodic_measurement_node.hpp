@@ -38,19 +38,15 @@ class PeriodicMeasurementNode : public system_metrics_collector::Collector,
 public:
   /**
    * Construct a PeriodicMeasurementNode.
+   * The following parameters may be set via the rclcpp::NodeOptions:
+   * `measurement_period`: the period of this node, used to read measurements
+   * `publish_period`: the period at which metrics are published
    *
    * @param name the name of this node. This must be non-empty.
-   * @param topic the topic for publishing data. This must be non-empty.
-   * @param measurement_period. This must be non-negative and strictly less than publish_period.
-   * @param publish_period the window of active measurements. This must be non-negative and
-   * strictly greater than measurement_period.
+   * @param options the options (arguments, parameters, etc.) for this node
    * @throws std::invalid_argument for any invalid input
    */
-  PeriodicMeasurementNode(
-    const std::string & name,
-    const std::chrono::milliseconds measurement_period,
-    const std::string & publishing_topic,  // todo @dbbonnie think about a default topic
-    const std::chrono::milliseconds publish_period);
+  PeriodicMeasurementNode(const std::string & name, const rclcpp::NodeOptions & options);
 
   virtual ~PeriodicMeasurementNode() = default;
 
@@ -106,17 +102,13 @@ private:
   void PublishStatisticMessage() override;
 
   /**
-   * Topic used for publishing
-   */
-  const std::string publishing_topic_;
-  /**
    * The period used to take a single measurement
    */
-  const std::chrono::milliseconds measurement_period_;
+  std::chrono::milliseconds measurement_period_;
   /**
    * The period used to publish measurement data
    */
-  const std::chrono::milliseconds publish_period_;
+  std::chrono::milliseconds publish_period_;
 
   rclcpp::TimerBase::SharedPtr measurement_timer_;
   rclcpp::TimerBase::SharedPtr publish_timer_;

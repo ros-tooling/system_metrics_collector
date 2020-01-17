@@ -22,10 +22,12 @@
 #include <mutex>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include "metrics_statistics_msgs/msg/metrics_message.hpp"
 #include "metrics_statistics_msgs/msg/statistic_data_type.hpp"
 
+#include "../../src/system_metrics_collector/constants.hpp"
 #include "../../src/system_metrics_collector/linux_memory_measurement_node.hpp"
 #include "../../src/system_metrics_collector/utilities.hpp"
 
@@ -40,7 +42,6 @@ using system_metrics_collector::ProcessMemInfoLines;
 namespace
 {
 constexpr const char kTestNodeName[] = "test_measure_linux_memory";
-constexpr const char kTestTopic[] = "test_memory_measure_topic";
 constexpr const char kTestMetricName[] = "system_memory_percent_used";
 
 constexpr const std::array<const char *, 10> kSamples = {
@@ -89,12 +90,8 @@ constexpr const std::array<const char *, 10> kSamples = {
 class TestLinuxMemoryMeasurementNode : public system_metrics_collector::LinuxMemoryMeasurementNode
 {
 public:
-  TestLinuxMemoryMeasurementNode(
-    const std::string & name,
-    const std::chrono::milliseconds measurement_period,
-    const std::string & publishing_topic,
-    const std::chrono::milliseconds publish_period)
-  : LinuxMemoryMeasurementNode(name, measurement_period, publishing_topic, publish_period),
+  TestLinuxMemoryMeasurementNode(const std::string & name, const rclcpp::NodeOptions & options)
+  : LinuxMemoryMeasurementNode{name, options},
     measurement_index_(0) {}
 
   ~TestLinuxMemoryMeasurementNode() override = default;
@@ -131,8 +128,16 @@ public:
   {
     rclcpp::init(0, nullptr);
 
-    test_measure_linux_memory_ = std::make_shared<TestLinuxMemoryMeasurementNode>(kTestNodeName,
-        test_constants::kMeasurePeriod, kTestTopic, test_constants::kPublishPeriod);
+    rclcpp::NodeOptions options;
+    options.append_parameter_override(
+      system_metrics_collector::collector_node_constants::kCollectPeriodParam,
+      test_constants::kMeasurePeriod.count());
+    options.append_parameter_override(
+      system_metrics_collector::collector_node_constants::kPublishPeriodParam,
+      test_constants::kPublishPeriod.count());
+
+    test_measure_linux_memory_ = std::make_shared<TestLinuxMemoryMeasurementNode>(
+      kTestNodeName, options);
 
     ASSERT_FALSE(test_measure_linux_memory_->IsStarted());
 
@@ -165,7 +170,9 @@ public:
   {
     auto callback = [this](MetricsMessage::UniquePtr msg) {this->MetricsMessageCallback(*msg);};
     subscription_ = create_subscription<MetricsMessage,
-        std::function<void(MetricsMessage::UniquePtr)>>(kTestTopic, 10 /*history_depth*/, callback);
+        std::function<void(MetricsMessage::UniquePtr)>>(
+      system_metrics_collector::collector_node_constants::kStatisticsTopicName,
+      10 /*history_depth*/, callback);
 
     // tools for calculating expected statistics values
     moving_average_statistics::MovingAverageStatistics stats_calc;

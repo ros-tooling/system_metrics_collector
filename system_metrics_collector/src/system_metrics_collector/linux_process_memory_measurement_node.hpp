@@ -46,17 +46,16 @@ class LinuxProcessMemoryMeasurementNode : public PeriodicMeasurementNode
 public:
   /**
    * Construct a LinuxProcessMemoryMeasurementNode
+   * The following parameters may be set via the rclcpp::NodeOptions:
+   * `measurement_period`: the period of this node, used to read measurements
+   * `publish_period`: the period at which metrics are published
    *
    * @param name the name of this node
-   * @param measurement_period the period of this node, used to read measurements
-   * @param topic the topic name used for publishing
-   * @param publish_period the period at which metrics are published.
+   * @param options the options (arguments, parameters, etc.) for this node
    */
   LinuxProcessMemoryMeasurementNode(
     const std::string & name,
-    const std::chrono::milliseconds measurement_period,
-    const std::string & topic,
-    const std::chrono::milliseconds publish_period);
+    const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
 
 protected:
   /**

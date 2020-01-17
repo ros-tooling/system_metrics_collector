@@ -24,8 +24,13 @@ namespace collector_node_constants
 {
 
 constexpr const char kStatisticsTopicName[] = "system_metrics";
-constexpr const std::chrono::seconds kDefaultCollectPeriod{1};
-constexpr const std::chrono::minutes kDefaultPublishPeriod{1};
+
+constexpr const char kCollectPeriodParam[] = "measurement_period";
+constexpr const std::chrono::milliseconds kDefaultCollectPeriod{1000};    // 1 second
+
+constexpr const char kPublishPeriodParam[] = "publish_period";
+constexpr const std::chrono::milliseconds kDefaultPublishPeriod{60000};   // 1 minute
+
 
 }  // namespace collector_node_constants
 

@@ -22,10 +22,12 @@
 #include <mutex>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include "metrics_statistics_msgs/msg/metrics_message.hpp"
 #include "metrics_statistics_msgs/msg/statistic_data_type.hpp"
 
+#include "../../src/system_metrics_collector/constants.hpp"
 #include "../../src/system_metrics_collector/linux_cpu_measurement_node.hpp"
 #include "../../src/system_metrics_collector/proc_cpu_data.hpp"
 #include "../../src/system_metrics_collector/utilities.hpp"
@@ -42,7 +44,6 @@ using test_constants::kProcSamples;
 namespace
 {
 constexpr const char kTestNodeName[] = "test_measure_linux_cpu";
-constexpr const char kTestTopic[] = "test_cpu_measure_topic";
 constexpr const char kTestMetricName[] = "system_cpu_percent_used";
 }  // namespace
 
@@ -50,12 +51,8 @@ constexpr const char kTestMetricName[] = "system_cpu_percent_used";
 class TestLinuxCpuMeasurementNode : public system_metrics_collector::LinuxCpuMeasurementNode
 {
 public:
-  TestLinuxCpuMeasurementNode(
-    const std::string & name,
-    const std::chrono::milliseconds measurement_period,
-    const std::string & publishing_topic,
-    const std::chrono::milliseconds publish_period)
-  : LinuxCpuMeasurementNode(name, measurement_period, publishing_topic, publish_period) {}
+  TestLinuxCpuMeasurementNode(const std::string & name, const rclcpp::NodeOptions & options)
+  : LinuxCpuMeasurementNode{name, options} {}
 
   ~TestLinuxCpuMeasurementNode() override = default;
 
@@ -83,7 +80,9 @@ public:
   {
     auto callback = [this](MetricsMessage::UniquePtr msg) {this->MetricsMessageCallback(*msg);};
     subscription_ = create_subscription<MetricsMessage,
-        std::function<void(MetricsMessage::UniquePtr)>>(kTestTopic, 10 /*history_depth*/, callback);
+        std::function<void(MetricsMessage::UniquePtr)>>(
+      system_metrics_collector::collector_node_constants::kStatisticsTopicName,
+      10 /*history_depth*/, callback);
 
     // tools for calculating expected statistics values
     moving_average_statistics::MovingAverageStatistics stats_calc;
@@ -212,8 +211,16 @@ public:
   {
     rclcpp::init(0, nullptr);
 
-    test_measure_linux_cpu_ = std::make_shared<TestLinuxCpuMeasurementNode>(kTestNodeName,
-        test_constants::kMeasurePeriod, kTestTopic, test_constants::kPublishPeriod);
+    rclcpp::NodeOptions options;
+    options.append_parameter_override(
+      system_metrics_collector::collector_node_constants::kCollectPeriodParam,
+      test_constants::kMeasurePeriod.count());
+    options.append_parameter_override(
+      system_metrics_collector::collector_node_constants::kPublishPeriodParam,
+      test_constants::kPublishPeriod.count());
+
+    test_measure_linux_cpu_ = std::make_shared<TestLinuxCpuMeasurementNode>(
+      kTestNodeName, options);
 
     ASSERT_FALSE(test_measure_linux_cpu_->IsStarted());
 
