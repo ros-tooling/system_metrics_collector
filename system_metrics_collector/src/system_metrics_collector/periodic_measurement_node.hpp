@@ -62,7 +62,7 @@ public:
    * the Start() method.
    *
    * @param state input state unused
-   * @return CallbackReturn success
+   * @return CallbackReturn success if start returns true, error otherwise
    */
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_activate(
     const rclcpp_lifecycle::State & state);
@@ -72,7 +72,7 @@ public:
    * the Stop() method.
    *
    * @param input state unused
-   * @return CallbackReturn success
+   * @return CallbackReturn success if start returns true, error otherwise
    */
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_deactivate(
     const rclcpp_lifecycle::State & state);
@@ -86,6 +86,16 @@ public:
    */
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_shutdown(
     const rclcpp_lifecycle::State & state);
+
+  /**
+   * Implementation of the on_error transition for this LifecycleNode. This calls
+   * the Stop() method and resets the publish_timer_ member if it is non-null.
+   *
+   * @param input state unused
+   * @return CallbackReturn success
+   */
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_error(
+    const rclcpp_lifecycle::State & previous_state);
 
 protected:
   /**

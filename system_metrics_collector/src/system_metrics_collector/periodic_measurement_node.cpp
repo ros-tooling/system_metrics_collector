@@ -98,16 +98,18 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PeriodicMeasurementNode::on_activate(const rclcpp_lifecycle::State &)
 {
   RCLCPP_DEBUG(this->get_logger(), "on_activate");
-  Start();
-  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+  auto const ret = Start();
+  return ret ? rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS :
+         rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PeriodicMeasurementNode::on_deactivate(const rclcpp_lifecycle::State & state)
 {
   RCLCPP_DEBUG(this->get_logger(), "on_deactivate");
-  Stop();
-  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+  auto const ret = Stop();
+  return ret ? rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS :
+         rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
@@ -116,6 +118,17 @@ PeriodicMeasurementNode::on_shutdown(const rclcpp_lifecycle::State & state)
   RCLCPP_DEBUG(this->get_logger(), "on_shutdown");
   Stop();
   publisher_.reset();
+  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+}
+
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+PeriodicMeasurementNode::on_error(const rclcpp_lifecycle::State & state)
+{
+  RCLCPP_DEBUG(this->get_logger(), "on_shutdown");
+  Stop();
+  if (publisher_) {
+    publisher_.reset();
+  }
   return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
 }
 
