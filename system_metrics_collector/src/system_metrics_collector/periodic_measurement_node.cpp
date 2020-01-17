@@ -24,6 +24,7 @@
 #include "rclcpp/rclcpp.hpp"
 
 using metrics_statistics_msgs::msg::MetricsMessage;
+using rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface;
 
 namespace system_metrics_collector
 {
@@ -31,7 +32,7 @@ namespace system_metrics_collector
 PeriodicMeasurementNode::PeriodicMeasurementNode(
   const std::string & name,
   const rclcpp::NodeOptions & options)
-: Node{name, options}
+: rclcpp_lifecycle::LifecycleNode{name, options}
 {
   rcl_interfaces::msg::IntegerRange positive_range;
   positive_range.from_value = 1;
@@ -79,6 +80,8 @@ bool PeriodicMeasurementNode::SetupStart()
         10 /*history_depth*/);
   }
 
+  publisher_->on_activate();
+
   RCLCPP_DEBUG(this->get_logger(), "SetupStart: creating publish_timer_");
   publish_timer_ = this->create_wall_timer(
     publish_period_, [this]() {
@@ -92,6 +95,42 @@ bool PeriodicMeasurementNode::SetupStart()
   return true;
 }
 
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+PeriodicMeasurementNode::on_activate(const rclcpp_lifecycle::State &)
+{
+  RCLCPP_DEBUG(this->get_logger(), "on_activate");
+  const auto ret = Start();
+  return ret ? CallbackReturn::SUCCESS : CallbackReturn::ERROR;
+}
+
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+PeriodicMeasurementNode::on_deactivate(const rclcpp_lifecycle::State & state)
+{
+  RCLCPP_DEBUG(this->get_logger(), "on_deactivate");
+  const auto ret = Stop();
+  return ret ? CallbackReturn::SUCCESS : CallbackReturn::ERROR;
+}
+
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+PeriodicMeasurementNode::on_shutdown(const rclcpp_lifecycle::State & state)
+{
+  RCLCPP_DEBUG(this->get_logger(), "on_shutdown");
+  Stop();
+  publisher_.reset();
+  return CallbackReturn::SUCCESS;
+}
+
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+PeriodicMeasurementNode::on_error(const rclcpp_lifecycle::State & state)
+{
+  RCLCPP_DEBUG(this->get_logger(), "on_shutdown");
+  Stop();
+  if (publisher_) {
+    publisher_.reset();
+  }
+  return CallbackReturn::SUCCESS;
+}
+
 bool PeriodicMeasurementNode::SetupStop()
 {
   assert(measurement_timer_ != nullptr);
@@ -103,6 +142,8 @@ bool PeriodicMeasurementNode::SetupStop()
 
   publish_timer_->cancel();
   publish_timer_.reset();
+
+  publisher_->on_deactivate();
 
   return true;
 }
@@ -129,7 +170,10 @@ void PeriodicMeasurementNode::PerformPeriodicMeasurement()
 
 void PeriodicMeasurementNode::PublishStatisticMessage()
 {
-  auto msg = GenerateStatisticMessage(get_name(),
+  assert(publisher_ != nullptr);
+  assert(publisher_->is_activated());
+
+  const auto msg = GenerateStatisticMessage(get_name(),
       GetMetricName(),
       window_start_,
       now(),

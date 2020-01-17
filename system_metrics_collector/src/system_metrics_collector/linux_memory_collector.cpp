@@ -33,12 +33,14 @@ int main(int argc, char ** argv)
     "linuxMemoryCollector");
 
   rclcpp::executors::MultiThreadedExecutor ex;
-  mem_node->Start();
+  mem_node->configure();
+  mem_node->activate();
 
-  ex.add_node(mem_node);
+  ex.add_node(mem_node->get_node_base_interface());
   ex.spin();
 
   rclcpp::shutdown();
-  mem_node->Stop();
+  mem_node->shutdown();
+
   return 0;
 }

@@ -22,6 +22,8 @@
 #include <unordered_map>
 #include <vector>
 
+#include "lifecycle_msgs/msg/state.hpp"
+
 #include "metrics_statistics_msgs/msg/metrics_message.hpp"
 #include "metrics_statistics_msgs/msg/statistic_data_type.hpp"
 
@@ -32,6 +34,7 @@
 
 #include "test_constants.hpp"
 
+using lifecycle_msgs::msg::State;
 using metrics_statistics_msgs::msg::MetricsMessage;
 using metrics_statistics_msgs::msg::StatisticDataPoint;
 using metrics_statistics_msgs::msg::StatisticDataType;
@@ -248,8 +251,10 @@ public:
 
   void TearDown() override
   {
-    test_node_->Stop();
-    ASSERT_FALSE(test_node_->IsStarted());
+    test_node_->shutdown();
+    EXPECT_FALSE(test_node_->IsStarted());
+    EXPECT_EQ(State::PRIMARY_STATE_FINALIZED, test_node_->get_current_state().id());
+
     test_node_.reset();
     rclcpp::shutdown();
   }
@@ -277,21 +282,26 @@ TEST_F(LinuxProcessCpuMeasurementTestFixture, TestPublishMetricsMessage)
 {
   ASSERT_NE(test_node_, nullptr);
   ASSERT_FALSE(test_node_->IsStarted());
+  ASSERT_EQ(State::PRIMARY_STATE_UNCONFIGURED, test_node_->get_current_state().id());
 
   auto test_receive_measurements = std::make_shared<TestReceiveProcessCpuMeasurementNode>(
     "test_receive_measurements", test_node_->GetMetricName());
   std::promise<bool> empty_promise;
   std::shared_future<bool> dummy_future = empty_promise.get_future();
   rclcpp::executors::SingleThreadedExecutor ex;
-  ex.add_node(test_node_);
-  ex.add_node(test_receive_measurements);
+  ex.add_node(test_node_->get_node_base_interface());
+  ex.add_node(test_receive_measurements->get_node_base_interface());
 
   //
   // spin the node with it started
   //
-  bool start_success = test_node_->Start();
-  ASSERT_TRUE(start_success);
+  test_node_->configure();
+  ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, test_node_->get_current_state().id());
+
+  test_node_->activate();
   ASSERT_TRUE(test_node_->IsStarted());
+  ASSERT_EQ(State::PRIMARY_STATE_ACTIVE, test_node_->get_current_state().id());
+
   ex.spin_until_future_complete(dummy_future, test_constants::kTestDuration);
   EXPECT_EQ(3, test_receive_measurements->GetNumReceived());
   // expectation is:
@@ -315,9 +325,11 @@ TEST_F(LinuxProcessCpuMeasurementTestFixture, TestPublishMetricsMessage)
   //
   // spin the node with it stopped
   //
-  bool stop_success = test_node_->Stop();
-  ASSERT_TRUE(stop_success);
+  test_node_->deactivate();
   ASSERT_FALSE(test_node_->IsStarted());
+  ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, test_node_->get_current_state().id());
+
+
   ex.spin_until_future_complete(dummy_future, test_constants::kTestDuration);
   EXPECT_EQ(3, test_receive_measurements->GetNumReceived());
   // expectation is:
@@ -333,9 +345,10 @@ TEST_F(LinuxProcessCpuMeasurementTestFixture, TestPublishMetricsMessage)
   //
   // spin the node with it restarted
   //
-  start_success = test_node_->Start();
-  ASSERT_TRUE(start_success);
+  test_node_->activate();
   ASSERT_TRUE(test_node_->IsStarted());
+  ASSERT_EQ(State::PRIMARY_STATE_ACTIVE, test_node_->get_current_state().id());
+
   ex.spin_until_future_complete(dummy_future, test_constants::kTestDuration);
   EXPECT_EQ(6, test_receive_measurements->GetNumReceived());
   // expectation is:

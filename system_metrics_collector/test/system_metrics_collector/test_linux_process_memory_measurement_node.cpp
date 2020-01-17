@@ -20,11 +20,15 @@
 #include <string>
 #include <vector>
 
+#include "lifecycle_msgs/msg/state.hpp"
+
 #include "../../src/system_metrics_collector/constants.hpp"
 #include "../../src/system_metrics_collector/linux_process_memory_measurement_node.hpp"
 #include "../../src/system_metrics_collector/utilities.hpp"
 
 #include "test_constants.hpp"
+
+using lifecycle_msgs::msg::State;
 
 namespace
 {
@@ -67,6 +71,7 @@ public:
       "test_periodic_node", options);
 
     ASSERT_FALSE(test_node_->IsStarted());
+    ASSERT_EQ(State::PRIMARY_STATE_UNCONFIGURED, test_node_->get_current_state().id());
 
     const moving_average_statistics::StatisticData data =
       test_node_->GetStatisticsResults();
@@ -79,8 +84,10 @@ public:
 
   void TearDown() override
   {
-    test_node_->Stop();
-    ASSERT_FALSE(test_node_->IsStarted());
+    test_node_->shutdown();
+    EXPECT_FALSE(test_node_->IsStarted());
+    EXPECT_EQ(State::PRIMARY_STATE_FINALIZED, test_node_->get_current_state().id());
+
     test_node_.reset();
     rclcpp::shutdown();
   }
@@ -88,7 +95,6 @@ public:
 protected:
   std::shared_ptr<TestLinuxProcessMemoryMeasurementNode> test_node_;
 };
-
 
 TEST(TestLinuxProcessMemoryMeasurement, TestGetProcessUsedMemory) {
   EXPECT_THROW(system_metrics_collector::GetProcessUsedMemory(

@@ -21,10 +21,10 @@
 
 #include "metrics_statistics_msgs/msg/metrics_message.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "rclcpp_lifecycle/lifecycle_node.hpp"
 
 #include "collector.hpp"
 #include "metrics_message_publisher.hpp"
-
 
 namespace system_metrics_collector
 {
@@ -33,11 +33,11 @@ namespace system_metrics_collector
  * Class which makes periodic measurements, using a ROS2 timer.
  */
 class PeriodicMeasurementNode : public system_metrics_collector::Collector,
-  public system_metrics_collector::MetricsMessagePublisher, public rclcpp::Node
+  public system_metrics_collector::MetricsMessagePublisher, public rclcpp_lifecycle::LifecycleNode
 {
 public:
   /**
-   * Construct a PeriodicMeasurementNode.
+   * Constructs a PeriodicMeasurementNode.
    * The following parameters may be set via the rclcpp::NodeOptions:
    * `measurement_period`: the period of this node, used to read measurements
    * `publish_period`: the period at which metrics are published
@@ -51,15 +51,51 @@ public:
   virtual ~PeriodicMeasurementNode() = default;
 
   /**
-   * Return a pretty printed status representation of this class
+   * Returns a pretty printed status representation of this class
    *
    * @return a string detailing the current status
    */
   std::string GetStatusString() const override;
 
+  /**
+   * Starts the node.
+   *
+   * @param state input state unused
+   * @return CallbackReturn success if start returns true, error otherwise
+   */
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_activate(
+    const rclcpp_lifecycle::State & state);
+
+  /**
+   * Stops the node.
+   *
+   * @param input state unused
+   * @return CallbackReturn success if start returns true, error otherwise
+   */
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_deactivate(
+    const rclcpp_lifecycle::State & state);
+
+  /**
+   * Stops the node and performs cleanup.
+   *
+   * @param input state unused
+   * @return CallbackReturn success
+   */
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_shutdown(
+    const rclcpp_lifecycle::State & state);
+
+  /**
+   * Stops the node and attempts to perform cleanup.
+   *
+   * @param input state unused
+   * @return CallbackReturn success
+   */
+  rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_error(
+    const rclcpp_lifecycle::State & previous_state);
+
 protected:
   /**
-   * Create ROS2 timers and a publisher for periodically triggering measurements
+   * Creates ROS2 timers and a publisher for periodically triggering measurements
    * and publishing MetricsMessages
    *
    * @return if setup was successful
@@ -67,23 +103,27 @@ protected:
   bool SetupStart() override;
 
   /**
-   * Stop the ROS2 timers that were created by SetupStart()
+   * Stops the ROS2 timers that were created by SetupStart()
    *
    * @return if teardown was successful
    */
   bool SetupStop() override;
 
   /**
-   * Track the starting time of the statistics
+   * Tracks the starting time of the statistics
    */
   rclcpp::Time window_start_;
 
-  rclcpp::Publisher<metrics_statistics_msgs::msg::MetricsMessage>::SharedPtr publisher_;
+  /**
+   * LifecyclePublisher publisher that is activated on SetupStart and deactivated on SetupStop().
+   */
+  rclcpp_lifecycle::LifecyclePublisher<metrics_statistics_msgs::msg::MetricsMessage>::SharedPtr
+    publisher_;
 
 private:
   /**
-   * Override this method to perform a single measurement. This is called via PerformPeriodicMeasurement
-   * with the period defined in the constructor.
+   * Override this method to perform a single measurement. This is called via
+   * PerformPeriodicMeasurement with the period defined in the constructor.
    *
    * @return the measurement made to be aggregated for statistics
    */
@@ -96,7 +136,7 @@ private:
   virtual void PerformPeriodicMeasurement();
 
   /**
-   * Publish the statistics derived from the collected measurements (this is to be called via a
+   * Publishes the statistics derived from the collected measurements (this is to be called via a
    * ROS2 timer per the publish_period)
    */
   void PublishStatisticMessage() override;
@@ -110,7 +150,14 @@ private:
    */
   std::chrono::milliseconds publish_period_;
 
+  /**
+   * ROS2 timer used to trigger collection measurements.
+   */
   rclcpp::TimerBase::SharedPtr measurement_timer_;
+
+  /**
+   * ROS2 timer used to publish measurement messages.
+   */
   rclcpp::TimerBase::SharedPtr publish_timer_;
 };
 
