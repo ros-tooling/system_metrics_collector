@@ -23,8 +23,6 @@
 #include <sstream>
 #include <string>
 
-#include "default_config.hpp"
-
 #include "rcutils/logging_macros.h"
 
 namespace
@@ -63,13 +61,7 @@ LinuxProcessMemoryMeasurementNode::LinuxProcessMemoryMeasurementNode(
 
 LinuxProcessMemoryMeasurementNode::LinuxProcessMemoryMeasurementNode(
   const rclcpp::NodeOptions & options)
-: PeriodicMeasurementNode(
-    "linuxProcessMemoryCollector",
-    system_metrics_collector::kDefaultCollectPeriod,
-    system_metrics_collector::kStatisticsTopicName,
-    system_metrics_collector::kDefaultPublishPeriod),
-  pid_(std::to_string(GetPid())),
-  file_to_read_(kProc + std::to_string(GetPid()) + kStatm)
+: LinuxProcessMemoryMeasurementNode{"linux_process_memory_collector", options}
 {
   Start();
 }

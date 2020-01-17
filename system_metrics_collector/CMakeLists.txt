@@ -35,60 +35,31 @@ find_package(rclcpp_lifecycle REQUIRED)
 find_package(rcpputils REQUIRED)
 find_package(rcutils REQUIRED)
 
-add_library(system_metrics_collector_base SHARED
+add_library(system_metrics_collector SHARED
   src/moving_average_statistics/moving_average.cpp
   src/moving_average_statistics/types.cpp
   src/moving_average_statistics/types.hpp
   src/system_metrics_collector/metrics_message_publisher.cpp
   src/system_metrics_collector/collector.cpp
+  src/system_metrics_collector/linux_cpu_measurement_node.cpp
+  src/system_metrics_collector/linux_memory_measurement_node.cpp
+  src/system_metrics_collector/linux_process_cpu_measurement_node.cpp
+  src/system_metrics_collector/linux_process_memory_measurement_node.cpp
   src/system_metrics_collector/periodic_measurement_node.cpp
   src/system_metrics_collector/proc_cpu_data.cpp
   src/system_metrics_collector/proc_pid_cpu_data.cpp
   src/system_metrics_collector/utilities.cpp
 )
-set_property(TARGET system_metrics_collector_base PROPERTY POSITION_INDEPENDENT_CODE ON)
-ament_target_dependencies(system_metrics_collector_base
-  metrics_statistics_msgs rclcpp rcpputils rcutils)
-ament_export_libraries(system_metrics_collector_base)
-
-add_library(system_metrics_collector SHARED
-  src/system_metrics_collector/linux_cpu_measurement_node.cpp
-  src/system_metrics_collector/linux_memory_measurement_node.cpp
-)
-target_link_libraries(system_metrics_collector system_metrics_collector_base)
-ament_target_dependencies(system_metrics_collector
-  metrics_statistics_msgs rclcpp rcpputils rcutils)
+target_compile_definitions(system_metrics_collector PRIVATE "COMPOSITION_BUILDING_DLL")
+ament_target_dependencies(system_metrics_collector metrics_statistics_msgs rclcpp rclcpp_components rcpputils rcutils)
+rclcpp_components_register_nodes(system_metrics_collector
+  system_metrics_collector::LinuxProcessCpuMeasurementNode)
+rclcpp_components_register_nodes(system_metrics_collector
+  system_metrics_collector::LinuxProcessMemoryMeasurementNode)
 ament_export_libraries(system_metrics_collector)
 
-add_library(system_metrics_collector_process_cpu_component SHARED
-  src/system_metrics_collector/linux_process_cpu_measurement_node.cpp
-)
-target_compile_definitions(system_metrics_collector_process_cpu_component
-  PRIVATE "COMPOSITION_BUILDING_DLL")
-target_link_libraries(system_metrics_collector_process_cpu_component system_metrics_collector_base)
-ament_target_dependencies(system_metrics_collector_process_cpu_component
-  metrics_statistics_msgs rclcpp rclcpp_components rcpputils rcutils)
-ament_export_libraries(system_metrics_collector_process_cpu_component)
-rclcpp_components_register_nodes(system_metrics_collector_process_cpu_component
-  system_metrics_collector::LinuxProcessCpuMeasurementNode)
-
-add_library(system_metrics_collector_process_memory_component SHARED
-  src/system_metrics_collector/linux_process_memory_measurement_node.cpp
-)
-target_compile_definitions(system_metrics_collector_process_memory_component
-  PRIVATE "COMPOSITION_BUILDING_DLL")
-target_link_libraries(system_metrics_collector_process_memory_component system_metrics_collector_base)
-ament_target_dependencies(system_metrics_collector_process_memory_component
-  metrics_statistics_msgs rclcpp rclcpp_components rcpputils rcutils)
-ament_export_libraries(system_metrics_collector_process_memory_component)
-rclcpp_components_register_nodes(system_metrics_collector_process_memory_component
-  system_metrics_collector::LinuxProcessMemoryMeasurementNode)
-
 add_executable(main src/system_metrics_collector/main.cpp)
-target_link_libraries(main
-  system_metrics_collector
-  system_metrics_collector_process_cpu_component
-  system_metrics_collector_process_memory_component)
+target_link_libraries(main system_metrics_collector)
 ament_target_dependencies(main)
 
 add_executable(linux_cpu_collector src/system_metrics_collector/linux_cpu_collector.cpp)
@@ -108,12 +79,12 @@ if(BUILD_TESTING)
 
   ament_add_gtest(test_collector
     test/system_metrics_collector/test_collector.cpp)
-  target_link_libraries(test_collector system_metrics_collector_base)
+  target_link_libraries(test_collector system_metrics_collector)
   ament_target_dependencies(test_collector rclcpp)
 
   ament_add_gtest(test_metrics_message_publisher
     test/system_metrics_collector/test_metrics_message_publisher.cpp)
-  target_link_libraries(test_metrics_message_publisher system_metrics_collector_base)
+  target_link_libraries(test_metrics_message_publisher system_metrics_collector)
   ament_target_dependencies(test_metrics_message_publisher metrics_statistics_msgs rclcpp)
 
   ament_add_gtest(test_linux_cpu_measurement_node
@@ -128,29 +99,27 @@ if(BUILD_TESTING)
 
   ament_add_gtest(test_linux_process_cpu_measurement_node
           test/system_metrics_collector/test_linux_process_cpu_measurement_node.cpp)
-  target_link_libraries(test_linux_process_cpu_measurement_node
-          system_metrics_collector_process_cpu_component)
+  target_link_libraries(test_linux_process_cpu_measurement_node system_metrics_collector)
   ament_target_dependencies(test_linux_process_cpu_measurement_node metrics_statistics_msgs rclcpp)
 
   ament_add_gtest(test_linux_process_memory_measurement_node
           test/system_metrics_collector/test_linux_process_memory_measurement_node.cpp)
-  target_link_libraries(test_linux_process_memory_measurement_node
-          system_metrics_collector_process_memory_component)
+  target_link_libraries(test_linux_process_memory_measurement_node system_metrics_collector)
   ament_target_dependencies(test_linux_process_memory_measurement_node metrics_statistics_msgs rclcpp)
 
   ament_add_gtest(test_moving_average_statistics
           test/moving_average_statistics/test_moving_average_statistics.cpp)
-  target_link_libraries(test_moving_average_statistics system_metrics_collector_base)
+  target_link_libraries(test_moving_average_statistics system_metrics_collector)
   ament_target_dependencies(test_moving_average_statistics rclcpp)
 
   ament_add_gtest(test_periodic_measurement_node
     test/system_metrics_collector/test_periodic_measurement_node.cpp)
-  target_link_libraries(test_periodic_measurement_node system_metrics_collector_base)
+  target_link_libraries(test_periodic_measurement_node system_metrics_collector)
   ament_target_dependencies(test_periodic_measurement_node metrics_statistics_msgs rclcpp)
 
   ament_add_gtest(test_utilities
           test/system_metrics_collector/test_utilities.cpp)
-  target_link_libraries(test_utilities system_metrics_collector_base)
+  target_link_libraries(test_utilities system_metrics_collector)
   ament_target_dependencies(test_utilities rclcpp)
 
   install(TARGETS
@@ -192,11 +161,9 @@ install(TARGETS
   lib/${PROJECT_NAME}
 )
 
-# Install libraries
-install(TARGETS system_metrics_collector_base DESTINATION lib)
-install(TARGETS system_metrics_collector DESTINATION lib)
-install(TARGETS system_metrics_collector_process_cpu_component DESTINATION lib)
-install(TARGETS system_metrics_collector_process_memory_component DESTINATION lib)
+install(TARGETS ${PROJECT_NAME}
+  DESTINATION lib
+)
 
 ament_export_libraries(${PROJECT_NAME})
 

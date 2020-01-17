@@ -24,8 +24,6 @@
 #include <string>
 #include <tuple>
 
-#include "default_config.hpp"
-
 #include "rcutils/logging_macros.h"
 
 namespace
@@ -51,12 +49,7 @@ LinuxProcessCpuMeasurementNode::LinuxProcessCpuMeasurementNode(
 
 LinuxProcessCpuMeasurementNode::LinuxProcessCpuMeasurementNode(
   const rclcpp::NodeOptions & options)
-: PeriodicMeasurementNode(
-    "linuxProcessCpuCollector",
-    system_metrics_collector::kDefaultCollectPeriod,
-    system_metrics_collector::kStatisticsTopicName,
-    system_metrics_collector::kDefaultPublishPeriod),
-  metric_name_(std::to_string(GetPid()) + kMetricName)
+: LinuxProcessCpuMeasurementNode{"linux_process_cpu_collector", options}
 {
   Start();
 }
