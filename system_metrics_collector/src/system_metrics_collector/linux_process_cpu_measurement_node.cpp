@@ -24,6 +24,7 @@
 #include <string>
 #include <tuple>
 
+#include "rclcpp_components/register_node_macro.hpp"
 #include "rcutils/logging_macros.h"
 
 namespace
@@ -83,8 +84,6 @@ std::string LinuxProcessCpuMeasurementNode::GetMetricName() const
 
 }   // namespace system_metrics_collector
 
-
-#include "rclcpp_components/register_node_macro.hpp"
 
 // Register the component with class_loader.
 // This acts as a sort of entry point, allowing the component to be discoverable when its library

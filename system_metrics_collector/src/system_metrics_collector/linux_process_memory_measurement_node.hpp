@@ -19,7 +19,6 @@
 #include <cmath>
 #include <string>
 
-#include "./visibility_control.h"
 #include "periodic_measurement_node.hpp"
 #include "utilities.hpp"
 
@@ -46,7 +45,7 @@ class LinuxProcessMemoryMeasurementNode : public PeriodicMeasurementNode
 {
 public:
   /**
-   * Construct a LinuxProcessMemoryMeasurementNode
+   * Constructs a LinuxProcessMemoryMeasurementNode.
    * The following parameters may be set via the rclcpp::NodeOptions:
    * `measurement_period`: the period of this node, used to read measurements
    * `publish_period`: the period at which metrics are published
@@ -59,7 +58,7 @@ public:
     const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
 
   /**
-   * Construct a LinuxProcessMemoryMeasurementNode
+   * Constructs a LinuxProcessMemoryMeasurementNode and starts it.
    * The node name will be "linux_process_memory_collector" by default
    * The following parameters may be set via the rclcpp::NodeOptions:
    * `measurement_period`: the period of this node, used to read measurements
@@ -68,7 +67,6 @@ public:
    * @param name the name of this node
    * @param options the options (arguments, parameters, etc.) for this node
    */
-  SYSTEM_METRICS_COLLECTOR_PUBLIC
   explicit LinuxProcessMemoryMeasurementNode(
     const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
 

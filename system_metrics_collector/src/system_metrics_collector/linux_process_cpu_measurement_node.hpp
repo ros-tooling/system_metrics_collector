@@ -20,7 +20,6 @@
 #include <string>
 #include <tuple>
 
-#include "./visibility_control.h"
 #include "periodic_measurement_node.hpp"
 #include "proc_cpu_data.hpp"
 #include "utilities.hpp"
@@ -52,7 +51,7 @@ public:
     const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
 
   /**
-   * Constructs a LinuxProcessCpuMeasurementNode.
+   * Constructs a LinuxProcessCpuMeasurementNode and starts it.
    * The node name will be "linux_process_cpu_collector" by default
    * The following parameters may be set via the rclcpp::NodeOptions:
    * `measurement_period`: the period of this node, used to read measurements
@@ -60,7 +59,6 @@ public:
    *
    * @param options the options (arguments, parameters, etc.) for this node
    */
-  SYSTEM_METRICS_COLLECTOR_PUBLIC
   explicit LinuxProcessCpuMeasurementNode(
     const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
 

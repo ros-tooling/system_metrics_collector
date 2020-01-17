@@ -144,11 +144,11 @@ private:
   /**
    * The period used to take a single measurement
    */
-  std::chrono::milliseconds measurement_period_;
+  std::chrono::milliseconds measurement_period_{0};
   /**
    * The period used to publish measurement data
    */
-  std::chrono::milliseconds publish_period_;
+  std::chrono::milliseconds publish_period_{0};
 
   /**
    * ROS2 timer used to trigger collection measurements.

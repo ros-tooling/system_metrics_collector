@@ -23,6 +23,7 @@
 #include <sstream>
 #include <string>
 
+#include "rclcpp_components/register_node_macro.hpp"
 #include "rcutils/logging_macros.h"
 
 namespace
@@ -99,8 +100,6 @@ uint64_t GetProcessUsedMemory(const std::string & statm_process_file_contents)
 
 }   // namespace system_metrics_collector
 
-
-#include "rclcpp_components/register_node_macro.hpp"
 
 // Register the component with class_loader.
 // This acts as a sort of entry point, allowing the component to be discoverable when its library
