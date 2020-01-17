@@ -23,6 +23,7 @@
 #include <sstream>
 #include <string>
 
+#include "rclcpp_components/register_node_macro.hpp"
 #include "rcutils/logging_macros.h"
 
 namespace
@@ -59,6 +60,13 @@ LinuxProcessMemoryMeasurementNode::LinuxProcessMemoryMeasurementNode(
 {
 }
 
+LinuxProcessMemoryMeasurementNode::LinuxProcessMemoryMeasurementNode(
+  const rclcpp::NodeOptions & options)
+: LinuxProcessMemoryMeasurementNode{"linux_process_memory_collector", options}
+{
+  Start();
+}
+
 double LinuxProcessMemoryMeasurementNode::PeriodicMeasurement()
 {
   const auto statm_line = ReadFileToString(file_to_read_);
@@ -91,3 +99,9 @@ uint64_t GetProcessUsedMemory(const std::string & statm_process_file_contents)
 }
 
 }   // namespace system_metrics_collector
+
+
+// Register the component with class_loader.
+// This acts as a sort of entry point, allowing the component to be discoverable when its library
+// is being loaded into a running process.
+RCLCPP_COMPONENTS_REGISTER_NODE(system_metrics_collector::LinuxProcessMemoryMeasurementNode);

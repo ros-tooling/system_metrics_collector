@@ -50,6 +50,18 @@ public:
     const std::string & name,
     const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
 
+  /**
+   * Constructs a LinuxProcessCpuMeasurementNode and starts it.
+   * The node name will be "linux_process_cpu_collector" by default
+   * The following parameters may be set via the rclcpp::NodeOptions:
+   * `measurement_period`: the period of this node, used to read measurements
+   * `publish_period`: the period at which metrics are published
+   *
+   * @param options the options (arguments, parameters, etc.) for this node
+   */
+  explicit LinuxProcessCpuMeasurementNode(
+    const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
+
 protected:
   /**
    * Creates ROS2 timers and a publisher for periodically triggering measurements and publishing

@@ -30,6 +30,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(metrics_statistics_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(rcpputils REQUIRED)
 find_package(rcutils REQUIRED)
@@ -52,9 +53,14 @@ add_library(system_metrics_collector SHARED
 ament_target_dependencies(system_metrics_collector
         metrics_statistics_msgs
         rclcpp
+        rclcpp_components
         rclcpp_lifecycle
         rcpputils
         rcutils)
+rclcpp_components_register_nodes(system_metrics_collector
+  system_metrics_collector::LinuxProcessCpuMeasurementNode)
+rclcpp_components_register_nodes(system_metrics_collector
+  system_metrics_collector::LinuxProcessMemoryMeasurementNode)
 ament_export_libraries(system_metrics_collector)
 
 add_executable(main src/system_metrics_collector/main.cpp)

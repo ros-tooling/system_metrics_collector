@@ -19,8 +19,8 @@
 #include <cmath>
 #include <string>
 
-#include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
-#include "../../src/system_metrics_collector/utilities.hpp"
+#include "periodic_measurement_node.hpp"
+#include "utilities.hpp"
 
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/logging_macros.h"
@@ -45,7 +45,7 @@ class LinuxProcessMemoryMeasurementNode : public PeriodicMeasurementNode
 {
 public:
   /**
-   * Construct a LinuxProcessMemoryMeasurementNode
+   * Constructs a LinuxProcessMemoryMeasurementNode.
    * The following parameters may be set via the rclcpp::NodeOptions:
    * `measurement_period`: the period of this node, used to read measurements
    * `publish_period`: the period at which metrics are published
@@ -55,6 +55,19 @@ public:
    */
   LinuxProcessMemoryMeasurementNode(
     const std::string & name,
+    const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
+
+  /**
+   * Constructs a LinuxProcessMemoryMeasurementNode and starts it.
+   * The node name will be "linux_process_memory_collector" by default
+   * The following parameters may be set via the rclcpp::NodeOptions:
+   * `measurement_period`: the period of this node, used to read measurements
+   * `publish_period`: the period at which metrics are published
+   *
+   * @param name the name of this node
+   * @param options the options (arguments, parameters, etc.) for this node
+   */
+  explicit LinuxProcessMemoryMeasurementNode(
     const rclcpp::NodeOptions & options = rclcpp::NodeOptions{});
 
 protected:
