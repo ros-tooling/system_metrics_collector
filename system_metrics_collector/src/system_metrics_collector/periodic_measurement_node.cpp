@@ -31,7 +31,7 @@ namespace system_metrics_collector
 PeriodicMeasurementNode::PeriodicMeasurementNode(
   const std::string & name,
   const rclcpp::NodeOptions & options)
-: Node{name, options}
+: rclcpp_lifecycle::LifecycleNode{name, options}
 {
   rcl_interfaces::msg::IntegerRange positive_range;
   positive_range.from_value = 1;
