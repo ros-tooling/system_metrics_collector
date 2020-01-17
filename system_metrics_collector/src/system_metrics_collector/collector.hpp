@@ -36,24 +36,6 @@ public:
   virtual ~Collector() = default;
 
   /**
-   * Start collecting data. Meant to be called after construction. Note: this locks the recursive mutex class
-   * member 'mutex'.
-   *
-   * @return true if started, false if an error occurred
-   */
-  bool Start();
-
-  /**
-   * Stop collecting data. Meant to be a teardown method (before destruction, but should place the
-   * class in a restartable state, i.e., start can be called to be able to resume collection.
-   *
-   * This calls ClearCurrentMeasurements.
-   *
-   * @return true if stopped, false if an error occurred
-   */
-  bool Stop();
-
-  /**
    * Add an observed measurement. This aggregates the measurement and calculates statistics
    * via the moving_average class.
    *
@@ -88,6 +70,25 @@ public:
   virtual std::string GetStatusString() const;
 
   // todo @dabonnie uptime (once start has been called)
+
+protected:
+  /**
+   * Start collecting data. Meant to be called after construction. Note: this locks the recursive mutex class
+   * member 'mutex'.
+   *
+   * @return true if started, false if an error occurred
+   */
+  virtual bool Start();
+
+  /**
+   * Stop collecting data. Meant to be a teardown method (before destruction, but should place the
+   * class in a restartable state, i.e., start can be called to be able to resume collection.
+   *
+   * This calls ClearCurrentMeasurements.
+   *
+   * @return true if stopped, false if an error occurred
+   */
+  virtual bool Stop();
 
 private:
   /**

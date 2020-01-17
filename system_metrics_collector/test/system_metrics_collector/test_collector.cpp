@@ -28,6 +28,24 @@ class TestCollector : public system_metrics_collector::Collector
 public:
   TestCollector() = default;
   ~TestCollector() override = default;
+
+  /**
+   * Overrides to make public for testing.
+   * @return
+   */
+  bool Start() override
+  {
+    return Collector::Start();
+  }
+  /**
+   * Overrides to make public for testing.
+   * @return
+   */
+  bool Stop() override
+  {
+    return Collector::Stop();
+  }
+
   bool SetupStart() override
   {
     return true;

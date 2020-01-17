@@ -37,7 +37,7 @@ class PeriodicMeasurementNode : public system_metrics_collector::Collector,
 {
 public:
   /**
-   * Construct a PeriodicMeasurementNode.
+   * Constructs a PeriodicMeasurementNode.
    * The following parameters may be set via the rclcpp::NodeOptions:
    * `measurement_period`: the period of this node, used to read measurements
    * `publish_period`: the period at which metrics are published
@@ -51,15 +51,14 @@ public:
   virtual ~PeriodicMeasurementNode() = default;
 
   /**
-   * Return a pretty printed status representation of this class
+   * Returns a pretty printed status representation of this class
    *
    * @return a string detailing the current status
    */
   std::string GetStatusString() const override;
 
   /**
-   * Implementation of the on_activate transition for this LifecycleNode. This calls
-   * the Start() method.
+   * Starts the node.
    *
    * @param state input state unused
    * @return CallbackReturn success if start returns true, error otherwise
@@ -68,8 +67,7 @@ public:
     const rclcpp_lifecycle::State & state);
 
   /**
-   * Implementation of the on_deactivate transition for this LifecycleNode. This calls
-   * the Stop() method.
+   * Stops the node.
    *
    * @param input state unused
    * @return CallbackReturn success if start returns true, error otherwise
@@ -78,8 +76,7 @@ public:
     const rclcpp_lifecycle::State & state);
 
   /**
-   * Implementation of the on_shutdown transition for this LifecycleNode. This calls
-   * the Stop() method and resets the publish_timer_ member.
+   * Stops the node and performs cleanup.
    *
    * @param input state unused
    * @return CallbackReturn success
@@ -88,8 +85,7 @@ public:
     const rclcpp_lifecycle::State & state);
 
   /**
-   * Implementation of the on_error transition for this LifecycleNode. This calls
-   * the Stop() method and resets the publish_timer_ member if it is non-null.
+   * Stops the node and attempts to perform cleanup.
    *
    * @param input state unused
    * @return CallbackReturn success
@@ -99,7 +95,7 @@ public:
 
 protected:
   /**
-   * Create ROS2 timers and a publisher for periodically triggering measurements
+   * Creates ROS2 timers and a publisher for periodically triggering measurements
    * and publishing MetricsMessages
    *
    * @return if setup was successful
@@ -107,14 +103,14 @@ protected:
   bool SetupStart() override;
 
   /**
-   * Stop the ROS2 timers that were created by SetupStart()
+   * Stops the ROS2 timers that were created by SetupStart()
    *
    * @return if teardown was successful
    */
   bool SetupStop() override;
 
   /**
-   * Track the starting time of the statistics
+   * Tracks the starting time of the statistics
    */
   rclcpp::Time window_start_;
 
@@ -140,7 +136,7 @@ private:
   virtual void PerformPeriodicMeasurement();
 
   /**
-   * Publish the statistics derived from the collected measurements (this is to be called via a
+   * Publishes the statistics derived from the collected measurements (this is to be called via a
    * ROS2 timer per the publish_period)
    */
   void PublishStatisticMessage() override;

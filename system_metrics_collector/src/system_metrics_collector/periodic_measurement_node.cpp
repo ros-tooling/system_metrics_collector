@@ -24,6 +24,7 @@
 #include "rclcpp/rclcpp.hpp"
 
 using metrics_statistics_msgs::msg::MetricsMessage;
+using rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface;
 
 namespace system_metrics_collector
 {
@@ -98,18 +99,16 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PeriodicMeasurementNode::on_activate(const rclcpp_lifecycle::State &)
 {
   RCLCPP_DEBUG(this->get_logger(), "on_activate");
-  auto const ret = Start();
-  return ret ? rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS :
-         rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
+  const auto ret = Start();
+  return ret ? CallbackReturn::SUCCESS : CallbackReturn::ERROR;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PeriodicMeasurementNode::on_deactivate(const rclcpp_lifecycle::State & state)
 {
   RCLCPP_DEBUG(this->get_logger(), "on_deactivate");
-  auto const ret = Stop();
-  return ret ? rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS :
-         rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
+  const auto ret = Stop();
+  return ret ? CallbackReturn::SUCCESS : CallbackReturn::ERROR;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
@@ -118,7 +117,7 @@ PeriodicMeasurementNode::on_shutdown(const rclcpp_lifecycle::State & state)
   RCLCPP_DEBUG(this->get_logger(), "on_shutdown");
   Stop();
   publisher_.reset();
-  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+  return CallbackReturn::SUCCESS;
 }
 
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
@@ -129,7 +128,7 @@ PeriodicMeasurementNode::on_error(const rclcpp_lifecycle::State & state)
   if (publisher_) {
     publisher_.reset();
   }
-  return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::SUCCESS;
+  return CallbackReturn::SUCCESS;
 }
 
 bool PeriodicMeasurementNode::SetupStop()
@@ -171,13 +170,10 @@ void PeriodicMeasurementNode::PerformPeriodicMeasurement()
 
 void PeriodicMeasurementNode::PublishStatisticMessage()
 {
-  if (!publisher_->is_activated()) {
-    RCLCPP_WARN(get_logger(), "PublishStatisticMessage: Lifecycle publisher is currently inactive."
-      " Messages will not be published.");
-    return;
-  }
+  assert(publisher_ != nullptr);
+  assert(publisher_->is_activated());
 
-  auto msg = GenerateStatisticMessage(get_name(),
+  const auto msg = GenerateStatisticMessage(get_name(),
       GetMetricName(),
       window_start_,
       now(),
