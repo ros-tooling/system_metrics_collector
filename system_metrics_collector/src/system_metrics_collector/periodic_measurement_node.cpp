@@ -53,7 +53,8 @@ PeriodicMeasurementNode::PeriodicMeasurementNode(
     descriptor);
   measurement_period_ = std::chrono::milliseconds{measurement_period};
 
-  descriptor.description = "The period in milliseconds between each published MetricsMessage";
+  descriptor.description = "The period in milliseconds between each published MetricsMessage. This must be less than"
+                           "the measurement_period.";
   auto publish_period = declare_parameter(
     collector_node_constants::kPublishPeriodParam,
     collector_node_constants::kDefaultPublishPeriod.count(),
