@@ -15,8 +15,13 @@ tools provide constant time sample aggregation to produce average, min, max, sta
 [collector](https://github.com/ros-tooling/system_metrics_collector/blob/master/system_metrics_collector/src/system_metrics_collector/collector.hpp)
 provides a thread-safe mechanism to perform measurements.
 The [PeriodicMeasurementNode](https://github.com/ros-tooling/system_metrics_collector/blob/master/system_metrics_collector/src/system_metrics_collector/periodic_measurement_node.hpp)
-utilizes the aggregation tools and provides an abstraction for ROS2: specifically a configurable timer (default 1 second)
+is a [ROS2 Lifecycle](http://design.ros2.org/articles/node_lifecycle.html) [Node](https://github.com/ros2/demos/tree/master/lifecycle)
+which utilizes the aggregation tools and provides an abstraction for ROS2: specifically a configurable timer (default 1 second)
 is used to perform measurements, which is published (default 1 minute - but configurable) to a topic (default /system_metrics).
+
+The lifecycle state transitions are automatically invoked such that the Node is in an activated state after creation.
+The goal is to start metric collection automatically after launching. However, the lifecycle actions (activate, deactivate, shutdown)
+can be manually invoked. Please see [asdf](#lifecycle-example)
 
 ## Parameters
 There are two parameters defined:
@@ -152,8 +157,9 @@ ros2 param list
   use_sim_time
 ```
 
-#### Inspect and change state
-Using [ros2lifecycle](https://github.com/ros2/ros2cli/tree/master/ros2lifecycle):
+
+#### [Inspect and change lifecycle state](#lifecycle-example)
+Using [ros2lifecycle](https://github.com/ros2/ros2cli/tree/master/ros2lifecycle):   
 
 List lifecycle nodes:
 ```
