@@ -35,12 +35,11 @@ constexpr const std::array<const char *, 2> kExpectedClassNames = {
 
 bool IsExpectedClassName(const std::string & class_name)
 {
-  for (auto expected_class_name : kExpectedClassNames) {
-    if (class_name.find(expected_class_name) != std::string::npos) {
-      return true;
-    }
-  }
-  return false;
+  auto result = std::find_if(kExpectedClassNames.cbegin(), kExpectedClassNames.cend(),
+      [&class_name](const char * expected_class_name) {
+        return class_name.find(expected_class_name) != std::string::npos;
+      });
+  return result != kExpectedClassNames.cend();
 }
 
 TEST(TestComposeableNodes, DlopenTest)
@@ -49,7 +48,7 @@ TEST(TestComposeableNodes, DlopenTest)
   rclcpp::executors::SingleThreadedExecutor exec;
   rclcpp::NodeOptions options;
 
-  auto loader = std::make_unique<class_loader::ClassLoader>(kSystemMetricsCollectorLibName);
+  const auto loader = std::make_unique<class_loader::ClassLoader>(kSystemMetricsCollectorLibName);
   auto class_names = loader->getAvailableClasses<rclcpp_components::NodeFactory>();
   ASSERT_EQ(kExpectedClassNames.size(), class_names.size());
 
@@ -69,8 +68,5 @@ TEST(TestComposeableNodes, DlopenTest)
   for (auto & wrapper : node_wrappers) {
     exec.remove_node(wrapper.get_node_base_interface());
   }
-  node_wrappers.clear();
-  loader.reset();
-
   rclcpp::shutdown();
 }
