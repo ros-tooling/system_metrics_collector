@@ -21,7 +21,7 @@ is used to perform measurements, which is published (default 1 minute - but conf
 
 The lifecycle state transitions are automatically invoked such that the Node is in an activated state after creation.
 The goal is to start metric collection automatically after launching. However, the lifecycle actions (activate, deactivate, shutdown)
-can be manually invoked. Please see [Inspect and change lifecycle state](#lifecycle-example)
+can be manually invoked. Please see this [example](#inspect-and-change-lifecycle-state)
 
 ## Parameters
 There are two parameters defined:
@@ -154,7 +154,7 @@ ros2 param list
 ```
 
 
-#### [Inspect and change lifecycle state](#lifecycle-example)
+#### [Inspect and change lifecycle state]
 Using [ros2lifecycle](https://github.com/ros2/ros2cli/tree/master/ros2lifecycle):   
 
 List lifecycle nodes:
