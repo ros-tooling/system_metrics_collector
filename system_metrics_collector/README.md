@@ -21,7 +21,7 @@ is used to perform measurements, which is published (default 1 minute - but conf
 
 The lifecycle state transitions are automatically invoked such that the Node is in an activated state after creation.
 The goal is to start metric collection automatically after launching. However, the lifecycle actions (activate, deactivate, shutdown)
-can be manually invoked. Please see [asdf](#lifecycle-example)
+can be manually invoked. Please see [Inspect and change lifecycle state](#lifecycle-example)
 
 ## Parameters
 There are two parameters defined:
@@ -54,7 +54,6 @@ Parameter name: publish_period
 
 ### ROS2 Launch
 The system CPU and system memory can be launched by using [ros2 launch](https://github.com/ros2/launch):
-
 ```
 ros2 launch system_metrics_collector system_cpu_and_memory.launch.py
 ```
@@ -62,19 +61,16 @@ ros2 launch system_metrics_collector system_cpu_and_memory.launch.py
 ### Manual Execution
 You can run the example main (todo rename as example) which will manually start the system CPU, system memory, process
 CPU and process memory measurement nodes.
-
 ```
 ros2 run system_metrics_collector main
 ```
 
 Change `publish_period` or `measurement_period` using `--ros-args`:
-
 ```
 ros2 run system_metrics_collector main --ros-args -p measurement_period:=100 -publish_period 1000
 ```
 
 This node will generate 4 nodes:
-
 ```
 ros2 node list
 /linuxCpuCollector
