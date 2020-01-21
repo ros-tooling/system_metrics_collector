@@ -10,11 +10,11 @@ The system metrics collector package supports the following:
 ## Description
 This package aims to integrate lightweight aggregation tools in order to collect, measure, and publish aggregate metrics.
 
-The [moving average](system_metrics_collector/src/moving_average_statistics/moving_average.hpp)
+The [moving average](src/moving_average_statistics/moving_average.hpp)
 tools provide constant time sample aggregation to produce average, min, max, standard deviation, and sample count.
-The [collector](system_metrics_collector/src/system_metrics_collector/collector.hpp)
+The [collector](src/system_metrics_collector/collector.hpp)
 provides a thread-safe mechanism to perform measurements.
-The [PeriodicMeasurementNode](system_metrics_collector/src/system_metrics_collector/periodic_measurement_node.hpp)
+The [PeriodicMeasurementNode](src/system_metrics_collector/periodic_measurement_node.hpp)
 is a [ROS2 Lifecycle](http://design.ros2.org/articles/node_lifecycle.html) [Node](https://github.com/ros2/demos/tree/master/lifecycle)
 which utilizes the aggregation tools and provides an abstraction for ROS2: specifically a configurable timer (default 1 second)
 is used to perform measurements, which is published (default 1 minute - but configurable) to a topic (default /system_metrics).
