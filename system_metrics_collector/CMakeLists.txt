@@ -78,6 +78,7 @@ ament_target_dependencies(linux_memory_collector)
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   find_package(ament_cmake_gtest REQUIRED)
+  find_package(class_loader REQUIRED)
   find_package(lifecycle_msgs REQUIRED)
 
   ament_lint_auto_find_test_dependencies()
@@ -121,6 +122,10 @@ if(BUILD_TESTING)
     test/system_metrics_collector/test_periodic_measurement_node.cpp)
   target_link_libraries(test_periodic_measurement_node system_metrics_collector)
   ament_target_dependencies(test_periodic_measurement_node lifecycle_msgs metrics_statistics_msgs rclcpp)
+
+  ament_add_gtest(test_composition
+          test/system_metrics_collector/test_composition.cpp)
+  ament_target_dependencies(test_composition class_loader rclcpp rclcpp_components)
 
   ament_add_gtest(test_utilities
           test/system_metrics_collector/test_utilities.cpp)
