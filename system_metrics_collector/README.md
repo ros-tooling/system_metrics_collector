@@ -8,7 +8,15 @@ The system metrics collector package supports the following:
 * OS: `Ubuntu`
 
 ## Description
+This package aims to integrate lightweight aggregation tools in order to collect, measure, and publish aggregate metrics.
 
+The [moving average](https://github.com/ros-tooling/system_metrics_collector/blob/master/system_metrics_collector/src/moving_average_statistics/moving_average.hpp)
+tools provide constant time sample aggregation to produce average, min, max, standard deviation, and sample count. The
+[collector](https://github.com/ros-tooling/system_metrics_collector/blob/master/system_metrics_collector/src/system_metrics_collector/collector.hpp)
+provides a thread-safe mechanism to perform measurements.
+The [PeriodicMeasurementNode](https://github.com/ros-tooling/system_metrics_collector/blob/master/system_metrics_collector/src/system_metrics_collector/periodic_measurement_node.hpp)
+utilizes the aggregation tools and provides an abstraction for ROS2: specifically a configurable timer (default 1 second)
+is used to perform measurements, which is published (default 1 minute - but configurable) to a topic (default /system_metrics).
 
 ## Parameters
 There are two parameters defined:
@@ -28,7 +36,8 @@ Type: integer
 ```sh
 Parameter name: publish_period
   Type: integer
-  Description: The period in milliseconds between each published MetricsMessage
+  Description: The period in milliseconds between each published MetricsMessage. This must be less than
+  the measurement_period.
   Constraints:
     Read only: true
     Min value: 1
