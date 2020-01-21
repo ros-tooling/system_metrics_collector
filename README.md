@@ -14,11 +14,11 @@ system free memory percentage, message age, etc.
 
 The goal of this package is to provide lightweight, real-time system metrics to enable
 system debugging and diagnosis of ROS2 systems (currently Linux only). It automatically collects
-and aggregates system CPU, system memory, as well as ROS2 process CPU and memory.
-Data is aggregated a in order to provide constant time average, min, max, sample count,
+and aggregates CPU % used and memory % used of both system and ROS2 processes.
+Data is aggregated in order to provide constant time average, min, max, sample count,
 and standard deviation values for each collected metric.
 
-Please see the [package README](https://github.com/ros-tooling/system_metrics_collector/blob/master/system_metrics_collector/README.md) for more details.
+Please see the [package README](system_metrics_collector/README.md) for more details.
 
 ## License
 The source code is released under an Apache 2.0.

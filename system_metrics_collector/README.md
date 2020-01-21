@@ -10,11 +10,11 @@ The system metrics collector package supports the following:
 ## Description
 This package aims to integrate lightweight aggregation tools in order to collect, measure, and publish aggregate metrics.
 
-The [moving average](https://github.com/ros-tooling/system_metrics_collector/blob/master/system_metrics_collector/src/moving_average_statistics/moving_average.hpp)
-tools provide constant time sample aggregation to produce average, min, max, standard deviation, and sample count. The
-[collector](https://github.com/ros-tooling/system_metrics_collector/blob/master/system_metrics_collector/src/system_metrics_collector/collector.hpp)
+The [moving average](system_metrics_collector/src/moving_average_statistics/moving_average.hpp)
+tools provide constant time sample aggregation to produce average, min, max, standard deviation, and sample count.
+The [collector](system_metrics_collector/src/system_metrics_collector/collector.hpp)
 provides a thread-safe mechanism to perform measurements.
-The [PeriodicMeasurementNode](https://github.com/ros-tooling/system_metrics_collector/blob/master/system_metrics_collector/src/system_metrics_collector/periodic_measurement_node.hpp)
+The [PeriodicMeasurementNode](system_metrics_collector/src/system_metrics_collector/periodic_measurement_node.hpp)
 is a [ROS2 Lifecycle](http://design.ros2.org/articles/node_lifecycle.html) [Node](https://github.com/ros2/demos/tree/master/lifecycle)
 which utilizes the aggregation tools and provides an abstraction for ROS2: specifically a configurable timer (default 1 second)
 is used to perform measurements, which is published (default 1 minute - but configurable) to a topic (default /system_metrics).
@@ -53,7 +53,7 @@ Parameter name: publish_period
 ## Usage:
 
 ### ROS2 Launch
-The system CPU and system memory can be launched by using [ros2 launch](https://github.com/ros2/launch):
+The system CPU and memory nodes can be launched with [ros2 launch](https://github.com/ros2/launch):
 ```sh
 ros2 launch system_metrics_collector system_cpu_and_memory.launch.py
 ```
