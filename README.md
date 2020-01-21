@@ -7,7 +7,18 @@ Note: _This is currently an **experimental** package._
 
 ## MetricsMessage
 
-This message is used to publish the statistics of measured data points, e.g. system cpu %, system free memory, message age, etc.
+This message is used to publish the statistics of measured data points, for example system CPU percentage,
+system free memory percentage, message age, etc.
+
+## System Metrics Collector
+
+The goal of this package is to provide lightweight, real-time system metrics to enable
+system debugging and diagnosis of ROS2 systems (currently Linux only). It automatically collects
+and aggregates system CPU, system memory, as well as ROS2 process CPU and memory.
+Data is aggregated a in order to provide constant time average, min, max, sample count,
+and standard deviation values for each collected metric.
+
+Please see the [package README](https://github.com/ros-tooling/system_metrics_collector/blob/master/system_metrics_collector/README.md) for more details.
 
 ## License
 The source code is released under an Apache 2.0.
