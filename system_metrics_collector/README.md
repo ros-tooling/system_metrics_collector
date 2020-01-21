@@ -5,7 +5,7 @@ The system metrics collector package supports the following:
 
 * ROS Distro
   * ROS 2: `eloquent`
-* OS: `Ubuntu`
+* OS: `Ubuntu Bionic`
 
 ## Description
 This package aims to integrate lightweight aggregation tools in order to collect, measure, and publish aggregate metrics.
@@ -27,7 +27,7 @@ can be manually invoked. Please see this [example](#inspect-and-change-lifecycle
 There are two parameters defined:
 
   - **measurement_period**:
-```sh
+```yaml
 Parameter name: measurement_period
 Type: integer
   Description: The period in milliseconds between each measurement
@@ -38,7 +38,7 @@ Type: integer
     Step: 1
 ```
   - **publish_period**:
-```sh
+```yaml
 Parameter name: publish_period
   Type: integer
   Description: The period in milliseconds between each published MetricsMessage. This must be less than
@@ -54,24 +54,24 @@ Parameter name: publish_period
 
 ### ROS2 Launch
 The system CPU and system memory can be launched by using [ros2 launch](https://github.com/ros2/launch):
-```
+```sh
 ros2 launch system_metrics_collector system_cpu_and_memory.launch.py
 ```
 
 ### Manual Execution
-You can run the example main (todo rename as example) which will manually start the system CPU, system memory, process
+You can run the example main which will manually start the system CPU, system memory, process
 CPU and process memory measurement nodes.
-```
+```sh
 ros2 run system_metrics_collector main
 ```
 
 Change `publish_period` or `measurement_period` using `--ros-args`:
-```
+```sh
 ros2 run system_metrics_collector main --ros-args -p measurement_period:=100 -publish_period 1000
 ```
 
 This node will generate 4 nodes:
-```
+```sh
 ros2 node list
 /linuxCpuCollector
 /linuxMemoryCollector
@@ -87,7 +87,7 @@ This section describes how to interact with this package using the
 #### Subscribe to `/system_metrics` to visualize all the statistics.
 Using [ros2topic](https://github.com/ros2/ros2cli/tree/master/ros2topic):
 
-```
+```sh
 ros2 topic echo /system_metrics
 measurement_source_name: linuxMemoryCollector
 metrics_source: system_memory_percent_used
@@ -133,7 +133,7 @@ statistics:
 
 #### Review all the available parameters
 Using [ros2param](https://github.com/ros2/ros2cli/tree/master/ros2param):
-```
+```sh
 ros2 param list
 /linuxCpuCollector:
   measurement_period
@@ -158,27 +158,27 @@ ros2 param list
 Using [ros2lifecycle](https://github.com/ros2/ros2cli/tree/master/ros2lifecycle):   
 
 List lifecycle nodes:
-```
+```sh
 ros2 lifecycle nodes
 /linuxCpuCollector
 /linuxMemoryCollector
 ```
 
 Get the state of a specific node:
-```
+```sh
 ros2 lifecycle get /linuxCpuCollector
 active [3]
 ```
 
 Activate the node (start measurement collection and data publishing):
-```
+```sh
 ros2 lifecycle set /linuxCpuCollector activate
 Transitioning successful
 ```
 
 Deactivate the node (stop measurement collection and data publishing):
 
-```
+```sh
 ros2 lifecycle set /linuxCpuCollector deactivate
 Transitioning successful
 ```
