@@ -49,13 +49,13 @@ TEST(TestComposeableNodes, DlopenTest)
   rclcpp::NodeOptions options;
 
   const auto loader = std::make_unique<class_loader::ClassLoader>(kSystemMetricsCollectorLibName);
-  auto class_names = loader->getAvailableClasses<rclcpp_components::NodeFactory>();
+  const auto class_names = loader->getAvailableClasses<rclcpp_components::NodeFactory>();
   ASSERT_EQ(kExpectedClassNames.size(), class_names.size());
 
   std::vector<rclcpp_components::NodeInstanceWrapper> node_wrappers;
   for (const auto & class_name : class_names) {
     ASSERT_TRUE(IsExpectedClassName(class_name));
-    auto node_factory = loader->createInstance<rclcpp_components::NodeFactory>(class_name);
+    const auto node_factory = loader->createInstance<rclcpp_components::NodeFactory>(class_name);
     auto wrapper = node_factory->create_node_instance(options);
     exec.add_node(wrapper.get_node_base_interface());
     node_wrappers.push_back(wrapper);

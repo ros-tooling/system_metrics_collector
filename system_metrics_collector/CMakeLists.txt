@@ -28,7 +28,6 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(class_loader REQUIRED)
 find_package(metrics_statistics_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
@@ -79,6 +78,7 @@ ament_target_dependencies(linux_memory_collector)
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   find_package(ament_cmake_gtest REQUIRED)
+  find_package(class_loader REQUIRED)
   find_package(lifecycle_msgs REQUIRED)
 
   ament_lint_auto_find_test_dependencies()
