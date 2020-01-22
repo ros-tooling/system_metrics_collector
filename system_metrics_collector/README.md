@@ -154,7 +154,7 @@ ros2 param list
 ```
 
 
-#### [Inspect and change lifecycle state]
+#### Inspect and change lifecycle state
 Using [ros2lifecycle](https://github.com/ros2/ros2cli/tree/master/ros2lifecycle):   
 
 List lifecycle nodes:
