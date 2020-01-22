@@ -1,0 +1,17 @@
+system_metrics_collector:
+  ros__parameters:
+
+    # A custom name for the node that collects the total CPU usage on a Linux system
+    linux_cpu_collector_node_name: "linux_cpu_collector"
+
+    # A custom name for the node that collects the total memory usage on a Linux system
+    linux_memory_collector_node_name: "linux_memory_collector"
+
+    # The period (in ms) between each subsequent metrics measurement made by the collector nodes
+    measurement_period: 2000
+
+    # The period (in ms) between each subsequent metrics message published by the collector nodes
+    publish_period: 30000
+
+    # The name of the topic to which the collector nodes should publish
+    publish_topic: "system_metrics_demo"

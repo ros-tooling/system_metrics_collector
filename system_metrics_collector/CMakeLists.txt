@@ -152,6 +152,11 @@ install(DIRECTORY
   DESTINATION share/${PROJECT_NAME}/
 )
 
+install(DIRECTORY
+  config
+  DESTINATION share/${PROJECT_NAME}/
+)
+
 # Install entry points
 install(TARGETS
   main
@@ -171,8 +176,10 @@ install(TARGETS
   lib/${PROJECT_NAME}
 )
 
-install(TARGETS ${PROJECT_NAME}
-  DESTINATION lib
+install(TARGETS
+  ${PROJECT_NAME}
+  DESTINATION
+  lib
 )
 
 ament_export_libraries(${PROJECT_NAME})
