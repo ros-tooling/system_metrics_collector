@@ -17,7 +17,7 @@ jobs:
       matrix:
           os: [ubuntu-18.04]
     steps:
-    - uses: ros-tooling/setup-ros@9bc41641126547bc2c4cff215482306736a54566
+    - uses: ros-tooling/setup-ros@codecov-fix
     - uses: ros-tooling/action-ros-ci@3a9485a1bf11960cd5d5c4e29cc6e3ea1b79eb9a
       with:
         package-name: system_metrics_collector
