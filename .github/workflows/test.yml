@@ -17,8 +17,8 @@ jobs:
       matrix:
           os: [ubuntu-18.04]
     steps:
-    - uses: ros-tooling/setup-ros2@0.0.6
-    - uses: ros-tooling/action-ros2-ci@0.0.10
+    - uses: ros-tooling/setup-ros@a9fccd2aa786564bd0dd7c215884a18b214c13ce
+    - uses: ros-tooling/action-ros-ci@c4e6616dffdc99d5d9688d8ff2c064bb767c1015
       with:
         package-name: system_metrics_collector
         colcon-mixin-name: coverage-gcc
