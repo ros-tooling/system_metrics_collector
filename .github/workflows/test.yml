@@ -17,7 +17,7 @@ jobs:
       matrix:
           os: [ubuntu-18.04]
     steps:
-    - uses: ros-tooling/setup-ros@codecov-fix
+    - uses: ros-tooling/setup-ros@0.0.13
     - uses: ros-tooling/action-ros-ci@fix-lcov
       with:
         package-name: system_metrics_collector
@@ -29,7 +29,7 @@ jobs:
       if: matrix.os == 'ubuntu-18.04'
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        file: ros2_ws/lcov/total_coverage.info
+        file: ros_ws/lcov/total_coverage.info
         flags: unittests
         name: codecov-umbrella
         yml: ./codecov.yml
@@ -37,7 +37,7 @@ jobs:
     - uses: actions/upload-artifact@master
       with:
         name: colcon-logs-${{ matrix.os }}
-        path: ros2_ws/log
+        path: ros_ws/log
 
   build_and_test_asan:
     runs-on: ${{ matrix.os }}
@@ -55,4 +55,4 @@ jobs:
     - uses: actions/upload-artifact@master
       with:
         name: colcon-logs-${{ matrix.os }}-asan
-        path: ros2_ws/log
+        path: ros_ws/log
