@@ -12,51 +12,58 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
-import yaml
-
-from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
-# Argument names
+# Launch argument names
 CPU_NODE_NAME = 'linux_cpu_collector_node_name'
 MEMORY_NODE_NAME = 'linux_memory_collector_node_name'
 MEASUREMENT_PERIOD = 'measurement_period'
 PUBLISH_PERIOD = 'publish_period'
 PUBLISH_TOPIC = 'publish_topic'
 
-"""Launch system CPU and system memory metrics collector nodes."""
+# Default argument values
+default_cpu_node_name = 'linux_cpu_collector'
+default_memory_node_name = 'linux_memory_collector'
+default_measurement_period = '1000'
+default_publish_period = '60000'
+default_publish_topic = 'system_metrics'
+
+
 def generate_launch_description():
-    # Default to included config file
-    config_filepath = os.path.join(
-        get_package_share_directory('system_metrics_collector'),
-        'config',
-        'system_metrics_collector_config.yaml')
-    with open(config_filepath, 'r') as f:
-        config_file_contents = f.read()
-    config_yaml_data = yaml.safe_load(config_file_contents)
-
-    config_parameters = config_yaml_data['system_metrics_collector']['ros__parameters']
-    cpu_node_name = str(config_parameters[CPU_NODE_NAME])
-    memory_node_name = str(config_parameters[MEMORY_NODE_NAME])
-    measurement_period = str(config_parameters[MEASUREMENT_PERIOD])
-    publish_period = str(config_parameters[PUBLISH_PERIOD])
-    publish_topic = str(config_parameters[PUBLISH_TOPIC])
-
+    """Launch system CPU and system memory metrics collector nodes."""
     ld = LaunchDescription()
 
-    ld.add_action(DeclareLaunchArgument(CPU_NODE_NAME, default_value=cpu_node_name))
-    ld.add_action(DeclareLaunchArgument(MEMORY_NODE_NAME, default_value=memory_node_name))
-    ld.add_action(DeclareLaunchArgument(MEASUREMENT_PERIOD, default_value=measurement_period))
-    ld.add_action(DeclareLaunchArgument(PUBLISH_PERIOD, default_value=publish_period))
-    ld.add_action(DeclareLaunchArgument(PUBLISH_TOPIC, default_value=publish_topic))
+    ld.add_action(DeclareLaunchArgument(
+        CPU_NODE_NAME,
+        default_value=default_cpu_node_name,
+        description='A custom name for the node that collects the total CPU usage'
+                    ' on a Linux system'))
+    ld.add_action(DeclareLaunchArgument(
+        MEMORY_NODE_NAME,
+        default_value=default_memory_node_name,
+        description='A custom name for the node that collects the total memory usage'
+                    ' on a Linux system'))
+    ld.add_action(DeclareLaunchArgument(
+        MEASUREMENT_PERIOD,
+        default_value=default_measurement_period,
+        description='The period (in ms) between each subsequent metrics measurement made'
+                    ' by the collector nodes'))
+    ld.add_action(DeclareLaunchArgument(
+        PUBLISH_PERIOD,
+        default_value=default_publish_period,
+        description='The period (in ms) between each subsequent metrics message published'
+                    ' by the collector nodes'))
+    ld.add_action(DeclareLaunchArgument(
+        PUBLISH_TOPIC,
+        default_value=default_publish_topic,
+        description='The name of the topic to which the collector nodes should publish'))
 
-    node_parameters = list()
-    node_parameters.append({MEASUREMENT_PERIOD : LaunchConfiguration(MEASUREMENT_PERIOD)})
-    node_parameters.append({PUBLISH_PERIOD : LaunchConfiguration(PUBLISH_PERIOD)})
+    node_parameters = [
+        {MEASUREMENT_PERIOD: LaunchConfiguration(MEASUREMENT_PERIOD)},
+        {PUBLISH_PERIOD: LaunchConfiguration(PUBLISH_PERIOD)}]
 
     """Run system CPU and memory collector nodes using launch."""
     ld.add_action(
