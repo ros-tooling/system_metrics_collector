@@ -197,4 +197,4 @@ Transitioning successful
 [demo_nodes_cpp]: https://github.com/ros2/demos/tree/master/demo_nodes_cpp
 [ros2topic]: https://github.com/ros2/ros2cli/tree/master/ros2topic
 [ros2param]: https://github.com/ros2/ros2cli/tree/master/ros2param
-Using [ros2lifecycle]: https://github.com/ros2/ros2cli/tree/master/ros2lifecycle 
+[ros2lifecycle]: https://github.com/ros2/ros2cli/tree/master/ros2lifecycle
