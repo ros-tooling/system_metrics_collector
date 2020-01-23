@@ -1,2 +1,2 @@
 fixes:
-  - "ros2_ws/src/system_metrics_collector/::"
+  - "ros_ws/src/system_metrics_collector/::"
