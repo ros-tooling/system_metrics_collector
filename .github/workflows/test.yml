@@ -18,7 +18,7 @@ jobs:
           os: [ubuntu-18.04]
     steps:
     - uses: ros-tooling/setup-ros@0.0.13
-    - uses: ros-tooling/action-ros-ci@fix-lcov
+    - uses: ros-tooling/action-ros-ci@0.0.13
       with:
         package-name: system_metrics_collector
         colcon-mixin-name: coverage-gcc
@@ -46,8 +46,8 @@ jobs:
       matrix:
           os: [ubuntu-18.04]
     steps:
-    - uses: ros-tooling/setup-ros2@0.0.6
-    - uses: ros-tooling/action-ros2-ci@0.0.10
+    - uses: ros-tooling/setup-ros@0.0.13
+    - uses: ros-tooling/action-ros-ci@0.0.13
       with:
         colcon-mixin-name: asan
         colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
