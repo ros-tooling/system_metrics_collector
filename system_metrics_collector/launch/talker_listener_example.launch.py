@@ -14,24 +14,27 @@
 
 """Instrumented nodes example."""
 
-from launch import LaunchDescription
-from launch_ros.actions import ComposableNodeContainer, Node
+from launch import actions, LaunchDescription
+from launch_ros.actions import ComposableNodeContainer, LifecycleNode, Node
 from launch_ros.descriptions import ComposableNode
 
 
 def generate_launch_description():
     """Launch example instrumented nodes."""
     # Collect, aggregate, and measure system CPU % used
-    system_cpu_node = Node(
+    system_cpu_node = LifecycleNode(
         package='system_metrics_collector',
+        node_name='linux_system_cpu_collector',
         node_executable='linux_cpu_collector',
-        output='screen')
+        output='screen',
+    )
 
     # Collect, aggregate, and measure system memory % used
-    system_memory_node = Node(
+    system_memory_node = LifecycleNode(
         package='system_metrics_collector',
+        node_name='linux_system_memory_collector',
         node_executable='linux_memory_collector',
-        output='screen'
+        output='screen',
     )
 
     # Instrument the listener demo to collect, aggregate, and publish it's CPU % + memory % used

@@ -52,7 +52,8 @@ LinuxProcessCpuMeasurementNode::LinuxProcessCpuMeasurementNode(
   const rclcpp::NodeOptions & options)
 : LinuxProcessCpuMeasurementNode{"linux_process_cpu_collector", options}
 {
-  Start();
+  configure();
+  activate();
 }
 
 bool LinuxProcessCpuMeasurementNode::SetupStart()
