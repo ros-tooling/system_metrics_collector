@@ -53,7 +53,7 @@ Parameter name: publish_period
 ## Usage:
 
 ### ROS2 Launch
-The [instrumented nodes launch file](system_metrics_collector/launch/talker_listener_example.launch.py)
+The [talker_listener_example.launch.py](system_metrics_collector/share/system_metrics_collector/examples/talker_listener_example.launch.py)
 demonstrates how to measure the CPU and memory of a ROS2 processes. Specifically, this example
 instruments the [demo_nodes_cpp] talker
 and listener nodes and launches them with the system CPU and memory measurement nodes. This example
@@ -63,7 +63,8 @@ can be run using [ros2launch].
 ros2 launch system_metrics_collector talker_listener_example.launch.py
 ```
 
-The system CPU and memory nodes can be launched with [ros2launch]
+The [system_cpu_and_memory.launch_configuration_example.py](system_metrics_collector/share/system_metrics_collector/examples/system_cpu_and_memory_configuration_example.launch.py)
+can be launched with [ros2launch], where this demonstrates how to provide a custom configuration.
 ```sh
 ros2 launch system_metrics_collector system_cpu_and_memory.launch.py
 ```
