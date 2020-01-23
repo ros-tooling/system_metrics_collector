@@ -20,6 +20,49 @@ and standard deviation values for each collected metric.
 
 Please see the [package README](system_metrics_collector/README.md) for more details.
 
+## Building from Source
+
+To build from source you'll need to create a new workspace, clone and checkout the latest release branch of
+this repository, install all the dependencies, and compile. If you need the latest development features
+you can clone from the `master` branch instead of the latest release branch. While we guarantee the release
+branches are stable, __the `master` should be considered to have an unstable build__ due to ongoing development.git diff
+
+- Create a ROS2 workspace and a source directory
+
+```sh
+mkdir -p ~/ros2-workspace/src
+```
+
+- Clone the package into the source directory
+```sh
+cd ~/ros2-workspace/src
+git clone git@github.com:ros-tooling/system_metrics_collector.git
+```
+
+- Install dependencies
+```sh
+cd ~/ros2-workspace
+sudo apt-get update && rosdep update
+rosdep install --from-paths src --ignore-src -r -y
+```
+
+_Note: If building the master branch instead of a release branch you may need to also checkout and build the master branches of the packages this package depends on._
+
+- Build the packages
+```sh
+cd ~/ros2-workspace && colcon build
+```
+
+- Configure ROS2 library Path
+```sh
+source ~/ros2-workspace/install/local_setup.bash
+```
+
+- Run the unit tests
+```sh
+colcon test && colcon test-result --all
+```
+
 ## License
 The source code is released under an Apache 2.0.
 
