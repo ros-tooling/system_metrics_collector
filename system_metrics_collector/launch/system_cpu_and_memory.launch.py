@@ -27,8 +27,8 @@ PUBLISH_TOPIC = 'publish_topic'
 # Default argument values
 default_cpu_node_name = 'linux_cpu_collector'
 default_memory_node_name = 'linux_memory_collector'
-default_measurement_period = '1000'
-default_publish_period = '60000'
+default_measurement_period_in_ms = '1000'
+default_publish_period_in_ms = '60000'
 default_publish_topic = 'system_metrics'
 
 
@@ -48,12 +48,12 @@ def generate_launch_description():
                     ' on a Linux system'))
     ld.add_action(DeclareLaunchArgument(
         MEASUREMENT_PERIOD,
-        default_value=default_measurement_period,
+        default_value=default_measurement_period_in_ms,
         description='The period (in ms) between each subsequent metrics measurement made'
                     ' by the collector nodes'))
     ld.add_action(DeclareLaunchArgument(
         PUBLISH_PERIOD,
-        default_value=default_publish_period,
+        default_value=default_publish_period_in_ms,
         description='The period (in ms) between each subsequent metrics message published'
                     ' by the collector nodes'))
     ld.add_action(DeclareLaunchArgument(
