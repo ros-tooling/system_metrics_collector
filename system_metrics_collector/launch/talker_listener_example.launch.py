@@ -14,8 +14,8 @@
 
 """Instrumented nodes example."""
 
-from launch import actions, LaunchDescription
-from launch_ros.actions import ComposableNodeContainer, LifecycleNode, Node
+from launch import LaunchDescription
+from launch_ros.actions import ComposableNodeContainer, LifecycleNode
 from launch_ros.descriptions import ComposableNode
 
 
