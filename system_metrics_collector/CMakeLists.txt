@@ -171,8 +171,10 @@ install(TARGETS
   lib/${PROJECT_NAME}
 )
 
-install(TARGETS ${PROJECT_NAME}
-  DESTINATION lib
+install(TARGETS
+  ${PROJECT_NAME}
+  DESTINATION
+  lib
 )
 
 ament_export_libraries(${PROJECT_NAME})
