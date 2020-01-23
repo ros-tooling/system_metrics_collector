@@ -12,7 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Instrumented nodes example."""
+"""
+Instrumented nodes example.
+
+Launches the system cpu measurement node, the system memory measurement node, and
+the following as composable nodes: talker, listener, and process cpu and memory for both talker
+and listener. All measurements are published to the default /system_metrics topic.
+"""
 
 from launch import LaunchDescription
 from launch_ros.actions import ComposableNodeContainer, LifecycleNode
