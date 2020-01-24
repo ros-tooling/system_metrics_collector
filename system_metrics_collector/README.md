@@ -53,7 +53,18 @@ Parameter name: publish_period
 ## Usage:
 
 ### ROS2 Launch
-The system CPU and memory nodes can be launched with [ros2 launch](https://github.com/ros2/launch):
+The [talker_listener_example.launch.py](system_metrics_collector/share/system_metrics_collector/examples/talker_listener_example.launch.py)
+demonstrates how to measure the CPU and memory of a ROS2 processes. Specifically, this example
+instruments the [demo_nodes_cpp] talker
+and listener nodes and launches them with the system CPU and memory measurement nodes. This example
+can be run using [ros2launch].
+
+```sh
+ros2 launch system_metrics_collector talker_listener_example.launch.py
+```
+
+The [system_cpu_and_memory.launch_configuration_example.py](system_metrics_collector/share/system_metrics_collector/examples/system_cpu_and_memory_configuration_example.launch.py)
+can be launched with [ros2launch], where this demonstrates how to provide a custom configuration.
 ```sh
 ros2 launch system_metrics_collector system_cpu_and_memory.launch.py
 ```
@@ -85,7 +96,7 @@ This section describes how to interact with this package using the
 
 
 #### Subscribe to `/system_metrics` to visualize all the statistics.
-Using [ros2topic](https://github.com/ros2/ros2cli/tree/master/ros2topic):
+Using [ros2topic]
 
 ```sh
 ros2 topic echo /system_metrics
@@ -132,7 +143,7 @@ statistics:
 ```
 
 #### Review all the available parameters
-Using [ros2param](https://github.com/ros2/ros2cli/tree/master/ros2param):
+Using [ros2param]
 ```sh
 ros2 param list
 /linuxCpuCollector:
@@ -155,7 +166,7 @@ ros2 param list
 
 
 #### Inspect and change lifecycle state
-Using [ros2lifecycle](https://github.com/ros2/ros2cli/tree/master/ros2lifecycle):   
+Using [ros2lifecycle]
 
 List lifecycle nodes:
 ```sh
@@ -182,3 +193,9 @@ Deactivate the node (stop measurement collection and data publishing):
 ros2 lifecycle set /linuxCpuCollector deactivate
 Transitioning successful
 ```
+
+[ros2launch]: https://github.com/ros2/launch
+[demo_nodes_cpp]: https://github.com/ros2/demos/tree/master/demo_nodes_cpp
+[ros2topic]: https://github.com/ros2/ros2cli/tree/master/ros2topic
+[ros2param]: https://github.com/ros2/ros2cli/tree/master/ros2param
+[ros2lifecycle]: https://github.com/ros2/ros2cli/tree/master/ros2lifecycle

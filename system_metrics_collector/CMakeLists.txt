@@ -148,7 +148,7 @@ endif()
 
 # Install launch files
 install(DIRECTORY
-  launch
+  share/${PROJECT_NAME}/
   DESTINATION share/${PROJECT_NAME}/
 )
 

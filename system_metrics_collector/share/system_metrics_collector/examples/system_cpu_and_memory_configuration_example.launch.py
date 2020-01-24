@@ -12,6 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""
+Example launch file demonstrating node configuration.
+
+This launch file uses the system cpu and system memory entry points to start the corresponding
+nodes and demonstrates how to configure each node's parameters.
+"""
+
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration

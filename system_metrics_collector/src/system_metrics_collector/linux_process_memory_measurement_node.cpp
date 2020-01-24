@@ -64,7 +64,8 @@ LinuxProcessMemoryMeasurementNode::LinuxProcessMemoryMeasurementNode(
   const rclcpp::NodeOptions & options)
 : LinuxProcessMemoryMeasurementNode{"linux_process_memory_collector", options}
 {
-  Start();
+  configure();
+  activate();
 }
 
 double LinuxProcessMemoryMeasurementNode::PeriodicMeasurement()
