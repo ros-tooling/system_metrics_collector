@@ -52,19 +52,21 @@ Parameter name: publish_period
 
 ## Usage:
 
+We provide multiple example entry points to use this package in the
+[examples directory](/system_metrics_collector/share/system_metrics_collector/examples), which demonstrate how
+to run the metric collection nodes and instrument existing nodes in order to measure their performance.
+
 ### ROS2 Launch
-The [talker_listener_example.launch.py](system_metrics_collector/share/system_metrics_collector/examples/talker_listener_example.launch.py)
-demonstrates how to measure the CPU and memory of a ROS2 processes. Specifically, this example
-instruments the [demo_nodes_cpp] talker
-and listener nodes and launches them with the system CPU and memory measurement nodes. This example
-can be run using [ros2launch].
+The [talker_listener_example] launch file demonstrates how to measure the CPU and memory of a ROS2 processes.
+Specifically, this example instruments the [demo_nodes_cpp] talker and listener nodes and launches them with
+the system CPU and memory measurement nodes. This example can be run using [ros2launch].
 
 ```sh
 ros2 launch system_metrics_collector talker_listener_example.launch.py
 ```
 
-The [system_cpu_and_memory.launch_configuration_example.py](system_metrics_collector/share/system_metrics_collector/examples/system_cpu_and_memory_configuration_example.launch.py)
-can be launched with [ros2launch], where this demonstrates how to provide a custom configuration.
+The [system_cpu_and_memory_configuration_example] can be launched with [ros2launch], where this demonstrates
+how to configure the metric collection nodes.
 ```sh
 ros2 launch system_metrics_collector system_cpu_and_memory.launch.py
 ```
@@ -194,6 +196,8 @@ ros2 lifecycle set /linuxCpuCollector deactivate
 Transitioning successful
 ```
 
+[talker_listener_example]: system_metrics_collector/share/system_metrics_collector/examples/talker_listener_example.launch.py
+[system_cpu_and_memory_configuration_example]: system_metrics_collector/share/system_metrics_collector/examples/system_cpu_and_memory_configuration_example.launch.py
 [ros2launch]: https://github.com/ros2/launch
 [demo_nodes_cpp]: https://github.com/ros2/demos/tree/master/demo_nodes_cpp
 [ros2topic]: https://github.com/ros2/ros2cli/tree/master/ros2topic

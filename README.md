@@ -18,7 +18,7 @@ and aggregates CPU % used and memory % used of both system and ROS2 processes.
 Data is aggregated in order to provide constant time average, min, max, sample count,
 and standard deviation values for each collected metric.
 
-Please see the [package README](system_metrics_collector/README.md) for more details.
+Please see the [package README](system_metrics_collector/README.md) for more details and usage examples.
 
 ## Building from Source
 
