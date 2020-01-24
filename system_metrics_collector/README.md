@@ -21,7 +21,7 @@ is used to perform measurements, which is published (default 1 minute - but conf
 
 The lifecycle state transitions are automatically invoked such that the Node is in an activated state after creation.
 The goal is to start metric collection automatically after launching. However, the lifecycle actions (activate, deactivate, shutdown)
-can be manually invoked. Please see this [example](#inspect-and-change-lifecycle-state)
+can be manually invoked. Please see this [example](#inspect-and-change-lifecycle-state).
 
 ## Parameters
 There are two parameters defined:
@@ -196,8 +196,8 @@ ros2 lifecycle set /linuxCpuCollector deactivate
 Transitioning successful
 ```
 
-[talker_listener_example]: system_metrics_collector/share/system_metrics_collector/examples/talker_listener_example.launch.py
-[system_cpu_and_memory_configuration_example]: system_metrics_collector/share/system_metrics_collector/examples/system_cpu_and_memory_configuration_example.launch.py
+[talker_listener_example]: share/system_metrics_collector/examples/talker_listener_example.launch.py
+[system_cpu_and_memory_configuration_example]: share/system_metrics_collector/examples/system_cpu_and_memory_configuration_example.launch.py
 [ros2launch]: https://github.com/ros2/launch
 [demo_nodes_cpp]: https://github.com/ros2/demos/tree/master/demo_nodes_cpp
 [ros2topic]: https://github.com/ros2/ros2cli/tree/master/ros2topic
