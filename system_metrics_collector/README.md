@@ -57,15 +57,14 @@ We provide multiple example entry points to use this package in the
 to run the metric collection nodes and instrument existing nodes in order to measure their performance.
 
 ### ROS2 Launch
-The [talker_listener_example] launch file demonstrates how to measure the CPU and memory of a ROS2 processes.
-Specifically, this example instruments the [demo_nodes_cpp] talker and listener nodes and launches them with
-the system CPU and memory measurement nodes. This example can be run using [ros2launch].
-
+The [talker_listener_example] launch file demonstrates how to measure the CPU and memory of a ROS2 process.
+Specifically, this example instruments the [demo_nodes_cpp] talker and listener nodes and launches them, in separate
+processes, with the system CPU and memory measurement nodes. This example can be run using [ros2launch].
 ```sh
 ros2 launch system_metrics_collector talker_listener_example.launch.py
 ```
 
-The [system_cpu_and_memory_configuration_example] can be launched with [ros2launch], where this demonstrates
+The [system_cpu_and_memory_configuration_example] can be launched with [ros2launch], which demonstrates
 how to configure the metric collection nodes.
 ```sh
 ros2 launch system_metrics_collector system_cpu_and_memory.launch.py
