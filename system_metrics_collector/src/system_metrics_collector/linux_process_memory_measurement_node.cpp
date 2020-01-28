@@ -26,6 +26,8 @@
 #include "rclcpp_components/register_node_macro.hpp"
 #include "rcutils/logging_macros.h"
 
+#include "constants.hpp"
+
 namespace
 {
 
@@ -92,7 +94,7 @@ std::string LinuxProcessMemoryMeasurementNode::GetMetricName() const
 
 const std::string & LinuxProcessMemoryMeasurementNode::GetMetricUnit() const
 {
-  static const std::string unit_name{"percent"};
+  static const std::string unit_name{collector_node_constants::kPercentUnitName};
   return unit_name;
 }
 
