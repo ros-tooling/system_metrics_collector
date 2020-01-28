@@ -104,6 +104,7 @@ Using [ros2topic]
 ros2 topic echo /system_metrics
 measurement_source_name: linuxMemoryCollector
 metrics_source: system_memory_percent_used
+unit: percent
 window_start:
   sec: 1579638873
   nanosec: 125927653
@@ -124,6 +125,7 @@ statistics:
 ---
 measurement_source_name: linuxCpuCollector
 metrics_source: system_cpu_percent_used
+unit: percent
 window_start:
   sec: 1579638873
   nanosec: 125928189

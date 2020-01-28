@@ -18,9 +18,10 @@
 #include <sstream>
 #include <string>
 
-#include "../../src/system_metrics_collector/linux_cpu_measurement_node.hpp"
-#include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
-#include "../../src/system_metrics_collector/utilities.hpp"
+#include "constants.hpp"
+#include "linux_cpu_measurement_node.hpp"
+#include "periodic_measurement_node.hpp"
+#include "utilities.hpp"
 
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/logging_macros.h"
@@ -83,6 +84,12 @@ system_metrics_collector::ProcCpuData LinuxCpuMeasurementNode::MakeSingleMeasure
 std::string LinuxCpuMeasurementNode::GetMetricName() const
 {
   return kMeasurementType;
+}
+
+const std::string & LinuxCpuMeasurementNode::GetMetricUnit() const
+{
+  static const std::string unit_name{collector_node_constants::kPercentUnitName};
+  return unit_name;
 }
 
 }  // namespace system_metrics_collector

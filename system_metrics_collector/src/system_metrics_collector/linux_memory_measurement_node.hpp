@@ -56,10 +56,18 @@ protected:
   double PeriodicMeasurement() override;
 
   /**
-   * Return the name to use for this metric
+   * Returns the name to use for this metric
+   *
    * @return a string of the name for this measured metric
    */
   std::string GetMetricName() const override;
+
+  /**
+   * Returns the name of the measurement unit of this metric
+   *
+   * @return a string of the name of the measurement unit of this metric
+   */
+  const std::string & GetMetricUnit() const override;
 };
 
 }  // namespace system_metrics_collector

@@ -14,8 +14,11 @@
 # Name metric measurement source, e.g., node, topic, or process name
 string measurement_source_name
 
-# Name of the metric being measured, e.g. cpu_percentage, free_memory_mb, message_age, etc
+# Name of the metric being measured, e.g. cpu_percentage, free_memory_mb, message_age, etc.
 string metrics_source
+
+# Unit of measure of the metric, e.g. percent, mb, seconds, etc.
+string unit
 
 # Measurement window start time
 builtin_interfaces/Time window_start

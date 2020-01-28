@@ -38,7 +38,8 @@ using lifecycle_msgs::msg::State;
 namespace
 {
 constexpr const char kTestNodeName[] = "test_periodic_node";
-constexpr const char kTestMetricname[] = "test_metric_name";
+constexpr const char kTestMetricName[] = "test_metric_name";
+constexpr const char kTestMetricUnit[] = "test_unit";
 }  // namespace
 
 /**
@@ -91,7 +92,13 @@ private:
 
   std::string GetMetricName() const override
   {
-    return kTestMetricname;
+    return kTestMetricName;
+  }
+
+  const std::string & GetMetricUnit() const override
+  {
+    static const std::string unit_name{kTestMetricUnit};
+    return unit_name;
   }
 
   std::atomic<int> times_measured_{0};

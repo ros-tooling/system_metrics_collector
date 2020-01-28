@@ -37,6 +37,7 @@ public:
    *
    * @param node_name the name of the node that the data originates from
    * @param metric_name the name of the metric ("cpu_usage", "memory_usage", etc.)
+   * @param unit name of the unit ("percentage", "mb", etc.)
    * @param window_start measurement window start time
    * @param window_stop measurement window end time
    * @param data statistics derived from the measurements made in the window
@@ -45,6 +46,7 @@ public:
   static metrics_statistics_msgs::msg::MetricsMessage GenerateStatisticMessage(
     const std::string & node_name,
     const std::string & metric_name,
+    const std::string & unit,
     const builtin_interfaces::msg::Time window_start,
     const builtin_interfaces::msg::Time window_stop,
     const moving_average_statistics::StatisticData & data
@@ -57,10 +59,18 @@ public:
   virtual void PublishStatisticMessage() = 0;
 
   /**
-   * Return the name to use for this metric
+   * Returns the name to use for this metric
+   *
    * @return a string of the name for this measured metric
    */
   virtual std::string GetMetricName() const = 0;
+
+  /**
+   * Returns the name of the measurement unit of this metric
+   *
+   * @return a string of the name of the measurement unit of this metric
+   */
+  virtual const std::string & GetMetricUnit() const = 0;
 };
 }  // namespace system_metrics_collector
 

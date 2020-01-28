@@ -16,6 +16,7 @@
 #define SYSTEM_METRICS_COLLECTOR__CONSTANTS_HPP_
 
 #include <chrono>
+#include <string>
 
 namespace system_metrics_collector
 {
@@ -31,6 +32,7 @@ constexpr const std::chrono::milliseconds kDefaultCollectPeriod{1000};    // 1 s
 constexpr const char kPublishPeriodParam[] = "publish_period";
 constexpr const std::chrono::milliseconds kDefaultPublishPeriod{60000};   // 1 minute
 
+constexpr const char kPercentUnitName[] = "percent";
 
 }  // namespace collector_node_constants
 

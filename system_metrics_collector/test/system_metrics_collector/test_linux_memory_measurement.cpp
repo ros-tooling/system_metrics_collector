@@ -261,6 +261,7 @@ private:
     // check source names
     EXPECT_EQ(kTestNodeName, msg.measurement_source_name);
     EXPECT_EQ(kTestMetricName, msg.metrics_source);
+    EXPECT_EQ(system_metrics_collector::collector_node_constants::kPercentUnitName, msg.unit);
 
     // check measurements
     const ExpectedStatistics & expected_stat = expected_stats_[times_received_];

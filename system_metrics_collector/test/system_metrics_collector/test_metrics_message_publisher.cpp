@@ -33,6 +33,7 @@ namespace
 {
 constexpr const char kTestNodeName[] = "test_publisher";
 constexpr const char kTestMeasurementType[] = "test_measurement";
+constexpr const char kTestMeasurementUnit[] = "test_unit";
 }  // namespace
 
 TEST(MetricsMessagePublisherTest, TestGenerateMessage) {
@@ -51,10 +52,11 @@ TEST(MetricsMessagePublisherTest, TestGenerateMessage) {
   data.sample_count = dist(gen);
 
   MetricsMessage msg = MetricsMessagePublisher::GenerateStatisticMessage(
-    kTestNodeName, kTestMeasurementType, time1, time2, data);
+    kTestNodeName, kTestMeasurementType, kTestMeasurementUnit, time1, time2, data);
 
   EXPECT_EQ(kTestNodeName, msg.measurement_source_name);
   EXPECT_EQ(kTestMeasurementType, msg.metrics_source);
+  EXPECT_EQ(kTestMeasurementUnit, msg.unit);
   EXPECT_EQ(time1, msg.window_start);
   EXPECT_EQ(time2, msg.window_stop);
 
