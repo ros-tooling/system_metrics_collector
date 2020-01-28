@@ -71,18 +71,19 @@ ros2 launch system_metrics_collector system_cpu_and_memory.launch.py
 ```
 
 ### Manual Execution
-You can run the example main which will manually start the system CPU, system memory, process
-CPU and process memory measurement nodes.
+You can run the example_main executable which will manually start the system CPU, system memory, process
+CPU and process memory measurement nodes. This also sets all the nodes' verbosity levels to DEBUG, which
+will print collection and status information to the console. Using [ros2run]
 ```sh
-ros2 run system_metrics_collector main
+ros2 run system_metrics_collector example_main
 ```
 
 Change `publish_period` or `measurement_period` using `--ros-args`:
 ```sh
-ros2 run system_metrics_collector main --ros-args -p measurement_period:=100 -publish_period 1000
+ros2 run system_metrics_collector example_main --ros-args -p measurement_period:=100 -publish_period 1000
 ```
 
-This node will generate 4 nodes:
+This node will generate 4 nodes. Using [ros2node]
 ```sh
 ros2 node list
 /linuxCpuCollector
@@ -199,6 +200,9 @@ Transitioning successful
 [system_cpu_and_memory_configuration_example]: share/system_metrics_collector/examples/system_cpu_and_memory_configuration_example.launch.py
 [ros2launch]: https://github.com/ros2/launch
 [demo_nodes_cpp]: https://github.com/ros2/demos/tree/master/demo_nodes_cpp
-[ros2topic]: https://github.com/ros2/ros2cli/tree/master/ros2topic
-[ros2param]: https://github.com/ros2/ros2cli/tree/master/ros2param
+[ros2launch]: https://github.com/ros2/launch
 [ros2lifecycle]: https://github.com/ros2/ros2cli/tree/master/ros2lifecycle
+[ros2node]: https://github.com/ros2/ros2cli/tree/master/ros2node
+[ros2param]: https://github.com/ros2/ros2cli/tree/master/ros2param
+[ros2run]: https://github.com/ros2/ros2cli/tree/master/ros2run
+[ros2topic]: https://github.com/ros2/ros2cli/tree/master/ros2topic

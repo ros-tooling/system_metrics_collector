@@ -125,7 +125,7 @@ PeriodicMeasurementNode::on_shutdown(const rclcpp_lifecycle::State & state)
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 PeriodicMeasurementNode::on_error(const rclcpp_lifecycle::State & state)
 {
-  RCLCPP_DEBUG(this->get_logger(), "on_shutdown");
+  RCLCPP_DEBUG(this->get_logger(), "on_error");
   Stop();
   if (publisher_) {
     publisher_.reset();
@@ -139,13 +139,13 @@ bool PeriodicMeasurementNode::SetupStop()
   assert(publish_timer_ != nullptr);
   assert(publisher_ != nullptr);
 
-  measurement_timer_->cancel();
-  measurement_timer_.reset();
+  publisher_->on_deactivate();
 
   publish_timer_->cancel();
-  publish_timer_.reset();
+  measurement_timer_->cancel();
 
-  publisher_->on_deactivate();
+  publish_timer_.reset();
+  measurement_timer_.reset();
 
   return true;
 }

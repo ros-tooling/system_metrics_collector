@@ -13,8 +13,6 @@
 // limitations under the License.
 
 
-#include <functional>
-
 #include <chrono>
 #include <memory>
 #include <string>
@@ -27,20 +25,24 @@
 #include "../../src/system_metrics_collector/linux_process_cpu_measurement_node.hpp"
 #include "../../src/system_metrics_collector/linux_process_memory_measurement_node.hpp"
 
-
+/**
+ * Sets a node's logging verbosity to debug.
+ *
+ * @param node the node to set to debug
+ */
 void set_node_to_debug(
-  const system_metrics_collector::PeriodicMeasurementNode * node,
-  const char * node_type)
+  const system_metrics_collector::PeriodicMeasurementNode & node)
 {
-  const auto r = rcutils_logging_set_logger_level(node->get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
+  const auto r = rcutils_logging_set_logger_level(node.get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
   if (r != 0) {
-    RCUTILS_LOG_ERROR_NAMED("main", "Unable to set debug logging for the %s node: %s\n", node_type,
+    RCUTILS_LOG_ERROR_NAMED("main", "Unable to set debug logging for the %s node: %s\n",
+      node.get_name(),
       rcutils_get_error_string().str);
   }
 }
 
 /**
- * This is current a "test" main in order to manually test the measurement nodes.
+ * Creates and manually executes metric collector nodes.
  *
  * @param argc
  * @param argv
@@ -66,35 +68,38 @@ int main(int argc, char ** argv)
     "linuxProcessMemoryCollector");
 
   rclcpp::executors::MultiThreadedExecutor ex;
+
+  // manually configure lifecycle nodes in order to activate
   cpu_node->configure();
-  cpu_node->activate();
-
   mem_node->configure();
-  mem_node->activate();
-
   process_cpu_node->configure();
-  process_cpu_node->activate();
-
   process_mem_node->configure();
+
+  // once spinning, manual activation allows the collection of data to start automatically
+  cpu_node->activate();
+  mem_node->activate();
+  process_cpu_node->activate();
   process_mem_node->activate();
 
-  set_node_to_debug(cpu_node.get(), "cpu");
-  set_node_to_debug(mem_node.get(), "memory");
-  set_node_to_debug(process_cpu_node.get(), "process cpu");
-  set_node_to_debug(process_mem_node.get(), "process memory");
+  set_node_to_debug(*cpu_node);
+  set_node_to_debug(*mem_node);
+  set_node_to_debug(*process_cpu_node);
+  set_node_to_debug(*process_mem_node);
 
   ex.add_node(cpu_node->get_node_base_interface());
   ex.add_node(mem_node->get_node_base_interface());
   ex.add_node(process_cpu_node->get_node_base_interface());
   ex.add_node(process_mem_node->get_node_base_interface());
+
   ex.spin();
 
-  rclcpp::shutdown();
-
+  // cleanup the lifecycle nodes
   cpu_node->shutdown();
   mem_node->shutdown();
   process_cpu_node->shutdown();
   process_mem_node->shutdown();
+
+  rclcpp::shutdown();
 
   return 0;
 }
