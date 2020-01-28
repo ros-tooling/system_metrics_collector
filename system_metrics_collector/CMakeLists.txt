@@ -63,9 +63,9 @@ rclcpp_components_register_nodes(system_metrics_collector
   system_metrics_collector::LinuxProcessMemoryMeasurementNode)
 ament_export_libraries(system_metrics_collector)
 
-add_executable(main src/system_metrics_collector/main.cpp)
-target_link_libraries(main system_metrics_collector)
-ament_target_dependencies(main)
+add_executable(example_main src/system_metrics_collector/example_main.cpp)
+target_link_libraries(example_main system_metrics_collector)
+ament_target_dependencies(example_main)
 
 add_executable(linux_cpu_collector src/system_metrics_collector/linux_cpu_collector.cpp)
 target_link_libraries(linux_cpu_collector system_metrics_collector)
@@ -154,7 +154,7 @@ install(DIRECTORY
 
 # Install entry points
 install(TARGETS
-  main
+  example_main
   DESTINATION
   lib/${PROJECT_NAME}
 )
