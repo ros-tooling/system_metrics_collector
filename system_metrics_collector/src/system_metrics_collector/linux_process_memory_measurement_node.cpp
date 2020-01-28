@@ -90,6 +90,12 @@ std::string LinuxProcessMemoryMeasurementNode::GetMetricName() const
   return pid_ + kMetricName;
 }
 
+const std::string & LinuxProcessMemoryMeasurementNode::GetMetricUnit() const
+{
+  static const std::string unit_name{"percent"};
+  return unit_name;
+}
+
 uint64_t GetProcessUsedMemory(const std::string & statm_process_file_contents)
 {
   std::istringstream ss{statm_process_file_contents};

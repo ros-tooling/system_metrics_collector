@@ -175,11 +175,13 @@ void PeriodicMeasurementNode::PublishStatisticMessage()
   assert(publisher_ != nullptr);
   assert(publisher_->is_activated());
 
-  const auto msg = GenerateStatisticMessage(get_name(),
-      GetMetricName(),
-      window_start_,
-      now(),
-      GetStatisticsResults());
+  const auto msg = GenerateStatisticMessage(
+    get_name(),
+    GetMetricName(),
+    GetMetricUnit(),
+    window_start_,
+    now(),
+    GetStatisticsResults());
   publisher_->publish(msg);
 }
 

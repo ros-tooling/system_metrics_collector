@@ -83,6 +83,12 @@ std::string LinuxProcessCpuMeasurementNode::GetMetricName() const
   return metric_name_;
 }
 
+const std::string & LinuxProcessCpuMeasurementNode::GetMetricUnit() const
+{
+  static const std::string unit_name{"percent"};
+  return unit_name;
+}
+
 }   // namespace system_metrics_collector
 
 

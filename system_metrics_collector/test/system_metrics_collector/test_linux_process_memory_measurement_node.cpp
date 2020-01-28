@@ -32,6 +32,9 @@ using lifecycle_msgs::msg::State;
 
 namespace
 {
+constexpr const char kTestNodeName[] = "test_periodic_node";
+constexpr const char kTestMetricUnit[] = "percent";
+
 constexpr const char kTestStatmLine[] = "2084389 308110 7390 1 0 366785 0\n";
 }
 
@@ -47,6 +50,11 @@ public:
   std::string GetMetricName() const override
   {
     return LinuxProcessMemoryMeasurementNode::GetMetricName();
+  }
+
+  const std::string & GetMetricUnit() const override
+  {
+    return LinuxProcessMemoryMeasurementNode::GetMetricUnit();
   }
 };
 
@@ -68,7 +76,7 @@ public:
       std::chrono::duration_cast<std::chrono::milliseconds>(10s).count());
 
     test_node_ = std::make_shared<TestLinuxProcessMemoryMeasurementNode>(
-      "test_periodic_node", options);
+      kTestNodeName, options);
 
     ASSERT_FALSE(test_node_->IsStarted());
     ASSERT_EQ(State::PRIMARY_STATE_UNCONFIGURED, test_node_->get_current_state().id());
@@ -108,6 +116,10 @@ TEST(TestLinuxProcessMemoryMeasurement, TestGetProcessUsedMemory) {
 
 TEST_F(LinuxProcessMemoryMeasurementTestFixture, TestGetMetricName) {
   const auto pid = system_metrics_collector::GetPid();
-
   ASSERT_EQ(std::to_string(pid) + "_memory_percent_used", test_node_->GetMetricName());
+}
+
+TEST_F(LinuxProcessMemoryMeasurementTestFixture, TestGetMetricUnit) {
+  const auto pid = system_metrics_collector::GetPid();
+  ASSERT_EQ(kTestMetricUnit, test_node_->GetMetricUnit());
 }

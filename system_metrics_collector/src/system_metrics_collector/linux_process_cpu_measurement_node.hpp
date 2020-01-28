@@ -89,6 +89,13 @@ protected:
    */
   std::string GetMetricName() const override;
 
+  /**
+   * Returns the name of the measurement unit of this metric
+   *
+   * @return a string of the name of the measurement unit of this metric
+   */
+  const std::string & GetMetricUnit() const override;
+
 private:
   /**
    * Performs a single measurement of CPU data by using clock_gettime().

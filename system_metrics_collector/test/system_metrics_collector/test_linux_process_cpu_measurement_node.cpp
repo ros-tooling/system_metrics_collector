@@ -43,6 +43,7 @@ using moving_average_statistics::StatisticData;
 namespace
 {
 constexpr const char kTestNodeName[] = "test_measure_linux_process_cpu";
+constexpr const char kTestMetricUnit[] = "percent";
 }
 
 class MockLinuxProcessCpuMeasurementNode : public system_metrics_collector::
@@ -196,6 +197,7 @@ private:
     // check source names
     EXPECT_EQ(kTestNodeName, msg.measurement_source_name);
     EXPECT_EQ(expected_metric_name_, msg.metrics_source);
+    EXPECT_EQ(kTestMetricUnit, msg.unit);
 
     // check measurements
     const ExpectedStatistics & expected_stat = expected_stats_[times_received_];

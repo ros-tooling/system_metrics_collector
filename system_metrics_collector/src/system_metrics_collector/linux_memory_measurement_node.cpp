@@ -58,5 +58,10 @@ std::string LinuxMemoryMeasurementNode::GetMetricName() const
   return kMeasurementType;
 }
 
+const std::string & LinuxMemoryMeasurementNode::GetMetricUnit() const
+{
+  static const std::string unit_name{"percent"};
+  return unit_name;
+}
 
 }  // namespace system_metrics_collector

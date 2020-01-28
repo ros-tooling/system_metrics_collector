@@ -46,6 +46,7 @@ namespace
 {
 constexpr const char kTestNodeName[] = "test_measure_linux_memory";
 constexpr const char kTestMetricName[] = "system_memory_percent_used";
+constexpr const char kTestMetricUnit[] = "percent";
 
 constexpr const std::array<const char *, 10> kSamples = {
   test_constants::kFullSample,
@@ -261,6 +262,7 @@ private:
     // check source names
     EXPECT_EQ(kTestNodeName, msg.measurement_source_name);
     EXPECT_EQ(kTestMetricName, msg.metrics_source);
+    EXPECT_EQ(kTestMetricUnit, msg.unit);
 
     // check measurements
     const ExpectedStatistics & expected_stat = expected_stats_[times_received_];
