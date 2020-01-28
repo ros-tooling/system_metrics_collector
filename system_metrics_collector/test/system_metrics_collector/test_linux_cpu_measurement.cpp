@@ -50,7 +50,6 @@ namespace
 {
 constexpr const char kTestNodeName[] = "test_measure_linux_cpu";
 constexpr const char kTestMetricName[] = "system_cpu_percent_used";
-constexpr const char kTestMetricUnit[] = "percent";
 }  // namespace
 
 /**
@@ -192,7 +191,7 @@ private:
     // check source names
     EXPECT_EQ(kTestNodeName, msg.measurement_source_name);
     EXPECT_EQ(kTestMetricName, msg.metrics_source);
-    EXPECT_EQ(kTestMetricUnit, msg.unit);
+    EXPECT_EQ(system_metrics_collector::collector_node_constants::kPercentUnitName, msg.unit);
 
     // check measurements
     const ExpectedStatistics & expected_stat = expected_stats_[times_received_];

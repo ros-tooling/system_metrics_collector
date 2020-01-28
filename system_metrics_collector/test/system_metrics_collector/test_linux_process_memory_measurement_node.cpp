@@ -33,8 +33,6 @@ using lifecycle_msgs::msg::State;
 namespace
 {
 constexpr const char kTestNodeName[] = "test_periodic_node";
-constexpr const char kTestMetricUnit[] = "percent";
-
 constexpr const char kTestStatmLine[] = "2084389 308110 7390 1 0 366785 0\n";
 }
 
@@ -121,5 +119,6 @@ TEST_F(LinuxProcessMemoryMeasurementTestFixture, TestGetMetricName) {
 
 TEST_F(LinuxProcessMemoryMeasurementTestFixture, TestGetMetricUnit) {
   const auto pid = system_metrics_collector::GetPid();
-  ASSERT_EQ(kTestMetricUnit, test_node_->GetMetricUnit());
+  ASSERT_EQ(system_metrics_collector::collector_node_constants::kPercentUnitName,
+    test_node_->GetMetricUnit());
 }
