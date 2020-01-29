@@ -94,18 +94,17 @@ def check_for_statistic_publications(args=None):
     rclpy.shutdown()
 
     if not node.received_all_published_stats:
-        Exception("    check_for_statistic_publications failed")
+        Exception("check_for_statistic_publications failed")
     else:
         print_test("check_for_statistic_publications success")
 
 def main(args=None):
     split_command = launch_command.split()
-    print_test("Starting tests: executing: " + str(split_command))
-
-    #todo launch the ros2 process
+    print_test("Executing: " + str(split_command))
     process = subprocess.Popen(split_command)
     time.sleep(1)
 
+    print_test("Starting tests")
     #check_for_expected_nodes()
     check_for_statistic_publications(args)
     check_lifecycle_node_enumeration()
