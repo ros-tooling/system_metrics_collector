@@ -22,14 +22,16 @@ and listener. All measurements are published to the default /system_metrics topi
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import ComposableNodeContainer, LifecycleNode
 from launch_ros.descriptions import ComposableNode
-from launch.substitutions import LaunchConfiguration
+
 
 MEASUREMENT_PERIOD = 'measurement_period'
 PUBLISH_PERIOD = 'publish_period'
 default_measurement_period_in_ms = '1000'
 default_publish_period_in_ms = '10000'
+
 
 def generate_launch_description():
     """Launch example instrumented nodes."""
