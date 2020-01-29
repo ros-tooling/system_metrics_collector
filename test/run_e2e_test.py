@@ -1,11 +1,15 @@
-
+import os
 from typing import List, Tuple
+import signal
+import subprocess
+import time
 
 import rclpy
 from rclpy.node import Node
-from metrics_statistics_msgs.msg import MetricsMessage
 from rclpy.task import Future
-import os
+
+from metrics_statistics_msgs.msg import MetricsMessage
+
 
 expected_lifecycle_nodes = [ "/linux_system_cpu_collector",
                              "/linux_system_memory_collector",
@@ -16,6 +20,12 @@ expected_lifecycle_nodes = [ "/linux_system_cpu_collector",
                              ]
 
 expected_lifecycle_state = "active [3]"
+launch_command = "ros2 launch system_metrics_collector talker_listener_example.launch.py"
+
+def print_test(message: str):
+    print("========================")
+    print(message)
+    print("========================")
 
 class StatisticsListener(Node):
 
@@ -23,6 +33,7 @@ class StatisticsListener(Node):
         super().__init__('statisticsListener')
         self.sub = self.create_subscription(MetricsMessage, 'system_metrics', self.callback, 1)
         self.future = future
+        self.received_all_published_stats = False
 
     def callback(self, msg):
         print(str(msg.measurement_source_name) + str(msg.metrics_source))
@@ -49,6 +60,8 @@ def check_for_expected_nodes(args=None):
 
     if expected_count != actual_count:
         raise Exception("Failed to enumerate expected nodes. Found: ", actual_nodes)
+    else:
+        print_test("check_for_expected_nodes sucess")
 
 
 # check lifecycle node states (activated)
@@ -57,7 +70,8 @@ def check_lifecycle_node_enumeration():
     output = stream.read().splitlines()
     if output != expected_lifecycle_nodes:
         raise Exception("check_lifecycle_node_enumeration failed")
-
+    else:
+        print_test("check_lifecycle_node_enumeration success")
 
 # check lifecycle node states (activated)
 def check_lifecycle_node_state():
@@ -66,10 +80,11 @@ def check_lifecycle_node_state():
         stream = os.popen("ros2 lifecycle get " + str(lifecycle_node))
         output = stream.read().rstrip()
         if output != expected_lifecycle_state:
-            raise Exception("check_lifecycle_node_state:" + lifecycle_node + " not in expected state: " + str(output))
+                raise Exception("check_lifecycle_node_state:" + lifecycle_node + " not in expected state: " + str(output))
 
+    print_test("check_for_statistic_publications success")
 
-def check_for_statistic_publications(args=None) -> bool:
+def check_for_statistic_publications(args=None):
 
     future = Future()
     rclpy.init(args=args)
@@ -78,14 +93,27 @@ def check_for_statistic_publications(args=None) -> bool:
     node.destroy_node()
     rclpy.shutdown()
 
+    if not node.received_all_published_stats:
+        Exception("    check_for_statistic_publications failed")
+    else:
+        print_test("check_for_statistic_publications success")
 
 def main(args=None):
+    split_command = launch_command.split()
+    print_test("Starting tests: executing: " + str(split_command))
 
-    check_for_expected_nodes()
+    #todo launch the ros2 process
+    process = subprocess.Popen(split_command)
+    time.sleep(1)
+
+    #check_for_expected_nodes()
     check_for_statistic_publications(args)
     check_lifecycle_node_enumeration()
     check_lifecycle_node_state()
 
+    print_test("Finished tests. Sending SIGINT")
+    os.kill(process.pid, signal.SIGINT)
+    time.sleep(2)
 
 if __name__== "__main__":
     main()
