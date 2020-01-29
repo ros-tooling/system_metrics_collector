@@ -21,18 +21,41 @@ and listener. All measurements are published to the default /system_metrics topi
 """
 
 from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
 from launch_ros.actions import ComposableNodeContainer, LifecycleNode
 from launch_ros.descriptions import ComposableNode
+from launch.substitutions import LaunchConfiguration
 
+MEASUREMENT_PERIOD = 'measurement_period'
+PUBLISH_PERIOD = 'publish_period'
+default_measurement_period_in_ms = '1000'
+default_publish_period_in_ms = '10000'
 
 def generate_launch_description():
     """Launch example instrumented nodes."""
+    launch_description = LaunchDescription()
+
+    launch_description.add_action(DeclareLaunchArgument(
+        MEASUREMENT_PERIOD,
+        default_value=default_measurement_period_in_ms,
+        description='The period (in ms) between each subsequent metrics measurement made'
+                    ' by the collector nodes'))
+    launch_description.add_action(DeclareLaunchArgument(
+        PUBLISH_PERIOD,
+        default_value=default_publish_period_in_ms,
+        description='The period (in ms) between each subsequent metrics message published'
+                    ' by the collector nodes'))
+    node_parameters = [
+        {MEASUREMENT_PERIOD: LaunchConfiguration(MEASUREMENT_PERIOD)},
+        {PUBLISH_PERIOD: LaunchConfiguration(PUBLISH_PERIOD)}]
+
     # Collect, aggregate, and measure system CPU % used
     system_cpu_node = LifecycleNode(
         package='system_metrics_collector',
         node_name='linux_system_cpu_collector',
         node_executable='linux_cpu_collector',
         output='screen',
+        parameters=node_parameters,
     )
 
     # Collect, aggregate, and measure system memory % used
@@ -41,6 +64,7 @@ def generate_launch_description():
         node_name='linux_system_memory_collector',
         node_executable='linux_memory_collector',
         output='screen',
+        parameters=node_parameters,
     )
 
     # Instrument the listener demo to collect, aggregate, and publish it's CPU % + memory % used
@@ -58,11 +82,15 @@ def generate_launch_description():
             ComposableNode(
                 package='system_metrics_collector',
                 node_plugin='system_metrics_collector::LinuxProcessCpuMeasurementNode',
-                node_name='listener_process_cpu_node'),
+                node_name='listener_process_cpu_node',
+                parameters=node_parameters,
+            ),
             ComposableNode(
                 package='system_metrics_collector',
                 node_plugin='system_metrics_collector::LinuxProcessMemoryMeasurementNode',
-                node_name='listener_process_memory_node')
+                node_name='listener_process_memory_node',
+                parameters=node_parameters,
+            )
         ],
         output='screen',
     )
@@ -82,16 +110,22 @@ def generate_launch_description():
             ComposableNode(
                 package='system_metrics_collector',
                 node_plugin='system_metrics_collector::LinuxProcessCpuMeasurementNode',
-                node_name='talker_process_cpu_node'),
+                node_name='talker_process_cpu_node',
+                parameters=node_parameters,
+            ),
             ComposableNode(
                 package='system_metrics_collector',
                 node_plugin='system_metrics_collector::LinuxProcessMemoryMeasurementNode',
-                node_name='talker_process_memory_node')
+                node_name='talker_process_memory_node',
+                parameters=node_parameters,
+            )
         ],
         output='screen',
     )
 
-    return LaunchDescription([system_cpu_node,
-                              system_memory_node,
-                              listener_container,
-                              talker_container])
+    launch_description.add_action(system_memory_node)
+    launch_description.add_action(system_cpu_node)
+    launch_description.add_action(listener_container)
+    launch_description.add_action(talker_container)
+
+    return launch_description
