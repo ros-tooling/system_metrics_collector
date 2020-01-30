@@ -15,4 +15,4 @@ jobs:
         with:
           python-version: '3.x' # Semantic version range syntax or exact version of a Python version
       - name: Run hello world
-        run: python test/hello_world.py
+        run: python hello_world.py
