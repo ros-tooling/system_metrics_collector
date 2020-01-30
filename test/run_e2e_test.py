@@ -22,12 +22,12 @@ from rclpy.node import Node
 from rclpy.task import Future
 
 
-EXPECTED_LIFECYCLE_NODES = ['/linux_system_cpu_collector',
-                            '/linux_system_memory_collector',
-                            '/listener_process_cpu_node',
-                            '/listener_process_memory_node',
-                            '/talker_process_cpu_node',
-                            '/talker_process_memory_node']
+EXPECTED_LIFECYCLE_NODES = frozenset(['/linux_system_cpu_collector',
+                                      '/linux_system_memory_collector',
+                                      '/listener_process_cpu_node',
+                                      '/listener_process_memory_node',
+                                      '/talker_process_cpu_node',
+                                      '/talker_process_memory_node'])
 EXPECTED_LIFECYCLE_STATE = 'active [3]'
 EXPECTED_TOPIC = '/system_metrics'
 LIST_SERVICES_COMMAND = 'ros2 service list'
@@ -111,7 +111,7 @@ def check_for_expected_nodes(enumeration_attempts: int, args=None) -> None:
     try:
         rclpy.init(args=args)
         node = rclpy.create_node('check_for_expected_nodes_test')
-        expected_nodes = ['/listener', '/talker'] + EXPECTED_LIFECYCLE_NODES
+        expected_nodes = ['/listener', '/talker'] + list(EXPECTED_LIFECYCLE_NODES)
 
         for _ in range(enumeration_attempts):
             observed_nodes = node.get_node_names_and_namespaces()
@@ -138,7 +138,7 @@ def check_lifecycle_node_enumeration() -> None:
     """
     output = execute_command(LIST_LIFECYCLE_NODES_COMMAND.split(' '))
 
-    if output == EXPECTED_LIFECYCLE_NODES:
+    if output.sort() == list(EXPECTED_LIFECYCLE_NODES).sort():
         logging.info('check_lifecycle_node_enumeration success')
     else:
         raise SystemMetricsEnd2EndTestException('check_lifecycle_node_enumeration failed: '
@@ -196,7 +196,7 @@ def check_for_statistic_publications(args=None) -> None:
     try:
         future = Future()
         rclpy.init(args=args)
-        node = StatisticsListener(future, EXPECTED_LIFECYCLE_NODES)
+        node = StatisticsListener(future, list(EXPECTED_LIFECYCLE_NODES))
         rclpy.spin_until_future_complete(node, future, timeout_sec=TIMEOUT_SECONDS)
 
         if node.received_all_published_stats:
