@@ -5,7 +5,7 @@ on:
   # Waiting for this test to pass is recommended, but contributors can use their discretion whether they want to or not.
   schedule:
     # Run every morning Pacific Time. Random hour and minute to avoid creating excess traffic during popular times.
-    - cron:  '17 17 * * *'
+    - cron:  '17 27 * * *'
 
 jobs:
   build_and_test:
@@ -17,7 +17,7 @@ jobs:
           package-name: system_metrics_collector
       - uses: actions/setup-python@v1
         with:
-          python-version: '3.x' # Semantic version range syntax or exact version of a Python version
+          python-version: '3.x'
       - uses: actions/checkout@v2
       - name: Run end-to-end test
-        run: python test/run_e2e_test.py
+        run: source ros_ws/install/setup.bash && python test/run_e2e_test.py
