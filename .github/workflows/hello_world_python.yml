@@ -5,7 +5,7 @@ on:
   # Waiting for this test to pass is recommended, but contributors can use their discretion whether they want to or not.
   schedule:
     # Run every morning Pacific Time. Random hour and minute to avoid creating excess traffic during popular times.
-    - cron:  '17 27 * * *'
+    - cron:  '18 28 * * *'
 
 jobs:
   build_and_test:
@@ -14,5 +14,5 @@ jobs:
       - uses: actions/setup-python@v1
         with:
           python-version: '3.x' # Semantic version range syntax or exact version of a Python version
-      - name: Run end-to-end test
+      - name: Run hello world
         run: python ./test/hello_world.py
