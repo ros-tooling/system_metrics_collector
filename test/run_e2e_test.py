@@ -113,7 +113,7 @@ def check_for_expected_nodes(enumeration_attempts: int, args=None) -> None:
         node = rclpy.create_node('check_for_expected_nodes_test')
         expected_nodes = ['/listener', '/talker'] + EXPECTED_LIFECYCLE_NODES
 
-        for _ in range(MAX_ENUMERATION_ATTEMPTS):
+        for _ in range(enumeration_attempts):
             observed_nodes = node.get_node_names_and_namespaces()
             # an observed_node does not contain the preceding '/'
             observed_nodes = ['/' + node[0] for node in observed_nodes]
