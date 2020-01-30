@@ -1,0 +1,18 @@
+name: Hello World Python
+on:
+  pull_request:
+  # Running on pull requests to catch breaking changes as early as possible.
+  # Waiting for this test to pass is recommended, but contributors can use their discretion whether they want to or not.
+  schedule:
+    # Run every morning Pacific Time. Random hour and minute to avoid creating excess traffic during popular times.
+    - cron:  '17 27 * * *'
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/setup-python@v1
+        with:
+          python-version: '3.x' # Semantic version range syntax or exact version of a Python version
+      - name: Run end-to-end test
+        run: python ./test/run_e2e_test.py
