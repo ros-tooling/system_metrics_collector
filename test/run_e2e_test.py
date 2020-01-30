@@ -75,7 +75,7 @@ class StatisticsListener(Node):
         node_name = '/' + msg.measurement_source_name
 
         if node_name in self.expected_lifecycle_nodes:
-            logging.debug('received message from ' + node_name)
+            logging.debug('received message from %s', node_name)
             self.expected_lifecycle_nodes.remove(node_name)
 
         if not self.expected_lifecycle_nodes:
@@ -95,9 +95,9 @@ def execute_command(command_list: List[str], timeout=TIMEOUT_SECONDS) -> List[st
     :param timeout: raise subprocess.TimeoutExpired if the input command exceeds the timeout
     :return: List[str] of the command output
     """
-    logging.debug('execute_command: ' + str(command_list))
-    return subprocess.check_output(command_list, timeout=timeout)\
-        .decode(sys.stdout.encoding).splitlines()
+    logging.debug('execute_command: %s', command_list)
+    return (subprocess.check_output(command_list, timeout=timeout)
+            .decode(sys.stdout.encoding).splitlines())
 
 
 def check_for_expected_nodes(enumeration_attempts: int, args=None) -> None:
@@ -161,7 +161,7 @@ def check_lifecycle_node_state() -> None:
                                                     ' for node: ' + lifecycle_node)
 
         if output[0] == EXPECTED_LIFECYCLE_STATE:
-            logging.debug(lifecycle_node + ' in expected state')
+            logging.debug('%s in expected state', lifecycle_node)
 
         else:
             raise SystemMetricsEnd2EndTestException('check_lifecycle_node_state:'
@@ -233,7 +233,7 @@ def main(args=None) -> int:
     try:
         return_value = RETURN_VALUE_FAILURE
         split_command = LAUNCH_COMMAND.split()
-        logging.debug('Executing: ' + str(split_command))
+        logging.debug('Executing: %s', split_command)
         process = subprocess.Popen(split_command)
 
         logging.info('Starting tests')
@@ -243,7 +243,6 @@ def main(args=None) -> int:
         check_lifecycle_node_state()
         check_for_expected_topic(EXPECTED_TOPIC)
         check_for_statistic_publications(args)
-
         logging.info('====All tests succeeded====')
         return_value = RETURN_VALUE_SUCCESS
 
