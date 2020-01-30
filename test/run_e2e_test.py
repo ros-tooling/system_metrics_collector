@@ -1,7 +1,10 @@
 """
 End to end tests for the system_metrics_collector ROS2 package.
 
-These tests assume that the relevant ROS2 install and project has been sourced.
+These tests launch the talker_listener_example and use ROS2 to inspect if the
+expected nodes are active and publishing data. To run these tests ensure that
+ROS2 is installed, with the system_metrics_collector package the relevant
+setup.bash has been sourced.
 """
 
 import logging
@@ -26,12 +29,17 @@ EXPECTED_LIFECYCLE_NODES = ['/linux_system_cpu_collector',
                             '/talker_process_cpu_node',
                             '/talker_process_memory_node']
 EXPECTED_LIFECYCLE_STATE = 'active [3]'
+EXPECTED_TOPIC = '/system_metrics'
+LIST_SERVICES_COMMAND = 'ros2 service list'
 LAUNCH_COMMAND = 'ros2 launch system_metrics_collector talker_listener_example.launch.py'
 LIST_LIFECYCLE_NODES_COMMAND = 'ros2 lifecycle nodes'
+GET_LIFECYCLE_STATE_COMMAND = 'ros2 lifecycle get '
+TOPIC_LIST_COMMAND = 'ros2 topic list'
 TIMEOUT_SECONDS = 20
 QOS_DEPTH = 1
 RETURN_VALUE_FAILURE = 1
 RETURN_VALUE_SUCCESS = 1
+MAX_ENUMERATION_ATTEMPTS = 5
 
 
 class SystemMetricsEnd2EndTestException(Exception):
@@ -47,7 +55,7 @@ class StatisticsListener(Node):
         super().__init__('statisticsListener')
 
         self.sub = self.create_subscription(MetricsMessage,
-                                            'system_metrics',
+                                            EXPECTED_TOPIC,
                                             self.listener_callback,
                                             QOS_DEPTH)
         self.future = future
@@ -67,33 +75,56 @@ class StatisticsListener(Node):
         node_name = '/' + msg.measurement_source_name
 
         if node_name in self.expected_lifecycle_nodes:
+            logging.debug('received message from ' + node_name)
             self.expected_lifecycle_nodes.remove(node_name)
 
         if not self.expected_lifecycle_nodes:
+            logging.debug('received all expected messages')
             self.received_all_published_stats = True
             self.future.set_result(self.received_all_published_stats)
 
 
-def check_for_expected_nodes(args=None) -> None:
+def execute_command(command_list: List[str], timeout=TIMEOUT_SECONDS) -> List[str]:
+    """
+    Execute a command and return its output.
+
+    This uses subprocess.check_output to raise a CalledProcessError for any non-zero command
+    return.
+
+    :param command_list: input command to execute
+    :param timeout: raise subprocess.TimeoutExpired if the input command exceeds the timeout
+    :return: List[str] of the command output
+    """
+    logging.debug('execute_command: ' + str(command_list))
+    return subprocess.check_output(command_list, timeout=timeout)\
+        .decode(sys.stdout.encoding).splitlines()
+
+
+def check_for_expected_nodes(enumeration_attempts: int, args=None) -> None:
     """
     Check that all expected nodes can be found.
 
+    :param enumeration_attempts: number of attempts to enumerate expected nodes, otherwise
+    raise a SystemMetricsEnd2EndTestException if the attempts have been exceeded
     :param args:
     """
     try:
         rclpy.init(args=args)
         node = rclpy.create_node('check_for_expected_nodes_test')
-
         expected_nodes = ['/listener', '/talker'] + EXPECTED_LIFECYCLE_NODES
-        observed_nodes = node.get_node_names_and_namespaces()
-        # observed_nodes node does not contain the preceeding '/'
-        observed_nodes = ['/' + node[0] for node in observed_nodes]
 
-        if set(expected_nodes).issubset(set(observed_nodes)):
-            logging.info('check_for_expected_nodes success')
-        else:
-            raise SystemMetricsEnd2EndTestException('Failed to enumerate expected nodes.'
-                                                    ' Found: ', observed_nodes)
+        for _ in range(MAX_ENUMERATION_ATTEMPTS):
+            observed_nodes = node.get_node_names_and_namespaces()
+            # an observed_node does not contain the preceding '/'
+            observed_nodes = ['/' + node[0] for node in observed_nodes]
+
+            if set(expected_nodes).issubset(set(observed_nodes)):
+                logging.debug('check_for_expected_nodes success')
+                return
+            time.sleep(1)  # don't spam
+
+        raise SystemMetricsEnd2EndTestException('Failed to enumerate expected nodes.'
+                                                ' Found: ', observed_nodes)
     finally:
         node.destroy_node()
         rclpy.shutdown()
@@ -105,9 +136,7 @@ def check_lifecycle_node_enumeration() -> None:
 
     This requires the ros2lifecycle dependency.
     """
-    output = subprocess.check_output(LIST_LIFECYCLE_NODES_COMMAND.split(' '),
-                                     timeout=TIMEOUT_SECONDS)\
-        .decode(sys.stdout.encoding).splitlines()
+    output = execute_command(LIST_LIFECYCLE_NODES_COMMAND.split(' '))
 
     if output == EXPECTED_LIFECYCLE_NODES:
         logging.info('check_lifecycle_node_enumeration success')
@@ -123,9 +152,9 @@ def check_lifecycle_node_state() -> None:
     This requires the ros2lifecycle dependency.
     """
     for lifecycle_node in EXPECTED_LIFECYCLE_NODES:
-        output = subprocess.check_output(['ros2', 'lifecycle', 'get', str(lifecycle_node)],
-                                         timeout=TIMEOUT_SECONDS)\
-            .decode(sys.stdout.encoding).splitlines()
+
+        output = execute_command((GET_LIFECYCLE_STATE_COMMAND
+                                  + str(lifecycle_node)).split(' '))
 
         if not output:
             raise SystemMetricsEnd2EndTestException('check_lifecycle_node_state: Unexpected output'
@@ -133,6 +162,7 @@ def check_lifecycle_node_state() -> None:
 
         if output[0] == EXPECTED_LIFECYCLE_STATE:
             logging.debug(lifecycle_node + ' in expected state')
+
         else:
             raise SystemMetricsEnd2EndTestException('check_lifecycle_node_state:'
                                                     + lifecycle_node +
@@ -140,6 +170,21 @@ def check_lifecycle_node_state() -> None:
                                                     + str(output))
 
     logging.info('check_lifecycle_node_state success')
+
+
+def check_for_expected_topic(expected_topic: str) -> None:
+    """
+    Check if the expected_topic exists.
+
+    :param expected_topic:
+    """
+    output = execute_command(TOPIC_LIST_COMMAND.split(' '))
+
+    if expected_topic in output:
+        logging.info('check_for_expected_topic success')
+    else:
+        raise SystemMetricsEnd2EndTestException('Unable to find expected topic: '
+                                                + str(output))
 
 
 def check_for_statistic_publications(args=None) -> None:
@@ -151,7 +196,7 @@ def check_for_statistic_publications(args=None) -> None:
     try:
         future = Future()
         rclpy.init(args=args)
-        node = StatisticsListener(future, set(EXPECTED_LIFECYCLE_NODES))
+        node = StatisticsListener(future, EXPECTED_LIFECYCLE_NODES)
         rclpy.spin_until_future_complete(node, future, timeout_sec=TIMEOUT_SECONDS)
 
         if node.received_all_published_stats:
@@ -165,8 +210,10 @@ def check_for_statistic_publications(args=None) -> None:
         rclpy.shutdown()
 
 
-def setup_logger():
+def setup_logger() -> None:
+    """Format and setup the logger."""
     logger = logging.getLogger()
+    # setting to debug for end to end test soak
     logger.setLevel(logging.DEBUG)
 
     handler = logging.StreamHandler(sys.stdout)
@@ -184,22 +231,20 @@ def main(args=None) -> int:
     :return: 0 if all tests pass, 1 if any fail
     """
     try:
-        setup_logger()
-
         return_value = RETURN_VALUE_FAILURE
         split_command = LAUNCH_COMMAND.split()
-        logging.info('Executing: ' + str(split_command))
+        logging.debug('Executing: ' + str(split_command))
         process = subprocess.Popen(split_command)
-        time.sleep(2)
 
         logging.info('Starting tests')
 
-        check_for_expected_nodes()
+        check_for_expected_nodes(MAX_ENUMERATION_ATTEMPTS)
         check_lifecycle_node_enumeration()
         check_lifecycle_node_state()
+        check_for_expected_topic(EXPECTED_TOPIC)
         check_for_statistic_publications(args)
 
-        logging.info('All tests succeeded')
+        logging.info('====All tests succeeded====')
         return_value = RETURN_VALUE_SUCCESS
 
     except SystemMetricsEnd2EndTestException:
@@ -209,7 +254,7 @@ def main(args=None) -> int:
         logging.error('Caught unrelated error: ', exc_info=True)
 
     finally:
-        logging.info('Finished tests. Sending SIGINT')
+        logging.debug('Finished tests. Sending SIGINT')
         os.kill(process.pid, signal.SIGINT)
         process.wait(timeout=TIMEOUT_SECONDS)
 
@@ -217,5 +262,6 @@ def main(args=None) -> int:
 
 
 if __name__ == '__main__':
+    setup_logger()
     test_output = main()
     sys.exit(test_output)
