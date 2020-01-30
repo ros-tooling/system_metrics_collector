@@ -13,9 +13,10 @@ jobs:
     steps:
       - uses: ros-tooling/setup-ros@0.0.13
       - uses: ros-tooling/action-ros-ci@0.0.13
-      - uses: actions/setup-python@v1
         with:
           package-name: system_metrics_collector
+      - uses: actions/setup-python@v1
+        with:
           python-version: '3.x' # Semantic version range syntax or exact version of a Python version
       - name: Run end-to-end test
         run: python ./test/run_e2e_test.py
