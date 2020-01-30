@@ -16,4 +16,5 @@ jobs:
         with:
           package-name: system_metrics_collector
       - name: Run end-to-end test
-        run: python3 test/run_e2e_test.py
+        run: |
+          python3 ./test/run_e2e_test.py
