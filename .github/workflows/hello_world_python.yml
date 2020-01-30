@@ -14,5 +14,9 @@ jobs:
       - uses: actions/setup-python@v1
         with:
           python-version: '3.x' # Semantic version range syntax or exact version of a Python version
-      - name: Run hello world
+      - name: Run hello world 1
         run: python ./test/hello_world.py
+      - name: Run hello world 2
+        run: python hello_world.py
+      - name: Run hello world 3
+        run: python test/hello_world.py
