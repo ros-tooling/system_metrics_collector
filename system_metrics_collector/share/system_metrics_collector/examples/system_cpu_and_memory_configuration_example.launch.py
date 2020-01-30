@@ -32,11 +32,11 @@ PUBLISH_PERIOD = 'publish_period'
 PUBLISH_TOPIC = 'publish_topic'
 
 # Default argument values
-default_cpu_node_name = 'linux_cpu_collector'
-default_memory_node_name = 'linux_memory_collector'
-default_measurement_period_in_ms = '1000'
-default_publish_period_in_ms = '60000'
-default_publish_topic = 'system_metrics'
+DEFAULT_CPU_NODE_NAME = 'linux_cpu_collector'
+DEFAULT_MEMORY_NODE_NAME = 'linux_memory_collector'
+DEFAULT_MEASUREMENT_PERIOD_IN_MS = '1000'
+DEFAULT_PUBLISH_PERIOD_IN_MS = '60000'
+DEFAULT_PUBLISH_TOPIC = 'system_metrics'
 
 
 def generate_launch_description():
@@ -45,27 +45,27 @@ def generate_launch_description():
 
     ld.add_action(DeclareLaunchArgument(
         CPU_NODE_NAME,
-        default_value=default_cpu_node_name,
+        default_value=DEFAULT_CPU_NODE_NAME,
         description='A custom name for the node that collects the total CPU usage'
                     ' on a Linux system'))
     ld.add_action(DeclareLaunchArgument(
         MEMORY_NODE_NAME,
-        default_value=default_memory_node_name,
+        default_value=DEFAULT_MEMORY_NODE_NAME,
         description='A custom name for the node that collects the total memory usage'
                     ' on a Linux system'))
     ld.add_action(DeclareLaunchArgument(
         MEASUREMENT_PERIOD,
-        default_value=default_measurement_period_in_ms,
+        default_value=DEFAULT_MEASUREMENT_PERIOD_IN_MS,
         description='The period (in ms) between each subsequent metrics measurement made'
                     ' by the collector nodes'))
     ld.add_action(DeclareLaunchArgument(
         PUBLISH_PERIOD,
-        default_value=default_publish_period_in_ms,
+        default_value=DEFAULT_PUBLISH_PERIOD_IN_MS,
         description='The period (in ms) between each subsequent metrics message published'
                     ' by the collector nodes'))
     ld.add_action(DeclareLaunchArgument(
         PUBLISH_TOPIC,
-        default_value=default_publish_topic,
+        default_value=DEFAULT_PUBLISH_TOPIC,
         description='The name of the topic to which the collector nodes should publish'))
 
     node_parameters = [

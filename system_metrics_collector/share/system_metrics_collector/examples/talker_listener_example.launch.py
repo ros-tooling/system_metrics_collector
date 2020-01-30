@@ -29,8 +29,8 @@ from launch_ros.descriptions import ComposableNode
 
 MEASUREMENT_PERIOD = 'measurement_period'
 PUBLISH_PERIOD = 'publish_period'
-default_measurement_period_in_ms = '1000'
-default_publish_period_in_ms = '10000'
+DEFAULT_MEASUREMENT_PERIOD_IN_MS = '1000'
+DEFAULT_PUBLISH_PERIOD_IN_MS = '10000'
 
 
 def generate_launch_description():
@@ -39,12 +39,12 @@ def generate_launch_description():
 
     launch_description.add_action(DeclareLaunchArgument(
         MEASUREMENT_PERIOD,
-        default_value=default_measurement_period_in_ms,
+        default_value=DEFAULT_MEASUREMENT_PERIOD_IN_MS,
         description='The period (in ms) between each subsequent metrics measurement made'
                     ' by the collector nodes'))
     launch_description.add_action(DeclareLaunchArgument(
         PUBLISH_PERIOD,
-        default_value=default_publish_period_in_ms,
+        default_value=DEFAULT_PUBLISH_PERIOD_IN_MS,
         description='The period (in ms) between each subsequent metrics message published'
                     ' by the collector nodes'))
     node_parameters = [
