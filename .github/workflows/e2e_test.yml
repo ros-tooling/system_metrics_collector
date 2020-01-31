@@ -20,4 +20,4 @@ jobs:
           python-version: '3.x'
       - uses: actions/checkout@v2
       - name: Run end-to-end test
-        run: source ros_ws/install/setup.bash && python test/run_e2e_test.py
+        run: source ros_ws/setup.bash && python test/run_e2e_test.py
