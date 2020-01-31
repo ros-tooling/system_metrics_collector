@@ -24,6 +24,11 @@
   <exec_depend>rclcpp_lifecycle</exec_depend>
   <exec_depend>rcpputils</exec_depend>
   <exec_depend>rcutils</exec_depend>
+  <!--Required for e2e test file-->
+  <test_depend>rclpy</test_depend>
+  <exec_depend>ros2launch</exec_depend>
+  <exec_depend>ros2lifecycle</exec_depend>
+  <exec_depend>ros2topic</exec_depend>
 
   <test_depend>ament_cmake_gtest</test_depend>
   <test_depend>ament_lint_auto</test_depend>
