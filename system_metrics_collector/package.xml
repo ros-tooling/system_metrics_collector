@@ -16,14 +16,19 @@
   <build_depend>rcutils</build_depend>
   <build_depend>rcpputils</build_depend>
 
-  <!--Required for example launch file-->
-  <exec_depend>demo_nodes_cpp</exec_depend>
   <exec_depend>metrics_statistics_msgs</exec_depend>
   <exec_depend>rclcpp</exec_depend>
   <exec_depend>rclcpp_components</exec_depend>
   <exec_depend>rclcpp_lifecycle</exec_depend>
   <exec_depend>rcpputils</exec_depend>
   <exec_depend>rcutils</exec_depend>
+  <!--Required for e2e test file-->
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>ros2launch</exec_depend>
+  <exec_depend>ros2lifecycle</exec_depend>
+  <exec_depend>ros2topic</exec_depend>
+  <!--Required for example launch file-->
+  <exec_depend>demo_nodes_cpp</exec_depend>
 
   <test_depend>ament_cmake_gtest</test_depend>
   <test_depend>ament_lint_auto</test_depend>
@@ -34,11 +39,6 @@
   <test_depend>rclcpp_components</test_depend>
   <test_depend>rcpputils</test_depend>
   <test_depend>rcutils</test_depend>
-  <!--Required for e2e test file-->
-  <test_depend>rclpy</test_depend>
-  <exec_depend>ros2launch</exec_depend>
-  <exec_depend>ros2lifecycle</exec_depend>
-  <exec_depend>ros2topic</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
