@@ -15,13 +15,15 @@ import sys
 import time
 from typing import List
 
+from retry import retry
+
 from metrics_statistics_msgs.msg import MetricsMessage
 
 import rclpy
 from rclpy.node import Node
 from rclpy.task import Future
 
-
+# expected outputs
 EXPECTED_LIFECYCLE_NODES = frozenset(['/linux_system_cpu_collector',
                                       '/linux_system_memory_collector',
                                       '/listener_process_cpu_node',
@@ -30,16 +32,21 @@ EXPECTED_LIFECYCLE_NODES = frozenset(['/linux_system_cpu_collector',
                                       '/talker_process_memory_node'])
 EXPECTED_LIFECYCLE_STATE = 'active [3]'
 EXPECTED_TOPIC = '/system_metrics'
+# executed commands
 LIST_SERVICES_COMMAND = 'ros2 service list'
 LAUNCH_COMMAND = 'ros2 launch system_metrics_collector talker_listener_example.launch.py'
 LIST_LIFECYCLE_NODES_COMMAND = 'ros2 lifecycle nodes'
 GET_LIFECYCLE_STATE_COMMAND = 'ros2 lifecycle get '
 TOPIC_LIST_COMMAND = 'ros2 topic list'
+# test constants
 TIMEOUT_SECONDS = 20
 QOS_DEPTH = 1
 RETURN_VALUE_FAILURE = 1
 RETURN_VALUE_SUCCESS = 1
-MAX_ENUMERATION_ATTEMPTS = 5
+# retry constants
+DEFAULT_DELAY_SECONDS = 2
+DEFAULT_BACKOFF = 2
+DEFAULT_TRIES = 5
 
 
 class SystemMetricsEnd2EndTestException(Exception):
@@ -100,11 +107,11 @@ def execute_command(command_list: List[str], timeout=TIMEOUT_SECONDS) -> List[st
             .decode(sys.stdout.encoding).splitlines())
 
 
-def check_for_expected_nodes(enumeration_attempts: int, args=None) -> None:
+@retry(SystemMetricsEnd2EndTestException, tries=DEFAULT_TRIES, delay=DEFAULT_DELAY_SECONDS, backoff=DEFAULT_BACKOFF)
+def check_for_expected_nodes(args=None) -> None:
     """
     Check that all expected nodes can be found.
 
-    :param enumeration_attempts: number of attempts to enumerate expected nodes, otherwise
     raise a SystemMetricsEnd2EndTestException if the attempts have been exceeded
     :param args:
     """
@@ -113,23 +120,22 @@ def check_for_expected_nodes(enumeration_attempts: int, args=None) -> None:
         node = rclpy.create_node('check_for_expected_nodes_test')
         expected_nodes = ['/listener', '/talker'] + list(EXPECTED_LIFECYCLE_NODES)
 
-        for _ in range(enumeration_attempts):
-            observed_nodes = node.get_node_names_and_namespaces()
-            # an observed_node does not contain the preceding '/'
-            observed_nodes = ['/' + node[0] for node in observed_nodes]
+        observed_nodes = node.get_node_names_and_namespaces()
+        # an observed_node does not contain the preceding '/'
+        observed_nodes = ['/' + node[0] for node in observed_nodes]
 
-            if set(expected_nodes).issubset(set(observed_nodes)):
-                logging.debug('check_for_expected_nodes success')
-                return
-            time.sleep(1)  # don't spam
+        if set(expected_nodes).issubset(set(observed_nodes)):
+            logging.debug('check_for_expected_nodes success')
+            return
 
         raise SystemMetricsEnd2EndTestException('Failed to enumerate expected nodes.'
-                                                ' Found: ', observed_nodes)
+                                                ' Observed: ' + str(observed_nodes))
     finally:
         node.destroy_node()
         rclpy.shutdown()
 
 
+@retry(SystemMetricsEnd2EndTestException, tries=DEFAULT_TRIES, delay=DEFAULT_DELAY_SECONDS, backoff=DEFAULT_BACKOFF)
 def check_lifecycle_node_enumeration() -> None:
     """
     Check that all lifecycle nodes exist.
@@ -145,6 +151,7 @@ def check_lifecycle_node_enumeration() -> None:
                                                 + str(output))
 
 
+@retry(SystemMetricsEnd2EndTestException, tries=DEFAULT_TRIES, delay=DEFAULT_DELAY_SECONDS, backoff=DEFAULT_BACKOFF)
 def check_lifecycle_node_state() -> None:
     """
     Check that each lifecycle node is active.
@@ -172,6 +179,7 @@ def check_lifecycle_node_state() -> None:
     logging.info('check_lifecycle_node_state success')
 
 
+@retry(SystemMetricsEnd2EndTestException, tries=DEFAULT_TRIES, delay=DEFAULT_DELAY_SECONDS, backoff=DEFAULT_BACKOFF)
 def check_for_expected_topic(expected_topic: str) -> None:
     """
     Check if the expected_topic exists.
@@ -183,14 +191,15 @@ def check_for_expected_topic(expected_topic: str) -> None:
     if expected_topic in output:
         logging.info('check_for_expected_topic success')
     else:
-        raise SystemMetricsEnd2EndTestException('Unable to find expected topic: '
-                                                + str(output))
+        raise SystemMetricsEnd2EndTestException('Unable to find expected topic: ' + str(output))
 
 
+@retry(SystemMetricsEnd2EndTestException, tries=DEFAULT_TRIES, delay=DEFAULT_DELAY_SECONDS, backoff=DEFAULT_BACKOFF)
 def check_for_statistic_publications(args=None) -> None:
     """
     Check that all nodes publish a statistics message.
 
+    This will timeout (default TIMEOUT_SECONDS) if any publishers have not been observed.
     :param args:
     """
     try:
@@ -236,21 +245,21 @@ def main(args=None) -> int:
         logging.debug('Executing: %s', split_command)
         process = subprocess.Popen(split_command)
 
-        logging.info('Starting tests')
-
-        check_for_expected_nodes(MAX_ENUMERATION_ATTEMPTS)
+        logging.info('====Starting tests====')
+        check_for_expected_nodes()
         check_lifecycle_node_enumeration()
         check_lifecycle_node_state()
         check_for_expected_topic(EXPECTED_TOPIC)
         check_for_statistic_publications(args)
         logging.info('====All tests succeeded====')
+
         return_value = RETURN_VALUE_SUCCESS
 
     except SystemMetricsEnd2EndTestException:
         logging.error('Test failure: ', exc_info=True)
 
     except Exception:
-        logging.error('Caught unrelated error: ', exc_info=True)
+        logging.error('Caught unrelated exception: ', exc_info=True)
 
     finally:
         logging.debug('Finished tests. Sending SIGINT')
