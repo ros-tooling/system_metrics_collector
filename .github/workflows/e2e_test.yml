@@ -16,8 +16,6 @@ jobs:
       - uses: ros-tooling/action-ros-ci@0.0.13
         with:
           package-name: system_metrics_collector
-      - uses: actions/setup-python@v1
-        with:
-          python-version: '3.6'
+      - uses: mxschmitt/action-tmate@v1
       - name: Run end-to-end test
         run:  ./test/run_e2e_test.sh
