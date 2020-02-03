@@ -20,4 +20,4 @@ jobs:
         with:
           python-version: '3.6'
       - name: Run end-to-end test
-        run: source /home/runner/work/system_metrics_collector/system_metrics_collector/ros_ws/install/setup.bash && source /home/runner/work/system_metrics_collector/system_metrics_collector/ros_ws/install/local_setup.bash && python test/run_e2e_test.py
+        run:  ./test/run_e2e_test.sh
