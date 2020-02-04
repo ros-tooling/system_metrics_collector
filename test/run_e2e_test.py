@@ -33,6 +33,7 @@ EXPECTED_LIFECYCLE_NODES = frozenset(['/linux_system_cpu_collector',
 EXPECTED_LIFECYCLE_STATE = 'active [3]'
 EXPECTED_TOPIC = '/system_metrics'
 # executed commands
+LIST_NODES_COMMAND = 'ros2 node list'
 LIST_SERVICES_COMMAND = 'ros2 service list'
 LAUNCH_COMMAND = 'ros2 launch system_metrics_collector talker_listener_example.launch.py'
 LIST_LIFECYCLE_NODES_COMMAND = 'ros2 lifecycle nodes'
@@ -115,24 +116,17 @@ def check_for_expected_nodes(args=None) -> None:
     raise a SystemMetricsEnd2EndTestException if the attempts have been exceeded
     :param args:
     """
-    try:
-        rclpy.init(args=args)
-        node = rclpy.create_node('check_for_expected_nodes_test')
-        expected_nodes = ['/listener', '/talker'] + list(EXPECTED_LIFECYCLE_NODES)
 
-        observed_nodes = node.get_node_names_and_namespaces()
-        # an observed_node does not contain the preceding '/'
-        observed_nodes = ['/' + node[0] for node in observed_nodes]
+    expected_nodes = ['/listener', '/talker'] + list(EXPECTED_LIFECYCLE_NODES)
+    observed_nodes = execute_command(LIST_NODES_COMMAND.split(' '))
+    logging.debug('check_for_expected_nodes observed_nodes=%s', str(observed_nodes))
 
-        if set(expected_nodes).issubset(set(observed_nodes)):
-            logging.debug('check_for_expected_nodes success')
-            return
+    if set(expected_nodes).issubset(set(observed_nodes)):
+        logging.debug('check_for_expected_nodes success')
+        return
 
-        raise SystemMetricsEnd2EndTestException('Failed to enumerate expected nodes.'
-                                                ' Observed: ' + str(observed_nodes))
-    finally:
-        node.destroy_node()
-        rclpy.shutdown()
+    raise SystemMetricsEnd2EndTestException('Failed to enumerate expected nodes.'
+                                            ' Observed: ' + str(observed_nodes))
 
 
 @retry(SystemMetricsEnd2EndTestException, tries=DEFAULT_TRIES, delay=DEFAULT_DELAY_SECONDS, backoff=DEFAULT_BACKOFF)
