@@ -191,7 +191,8 @@ TEST_F(PeriodicMeasurementTestFixure, Sanity) {
   ASSERT_TRUE(test_periodic_measurer_->IsPublisherActivated());
 
 
-  ASSERT_EQ("name=test_periodic_node, measurement_period=50ms,"
+  ASSERT_EQ(
+    "name=test_periodic_node, measurement_period=50ms,"
     " publishing_topic=/system_metrics, publish_period=500ms, started=true,"
     " avg=nan, min=nan, max=nan, std_dev=nan, count=0",
     test_periodic_measurer_->GetStatusString());
@@ -223,7 +224,8 @@ TEST_F(PeriodicMeasurementTestFixure, TestStartAndStop) {
   moving_average_statistics::StatisticData data = test_periodic_measurer_->GetStatisticsResults();
   ASSERT_EQ(3, data.average);
   ASSERT_EQ(1, data.min);
-  ASSERT_EQ(test_constants::kTestDuration.count() / test_constants::kMeasurePeriod.count(),
+  ASSERT_EQ(
+    test_constants::kTestDuration.count() / test_constants::kMeasurePeriod.count(),
     data.max);
   ASSERT_FALSE(std::isnan(data.standard_deviation));
   ASSERT_EQ(
@@ -308,7 +310,8 @@ TEST_F(RclcppFixture, TestConstructorMeasurementPeriodValidation) {
     system_metrics_collector::collector_node_constants::kPublishPeriodParam,
     test_constants::kPublishPeriod.count());
 
-  ASSERT_THROW(TestPeriodicMeasurementNode("throw", options),
+  ASSERT_THROW(
+    TestPeriodicMeasurementNode("throw", options),
     rclcpp::exceptions::InvalidParameterValueException);
 }
 
@@ -321,7 +324,8 @@ TEST_F(RclcppFixture, TestConstructorPublishPeriodValidation1) {
     system_metrics_collector::collector_node_constants::kPublishPeriodParam,
     std::chrono::milliseconds{-1}.count());
 
-  ASSERT_THROW(TestPeriodicMeasurementNode("throw", options),
+  ASSERT_THROW(
+    TestPeriodicMeasurementNode("throw", options),
     rclcpp::exceptions::InvalidParameterValueException);
 }
 
@@ -334,7 +338,8 @@ TEST_F(RclcppFixture, TestConstructorPublishPeriodValidation2) {
     system_metrics_collector::collector_node_constants::kPublishPeriodParam,
     std::chrono::milliseconds{1}.count());
 
-  ASSERT_THROW(TestPeriodicMeasurementNode("throw", options),
+  ASSERT_THROW(
+    TestPeriodicMeasurementNode("throw", options),
     std::invalid_argument);
 }
 
@@ -347,7 +352,8 @@ TEST_F(RclcppFixture, TestConstructorNodeNameValidation) {
     system_metrics_collector::collector_node_constants::kPublishPeriodParam,
     test_constants::kPublishPeriod.count());
 
-  ASSERT_THROW(TestPeriodicMeasurementNode("", options),
+  ASSERT_THROW(
+    TestPeriodicMeasurementNode("", options),
     std::invalid_argument);
 }
 

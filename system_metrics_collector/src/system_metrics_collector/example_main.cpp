@@ -35,7 +35,8 @@ void set_node_to_debug(
 {
   const auto r = rcutils_logging_set_logger_level(node.get_name(), RCUTILS_LOG_SEVERITY_DEBUG);
   if (r != 0) {
-    RCUTILS_LOG_ERROR_NAMED("main", "Unable to set debug logging for the %s node: %s\n",
+    RCUTILS_LOG_ERROR_NAMED(
+      "main", "Unable to set debug logging for the %s node: %s\n",
       node.get_name(),
       rcutils_get_error_string().str);
   }
