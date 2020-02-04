@@ -304,7 +304,8 @@ TEST_F(LinuxMemoryMeasurementTestFixture, TestPublishMetricsMessage)
 {
   ASSERT_NE(test_measure_linux_memory_, nullptr);
   ASSERT_FALSE(test_measure_linux_memory_->IsStarted());
-  ASSERT_EQ(State::PRIMARY_STATE_UNCONFIGURED,
+  ASSERT_EQ(
+    State::PRIMARY_STATE_UNCONFIGURED,
     test_measure_linux_memory_->get_current_state().id());
 
   auto test_receive_measurements = std::make_shared<TestReceiveMemoryMeasurementNode>(

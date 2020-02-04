@@ -122,10 +122,11 @@ TEST(UtilitiesTest, TestCalculateCpuActivePercentage)
   ASSERT_TRUE(std::isnan(empty));
 
   // test valid values
-  auto p = ComputeCpuActivePercentage(system_metrics_collector::ProcessStatCpuLine(
-        test_constants::kProcSamples
-        [0]),
-      system_metrics_collector::ProcessStatCpuLine(test_constants::kProcSamples[1]));
+  auto p = ComputeCpuActivePercentage(
+    system_metrics_collector::ProcessStatCpuLine(
+      test_constants::kProcSamples
+      [0]),
+    system_metrics_collector::ProcessStatCpuLine(test_constants::kProcSamples[1]));
   ASSERT_DOUBLE_EQ(test_constants::kCpuActiveProcSample_0_1, p);
 }
 
@@ -156,8 +157,9 @@ TEST(UtilitiesTest, TestCalculatePidCpuActivePercentage)
   p = system_metrics_collector::ComputePidCpuActivePercentage(measurement1, measurement2);
   ASSERT_LT(0.0, p);
 
-  p = system_metrics_collector::ComputePidCpuActivePercentage(test_constants::kProcPidSamples[0],
-      test_constants::kProcPidSamples[1]);
+  p = system_metrics_collector::ComputePidCpuActivePercentage(
+    test_constants::kProcPidSamples[0],
+    test_constants::kProcPidSamples[1]);
   ASSERT_DOUBLE_EQ(test_constants::kCpuActiveProcPidSample_0_1, p);
 }
 

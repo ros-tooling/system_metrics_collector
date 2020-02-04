@@ -78,8 +78,9 @@ bool PeriodicMeasurementNode::SetupStart()
     measurement_period_, [this]() {this->PerformPeriodicMeasurement();});
 
   if (publisher_ == nullptr) {
-    publisher_ = create_publisher<MetricsMessage>(collector_node_constants::kStatisticsTopicName,
-        10 /*history_depth*/);
+    publisher_ = create_publisher<MetricsMessage>(
+      collector_node_constants::kStatisticsTopicName,
+      10 /*history_depth*/);
   }
 
   publisher_->on_activate();
