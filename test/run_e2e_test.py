@@ -8,7 +8,6 @@ setup.bash has been sourced.
 """
 
 import logging
-import os
 import signal
 import subprocess
 import sys
@@ -42,7 +41,7 @@ TOPIC_LIST_COMMAND = 'ros2 topic list'
 TIMEOUT_SECONDS = 30
 QOS_DEPTH = 1
 RETURN_VALUE_FAILURE = 1
-RETURN_VALUE_SUCCESS = 1
+RETURN_VALUE_SUCCESS = 0
 # retry constants
 DEFAULT_DELAY_SECONDS = 2
 DEFAULT_BACKOFF = 2
@@ -260,7 +259,7 @@ def main(args=None) -> int:
 
     finally:
         logging.debug('Finished tests. Sending SIGINT')
-        os.kill(process.pid, signal.SIGINT)
+        process.send_signal(signal.SIGINT)
         process.wait(timeout=TIMEOUT_SECONDS)
 
     return return_value
@@ -269,4 +268,5 @@ def main(args=None) -> int:
 if __name__ == '__main__':
     setup_logger()
     test_output = main()
+    logging.debug("exiting with test_output=%s", test_output)
     sys.exit(test_output)
