@@ -34,8 +34,8 @@
   <test_depend>rclcpp_components</test_depend>
   <test_depend>rcpputils</test_depend>
   <test_depend>rcutils</test_depend>
-  <test_depend>python3-retry</test_depend>
   <!--Required for e2e test file-->
+  <test_depend>python3-retry</test_depend>
   <test_depend>rclpy</test_depend>
   <test_depend>ros2launch</test_depend>
   <test_depend>ros2lifecycle</test_depend>
