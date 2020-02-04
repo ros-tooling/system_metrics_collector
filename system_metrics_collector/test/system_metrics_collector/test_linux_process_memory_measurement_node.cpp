@@ -103,9 +103,11 @@ protected:
 };
 
 TEST(TestLinuxProcessMemoryMeasurement, TestGetProcessUsedMemory) {
-  EXPECT_THROW(system_metrics_collector::GetProcessUsedMemory(
+  EXPECT_THROW(
+    system_metrics_collector::GetProcessUsedMemory(
       test_constants::kGarbageSample), std::ifstream::failure);
-  EXPECT_THROW(system_metrics_collector::GetProcessUsedMemory(
+  EXPECT_THROW(
+    system_metrics_collector::GetProcessUsedMemory(
       test_constants::kEmptySample), std::ifstream::failure);
 
   const auto ret = system_metrics_collector::GetProcessUsedMemory(kTestStatmLine);
@@ -119,6 +121,7 @@ TEST_F(LinuxProcessMemoryMeasurementTestFixture, TestGetMetricName) {
 
 TEST_F(LinuxProcessMemoryMeasurementTestFixture, TestGetMetricUnit) {
   const auto pid = system_metrics_collector::GetPid();
-  ASSERT_EQ(system_metrics_collector::collector_node_constants::kPercentUnitName,
+  ASSERT_EQ(
+    system_metrics_collector::collector_node_constants::kPercentUnitName,
     test_node_->GetMetricUnit());
 }

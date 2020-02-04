@@ -114,7 +114,8 @@ double ComputeCpuActivePercentage(
   const ProcCpuData & measurement2)
 {
   if (measurement1.IsMeasurementEmpty() || measurement2.IsMeasurementEmpty()) {
-    RCUTILS_LOG_ERROR_NAMED("ComputeCpuActivePercentage",
+    RCUTILS_LOG_ERROR_NAMED(
+      "ComputeCpuActivePercentage",
       "a measurement was empty, unable to compute cpu percentage");
     return std::nan("");
   }
@@ -131,7 +132,8 @@ double ComputePidCpuActivePercentage(
   const ProcPidCpuData & measurement2)
 {
   if (measurement1.IsMeasurementEmpty() || measurement2.IsMeasurementEmpty()) {
-    RCUTILS_LOG_ERROR_NAMED("ComputePidCpuActivePercentage",
+    RCUTILS_LOG_ERROR_NAMED(
+      "ComputePidCpuActivePercentage",
       "a measurement was empty, unable to compute pid cpu percentage");
     return std::nan("");
   }

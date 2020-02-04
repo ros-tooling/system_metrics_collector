@@ -102,12 +102,14 @@ TEST_F(CollectorTestFixure, TestAddAndClearMeasurement) {
 
 TEST_F(CollectorTestFixure, TestStartAndStop) {
   ASSERT_FALSE(test_collector_->IsStarted());
-  ASSERT_EQ("started=false, avg=nan, min=nan, max=nan, std_dev=nan, count=0",
+  ASSERT_EQ(
+    "started=false, avg=nan, min=nan, max=nan, std_dev=nan, count=0",
     test_collector_->GetStatusString());
 
   ASSERT_TRUE(test_collector_->Start());
   ASSERT_TRUE(test_collector_->IsStarted());
-  ASSERT_EQ("started=true, avg=nan, min=nan, max=nan, std_dev=nan, count=0",
+  ASSERT_EQ(
+    "started=true, avg=nan, min=nan, max=nan, std_dev=nan, count=0",
     test_collector_->GetStatusString());
 
   ASSERT_TRUE(test_collector_->Stop());
