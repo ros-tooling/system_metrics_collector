@@ -16,6 +16,5 @@ jobs:
       - uses: ros-tooling/action-ros-ci@0.0.13
         with:
           package-name: system_metrics_collector
-      - uses: mxschmitt/action-tmate@v1
       - name: Run end-to-end test
         run:  ./test/run_e2e_test.sh
