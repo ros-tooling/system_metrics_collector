@@ -19,7 +19,7 @@ import rclpy
 from rclpy.node import Node
 from rclpy.task import Future
 
-from retry import retry
+from retrying import retry
 
 # expected outputs
 EXPECTED_LIFECYCLE_NODES = frozenset(['/linux_system_cpu_collector',
@@ -43,9 +43,9 @@ QOS_DEPTH = 1
 RETURN_VALUE_FAILURE = 1
 RETURN_VALUE_SUCCESS = 0
 # retry constants
-DEFAULT_DELAY_SECONDS = 2
-DEFAULT_BACKOFF = 2
-DEFAULT_TRIES = 5
+DEFAULT_MAX_ATTEMPTS = 10
+DEFAULT_WAIT_EXPONENTIAL_MULTIPLIER = 1000
+DEFAULT_MAX_EXPONENTIAL_WAIT_MILLISECONDS = 60000
 
 
 class SystemMetricsEnd2EndTestException(Exception):
@@ -106,8 +106,9 @@ def execute_command(command_list: List[str], timeout=TIMEOUT_SECONDS) -> List[st
             .decode(sys.stdout.encoding).splitlines())
 
 
-@retry(SystemMetricsEnd2EndTestException, tries=DEFAULT_TRIES, delay=DEFAULT_DELAY_SECONDS,
-       backoff=DEFAULT_BACKOFF)
+@retry(stop_max_attempt_number=DEFAULT_MAX_ATTEMPTS,
+       wait_exponential_multiplier=DEFAULT_WAIT_EXPONENTIAL_MULTIPLIER,
+       wait_exponential_max=DEFAULT_MAX_EXPONENTIAL_WAIT_MILLISECONDS)
 def check_for_expected_nodes(args=None) -> None:
     """
     Check that all expected nodes can be found.
@@ -127,8 +128,9 @@ def check_for_expected_nodes(args=None) -> None:
                                             ' Observed: ' + str(observed_nodes))
 
 
-@retry(SystemMetricsEnd2EndTestException, tries=DEFAULT_TRIES, delay=DEFAULT_DELAY_SECONDS,
-       backoff=DEFAULT_BACKOFF)
+@retry(stop_max_attempt_number=DEFAULT_MAX_ATTEMPTS,
+       wait_exponential_multiplier=DEFAULT_WAIT_EXPONENTIAL_MULTIPLIER,
+       wait_exponential_max=DEFAULT_MAX_EXPONENTIAL_WAIT_MILLISECONDS)
 def check_lifecycle_node_enumeration() -> None:
     """
     Check that all lifecycle nodes exist.
@@ -144,8 +146,9 @@ def check_lifecycle_node_enumeration() -> None:
                                                 + str(output))
 
 
-@retry(SystemMetricsEnd2EndTestException, tries=DEFAULT_TRIES, delay=DEFAULT_DELAY_SECONDS,
-       backoff=DEFAULT_BACKOFF)
+@retry(stop_max_attempt_number=DEFAULT_MAX_ATTEMPTS,
+       wait_exponential_multiplier=DEFAULT_WAIT_EXPONENTIAL_MULTIPLIER,
+       wait_exponential_max=DEFAULT_MAX_EXPONENTIAL_WAIT_MILLISECONDS)
 def check_lifecycle_node_state() -> None:
     """
     Check that each lifecycle node is active.
@@ -173,8 +176,9 @@ def check_lifecycle_node_state() -> None:
     logging.info('check_lifecycle_node_state success')
 
 
-@retry(SystemMetricsEnd2EndTestException, tries=DEFAULT_TRIES, delay=DEFAULT_DELAY_SECONDS,
-       backoff=DEFAULT_BACKOFF)
+@retry(stop_max_attempt_number=DEFAULT_MAX_ATTEMPTS,
+       wait_exponential_multiplier=DEFAULT_WAIT_EXPONENTIAL_MULTIPLIER,
+       wait_exponential_max=DEFAULT_MAX_EXPONENTIAL_WAIT_MILLISECONDS)
 def check_for_expected_topic(expected_topic: str) -> None:
     """
     Check if the expected_topic exists.
@@ -189,8 +193,9 @@ def check_for_expected_topic(expected_topic: str) -> None:
         raise SystemMetricsEnd2EndTestException('Unable to find expected topic: ' + str(output))
 
 
-@retry(SystemMetricsEnd2EndTestException, tries=DEFAULT_TRIES, delay=DEFAULT_DELAY_SECONDS,
-       backoff=DEFAULT_BACKOFF)
+@retry(stop_max_attempt_number=DEFAULT_MAX_ATTEMPTS,
+       wait_exponential_multiplier=DEFAULT_WAIT_EXPONENTIAL_MULTIPLIER,
+       wait_exponential_max=DEFAULT_MAX_EXPONENTIAL_WAIT_MILLISECONDS)
 def check_for_statistic_publications(args=None) -> None:
     """
     Check that all nodes publish a statistics message.
@@ -268,5 +273,5 @@ def main(args=None) -> int:
 if __name__ == '__main__':
     setup_logger()
     test_output = main()
-    logging.debug("exiting with test_output=%s", test_output)
+    logging.debug('exiting with test_output=%s', test_output)
     sys.exit(test_output)
