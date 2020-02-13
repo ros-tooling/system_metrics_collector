@@ -35,7 +35,7 @@ constexpr const std::array<const char *, 2> kExpectedClassNames = {
 
 bool IsExpectedClassName(const std::string & class_name)
 {
-  auto result = std::find_if(
+  const auto result = std::find_if(
     kExpectedClassNames.cbegin(), kExpectedClassNames.cend(),
     [&class_name](const char * expected_class_name) {
       return class_name.find(expected_class_name) != std::string::npos;

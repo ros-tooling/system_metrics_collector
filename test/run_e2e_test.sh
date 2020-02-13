@@ -1,6 +1,6 @@
 #!/bin/bash
-# This script sources the built ROS2 workspace, installs the necessary Python dependencies,
-# and executes the python end to end tests for the system_metrics_collector package.
+# This script sources the built ROS2 workspace and executes the python end to end tests
+# for the system_metrics_collector package.
 #
 # The goal of this script is to independently run tests, as a canary, on the master branch
 # and ultimately released APT packages.
