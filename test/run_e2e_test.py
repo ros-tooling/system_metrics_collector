@@ -8,11 +8,9 @@ setup.bash has been sourced.
 """
 
 import logging
-import os
 import signal
 import subprocess
 import sys
-import time
 from typing import List
 
 from metrics_statistics_msgs.msg import MetricsMessage
@@ -21,7 +19,9 @@ import rclpy
 from rclpy.node import Node
 from rclpy.task import Future
 
+from retrying import retry
 
+# expected outputs
 EXPECTED_LIFECYCLE_NODES = frozenset(['/linux_system_cpu_collector',
                                       '/linux_system_memory_collector',
                                       '/listener_process_cpu_node',
@@ -30,16 +30,22 @@ EXPECTED_LIFECYCLE_NODES = frozenset(['/linux_system_cpu_collector',
                                       '/talker_process_memory_node'])
 EXPECTED_LIFECYCLE_STATE = 'active [3]'
 EXPECTED_TOPIC = '/system_metrics'
+# executed commands
+LIST_NODES_COMMAND = 'ros2 node list'
 LIST_SERVICES_COMMAND = 'ros2 service list'
 LAUNCH_COMMAND = 'ros2 launch system_metrics_collector talker_listener_example.launch.py'
 LIST_LIFECYCLE_NODES_COMMAND = 'ros2 lifecycle nodes'
 GET_LIFECYCLE_STATE_COMMAND = 'ros2 lifecycle get '
 TOPIC_LIST_COMMAND = 'ros2 topic list'
-TIMEOUT_SECONDS = 20
+# test constants
+TIMEOUT_SECONDS = 30
 QOS_DEPTH = 1
 RETURN_VALUE_FAILURE = 1
-RETURN_VALUE_SUCCESS = 1
-MAX_ENUMERATION_ATTEMPTS = 5
+RETURN_VALUE_SUCCESS = 0
+# retry constants
+DEFAULT_MAX_ATTEMPTS = 10
+DEFAULT_WAIT_EXPONENTIAL_MULTIPLIER = 1000
+DEFAULT_MAX_EXPONENTIAL_WAIT_MILLISECONDS = 60000
 
 
 class SystemMetricsEnd2EndTestException(Exception):
@@ -100,36 +106,31 @@ def execute_command(command_list: List[str], timeout=TIMEOUT_SECONDS) -> List[st
             .decode(sys.stdout.encoding).splitlines())
 
 
-def check_for_expected_nodes(enumeration_attempts: int, args=None) -> None:
+@retry(stop_max_attempt_number=DEFAULT_MAX_ATTEMPTS,
+       wait_exponential_multiplier=DEFAULT_WAIT_EXPONENTIAL_MULTIPLIER,
+       wait_exponential_max=DEFAULT_MAX_EXPONENTIAL_WAIT_MILLISECONDS)
+def check_for_expected_nodes(args=None) -> None:
     """
     Check that all expected nodes can be found.
 
-    :param enumeration_attempts: number of attempts to enumerate expected nodes, otherwise
-    raise a SystemMetricsEnd2EndTestException if the attempts have been exceeded
+    Raise a SystemMetricsEnd2EndTestException if the attempts have been exceeded
     :param args:
     """
-    try:
-        rclpy.init(args=args)
-        node = rclpy.create_node('check_for_expected_nodes_test')
-        expected_nodes = ['/listener', '/talker'] + list(EXPECTED_LIFECYCLE_NODES)
+    expected_nodes = ['/listener', '/talker'] + list(EXPECTED_LIFECYCLE_NODES)
+    observed_nodes = execute_command(LIST_NODES_COMMAND.split(' '))
+    logging.debug('check_for_expected_nodes observed_nodes=%s', str(observed_nodes))
 
-        for _ in range(enumeration_attempts):
-            observed_nodes = node.get_node_names_and_namespaces()
-            # an observed_node does not contain the preceding '/'
-            observed_nodes = ['/' + node[0] for node in observed_nodes]
+    if set(expected_nodes).issubset(set(observed_nodes)):
+        logging.debug('check_for_expected_nodes success')
+        return
 
-            if set(expected_nodes).issubset(set(observed_nodes)):
-                logging.debug('check_for_expected_nodes success')
-                return
-            time.sleep(1)  # don't spam
-
-        raise SystemMetricsEnd2EndTestException('Failed to enumerate expected nodes.'
-                                                ' Found: ', observed_nodes)
-    finally:
-        node.destroy_node()
-        rclpy.shutdown()
+    raise SystemMetricsEnd2EndTestException('Failed to enumerate expected nodes.'
+                                            ' Observed: ' + str(observed_nodes))
 
 
+@retry(stop_max_attempt_number=DEFAULT_MAX_ATTEMPTS,
+       wait_exponential_multiplier=DEFAULT_WAIT_EXPONENTIAL_MULTIPLIER,
+       wait_exponential_max=DEFAULT_MAX_EXPONENTIAL_WAIT_MILLISECONDS)
 def check_lifecycle_node_enumeration() -> None:
     """
     Check that all lifecycle nodes exist.
@@ -145,6 +146,9 @@ def check_lifecycle_node_enumeration() -> None:
                                                 + str(output))
 
 
+@retry(stop_max_attempt_number=DEFAULT_MAX_ATTEMPTS,
+       wait_exponential_multiplier=DEFAULT_WAIT_EXPONENTIAL_MULTIPLIER,
+       wait_exponential_max=DEFAULT_MAX_EXPONENTIAL_WAIT_MILLISECONDS)
 def check_lifecycle_node_state() -> None:
     """
     Check that each lifecycle node is active.
@@ -172,6 +176,9 @@ def check_lifecycle_node_state() -> None:
     logging.info('check_lifecycle_node_state success')
 
 
+@retry(stop_max_attempt_number=DEFAULT_MAX_ATTEMPTS,
+       wait_exponential_multiplier=DEFAULT_WAIT_EXPONENTIAL_MULTIPLIER,
+       wait_exponential_max=DEFAULT_MAX_EXPONENTIAL_WAIT_MILLISECONDS)
 def check_for_expected_topic(expected_topic: str) -> None:
     """
     Check if the expected_topic exists.
@@ -183,14 +190,17 @@ def check_for_expected_topic(expected_topic: str) -> None:
     if expected_topic in output:
         logging.info('check_for_expected_topic success')
     else:
-        raise SystemMetricsEnd2EndTestException('Unable to find expected topic: '
-                                                + str(output))
+        raise SystemMetricsEnd2EndTestException('Unable to find expected topic: ' + str(output))
 
 
+@retry(stop_max_attempt_number=DEFAULT_MAX_ATTEMPTS,
+       wait_exponential_multiplier=DEFAULT_WAIT_EXPONENTIAL_MULTIPLIER,
+       wait_exponential_max=DEFAULT_MAX_EXPONENTIAL_WAIT_MILLISECONDS)
 def check_for_statistic_publications(args=None) -> None:
     """
     Check that all nodes publish a statistics message.
 
+    This will timeout (default TIMEOUT_SECONDS) if any publishers have not been observed.
     :param args:
     """
     try:
@@ -236,25 +246,25 @@ def main(args=None) -> int:
         logging.debug('Executing: %s', split_command)
         process = subprocess.Popen(split_command)
 
-        logging.info('Starting tests')
-
-        check_for_expected_nodes(MAX_ENUMERATION_ATTEMPTS)
+        logging.info('====Starting tests====')
+        check_for_expected_nodes()
         check_lifecycle_node_enumeration()
         check_lifecycle_node_state()
         check_for_expected_topic(EXPECTED_TOPIC)
         check_for_statistic_publications(args)
         logging.info('====All tests succeeded====')
+
         return_value = RETURN_VALUE_SUCCESS
 
     except SystemMetricsEnd2EndTestException:
         logging.error('Test failure: ', exc_info=True)
 
     except Exception:
-        logging.error('Caught unrelated error: ', exc_info=True)
+        logging.error('Caught unrelated exception: ', exc_info=True)
 
     finally:
         logging.debug('Finished tests. Sending SIGINT')
-        os.kill(process.pid, signal.SIGINT)
+        process.send_signal(signal.SIGINT)
         process.wait(timeout=TIMEOUT_SECONDS)
 
     return return_value
@@ -263,4 +273,5 @@ def main(args=None) -> int:
 if __name__ == '__main__':
     setup_logger()
     test_output = main()
+    logging.debug('exiting with test_output=%s', test_output)
     sys.exit(test_output)
