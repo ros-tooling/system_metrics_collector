@@ -4,6 +4,7 @@ Note: _This is currently an **experimental** package._
 
 ![License](https://img.shields.io/github/license/ros-tooling/system_metrics_collector)
 [![GitHub Action Status](https://github.com/ros-tooling/system_metrics_collector/workflows/Test%20system_metrics_collector/badge.svg)](https://github.com/ros-tooling/system_metrics_collector/actions)
+![End-to-end Testing (Nightly)](https://github.com/ros-tooling/system_metrics_collector/workflows/End-to-end%20Testing%20(Nightly)/badge.svg)
 
 ## MetricsMessage
 
