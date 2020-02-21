@@ -51,6 +51,8 @@ add_library(system_metrics_collector SHARED
   src/system_metrics_collector/proc_cpu_data.cpp
   src/system_metrics_collector/proc_pid_cpu_data.cpp
   src/system_metrics_collector/utilities.cpp
+  src/topic_statistics_collector/received_message_period.hpp
+  src/topic_statistics_collector/statistics_publisher.hpp
 )
 ament_target_dependencies(system_metrics_collector
         metrics_statistics_msgs
@@ -134,6 +136,10 @@ if(BUILD_TESTING)
   target_link_libraries(test_utilities system_metrics_collector)
   ament_target_dependencies(test_utilities rclcpp)
 
+  ament_add_gtest(test_received_message_period
+          test/topic_statistics_collector/test_received_message_period.cpp)
+  target_link_libraries(test_received_message_period system_metrics_collector)
+
   install(TARGETS
     test_moving_average_statistics
     DESTINATION
@@ -146,6 +152,10 @@ if(BUILD_TESTING)
     test_periodic_measurement_node
     DESTINATION
     lib/${PROJECT_NAME})
+  install(TARGETS
+          test_received_message_period
+          DESTINATION
+          lib/${PROJECT_NAME})
 endif()
 
 # Install launch files

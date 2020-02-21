@@ -52,6 +52,7 @@ bool Collector::Stop()
 
 void Collector::AcceptData(const double measurement)
 {
+  // todo <dabonnie> should this throw if not started?
   collected_data_.AddMeasurement(measurement);
 }
 

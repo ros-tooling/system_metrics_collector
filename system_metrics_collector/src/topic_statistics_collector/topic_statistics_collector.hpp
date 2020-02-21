@@ -13,18 +13,21 @@
 // limitations under the License.
 
 
-#ifndef TOPIC_STATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR_HPP_
-#define TOPIC_STATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR_HPP_
+#ifndef SYSTEM_METRICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR_HPP_
+#define SYSTEM_METRICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR_HPP_
 
+#include <chrono>
 #include <string>
 
 #include "../system_metrics_collector/collector.hpp"
 
-namespace topic_statistics_collector
+namespace system_metrics_collector
 {
 /**
  * Class template to collect topic statistics for ROS 2 topics.
  */
+
+//todo rename to have subscriber in the name
 template<typename T>
 class TopicStatisticsCollector : public system_metrics_collector::Collector
 {
@@ -36,24 +39,6 @@ public:
 
   virtual ~TopicStatisticsCollector() = default;
 
-  /**
-   * Returns a pretty printed status representation of this class.
-   *
-   * @return a string detailing the current status
-   */
-  std::string GetStatusString() const override = 0;
-
-protected:
-  /**
-   * No-op setup.
-   */
-  bool SetupStart() override = 0;
-
-  /**
-   * No-op teardown.
-   */
-  bool SetupStop() override = 0;
-
 private:
   /**
    * Handle receiving a single message on subscribed topic.
@@ -61,11 +46,9 @@ private:
    *
    * @return the measurement made to be aggregated for statistics
    */
-  virtual double OnMessageReceived(
-    const typename T::SharedPtr,
-    const std::chrono::time_point & now) = 0;
+  virtual double OnMessageReceived(const T & received_message) = 0;
 };
 
-}  // namespace topic_statistics_collector
+}  // namespace system_metrics_collector
 
 #endif  // TOPIC_STATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR_HPP_
