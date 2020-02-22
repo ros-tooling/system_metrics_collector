@@ -49,6 +49,7 @@ add_library(system_metrics_collector SHARED
   src/system_metrics_collector/proc_cpu_data.cpp
   src/system_metrics_collector/proc_pid_cpu_data.cpp
   src/system_metrics_collector/utilities.cpp
+  src/logging_collector/logging_collector.hpp
 )
 ament_target_dependencies(system_metrics_collector
         metrics_statistics_msgs
@@ -74,6 +75,10 @@ ament_target_dependencies(linux_cpu_collector)
 add_executable(linux_memory_collector src/system_metrics_collector/linux_memory_collector.cpp)
 target_link_libraries(linux_memory_collector system_metrics_collector)
 ament_target_dependencies(linux_memory_collector)
+
+add_executable(log_main src/logging_collector/log_main.cpp)
+target_link_libraries(log_main system_metrics_collector)
+ament_target_dependencies(log_main)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
