@@ -12,53 +12,96 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SYSTEM_METRICS_WORKSPACE__RECEIVED_MESSAGE_PERIOD_HPP_
-#define SYSTEM_METRICS_WORKSPACE__RECEIVED_MESSAGE_PERIOD_HPP_
+#ifndef TOPIC_STATISTICS_COLLECTOR__RECEIVED_MESSAGE_PERIOD_HPP_
+#define TOPIC_STATISTICS_COLLECTOR__RECEIVED_MESSAGE_PERIOD_HPP_
 
-#include <string>
 #include <chrono>
+#include <string>
+
 #include "topic_statistics_collector.hpp"
 
-namespace system_metrics_collector
-{
+#include "../../src/system_metrics_collector/collector.hpp"
 
+namespace topic_statistics_collector
+{
 constexpr const char kReceivedMessagePeriodMetricName[] = "received_message_period";
 constexpr const char kUnits[] = "milliseconds";
-constexpr const std::chrono::high_resolution_clock::time_point kDefaultTimePoint{std::chrono::high_resolution_clock::duration::zero()};
+constexpr const std::chrono::high_resolution_clock::time_point kDefaultTimePoint{std::chrono::
+  high_resolution_clock::duration::zero()};
 
 template<typename T>
-class ReceivedMessagePeriod : public system_metrics_collector::TopicStatisticsCollector<T>
+class ReceivedMessagePeriod : public TopicStatisticsCollector<T>
 {
 public:
-
-  //inherit from on message received
-  ReceivedMessagePeriod() = default;
-  virtual ~ReceivedMessagePeriod() = default;
-
-  bool SetupStart()
+  /**
+   * Constructs a ReceivedMessagePeriod object.
+   *
+   * This also starts the Collector.
+   */
+  ReceivedMessagePeriod()
   {
-    time_last_message_received_ = kDefaultTimePoint;
+    system_metrics_collector::Collector::Start();
   }
-  //no op
-  bool SetupStop() {}
-
-  virtual double OnMessageReceived(const T & received_message) override
+  /**
+   * Destructs a ReceivedMessagePeriod object.
+   *
+   * This also stops the Collector.
+   */
+  virtual ~ReceivedMessagePeriod()
   {
-    std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
+    system_metrics_collector::Collector::Stop();
+  }
 
-    if(time_last_message_received_ == kDefaultTimePoint) {
+  /**
+   * Handle a message received and measure its received period.
+   * @param received_message
+   */
+  void OnMessageReceived(const T & received_message) override
+  {
+    auto now = GetCurrentTime();
+
+    if (time_last_message_received_ == kDefaultTimePoint) {
       time_last_message_received_ = now;
     } else {
-      int period = std::chrono::duration_cast<std::chrono::milliseconds>(now - time_last_message_received_).count();
-      double d = (double) period;
-      Collector::AcceptData(d);
+      int period = std::chrono::duration_cast<std::chrono::milliseconds>(
+        now - time_last_message_received_).count();
+      time_last_message_received_ = now;
+      system_metrics_collector::Collector::AcceptData(static_cast<double>(period));
     }
   }
 
-  std::chrono::high_resolution_clock::time_point time_last_message_received_;
+protected:
+  /**
+   * Resets the time_last_message_received_ member.
+   * @return
+   */
+  bool SetupStart() override
+  {
+    time_last_message_received_ = kDefaultTimePoint;
+  }
+
+  /**
+   * No-op method
+   * @return
+   */
+  bool SetupStop() override
+  {
+  }
+
+  /**
+   * Returns the current time using high_resolution_clock.
+   * @return the current high_resolution_clock clock time
+   */
+  virtual std::chrono::high_resolution_clock::time_point GetCurrentTime()
+  {
+    return std::chrono::high_resolution_clock::now();
+  }
+
+private:
+  std::chrono::high_resolution_clock::time_point time_last_message_received_{kDefaultTimePoint};
 };
 
-}  // namespace system_metrics_collector
+}  // namespace topic_statistics_collector
 
 
-#endif //SYSTEM_METRICS_WORKSPACE_RECEIVEDMESSAGEPERIOD_HPP
+#endif  // TOPIC_STATISTICS_COLLECTOR__RECEIVED_MESSAGE_PERIOD_HPP_

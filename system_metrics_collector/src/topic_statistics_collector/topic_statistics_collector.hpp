@@ -13,21 +13,21 @@
 // limitations under the License.
 
 
-#ifndef SYSTEM_METRICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR_HPP_
-#define SYSTEM_METRICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR_HPP_
+#ifndef TOPIC_STATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR_HPP_
+#define TOPIC_STATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR_HPP_
 
 #include <chrono>
 #include <string>
 
 #include "../system_metrics_collector/collector.hpp"
 
-namespace system_metrics_collector
+namespace topic_statistics_collector
 {
 /**
- * Class template to collect topic statistics for ROS 2 topics.
+ * Interface to collect and perform measurements for ROS2 topic statistics.
+ *
+ * @tparam T the ROS2 message type to collect
  */
-
-//todo rename to have subscriber in the name
 template<typename T>
 class TopicStatisticsCollector : public system_metrics_collector::Collector
 {
@@ -36,19 +36,19 @@ public:
   * Constructs a TopicStatisticsCollector object.
   */
   TopicStatisticsCollector() = default;
-
+  /**
+   * Destructs a TopicStatisticsCollector object.
+   */
   virtual ~TopicStatisticsCollector() = default;
 
 private:
   /**
-   * Handle receiving a single message on subscribed topic.
-   * This is called by the subscriber that listens to topic for which statistics are to be measured.
-   *
-   * @return the measurement made to be aggregated for statistics
+   * Handle receiving a single message of type T.
+   * @tparam T the ROS2 message type to collect
    */
-  virtual double OnMessageReceived(const T & received_message) = 0;
+  virtual void OnMessageReceived(const T & received_message) = 0;
 };
 
-}  // namespace system_metrics_collector
+}  // namespace topic_statistics_collector
 
 #endif  // TOPIC_STATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR_HPP_
