@@ -84,6 +84,12 @@ TEST_F(CollectorTestFixure, Sanity) {
   ASSERT_NE(test_collector_, nullptr);
 }
 
+TEST_F(CollectorTestFixure, TestAlreadyStarted) {
+  ASSERT_NE(test_collector_, nullptr);
+  ASSERT_TRUE(test_collector_->Start());
+  ASSERT_FALSE(test_collector_->Start());
+}
+
 TEST_F(CollectorTestFixure, TestAddAndClearMeasurement) {
   test_collector_->AcceptData(1);
   auto stats = test_collector_->GetStatisticsResults();
