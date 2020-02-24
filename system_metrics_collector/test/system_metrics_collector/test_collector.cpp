@@ -86,8 +86,8 @@ TEST_F(CollectorTestFixure, Sanity) {
 
 TEST_F(CollectorTestFixure, TestAlreadyStarted) {
   ASSERT_NE(test_collector_, nullptr);
-  ASSERT_TRUE(test_collector_->Start());
-  ASSERT_FALSE(test_collector_->Start());
+  EXPECT_TRUE(test_collector_->Start()) << "Expected true upon first call to start";
+  EXPECT_FALSE(test_collector_->Start()) << "Expected false upon subsequent calls to start";
 }
 
 TEST_F(CollectorTestFixure, TestAddAndClearMeasurement) {
