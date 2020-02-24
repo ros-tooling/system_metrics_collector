@@ -27,31 +27,31 @@ namespace system_metrics_collector
 {
 
 /**
+ * Return a valid MetricsMessage ready to be published to a ROS topic
+ *
+ * @param node_name the name of the node that the data originates from
+ * @param metric_name the name of the metric ("cpu_usage", "memory_usage", etc.)
+ * @param unit name of the unit ("percentage", "mb", etc.)
+ * @param window_start measurement window start time
+ * @param window_stop measurement window end time
+ * @param data statistics derived from the measurements made in the window
+ * @return a MetricsMessage containing the statistics in the data parameter
+ */
+metrics_statistics_msgs::msg::MetricsMessage GenerateStatisticMessage(
+  const std::string & node_name,
+  const std::string & metric_name,
+  const std::string & unit,
+  const builtin_interfaces::msg::Time window_start,
+  const builtin_interfaces::msg::Time window_stop,
+  const moving_average_statistics::StatisticData & data
+);
+
+/**
  * Simple class to facilitate publishing messages containing statistics data
  */
 class MetricsMessagePublisher
 {
 public:
-  /**
-   * Return a valid MetricsMessage ready to be published to a ROS topic
-   *
-   * @param node_name the name of the node that the data originates from
-   * @param metric_name the name of the metric ("cpu_usage", "memory_usage", etc.)
-   * @param unit name of the unit ("percentage", "mb", etc.)
-   * @param window_start measurement window start time
-   * @param window_stop measurement window end time
-   * @param data statistics derived from the measurements made in the window
-   * @return a MetricsMessage containing the statistics in the data parameter
-   */
-  static metrics_statistics_msgs::msg::MetricsMessage GenerateStatisticMessage(
-    const std::string & node_name,
-    const std::string & metric_name,
-    const std::string & unit,
-    const builtin_interfaces::msg::Time window_start,
-    const builtin_interfaces::msg::Time window_stop,
-    const moving_average_statistics::StatisticData & data
-  );
-
   /**
    * Publish the statistics derived from the collected measurements (this is to be called via a
    * ROS2 timer per the publish_period)

@@ -21,6 +21,8 @@
 #include <string>
 
 #include "constants.hpp"
+#include "metrics_message_publisher.hpp"
+
 #include "rclcpp/rclcpp.hpp"
 
 using metrics_statistics_msgs::msg::MetricsMessage;

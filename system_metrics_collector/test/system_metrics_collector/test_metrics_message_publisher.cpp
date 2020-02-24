@@ -28,7 +28,6 @@ using metrics_statistics_msgs::msg::StatisticDataType;
 using moving_average_statistics::StatisticData;
 using system_metrics_collector::MetricsMessagePublisher;
 
-
 namespace
 {
 constexpr const char kTestNodeName[] = "test_publisher";
@@ -51,7 +50,7 @@ TEST(MetricsMessagePublisherTest, TestGenerateMessage) {
   data.standard_deviation = dist(gen);
   data.sample_count = dist(gen);
 
-  MetricsMessage msg = MetricsMessagePublisher::GenerateStatisticMessage(
+  MetricsMessage msg = system_metrics_collector::GenerateStatisticMessage(
     kTestNodeName, kTestMeasurementType, kTestMeasurementUnit, time1, time2, data);
 
   EXPECT_EQ(kTestNodeName, msg.measurement_source_name);
