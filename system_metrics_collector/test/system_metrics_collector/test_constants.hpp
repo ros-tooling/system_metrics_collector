@@ -18,7 +18,7 @@
 #include <array>
 #include <chrono>
 
-#include "../../src/system_metrics_collector/proc_pid_cpu_data.hpp"
+#include "system_metrics_collector/proc_pid_cpu_data.hpp"
 
 
 /**

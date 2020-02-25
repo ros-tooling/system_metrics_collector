@@ -35,6 +35,8 @@ find_package(rclcpp_lifecycle REQUIRED)
 find_package(rcpputils REQUIRED)
 find_package(rcutils REQUIRED)
 
+include_directories(src)
+
 add_library(system_metrics_collector SHARED
   src/moving_average_statistics/moving_average.cpp
   src/moving_average_statistics/types.cpp

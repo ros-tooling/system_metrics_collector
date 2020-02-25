@@ -22,8 +22,8 @@
 #include <random>
 #include <string>
 
-#include "../../src/system_metrics_collector/proc_cpu_data.hpp"
-#include "../../src/system_metrics_collector/utilities.hpp"
+#include "system_metrics_collector/proc_cpu_data.hpp"
+#include "system_metrics_collector/utilities.hpp"
 
 #include "test_constants.hpp"
 

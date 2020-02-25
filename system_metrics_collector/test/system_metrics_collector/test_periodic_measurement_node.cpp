@@ -27,9 +27,9 @@
 #include "../../src/moving_average_statistics/types.hpp"
 #include "lifecycle_msgs/msg/state.hpp"
 
-#include "../../src/system_metrics_collector/collector.hpp"
-#include "../../src/system_metrics_collector/constants.hpp"
-#include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
+#include "system_metrics_collector/collector.hpp"
+#include "system_metrics_collector/constants.hpp"
+#include "system_metrics_collector/periodic_measurement_node.hpp"
 
 #include "test_constants.hpp"
 

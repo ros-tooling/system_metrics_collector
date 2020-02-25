@@ -17,8 +17,10 @@
 #include <iostream>
 #include <memory>
 
-#include "../../src/system_metrics_collector/collector.hpp"
-#include "../../src/moving_average_statistics/types.hpp"
+#include "moving_average_statistics/types.hpp"
+
+
+#include "system_metrics_collector/collector.hpp"
 
 /**
  * Simple extension to test basic functionality

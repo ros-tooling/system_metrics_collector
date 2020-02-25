@@ -17,8 +17,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/logging_macros.h"
 
-#include "../../src/system_metrics_collector/constants.hpp"
-#include "../../src/system_metrics_collector/linux_memory_measurement_node.hpp"
+#include "constants.hpp"
+#include "linux_memory_measurement_node.hpp"
 
 /**
 * An entry point that starts the linux system memory metric collector node.
