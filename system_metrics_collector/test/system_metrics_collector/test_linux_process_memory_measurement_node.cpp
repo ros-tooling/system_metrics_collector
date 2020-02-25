@@ -22,9 +22,9 @@
 
 #include "lifecycle_msgs/msg/state.hpp"
 
-#include "../../src/system_metrics_collector/constants.hpp"
-#include "../../src/system_metrics_collector/linux_process_memory_measurement_node.hpp"
-#include "../../src/system_metrics_collector/utilities.hpp"
+#include "system_metrics_collector/constants.hpp"
+#include "system_metrics_collector/linux_process_memory_measurement_node.hpp"
+#include "system_metrics_collector/utilities.hpp"
 
 #include "test_constants.hpp"
 

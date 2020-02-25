@@ -18,8 +18,8 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/logging_macros.h"
 
-#include "../../src/system_metrics_collector/constants.hpp"
-#include "../../src/system_metrics_collector/linux_cpu_measurement_node.hpp"
+#include "constants.hpp"
+#include "linux_cpu_measurement_node.hpp"
 
 /**
 * An entry point that starts the linux system CPU metric collector node.

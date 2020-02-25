@@ -20,7 +20,7 @@
 #include "metrics_statistics_msgs/msg/statistic_data_type.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-#include "../../src/system_metrics_collector/metrics_message_publisher.hpp"
+#include "system_metrics_collector/metrics_message_publisher.hpp"
 
 using metrics_statistics_msgs::msg::MetricsMessage;
 using metrics_statistics_msgs::msg::StatisticDataPoint;

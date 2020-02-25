@@ -19,7 +19,7 @@
 #include <memory>
 #include <thread>
 
-#include "../../src/moving_average_statistics/moving_average.hpp"
+#include "moving_average_statistics/moving_average.hpp"
 
 namespace
 {

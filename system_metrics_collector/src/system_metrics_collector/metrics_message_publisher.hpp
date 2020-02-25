@@ -21,7 +21,7 @@
 #include "builtin_interfaces/msg/time.hpp"
 #include "metrics_statistics_msgs/msg/metrics_message.hpp"
 
-#include "../moving_average_statistics/types.hpp"
+#include "moving_average_statistics/types.hpp"
 
 namespace system_metrics_collector
 {

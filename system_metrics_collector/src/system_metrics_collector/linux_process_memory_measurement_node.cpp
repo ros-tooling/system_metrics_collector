@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "../../src/system_metrics_collector/linux_process_memory_measurement_node.hpp"
+#include "linux_process_memory_measurement_node.hpp"
 
 #include <sys/sysinfo.h>
 #include <sys/types.h>

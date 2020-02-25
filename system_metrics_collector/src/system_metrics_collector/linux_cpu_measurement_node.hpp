@@ -20,8 +20,8 @@
 #include <sstream>
 #include <string>
 
-#include "../../src/system_metrics_collector/periodic_measurement_node.hpp"
-#include "../../src/system_metrics_collector/proc_cpu_data.hpp"
+#include "periodic_measurement_node.hpp"
+#include "proc_cpu_data.hpp"
 
 namespace system_metrics_collector
 {

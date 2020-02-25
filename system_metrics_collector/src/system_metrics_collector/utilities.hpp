@@ -17,8 +17,8 @@
 
 #include <string>
 
-#include "../../src/system_metrics_collector/proc_cpu_data.hpp"
-#include "../../src/system_metrics_collector/proc_pid_cpu_data.hpp"
+#include "proc_cpu_data.hpp"
+#include "proc_pid_cpu_data.hpp"
 
 namespace system_metrics_collector
 {
