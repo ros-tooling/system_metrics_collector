@@ -69,12 +69,12 @@ public:
    */
   virtual std::string GetStatusString() const;
 
-  // todo @dabonnie uptime (once start has been called)
+  // TODO(dabonnie): uptime (once start has been called)
 
-protected:
   /**
    * Start collecting data. Meant to be called after construction. Note: this locks the recursive mutex class
-   * member 'mutex'.
+   * member 'mutex'. This method is public in order for the caller to manually manage starting and
+   * stopping this collector.
    *
    * @return true if started, false if an error occurred
    */
@@ -82,7 +82,8 @@ protected:
 
   /**
    * Stop collecting data. Meant to be a teardown method (before destruction, but should place the
-   * class in a restartable state, i.e., start can be called to be able to resume collection.
+   * class in a restartable state, i.e., start can be called to be able to resume collection. This method
+   * is public in order for the caller to manually manage starting and stopping this collector.
    *
    * This calls ClearCurrentMeasurements.
    *

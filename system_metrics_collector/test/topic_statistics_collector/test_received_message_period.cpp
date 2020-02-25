@@ -1,4 +1,4 @@
-// Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,32 +18,33 @@
 #include <string>
 #include <thread>
 
-#include "../../src/moving_average_statistics/types.hpp"
-#include "../../src/topic_statistics_collector/received_message_period.hpp"
+#include "moving_average_statistics/types.hpp"
+#include "topic_statistics_collector/received_message_period.hpp"
 
 
 namespace
 {
 constexpr const std::chrono::seconds kDefaultDurationSeconds{1};
 constexpr const int kDefaultMessage = 42;
-constexpr const double kExpectedAverageMilliseconds = 1000.0;
-constexpr const double kExpectedMinMilliseconds = 1000.0;
-constexpr const double kExpectedMaxMilliseconds = 1000.0;
-constexpr const double kExpectedStandardDeviation = 0.0;
+constexpr const double kExpectedAverageMilliseconds{1000.0};
+constexpr const double kExpectedMinMilliseconds{1000.0};
+constexpr const double kExpectedMaxMilliseconds{1000.0};
+constexpr const double kExpectedStandardDeviation{0.0};
 }  // namespace
 
-class TestReceivedMessagePeriod : public topic_statistics_collector::ReceivedMessagePeriod<int>
+class TestReceivedMessagePeriod
+  : public topic_statistics_collector::ReceivedMessagePeriodCollector<int>
 {
 public:
   /**
    * Constructs a TestReceivedMessagePeriod object.
    * @param mock_time if true the mock time will be used, false then system time
    */
-  explicit TestReceivedMessagePeriod(bool mock_time = false)
+  explicit TestReceivedMessagePeriod(bool mock_time)
   : mock_time_(mock_time)
   {
     if (mock_time_) {
-      fake_now_ = ReceivedMessagePeriod::GetCurrentTime();
+      fake_now_ = ReceivedMessagePeriodCollector::GetCurrentTime();
     }
   }
   virtual ~TestReceivedMessagePeriod() = default;
@@ -52,12 +53,12 @@ public:
    * Overridden in order to mock the clock for measurement testing.
    * @return
    */
-  std::chrono::high_resolution_clock::time_point GetCurrentTime() override
+  std::chrono::steady_clock::time_point GetCurrentTime() const override
   {
     if (mock_time_) {
       return fake_now_;
     } else {
-      return ReceivedMessagePeriod::GetCurrentTime();
+      return ReceivedMessagePeriodCollector::GetCurrentTime();
     }
   }
 
@@ -71,20 +72,21 @@ public:
   }
 
   bool mock_time_{false};
-  std::chrono::high_resolution_clock::time_point fake_now_;
+  std::chrono::steady_clock::time_point fake_now_;
 };
 
 TEST(ReceivedMessagePeriodTest, GetCurrentTime) {
-  TestReceivedMessagePeriod test{};
-
+  TestReceivedMessagePeriod test{false};
   auto now = test.GetCurrentTime();
   EXPECT_NE(topic_statistics_collector::kDefaultTimePoint, now);
 }
 
 TEST(ReceivedMessagePeriodTest, TestPeriodMeasurement) {
   TestReceivedMessagePeriod test{true};
+  EXPECT_FALSE(test.IsStarted()) << "Expected to be not started after constructed";
 
-  EXPECT_TRUE(test.IsStarted()) << "Expected to be started after constructed";
+  EXPECT_TRUE(test.Start()) << "Expected Start() to be successful";
+  EXPECT_TRUE(test.IsStarted()) << "Expected to be started";
 
   test.OnMessageReceived(kDefaultMessage);
   auto stats = test.GetStatisticsResults();

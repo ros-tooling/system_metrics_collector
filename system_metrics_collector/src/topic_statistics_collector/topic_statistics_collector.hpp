@@ -32,13 +32,7 @@ template<typename T>
 class TopicStatisticsCollector : public system_metrics_collector::Collector
 {
 public:
-  /**
-  * Constructs a TopicStatisticsCollector object.
-  */
   TopicStatisticsCollector() = default;
-  /**
-   * Destructs a TopicStatisticsCollector object.
-   */
   virtual ~TopicStatisticsCollector() = default;
 
 private:

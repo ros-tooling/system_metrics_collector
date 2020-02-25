@@ -51,8 +51,6 @@ add_library(system_metrics_collector SHARED
   src/system_metrics_collector/proc_cpu_data.cpp
   src/system_metrics_collector/proc_pid_cpu_data.cpp
   src/system_metrics_collector/utilities.cpp
-  src/topic_statistics_collector/received_message_period.hpp
-  src/topic_statistics_collector/statistics_publisher.hpp
 )
 ament_target_dependencies(system_metrics_collector
         metrics_statistics_msgs

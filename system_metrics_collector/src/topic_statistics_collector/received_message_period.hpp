@@ -16,6 +16,7 @@
 #define TOPIC_STATISTICS_COLLECTOR__RECEIVED_MESSAGE_PERIOD_HPP_
 
 #include <chrono>
+#include <mutex>
 #include <string>
 
 #include "topic_statistics_collector.hpp"
@@ -24,46 +25,46 @@
 
 namespace topic_statistics_collector
 {
-constexpr const char kReceivedMessagePeriodMetricName[] = "received_message_period";
-constexpr const char kUnits[] = "milliseconds";
-constexpr const std::chrono::high_resolution_clock::time_point kDefaultTimePoint{std::chrono::
-  high_resolution_clock::duration::zero()};
+constexpr const std::chrono::steady_clock::time_point kDefaultTimePoint{std::chrono::
+  steady_clock::duration::zero()};
 
+/**
+ * Class used to measure the received messsage, tparam T, period from a ROS2 subscriber. This class
+ * is thread safe and acquires a mutex when the member OnMessageReceived is executed.
+ * @tparam T the message to receive from the subscriber / listener
+ */
 template<typename T>
-class ReceivedMessagePeriod : public TopicStatisticsCollector<T>
+class ReceivedMessagePeriodCollector : public TopicStatisticsCollector<T>
 {
 public:
   /**
-   * Constructs a ReceivedMessagePeriod object.
+   * Construct a ReceivedMessagePeriod object.
    *
    * This also starts the Collector.
    */
-  ReceivedMessagePeriod()
-  {
-    system_metrics_collector::Collector::Start();
-  }
+  ReceivedMessagePeriodCollector() = default;
   /**
-   * Destructs a ReceivedMessagePeriod object.
+   * Destruct a ReceivedMessagePeriod object.
    *
    * This also stops the Collector.
    */
-  virtual ~ReceivedMessagePeriod()
-  {
-    system_metrics_collector::Collector::Stop();
-  }
+  virtual ~ReceivedMessagePeriodCollector() = default;
 
   /**
-   * Handle a message received and measure its received period.
+   * Handle a message received and measure its received period. This member is thread safe and acquires
+   * a lock to prevent race conditions when setting the time_last_message_received_ member.
+   *
    * @param received_message
    */
-  void OnMessageReceived(const T & received_message) override
+  void OnMessageReceived(const T & received_message) override RCPPUTILS_TSA_REQUIRES(mutex_)
   {
-    auto now = GetCurrentTime();
+    std::unique_lock<std::mutex> ulock{mutex_};
+    const auto now = GetCurrentTime();
 
     if (time_last_message_received_ == kDefaultTimePoint) {
       time_last_message_received_ = now;
     } else {
-      int period = std::chrono::duration_cast<std::chrono::milliseconds>(
+      const auto period = std::chrono::duration_cast<std::chrono::milliseconds>(
         now - time_last_message_received_).count();
       time_last_message_received_ = now;
       system_metrics_collector::Collector::AcceptData(static_cast<double>(period));
@@ -72,33 +73,35 @@ public:
 
 protected:
   /**
-   * Resets the time_last_message_received_ member.
+   * Reset the time_last_message_received_ member.
    * @return
    */
   bool SetupStart() override
   {
     time_last_message_received_ = kDefaultTimePoint;
+    return true;
   }
 
-  /**
-   * No-op method
-   * @return
-   */
   bool SetupStop() override
   {
+    return true;
   }
 
   /**
-   * Returns the current time using high_resolution_clock.
+   * Return the current time using high_resolution_clock. Defined as virtual for testing
+   * and if another clock implementation is desired.
    * @return the current high_resolution_clock clock time
    */
-  virtual std::chrono::high_resolution_clock::time_point GetCurrentTime()
+  virtual std::chrono::steady_clock::time_point GetCurrentTime() const
   {
-    return std::chrono::high_resolution_clock::now();
+    return std::chrono::steady_clock::now();
   }
 
 private:
-  std::chrono::high_resolution_clock::time_point time_last_message_received_{kDefaultTimePoint};
+  std::chrono::steady_clock::time_point time_last_message_received_{kDefaultTimePoint}
+  RCPPUTILS_TSA_GUARDED_BY(mutex_);
+
+  mutable std::mutex mutex_;
 };
 
 }  // namespace topic_statistics_collector
