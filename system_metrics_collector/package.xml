@@ -9,21 +9,14 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <build_depend>metrics_statistics_msgs</build_depend>
-  <build_depend>rcl</build_depend>
-  <build_depend>rclcpp</build_depend>
-  <build_depend>rclcpp_components</build_depend>
-  <build_depend>rclcpp_lifecycle</build_depend>
-  <build_depend>rcpputils</build_depend>
-  <build_depend>rcutils</build_depend>
+  <depend>metrics_statistics_msgs</depend>
+  <depend>rcl</depend>
+  <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
+  <depend>rclcpp_lifecycle</depend>
+  <depend>rcpputils</depend>
+  <depend>rcutils</depend>
 
-  <exec_depend>metrics_statistics_msgs</exec_depend>
-  <exec_depend>rcl</exec_depend>
-  <exec_depend>rclcpp</exec_depend>
-  <exec_depend>rclcpp_components</exec_depend>
-  <exec_depend>rclcpp_lifecycle</exec_depend>
-  <exec_depend>rcpputils</exec_depend>
-  <exec_depend>rcutils</exec_depend>
   <!--Required for example launch file-->
   <exec_depend>demo_nodes_cpp</exec_depend>
 
@@ -32,11 +25,7 @@
   <test_depend>ament_lint_common</test_depend>
   <test_depend>class_loader</test_depend>
   <test_depend>lifecycle_msgs</test_depend>
-  <test_depend>rcl</test_depend>
-  <test_depend>rclcpp</test_depend>
-  <test_depend>rclcpp_components</test_depend>
-  <test_depend>rcpputils</test_depend>
-  <test_depend>rcutils</test_depend>
+  
   <!--Required for e2e test file-->
   <test_depend>python3-retrying</test_depend>
   <test_depend>rclpy</test_depend>
