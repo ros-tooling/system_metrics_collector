@@ -19,7 +19,7 @@
 #include <chrono>
 #include <string>
 
-#include "../system_metrics_collector/collector.hpp"
+#include "system_metrics_collector/collector.hpp"
 
 namespace topic_statistics_collector
 {

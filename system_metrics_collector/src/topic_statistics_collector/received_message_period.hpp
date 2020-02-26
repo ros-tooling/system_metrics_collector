@@ -33,7 +33,7 @@ namespace topic_statistics_collector
  * Class used to measure the received messsage, tparam T, period from a ROS2 subscriber. This class
  * is thread safe and acquires a mutex when the member OnMessageReceived is executed.
  *
- * @tparam T the message to receive from the subscriber / listener
+ * @tparam T the message type to receive from the subscriber / listener
 */
 template<typename T>
 class ReceivedMessagePeriodCollector : public TopicStatisticsCollector<T>
@@ -126,7 +126,6 @@ private:
    */
   rclcpp::Time uninitialized_time_;
   rclcpp::Time time_last_message_received_ RCPPUTILS_TSA_GUARDED_BY(mutex_);
-
   mutable std::mutex mutex_;
 };
 

@@ -18,8 +18,8 @@
 #include <mutex>
 #include <string>
 
-#include "../moving_average_statistics/moving_average.hpp"
-#include "../moving_average_statistics/types.hpp"
+#include "moving_average_statistics/moving_average.hpp"
+#include "moving_average_statistics/types.hpp"
 
 #include "rcpputils/thread_safety_annotations.hpp"
 
