@@ -93,7 +93,7 @@ TEST(UtilitiesTest, TestParseProcStatLine2)
     parsed_data.ToString());
 }
 
-// todo @dbbonnie this relies on system specific calls and is not stubbed out
+// TODO(dabonnie): this relies on system specific calls and is not stubbed out
 TEST(UtilitiesTest, TestMeasurePidCpuTime)
 {
   auto parsed_data = system_metrics_collector::MeasurePidCpuTime();
