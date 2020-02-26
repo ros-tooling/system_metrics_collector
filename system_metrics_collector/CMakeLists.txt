@@ -138,7 +138,8 @@ if(BUILD_TESTING)
 
   ament_add_gtest(test_received_message_period
           test/topic_statistics_collector/test_received_message_period.cpp)
-  target_link_libraries(test_received_message_period system_metrics_collector rcl rclcpp)
+  target_link_libraries(test_received_message_period system_metrics_collector)
+  ament_target_dependencies(test_received_message_period rcl rclcpp)
 
   install(TARGETS
     test_moving_average_statistics
@@ -153,9 +154,9 @@ if(BUILD_TESTING)
     DESTINATION
     lib/${PROJECT_NAME})
   install(TARGETS
-          test_received_message_period
-          DESTINATION
-          lib/${PROJECT_NAME})
+    test_received_message_period
+    DESTINATION
+    lib/${PROJECT_NAME})
 endif()
 
 # Install launch files

@@ -22,8 +22,8 @@
 #include "topic_statistics_collector.hpp"
 #include "system_metrics_collector/collector.hpp"
 
-#include "rclcpp/clock.hpp"
 #include "rcl/time.h"
+#include "rclcpp/clock.hpp"
 
 
 namespace topic_statistics_collector
