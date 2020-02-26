@@ -20,34 +20,42 @@
 #include <string>
 
 #include "topic_statistics_collector.hpp"
+#include "system_metrics_collector/collector.hpp"
 
-#include "../../src/system_metrics_collector/collector.hpp"
+#include "rclcpp/clock.hpp"
+#include "rcl/time.h"
+
 
 namespace topic_statistics_collector
 {
-constexpr const std::chrono::steady_clock::time_point kDefaultTimePoint{std::chrono::
-  steady_clock::duration::zero()};
 
 /**
  * Class used to measure the received messsage, tparam T, period from a ROS2 subscriber. This class
  * is thread safe and acquires a mutex when the member OnMessageReceived is executed.
+ *
  * @tparam T the message to receive from the subscriber / listener
- */
+*/
 template<typename T>
 class ReceivedMessagePeriodCollector : public TopicStatisticsCollector<T>
 {
 public:
   /**
-   * Construct a ReceivedMessagePeriod object.
+   * Construct a ReceivedMessagePeriodCollector object. Set the
+   * uninitialized_time_ member to use the input clock rcl_clock_type_t.
+   * This is done because time can be compared iff they are provided by
+   * the same clock type.
    *
-   * This also starts the Collector.
+   * @param clock input clock to use in order to measure received message
+   * period, default is RCL_STEADY_TIME
    */
-  ReceivedMessagePeriodCollector() = default;
-  /**
-   * Destruct a ReceivedMessagePeriod object.
-   *
-   * This also stops the Collector.
-   */
+  explicit ReceivedMessagePeriodCollector(
+    const rclcpp::Clock & clock = rclcpp::Clock{RCL_STEADY_TIME})
+  : clock_{clock}
+  {
+    uninitialized_time_ = rclcpp::Time{0, 0, clock_.get_clock_type()};
+    ResetTimeLastMessageReceived();
+  }
+
   virtual ~ReceivedMessagePeriodCollector() = default;
 
   /**
@@ -61,24 +69,36 @@ public:
     std::unique_lock<std::mutex> ulock{mutex_};
     const auto now = GetCurrentTime();
 
-    if (time_last_message_received_ == kDefaultTimePoint) {
+    if (time_last_message_received_ == uninitialized_time_) {
       time_last_message_received_ = now;
     } else {
-      const auto period = std::chrono::duration_cast<std::chrono::milliseconds>(
-        now - time_last_message_received_).count();
+      const std::chrono::nanoseconds nanos{now.nanoseconds() -
+        time_last_message_received_.nanoseconds()};
+      const auto period = std::chrono::duration_cast<std::chrono::milliseconds>(nanos);
       time_last_message_received_ = now;
-      system_metrics_collector::Collector::AcceptData(static_cast<double>(period));
+      system_metrics_collector::Collector::AcceptData(static_cast<double>(period.count()));
     }
+  }
+
+  /**
+   * Return the current time using high_resolution_clock. Defined as virtual for testing
+   * and if another clock implementation is desired.
+   *
+   * @return the current time provided by the clock given at construction time
+   */
+  virtual rclcpp::Time GetCurrentTime()
+  {
+    return clock_.now();
   }
 
 protected:
   /**
    * Reset the time_last_message_received_ member.
-   * @return
+   * @return true
    */
   bool SetupStart() override
   {
-    time_last_message_received_ = kDefaultTimePoint;
+    ResetTimeLastMessageReceived();
     return true;
   }
 
@@ -87,19 +107,25 @@ protected:
     return true;
   }
 
+private:
   /**
-   * Return the current time using high_resolution_clock. Defined as virtual for testing
-   * and if another clock implementation is desired.
-   * @return the current high_resolution_clock clock time
+   * Resets time_last_message_received_ to the expected uninitialized_time_.
    */
-  virtual std::chrono::steady_clock::time_point GetCurrentTime() const
+  void ResetTimeLastMessageReceived()
   {
-    return std::chrono::steady_clock::now();
+    time_last_message_received_ = uninitialized_time_;
   }
 
-private:
-  std::chrono::steady_clock::time_point time_last_message_received_{kDefaultTimePoint}
-  RCPPUTILS_TSA_GUARDED_BY(mutex_);
+  /**
+   * The clock to use in order to determine the rate OnMessageReceived is called.
+   */
+  rclcpp::Clock clock_;
+  /**
+   * Default uninitialized time. In order to compare rclcpp::Time they must come from
+   * the same type of clock.
+   */
+  rclcpp::Time uninitialized_time_;
+  rclcpp::Time time_last_message_received_ RCPPUTILS_TSA_GUARDED_BY(mutex_);
 
   mutable std::mutex mutex_;
 };

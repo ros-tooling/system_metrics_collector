@@ -29,6 +29,7 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(metrics_statistics_msgs REQUIRED)
+find_package(rcl REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
@@ -54,6 +55,7 @@ add_library(system_metrics_collector SHARED
 )
 ament_target_dependencies(system_metrics_collector
         metrics_statistics_msgs
+        rcl
         rclcpp
         rclcpp_components
         rclcpp_lifecycle
@@ -136,7 +138,7 @@ if(BUILD_TESTING)
 
   ament_add_gtest(test_received_message_period
           test/topic_statistics_collector/test_received_message_period.cpp)
-  target_link_libraries(test_received_message_period system_metrics_collector)
+  target_link_libraries(test_received_message_period system_metrics_collector rcl rclcpp)
 
   install(TARGETS
     test_moving_average_statistics

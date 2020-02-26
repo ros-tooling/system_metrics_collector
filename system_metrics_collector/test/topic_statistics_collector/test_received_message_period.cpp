@@ -21,45 +21,47 @@
 #include "moving_average_statistics/types.hpp"
 #include "topic_statistics_collector/received_message_period.hpp"
 
+#include "rclcpp/clock.hpp"
+#include "rcl/time.h"
+
 
 namespace
 {
 constexpr const std::chrono::seconds kDefaultDurationSeconds{1};
-constexpr const int kDefaultMessage = 42;
+constexpr const int kDefaultMessage{42};
 constexpr const double kExpectedAverageMilliseconds{1000.0};
 constexpr const double kExpectedMinMilliseconds{1000.0};
 constexpr const double kExpectedMaxMilliseconds{1000.0};
 constexpr const double kExpectedStandardDeviation{0.0};
+const rclcpp::Time kDefaultSteadyTime{0, 0, RCL_STEADY_TIME};
+const rclcpp::Time kDefaultROSTime{0, 0, RCL_ROS_TIME};
+const rclcpp::Time kDefaultSysTime{0, 0, RCL_SYSTEM_TIME};
 }  // namespace
 
-class TestReceivedMessagePeriod
+/**
+ * Class used to provide a mock time when testing received message period measurements.
+ */
+class TestReceivedMessagePeriodCollector
   : public topic_statistics_collector::ReceivedMessagePeriodCollector<int>
 {
 public:
   /**
-   * Constructs a TestReceivedMessagePeriod object.
-   * @param mock_time if true the mock time will be used, false then system time
-   */
-  explicit TestReceivedMessagePeriod(bool mock_time)
-  : mock_time_(mock_time)
+   * Construct a TestReceivedMessagePeriod object. Initializes the
+   * fake_now_nanos_ member.
+=  */
+  TestReceivedMessagePeriodCollector()
   {
-    if (mock_time_) {
-      fake_now_ = ReceivedMessagePeriodCollector::GetCurrentTime();
-    }
+    fake_now_nanos_ = ReceivedMessagePeriodCollector::GetCurrentTime().nanoseconds();
   }
-  virtual ~TestReceivedMessagePeriod() = default;
+  virtual ~TestReceivedMessagePeriodCollector() = default;
 
   /**
    * Overridden in order to mock the clock for measurement testing.
    * @return
    */
-  std::chrono::steady_clock::time_point GetCurrentTime() const override
+  rclcpp::Time GetCurrentTime() override
   {
-    if (mock_time_) {
-      return fake_now_;
-    } else {
-      return ReceivedMessagePeriodCollector::GetCurrentTime();
-    }
+    return rclcpp::Time{fake_now_nanos_, RCL_STEADY_TIME};
   }
 
   /**
@@ -68,21 +70,29 @@ public:
    */
   void AdvanceTime(std::chrono::seconds seconds)
   {
-    fake_now_ += seconds;
+    fake_now_nanos_ += std::chrono::duration_cast<std::chrono::nanoseconds>(seconds).count();
   }
 
-  bool mock_time_{false};
-  std::chrono::steady_clock::time_point fake_now_;
+  int64_t fake_now_nanos_;
 };
 
-TEST(ReceivedMessagePeriodTest, GetCurrentTime) {
-  TestReceivedMessagePeriod test{false};
+TEST(ReceivedMessagePeriodTest, GetCurrentTimeDefaultClock) {
+  topic_statistics_collector::ReceivedMessagePeriodCollector<int> test{};
   auto now = test.GetCurrentTime();
-  EXPECT_NE(topic_statistics_collector::kDefaultTimePoint, now);
+  EXPECT_NE(kDefaultSteadyTime, now);
+}
+
+TEST(ReceivedMessagePeriodTest, GetCurrentTimeCustomClock) {
+  const rclcpp::Clock asdf{RCL_ROS_TIME};
+  topic_statistics_collector::ReceivedMessagePeriodCollector<int> test{asdf};
+  auto now = test.GetCurrentTime();
+  EXPECT_NE(kDefaultROSTime, now);
 }
 
 TEST(ReceivedMessagePeriodTest, TestPeriodMeasurement) {
-  TestReceivedMessagePeriod test{true};
+  TestReceivedMessagePeriodCollector test{};
+  EXPECT_NE(kDefaultSteadyTime, test.GetCurrentTime());
+
   EXPECT_FALSE(test.IsStarted()) << "Expected to be not started after constructed";
 
   EXPECT_TRUE(test.Start()) << "Expected Start() to be successful";
