@@ -49,6 +49,8 @@ PUBLICATION_TEST_TIMEOUT_SECONDS = 180
 DEFAULT_MAX_ATTEMPTS = 10
 DEFAULT_WAIT_EXPONENTIAL_MULTIPLIER = 1000
 DEFAULT_MAX_EXPONENTIAL_WAIT_MILLISECONDS = 60000
+# this is longer than PUBLICATION_TEST_TIMEOUT_SECONDS in order to let the spin
+# timout complete
 DEFAULT_FIXED_WAIT_MILLISECONDS = (PUBLICATION_TEST_TIMEOUT_SECONDS + TIMEOUT_SECONDS) * 1000
 
 
@@ -69,6 +71,7 @@ class StatisticsListener(Node):
                                             EXPECTED_TOPIC,
                                             self.listener_callback,
                                             QOS_DEPTH)
+        # used to stop spinning upon success
         self.future = future
         # key is node name, value is expected number of messages to receive
         self.expected_lifecycle_nodes_dict = {}
@@ -95,9 +98,9 @@ class StatisticsListener(Node):
                 self.expected_lifecycle_nodes_dict[node_name] = (
                         self.expected_lifecycle_nodes_dict[node_name] - 1)
                 if self.expected_lifecycle_nodes_dict[node_name] == 0:
-                    del self.expected_lifecycle_nodes_dict[node_name]
                     removed = True
             if removed:
+                # don't lock on a logging statement
                 logging.debug('received all messages from %s', node_name)
 
         if self.received_all_expected_messages():
@@ -110,9 +113,10 @@ class StatisticsListener(Node):
         """
         Check and return if all expected messages have been received.
 
-        :return: true if all expected messages have been received, false otherwise
+        :return: true if all expected messages have been received, specifically
+        if the node's received count is not greater than 0, false otherwise.
         """
-        return not self.expected_lifecycle_nodes_dict
+        return not any(v > 0 for _, v in self.expected_lifecycle_nodes_dict.items())
 
 
 def execute_command(command_list: List[str], timeout=TIMEOUT_SECONDS) -> List[str]:
