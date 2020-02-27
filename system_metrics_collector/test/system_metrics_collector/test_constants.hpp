@@ -26,9 +26,10 @@
  */
 namespace test_constants
 {
-constexpr const std::chrono::milliseconds kTestDuration{250};
 constexpr const std::chrono::milliseconds kMeasurePeriod{50};
 constexpr const std::chrono::milliseconds kPublishPeriod{80};
+constexpr const std::chrono::milliseconds kTestDuration{250};
+constexpr const std::chrono::seconds kSpinTimeout{1};
 
 constexpr const char kProcSampleResolutionTest[] =
   "cpu  57211920 335926 18096939 2526329830 14818556 0 1072048 0 0 0\n";
