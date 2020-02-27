@@ -3,8 +3,8 @@
 Note: _This is currently an **experimental** package._
 
 ![License](https://img.shields.io/github/license/ros-tooling/system_metrics_collector)
-[![GitHub Action Status](https://github.com/ros-tooling/system_metrics_collector/workflows/Test%20system_metrics_collector/badge.svg)](https://github.com/ros-tooling/system_metrics_collector/actions)
-![End-to-end Testing (Nightly)](https://github.com/ros-tooling/system_metrics_collector/workflows/End-to-end%20Testing%20(Nightly)/badge.svg)
+[![GitHub Action Status](https://github.com/ros-tooling/system_metrics_collector/workflows/Test%20system_metrics_collector/badge.svg)](https://github.com/ros-tooling/system_metrics_collector/actions?query=workflow%3A%22Test+system_metrics_collector%22)
+[![End-to-end Testing (Nightly)](https://github.com/ros-tooling/system_metrics_collector/workflows/End-to-end%20Testing%20(Nightly)/badge.svg)](https://github.com/ros-tooling/system_metrics_collector/actions?query=workflow%3A%22End-to-end+Testing+%28Nightly%29%22)
 
 ## MetricsMessage
 
