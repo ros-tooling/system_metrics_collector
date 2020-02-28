@@ -11,6 +11,7 @@ import logging
 import signal
 import subprocess
 import sys
+from threading import Lock
 from typing import List
 
 from metrics_statistics_msgs.msg import MetricsMessage
@@ -42,10 +43,15 @@ TIMEOUT_SECONDS = 30
 QOS_DEPTH = 1
 RETURN_VALUE_FAILURE = 1
 RETURN_VALUE_SUCCESS = 0
+EXPECTED_NUMBER_OF_MESSAGES_TO_RECEIVE = 5
+PUBLICATION_TEST_TIMEOUT_SECONDS = 180
 # retry constants
 DEFAULT_MAX_ATTEMPTS = 10
 DEFAULT_WAIT_EXPONENTIAL_MULTIPLIER = 1000
 DEFAULT_MAX_EXPONENTIAL_WAIT_MILLISECONDS = 60000
+# this is longer than PUBLICATION_TEST_TIMEOUT_SECONDS in order to let the spin
+# timout complete
+DEFAULT_FIXED_WAIT_MILLISECONDS = (PUBLICATION_TEST_TIMEOUT_SECONDS + TIMEOUT_SECONDS) * 1000
 
 
 class SystemMetricsEnd2EndTestException(Exception):
@@ -57,37 +63,60 @@ class SystemMetricsEnd2EndTestException(Exception):
 class StatisticsListener(Node):
     """Listen for MetricsMessages published on the /system_metrics topic."""
 
-    def __init__(self, future: Future, expected_lifecycle_nodes: List):
+    def __init__(self, future: Future, expected_lifecycle_nodes: List,
+                 expected_number_of_messages_to_receive: int):
         super().__init__('statisticsListener')
 
         self.sub = self.create_subscription(MetricsMessage,
                                             EXPECTED_TOPIC,
                                             self.listener_callback,
                                             QOS_DEPTH)
+        # used to stop spinning upon success
         self.future = future
-        self.received_all_published_stats = False
-        self.expected_lifecycle_nodes = expected_lifecycle_nodes
+        # key is node name, value is expected number of messages to receive
+        self.expected_lifecycle_nodes_dict = {}
+        for node in expected_lifecycle_nodes:
+            self.expected_lifecycle_nodes_dict[node] = expected_number_of_messages_to_receive
+        self.lock = Lock()
 
     def listener_callback(self, msg) -> None:
         """
         Handle published MetricsMessages.
 
-        Checks each received message measurement_source_name against a list of
-        expected_lifecycle_nodes and marks the future field as done if all sources
-        have been observed.
+        Checks each received message measurement_source_name against a dict of
+        expected_lifecycle_nodes, decrements each entry for its message received,
+        and marks the future field as done if all sources have been observed.
         :param msg: received message
         :return: None
         """
         node_name = '/' + msg.measurement_source_name
 
-        if node_name in self.expected_lifecycle_nodes:
+        if node_name in self.expected_lifecycle_nodes_dict:
             logging.debug('received message from %s', node_name)
-            self.expected_lifecycle_nodes.remove(node_name)
+            removed = False
+            with self.lock:
+                self.expected_lifecycle_nodes_dict[node_name] = (
+                        self.expected_lifecycle_nodes_dict[node_name] - 1)
+                if self.expected_lifecycle_nodes_dict[node_name] == 0:
+                    removed = True
+            if removed:
+                # don't lock on a logging statement
+                logging.debug('received all messages from %s', node_name)
 
-        if not self.expected_lifecycle_nodes:
+        if self.received_all_expected_messages():
             logging.debug('received all expected messages')
-            self.received_all_published_stats = True
-            self.future.set_result(self.received_all_published_stats)
+            self.future.set_result(True)
+        else:
+            logging.debug('messages left to receive %s', self.expected_lifecycle_nodes_dict)
+
+    def received_all_expected_messages(self) -> bool:
+        """
+        Check and return if all expected messages have been received.
+
+        :return: true if all expected messages have been received, specifically
+        if the node's received count is not greater than 0, false otherwise.
+        """
+        return not any(v > 0 for _, v in self.expected_lifecycle_nodes_dict.items())
 
 
 def execute_command(command_list: List[str], timeout=TIMEOUT_SECONDS) -> List[str]:
@@ -116,6 +145,8 @@ def check_for_expected_nodes(args=None) -> None:
     Raise a SystemMetricsEnd2EndTestException if the attempts have been exceeded
     :param args:
     """
+    logging.debug('starting test check_for_expected_nodes')
+
     expected_nodes = ['/listener', '/talker'] + list(EXPECTED_LIFECYCLE_NODES)
     observed_nodes = execute_command(LIST_NODES_COMMAND.split(' '))
     logging.debug('check_for_expected_nodes observed_nodes=%s', str(observed_nodes))
@@ -137,6 +168,8 @@ def check_lifecycle_node_enumeration() -> None:
 
     This requires the ros2lifecycle dependency.
     """
+    logging.debug('starting test check_lifecycle_node_enumeration')
+
     output = execute_command(LIST_LIFECYCLE_NODES_COMMAND.split(' '))
 
     if output.sort() == list(EXPECTED_LIFECYCLE_NODES).sort():
@@ -155,6 +188,8 @@ def check_lifecycle_node_state() -> None:
 
     This requires the ros2lifecycle dependency.
     """
+    logging.debug('starting test check_lifecycle_node_state')
+
     for lifecycle_node in EXPECTED_LIFECYCLE_NODES:
 
         output = execute_command((GET_LIFECYCLE_STATE_COMMAND
@@ -185,6 +220,8 @@ def check_for_expected_topic(expected_topic: str) -> None:
 
     :param expected_topic:
     """
+    logging.debug('starting test check_for_expected_topic')
+
     output = execute_command(TOPIC_LIST_COMMAND.split(' '))
 
     if expected_topic in output:
@@ -193,28 +230,32 @@ def check_for_expected_topic(expected_topic: str) -> None:
         raise SystemMetricsEnd2EndTestException('Unable to find expected topic: ' + str(output))
 
 
-@retry(stop_max_attempt_number=DEFAULT_MAX_ATTEMPTS,
-       wait_exponential_multiplier=DEFAULT_WAIT_EXPONENTIAL_MULTIPLIER,
-       wait_exponential_max=DEFAULT_MAX_EXPONENTIAL_WAIT_MILLISECONDS)
+@retry(stop_max_attempt_number=DEFAULT_MAX_ATTEMPTS, wait_fixed=DEFAULT_FIXED_WAIT_MILLISECONDS)
 def check_for_statistic_publications(args=None) -> None:
     """
     Check that all nodes publish a statistics message.
 
-    This will timeout (default TIMEOUT_SECONDS) if any publishers have not been observed.
+    This will suceed fast if all expected messages were published, otherwise
+    timeout (default TIMEOUT_SECONDS) if any publishers have not been observed.
     :param args:
     """
+    logging.debug('starting test check_for_statistic_publications')
     try:
         future = Future()
         rclpy.init(args=args)
-        node = StatisticsListener(future, list(EXPECTED_LIFECYCLE_NODES))
-        rclpy.spin_until_future_complete(node, future, timeout_sec=TIMEOUT_SECONDS)
+        node = StatisticsListener(future,
+                                  list(EXPECTED_LIFECYCLE_NODES),
+                                  EXPECTED_NUMBER_OF_MESSAGES_TO_RECEIVE)
+        rclpy.spin_until_future_complete(node,
+                                         future,
+                                         timeout_sec=PUBLICATION_TEST_TIMEOUT_SECONDS)
 
-        if node.received_all_published_stats:
+        if node.received_all_expected_messages():
             logging.info('check_for_statistic_publications success')
         else:
             raise SystemMetricsEnd2EndTestException('check_for_statistic_publications failed.'
                                                     ' Absent publisher(s): '
-                                                    + str(node.expected_lifecycle_nodes))
+                                                    + str(node.expected_lifecycle_nodes_dict))
     finally:
         node.destroy_node()
         rclpy.shutdown()
