@@ -38,6 +38,7 @@
 #include "system_metrics_collector/utilities.hpp"
 
 #include "test_constants.hpp"
+#include "test_functions.hpp"
 
 
 using lifecycle_msgs::msg::State;
@@ -48,8 +49,6 @@ using moving_average_statistics::StatisticData;
 using system_metrics_collector::ProcessMemInfoLines;
 using moving_average_statistics::MovingAverageStatistics;
 
-using ExpectedStatistics =
-  std::unordered_map<decltype(StatisticDataPoint::data_type), decltype(StatisticDataPoint::data)>;
 
 namespace
 {
@@ -73,106 +72,13 @@ const std::vector<std::string> kSamples = {
 };
 }  // namespace
 
-/**
- * Convert input StatisticData to a map of StatisticDataPoint::data_type ->
- * StatisticDataPoint::data.
- *
- * @param src input data to convert
- * @return output ExpectedStatistics to use for testing.
- */
-ExpectedStatistics StatisticDataToExpectedStatistics(const StatisticData & src)
-{
-  ExpectedStatistics expected{};
-  expected[StatisticDataType::STATISTICS_DATA_TYPE_AVERAGE] = src.average;
-  expected[StatisticDataType::STATISTICS_DATA_TYPE_MINIMUM] = src.min;
-  expected[StatisticDataType::STATISTICS_DATA_TYPE_MAXIMUM] = src.max;
-  expected[StatisticDataType::STATISTICS_DATA_TYPE_STDDEV] = src.standard_deviation;
-  expected[StatisticDataType::STATISTICS_DATA_TYPE_SAMPLE_COUNT] = src.sample_count;
-  return expected;
-}
-/**
- * Check statistic equality. Fails for any unknown statistic type
- *
- * @param expected_stats expected data
- * @param actual data from a received ROS2 message
- */
-void ExpectedStatisticEquals(
-  const ExpectedStatistics & expected_stats,
-  const metrics_statistics_msgs::msg::MetricsMessage & actual)
-{
-  for (const StatisticDataPoint & stats_point : actual.statistics) {
-    const auto type = stats_point.data_type;
-    switch (type) {
-      case StatisticDataType::STATISTICS_DATA_TYPE_SAMPLE_COUNT:
-        EXPECT_DOUBLE_EQ(expected_stats.at(type), stats_point.data) << "unexpected sample count";
-        break;
-      case StatisticDataType::STATISTICS_DATA_TYPE_AVERAGE:
-        EXPECT_DOUBLE_EQ(expected_stats.at(type), stats_point.data) << "unexpected average";
-        break;
-      case StatisticDataType::STATISTICS_DATA_TYPE_MINIMUM:
-        EXPECT_DOUBLE_EQ(
-          expected_stats.at(type), stats_point.data) << "unexpected min";
-        break;
-      case StatisticDataType::STATISTICS_DATA_TYPE_MAXIMUM:
-        EXPECT_DOUBLE_EQ(
-          expected_stats.at(type), stats_point.data) << "unexpected max";
-        break;
-      case StatisticDataType::STATISTICS_DATA_TYPE_STDDEV:
-        EXPECT_DOUBLE_EQ(expected_stats.at(type), stats_point.data) << "unexpected stddev";
-        break;
-      default:
-        FAIL() << "received unknown statistics type: " << std::to_string(type);
-    }
-  }
-}
-
-/**
- * Provide an interface to wait for a promise to be satisfied via its future.
- */
-class PromiseSetter
-{
-public:
-  /**
-   * Reassign the promise member and return it's future. Acquires a mutex in order
-   * to mutate member variables.
-   *
-   * @return the promise member's future, called upon PeriodicMeasurement
-   */
-  std::shared_future<bool> GetFuture()
-  {
-    std::unique_lock<std::mutex> ulock{mutex_};
-    use_future_ = true;
-    promise_ = std::promise<bool>();
-    return promise_.get_future();
-  }
-
-protected:
-  /**
-   * Set the promise to true, which signals the corresponding future. Acquires a mutex and sets
-   * the promise to true iff GetFuture was invoked before this.
-   */
-  void SetPromise()
-  {
-    std::unique_lock<std::mutex> ulock{mutex_};
-    if (use_future_) {
-      // only set if GetFuture was called
-      promise_.set_value(true);
-      use_future_ = false;    // the promise needs to be reassigned to set again
-    }
-  }
-
-private:
-  mutable std::mutex mutex_;
-  std::promise<bool> promise_;
-  bool use_future_{false};
-};
 
 /**
  * Mock class which iterates through fake data (provided externally) in order to
  * yield a periodic measurement.
  */
 class TestLinuxMemoryMeasurementNode : public system_metrics_collector::LinuxMemoryMeasurementNode,
-  public PromiseSetter
+  public test_functions::PromiseSetter
 {
 public:
   TestLinuxMemoryMeasurementNode(const std::string & name, const rclcpp::NodeOptions & options)
@@ -200,59 +106,13 @@ public:
     if (++index_ >= test_vector_.size()) {
       index_ = 0;
     }
-    PromiseSetter::SetPromise();
+    test_functions::PromiseSetter::SetPromise();
     return to_return;
   }
 
 private:
   std::vector<std::string> test_vector_{""};  // defaults to invalid data
   std::atomic<int> index_{0};
-};
-
-/**
- * Node which listens for published MetricsMessages. This uses the PromiseSetter API
- * in order to signal, via a future, that rclcpp should stop spinning upon
- * message handling.
- */
-class TestReceiveMemoryMeasurementNode : public rclcpp::Node, public PromiseSetter
-{
-public:
-  explicit TestReceiveMemoryMeasurementNode(const std::string & name)
-  : rclcpp::Node(name)
-  {
-    auto callback = [this](MetricsMessage::UniquePtr msg) {this->MetricsMessageCallback(*msg);};
-    subscription_ = create_subscription<MetricsMessage,
-        std::function<void(MetricsMessage::UniquePtr)>>(
-      system_metrics_collector::collector_node_constants::kStatisticsTopicName,
-      0 /*history_depth*/, callback);
-  }
-
-  /**
-   * Acquires a mutex in order to get the last message received member.
-   * @return the last message received
-   */
-  MetricsMessage GetLastReceivedMessage()
-  {
-    std::unique_lock<std::mutex> ulock{mutex_};
-    return last_received_message_;
-  }
-
-private:
-  /**
-   * Subscriber callback. Aquires a mutex to set the last message received and
-   * sets the promise to true
-   * @param msg
-   */
-  void MetricsMessageCallback(const MetricsMessage & msg)
-  {
-    std::unique_lock<std::mutex> ulock{mutex_};
-    last_received_message_ = msg;
-    PromiseSetter::SetPromise();
-  }
-
-  MetricsMessage last_received_message_;
-  rclcpp::Subscription<MetricsMessage>::SharedPtr subscription_;
-  mutable std::mutex mutex_;
 };
 
 
@@ -408,7 +268,7 @@ TEST_F(LinuxMemoryMeasurementTestFixture, TestPublishMessage)
 
   test_measure_linux_memory_->SetTestVector(kSamples);
 
-  const auto test_receive_measurements = std::make_shared<TestReceiveMemoryMeasurementNode>(
+  const auto test_receive_measurements = std::make_shared<test_functions::MetricsMessageSubscriber>(
     "test_receive_measurements");
 
   rclcpp::executors::SingleThreadedExecutor ex;
@@ -439,7 +299,7 @@ TEST_F(LinuxMemoryMeasurementTestFixture, TestPublishMessage)
     expected_moving_average.AddMeasurement(d);
   }
 
-  const auto expected_stats = StatisticDataToExpectedStatistics(
+  const auto expected_stats = test_functions::StatisticDataToExpectedStatistics(
     expected_moving_average.GetStatistics());
 
   // check expected received message
@@ -451,5 +311,5 @@ TEST_F(LinuxMemoryMeasurementTestFixture, TestPublishMessage)
     system_metrics_collector::collector_node_constants::kPercentUnitName,
     received_message.unit);
 
-  ExpectedStatisticEquals(expected_stats, received_message);
+  test_functions::ExpectedStatisticEquals(expected_stats, received_message);
 }
