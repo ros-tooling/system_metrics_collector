@@ -38,12 +38,11 @@
 #include "system_metrics_collector/utilities.hpp"
 
 
+namespace test_functions
+{
 using metrics_statistics_msgs::msg::MetricsMessage;
 using metrics_statistics_msgs::msg::StatisticDataPoint;
 using metrics_statistics_msgs::msg::StatisticDataType;
-
-namespace test_functions
-{
 
 using ExpectedStatistics =
   std::unordered_map<decltype(StatisticDataPoint::data_type), decltype(StatisticDataPoint::data)>;
@@ -77,7 +76,7 @@ void ExpectedStatisticEquals(
   const ExpectedStatistics & expected_stats,
   const metrics_statistics_msgs::msg::MetricsMessage & actual)
 {
-  for (const StatisticDataPoint & stats_point : actual.statistics) {
+  for (const auto & stats_point : actual.statistics) {
     const auto type = stats_point.data_type;
     switch (type) {
       case StatisticDataType::STATISTICS_DATA_TYPE_SAMPLE_COUNT:
@@ -98,7 +97,8 @@ void ExpectedStatisticEquals(
         EXPECT_DOUBLE_EQ(expected_stats.at(type), stats_point.data) << "unexpected stddev";
         break;
       default:
-        FAIL() << "received unknown statistics type: " << std::to_string(type);
+        FAIL() << "received unknown statistics type: " << std::dec <<
+          static_cast<unsigned int>(type);
     }
   }
 }
