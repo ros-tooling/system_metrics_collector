@@ -48,14 +48,13 @@ using metrics_statistics_msgs::msg::StatisticDataType;
 using moving_average_statistics::StatisticData;
 using system_metrics_collector::ProcessMemInfoLines;
 using moving_average_statistics::MovingAverageStatistics;
+using moving_average_statistics::StatisticData;
 
 
 namespace
 {
 constexpr const char kTestNodeName[] = "test_measure_linux_memory";
 constexpr const char kTestMetricName[] = "system_memory_percent_used";
-constexpr const std::chrono::seconds kPublishTestTimeout{2};
-constexpr const std::chrono::milliseconds kPublishPeriod{150};
 
 const std::vector<std::string> kSamples = {
   "MemTotal:       16304208 kB\n"
@@ -129,7 +128,7 @@ public:
       test_constants::kMeasurePeriod.count());
     options.append_parameter_override(
       system_metrics_collector::collector_node_constants::kPublishPeriodParam,
-      kPublishPeriod.count());
+      test_constants::kPublishPeriod.count());
 
     test_measure_linux_memory_ = std::make_shared<TestLinuxMemoryMeasurementNode>(
       kTestNodeName, options);
@@ -290,7 +289,7 @@ TEST_F(LinuxMemoryMeasurementTestFixture, TestPublishMessage)
   // after the first published message
   //
   ex.spin_until_future_complete(
-    test_receive_measurements->GetFuture(), kPublishTestTimeout);
+    test_receive_measurements->GetFuture(), test_constants::kPublishTestTimeout);
 
   // generate expected data
   MovingAverageStatistics expected_moving_average;
