@@ -52,8 +52,10 @@ using test_constants::kProcSamples;
 
 namespace
 {
-constexpr const char kTestNodeName[] = "test_measure_linux_cpu";
+constexpr const char kTestCpuNodeName[] = "test_measure_linux_cpu";
 constexpr const char kTestMetricName[] = "system_cpu_percent_used";
+constexpr const std::chrono::milliseconds kMeasurePeriod{50};
+constexpr const std::chrono::milliseconds kPublishPeriod{6 * 50};
 }  // namespace
 
 /**
@@ -101,13 +103,13 @@ public:
     rclcpp::NodeOptions options;
     options.append_parameter_override(
       system_metrics_collector::collector_node_constants::kCollectPeriodParam,
-      test_constants::kMeasurePeriod.count());
+      kMeasurePeriod.count());
     options.append_parameter_override(
       system_metrics_collector::collector_node_constants::kPublishPeriodParam,
-      test_constants::kPublishPeriod.count());
+      kPublishPeriod.count());
 
     test_measure_linux_cpu_ = std::make_shared<TestLinuxCpuMeasurementNode>(
-      kTestNodeName, options);
+      kTestCpuNodeName, options);
 
     ASSERT_FALSE(test_measure_linux_cpu_->IsStarted());
 
@@ -207,7 +209,7 @@ TEST_F(LinuxCpuMeasurementTestFixture, TestPeriodicMeasurement)
   EXPECT_TRUE(std::isnan(data.standard_deviation));
   EXPECT_EQ(0, data.sample_count);
 
-// reactivate the node
+  // reactivate the node
   test_measure_linux_cpu_->activate();
   ASSERT_EQ(State::PRIMARY_STATE_ACTIVE, test_measure_linux_cpu_->get_current_state().id());
 
@@ -267,11 +269,10 @@ TEST_F(LinuxCpuMeasurementTestFixture, TestPublishMessage)
   ex.spin_until_future_complete(
     test_receive_measurements->GetFuture(), test_constants::kPublishTestTimeout);
 
-  // generate expected data: expectation is that 2 samples are taken within the publish
-  // time frame. (kProcSamples[0], kProcSamples[1])
-  // (kProcSamples[1], kProcSamples[2])
+  // generate expected data: expectation is that 6 samples are taken within the publish
+  // time frame
   MovingAverageStatistics expected_moving_average;
-  for (int i = 0; i <= 1; i++) {
+  for (int i = 0; i < kProcSamples.size() - 1; i++) {
     const auto d = ComputeCpuActivePercentage(
       ProcessStatCpuLine(kProcSamples[i]),
       ProcessStatCpuLine(kProcSamples[i + 1]));
@@ -284,7 +285,7 @@ TEST_F(LinuxCpuMeasurementTestFixture, TestPublishMessage)
   // check expected received message
   const auto received_message = test_receive_measurements->GetLastReceivedMessage();
 
-  EXPECT_EQ(kTestNodeName, received_message.measurement_source_name);
+  EXPECT_EQ(kTestCpuNodeName, received_message.measurement_source_name);
   EXPECT_EQ(kTestMetricName, received_message.metrics_source);
   EXPECT_EQ(
     system_metrics_collector::collector_node_constants::kPercentUnitName,

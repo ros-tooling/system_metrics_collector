@@ -53,7 +53,7 @@ using moving_average_statistics::StatisticData;
 
 namespace
 {
-constexpr const char kTestNodeName[] = "test_measure_linux_memory";
+constexpr const char kTestMemoryNodeName[] = "test_measure_linux_memory";
 constexpr const char kTestMetricName[] = "system_memory_percent_used";
 
 const std::vector<std::string> kSamples = {
@@ -131,7 +131,7 @@ public:
       test_constants::kPublishPeriod.count());
 
     test_measure_linux_memory_ = std::make_shared<TestLinuxMemoryMeasurementNode>(
-      kTestNodeName, options);
+      kTestMemoryNodeName, options);
 
     ASSERT_FALSE(test_measure_linux_memory_->IsStarted());
 
@@ -291,7 +291,8 @@ TEST_F(LinuxMemoryMeasurementTestFixture, TestPublishMessage)
   ex.spin_until_future_complete(
     test_receive_measurements->GetFuture(), test_constants::kPublishTestTimeout);
 
-  // generate expected data
+  // generate expected data, expectation is that all of kSamples was measured
+  // before the message was published
   MovingAverageStatistics expected_moving_average;
   for (const std::string & sample : kSamples) {
     const auto d = ProcessMemInfoLines(sample);
@@ -304,7 +305,7 @@ TEST_F(LinuxMemoryMeasurementTestFixture, TestPublishMessage)
   // check expected received message
   const auto received_message = test_receive_measurements->GetLastReceivedMessage();
 
-  EXPECT_EQ(kTestNodeName, received_message.measurement_source_name);
+  EXPECT_EQ(kTestMemoryNodeName, received_message.measurement_source_name);
   EXPECT_EQ(kTestMetricName, received_message.metrics_source);
   EXPECT_EQ(
     system_metrics_collector::collector_node_constants::kPercentUnitName,
