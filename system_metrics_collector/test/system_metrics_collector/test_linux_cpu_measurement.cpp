@@ -285,10 +285,10 @@ TEST_F(LinuxCpuMeasurementTestFixture, TestPublishMessage)
   // check expected received message
   const auto received_message = test_receive_measurements->GetLastReceivedMessage();
 
-  EXPECT_EQ(kTestCpuNodeName, received_message.measurement_source_name);
-  EXPECT_EQ(kTestMetricName, received_message.metrics_source);
+  EXPECT_EQ(std::string(kTestCpuNodeName), received_message.measurement_source_name);
+  EXPECT_EQ(std::string(kTestMetricName), received_message.metrics_source);
   EXPECT_EQ(
-    system_metrics_collector::collector_node_constants::kPercentUnitName,
+    std::string(system_metrics_collector::collector_node_constants::kPercentUnitName),
     received_message.unit);
 
   test_functions::ExpectedStatisticEquals(expected_stats, received_message);

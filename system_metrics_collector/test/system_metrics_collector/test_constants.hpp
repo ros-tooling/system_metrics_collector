@@ -27,6 +27,7 @@
 namespace test_constants
 {
 constexpr const std::chrono::milliseconds kMeasurePeriod{50};
+// TODO(dbbonnie@amazon.com): Remove this when refactoring per issue #103
 constexpr const std::chrono::milliseconds kPublishPeriod_old{80};
 constexpr const std::chrono::milliseconds kTestDuration{250};
 constexpr const std::chrono::seconds kSpinTimeout{1};
