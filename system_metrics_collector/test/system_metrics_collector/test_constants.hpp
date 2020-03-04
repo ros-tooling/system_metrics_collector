@@ -27,12 +27,12 @@
 namespace test_constants
 {
 constexpr const std::chrono::milliseconds kMeasurePeriod{50};
-// TODO(dbbonnie@amazon.com): Remove this when refactoring per issue #103
-constexpr const std::chrono::milliseconds kPublishPeriod_old{80};
 constexpr const std::chrono::milliseconds kTestDuration{250};
 constexpr const std::chrono::seconds kSpinTimeout{1};
 constexpr const std::chrono::seconds kPublishTestTimeout{2};
 constexpr const std::chrono::milliseconds kPublishPeriod{150};
+constexpr const std::chrono::milliseconds kMeasureCpuPeriod{50};
+constexpr const std::chrono::milliseconds kPublishCpuPeriod{6 * 50};
 
 constexpr const char kProcSampleResolutionTest[] =
   "cpu  57211920 335926 18096939 2526329830 14818556 0 1072048 0 0 0\n";
@@ -46,17 +46,13 @@ constexpr const std::array<const char *, 6> kProcSamples = {
 };
 constexpr const double kCpuActiveProcSample_0_1 = 2.7239908106334099;
 
-constexpr const std::array<system_metrics_collector::ProcPidCpuData, 10> kProcPidSamples = {
+constexpr const std::array<system_metrics_collector::ProcPidCpuData, 6> kProcPidSamples = {
   system_metrics_collector::ProcPidCpuData{7348045, 22451232},
   system_metrics_collector::ProcPidCpuData{7348080, 22451360},
   system_metrics_collector::ProcPidCpuData{7348100, 22451471},
   system_metrics_collector::ProcPidCpuData{7348112, 22451591},
   system_metrics_collector::ProcPidCpuData{7348240, 22452023},
   system_metrics_collector::ProcPidCpuData{7348245, 22452730},
-  system_metrics_collector::ProcPidCpuData{7348258, 22452824},
-  system_metrics_collector::ProcPidCpuData{7348390, 22452902},
-  system_metrics_collector::ProcPidCpuData{7348422, 22453047},
-  system_metrics_collector::ProcPidCpuData{7348423, 22454600}
 };
 constexpr const double kCpuActiveProcPidSample_0_1 = 27.34375;
 

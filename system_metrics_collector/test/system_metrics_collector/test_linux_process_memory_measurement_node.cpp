@@ -34,6 +34,9 @@ namespace
 {
 constexpr const char kTestNodeName[] = "test_periodic_node";
 constexpr const char kTestStatmLine[] = "2084389 308110 7390 1 0 366785 0\n";
+constexpr const int kExpectedProcessMemoryUsed{2084389};
+constexpr const std::chrono::seconds kMeasurePeriod{1};
+constexpr const std::chrono::seconds kPublishPeriod{10};
 }
 
 class TestLinuxProcessMemoryMeasurementNode : public system_metrics_collector::
@@ -68,10 +71,10 @@ public:
     rclcpp::NodeOptions options;
     options.append_parameter_override(
       system_metrics_collector::collector_node_constants::kCollectPeriodParam,
-      std::chrono::duration_cast<std::chrono::milliseconds>(1s).count());
+      std::chrono::duration_cast<std::chrono::milliseconds>(kMeasurePeriod).count());
     options.append_parameter_override(
       system_metrics_collector::collector_node_constants::kPublishPeriodParam,
-      std::chrono::duration_cast<std::chrono::milliseconds>(10s).count());
+      std::chrono::duration_cast<std::chrono::milliseconds>(kPublishPeriod).count());
 
     test_node_ = std::make_shared<TestLinuxProcessMemoryMeasurementNode>(
       kTestNodeName, options);
@@ -111,7 +114,7 @@ TEST(TestLinuxProcessMemoryMeasurement, TestGetProcessUsedMemory) {
       test_constants::kEmptySample), std::ifstream::failure);
 
   const auto ret = system_metrics_collector::GetProcessUsedMemory(kTestStatmLine);
-  EXPECT_EQ(2084389, ret);
+  EXPECT_EQ(kExpectedProcessMemoryUsed, ret);
 }
 
 TEST_F(LinuxProcessMemoryMeasurementTestFixture, TestGetMetricName) {
