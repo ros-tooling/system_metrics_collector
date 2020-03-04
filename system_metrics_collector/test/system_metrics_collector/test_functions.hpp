@@ -103,7 +103,6 @@ void ExpectedStatisticEquals(
   }
 }
 
-
 /**
  * Provide an interface to wait for a promise to be satisfied via its future.
  */

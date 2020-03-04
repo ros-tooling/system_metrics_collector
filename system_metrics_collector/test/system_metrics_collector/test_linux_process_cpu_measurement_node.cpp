@@ -235,7 +235,7 @@ public:
       test_constants::kMeasurePeriod.count());
     options.append_parameter_override(
       system_metrics_collector::collector_node_constants::kPublishPeriodParam,
-      test_constants::kPublishPeriod.count());
+      test_constants::kPublishPeriod_old.count());
 
     test_node_ = std::make_shared<MockLinuxProcessCpuMeasurementNode>(
       kTestNodeName, options);

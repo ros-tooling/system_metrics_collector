@@ -27,23 +27,22 @@
 namespace test_constants
 {
 constexpr const std::chrono::milliseconds kMeasurePeriod{50};
-constexpr const std::chrono::milliseconds kPublishPeriod{80};
+// TODO(dbbonnie@amazon.com): Remove this when refactoring per issue #103
+constexpr const std::chrono::milliseconds kPublishPeriod_old{80};
 constexpr const std::chrono::milliseconds kTestDuration{250};
 constexpr const std::chrono::seconds kSpinTimeout{1};
+constexpr const std::chrono::seconds kPublishTestTimeout{2};
+constexpr const std::chrono::milliseconds kPublishPeriod{150};
 
 constexpr const char kProcSampleResolutionTest[] =
   "cpu  57211920 335926 18096939 2526329830 14818556 0 1072048 0 0 0\n";
-constexpr const std::array<const char *, 10> kProcSamples = {
+constexpr const std::array<const char *, 6> kProcSamples = {
   "cpu 22451232 118653 7348045 934943300 5378119 0 419114 0 0 0\n",
   "cpu 22451360 118653 7348080 934949227 5378120 0 419117 0 0 0\n",
   "cpu 24343452 61856 6484430 10645595 58695 0 683052 0 0 0\n",
   "cpu 6051294 43322 1611333 9021635 47400 0 177494 0 0 0\n",
   "cpu 6092443 6217 1623536 535731 4143 0 232286 0 0 0\n",
   "cpu 6097071 6498 1612044 544445 3484 0 135942 0 0 0\n",
-  "cpu 6102643 5818 1637516 543782 3666 0 137329 0 0 0\n",
-  "cpu 24513632 62372 6527524 11205004 62394 0 687176 0 0 0\n",
-  "cpu 6093617 43419 1621953 9161570 48047 0 178792 0 0 0\n",
-  "cpu 6134250 6371 1634411 675446 5285 0 233478 0 0 0\n"
 };
 constexpr const double kCpuActiveProcSample_0_1 = 2.7239908106334099;
 

@@ -48,14 +48,13 @@ using metrics_statistics_msgs::msg::StatisticDataType;
 using moving_average_statistics::StatisticData;
 using system_metrics_collector::ProcessMemInfoLines;
 using moving_average_statistics::MovingAverageStatistics;
+using moving_average_statistics::StatisticData;
 
 
 namespace
 {
-constexpr const char kTestNodeName[] = "test_measure_linux_memory";
+constexpr const char kTestMemoryNodeName[] = "test_measure_linux_memory";
 constexpr const char kTestMetricName[] = "system_memory_percent_used";
-constexpr const std::chrono::seconds kPublishTestTimeout{2};
-constexpr const std::chrono::milliseconds kPublishPeriod{150};
 
 const std::vector<std::string> kSamples = {
   "MemTotal:       16304208 kB\n"
@@ -129,10 +128,10 @@ public:
       test_constants::kMeasurePeriod.count());
     options.append_parameter_override(
       system_metrics_collector::collector_node_constants::kPublishPeriodParam,
-      kPublishPeriod.count());
+      test_constants::kPublishPeriod.count());
 
     test_measure_linux_memory_ = std::make_shared<TestLinuxMemoryMeasurementNode>(
-      kTestNodeName, options);
+      kTestMemoryNodeName, options);
 
     ASSERT_FALSE(test_measure_linux_memory_->IsStarted());
 
@@ -290,9 +289,10 @@ TEST_F(LinuxMemoryMeasurementTestFixture, TestPublishMessage)
   // after the first published message
   //
   ex.spin_until_future_complete(
-    test_receive_measurements->GetFuture(), kPublishTestTimeout);
+    test_receive_measurements->GetFuture(), test_constants::kPublishTestTimeout);
 
-  // generate expected data
+  // generate expected data, expectation is that all of kSamples was measured
+  // before the message was published
   MovingAverageStatistics expected_moving_average;
   for (const std::string & sample : kSamples) {
     const auto d = ProcessMemInfoLines(sample);
@@ -305,10 +305,10 @@ TEST_F(LinuxMemoryMeasurementTestFixture, TestPublishMessage)
   // check expected received message
   const auto received_message = test_receive_measurements->GetLastReceivedMessage();
 
-  EXPECT_EQ(kTestNodeName, received_message.measurement_source_name);
-  EXPECT_EQ(kTestMetricName, received_message.metrics_source);
+  EXPECT_EQ(std::string(kTestMemoryNodeName), received_message.measurement_source_name);
+  EXPECT_EQ(std::string(kTestMetricName), received_message.metrics_source);
   EXPECT_EQ(
-    system_metrics_collector::collector_node_constants::kPercentUnitName,
+    std::string(system_metrics_collector::collector_node_constants::kPercentUnitName),
     received_message.unit);
 
   test_functions::ExpectedStatisticEquals(expected_stats, received_message);
