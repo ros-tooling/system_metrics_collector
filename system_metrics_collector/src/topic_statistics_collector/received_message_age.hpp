@@ -66,8 +66,7 @@ public:
       if (timestamp_from_header.get_clock_type() == now.get_clock_type()) {
         const std::chrono::nanoseconds age_nanos{
           now.nanoseconds() - timestamp_from_header.nanoseconds()};
-        const std::chrono::milliseconds age_millis{
-          std::chrono::duration_cast<std::chrono::milliseconds>(age_nanos)};
+        const auto age_millis = std::chrono::duration_cast<std::chrono::milliseconds>(age_nanos);
 
         system_metrics_collector::Collector::AcceptData(static_cast<double>(age_millis.count()));
       } else {

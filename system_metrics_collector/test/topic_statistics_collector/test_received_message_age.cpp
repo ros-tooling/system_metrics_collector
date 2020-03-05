@@ -31,7 +31,7 @@ constexpr const std::chrono::seconds kDefaultDurationSeconds{1};
 constexpr const double kExpectedAverageMilliseconds{2000.0};
 constexpr const double kExpectedMinMilliseconds{1000.0};
 constexpr const double kExpectedMaxMilliseconds{3000.0};
-constexpr const double kExpectedStandardDeviation{816};
+constexpr const double kExpectedStandardDeviation{816.49658092772597};
 const rclcpp::Time kDefaultSystemTime{0, 0, RCL_SYSTEM_TIME};
 constexpr const int kDefaultTimesToTest{10};
 }  // namespace
@@ -70,15 +70,15 @@ public:
 
 sensor_msgs::msg::Imu GetImuMessageWithHeader(const int64_t timestamp)
 {
-  auto message = sensor_msgs::msg::Imu();
-  message.header = std_msgs::msg::Header();
-  message.header.stamp = rclcpp::Time(timestamp);
+  auto message = sensor_msgs::msg::Imu{};
+  message.header = std_msgs::msg::Header{};
+  message.header.stamp = rclcpp::Time{timestamp};
   return message;
 }
 
 std_msgs::msg::String GetStringMessageWithoutHeader()
 {
-  auto message = std_msgs::msg::String();
+  auto message = std_msgs::msg::String{};
   message.data = "Any message with no header";
   return message;
 }
@@ -114,7 +114,7 @@ TEST(ReceivedMessageAgeTest, TestMeasurementOnlyMadeForInitializedHeaderValue) {
   imu_msg_collector{clock};
 
   // Don't initialize `header.stamp`
-  const auto imu_msg_uninitialized_header = sensor_msgs::msg::Imu();
+  const auto imu_msg_uninitialized_header = sensor_msgs::msg::Imu{};
   imu_msg_collector.OnMessageReceived(imu_msg_uninitialized_header);
   auto stats = imu_msg_collector.GetStatisticsResults();
   EXPECT_EQ(0, stats.sample_count) << "Expect 0 samples to be collected";
@@ -175,5 +175,5 @@ TEST(ReceivedMessageAgeTest, TestAgeMeasurement) {
   EXPECT_EQ(kExpectedAverageMilliseconds, stats.average);
   EXPECT_EQ(kExpectedMinMilliseconds, stats.min);
   EXPECT_EQ(kExpectedMaxMilliseconds, stats.max);
-  EXPECT_EQ(kExpectedStandardDeviation, std::floor(stats.standard_deviation));
+  EXPECT_DOUBLE_EQ(kExpectedStandardDeviation, stats.standard_deviation);
 }
