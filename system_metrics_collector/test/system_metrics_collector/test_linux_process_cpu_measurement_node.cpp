@@ -249,7 +249,7 @@ TEST_F(LinuxProcessCpuMeasurementTestFixture, TestPeriodicMeasurement)
   EXPECT_DOUBLE_EQ(expected_cpu_active, data.average);
   EXPECT_DOUBLE_EQ(expected_cpu_active, data.min);
   EXPECT_DOUBLE_EQ(expected_cpu_active, data.max);
-  EXPECT_DOUBLE_EQ(0.0, data.standard_deviation); // only one sample so 0
+  EXPECT_DOUBLE_EQ(0.0, data.standard_deviation);  // only one sample so 0
 }
 
 /**
@@ -307,7 +307,6 @@ TEST_F(LinuxProcessCpuMeasurementTestFixture, TestPublishMessage)
   const auto received_message = test_receive_measurements->GetLastReceivedMessage();
 
   EXPECT_EQ(std::string(kTestNodeName), received_message.measurement_source_name);
-  //EXPECT_EQ(std::string(kTestMetricName), received_message.metrics_source);
   EXPECT_EQ(
     std::string(system_metrics_collector::collector_node_constants::kPercentUnitName),
     received_message.unit);
