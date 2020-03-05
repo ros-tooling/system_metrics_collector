@@ -41,6 +41,9 @@
 
 #include "rclcpp/rclcpp.hpp"
 
+
+namespace
+{
 using lifecycle_msgs::msg::State;
 using metrics_statistics_msgs::msg::MetricsMessage;
 using metrics_statistics_msgs::msg::StatisticDataPoint;
@@ -50,12 +53,8 @@ using moving_average_statistics::StatisticData;
 using system_metrics_collector::ProcessStatCpuLine;
 using test_constants::kProcSamples;
 
-namespace
-{
 constexpr const char kTestCpuNodeName[] = "test_measure_linux_cpu";
 constexpr const char kTestMetricName[] = "system_cpu_percent_used";
-constexpr const std::chrono::milliseconds kMeasurePeriod{50};
-constexpr const std::chrono::milliseconds kPublishPeriod{6 * 50};
 }  // namespace
 
 /**
@@ -103,10 +102,10 @@ public:
     rclcpp::NodeOptions options;
     options.append_parameter_override(
       system_metrics_collector::collector_node_constants::kCollectPeriodParam,
-      kMeasurePeriod.count());
+      test_constants::kMeasureCpuPeriod.count());
     options.append_parameter_override(
       system_metrics_collector::collector_node_constants::kPublishPeriodParam,
-      kPublishPeriod.count());
+      test_constants::kPublishCpuPeriod.count());
 
     test_measure_linux_cpu_ = std::make_shared<TestLinuxCpuMeasurementNode>(
       kTestCpuNodeName, options);
