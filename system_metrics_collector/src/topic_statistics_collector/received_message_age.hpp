@@ -23,6 +23,7 @@
 #include "message_filters/message_traits.h"
 #include "rcl/time.h"
 #include "rclcpp/clock.hpp"
+#include "rcutils/logging_macros.h"
 
 
 namespace topic_statistics_collector
@@ -36,6 +37,12 @@ template<typename T>
 class ReceivedMessageAgeCollector : public TopicStatisticsCollector<T>
 {
 public:
+  /**
+   * Construct a ReceivedMessageAgeCollector object.
+   *
+   * @param clock input clock to use to calculate received message age.
+   * Default is RCL_STEADY_TIME
+   */
   explicit ReceivedMessageAgeCollector(
     const rclcpp::Clock & clock = rclcpp::Clock{RCL_STEADY_TIME})
   : clock_{clock}
@@ -45,21 +52,29 @@ public:
 
   /**
   * Handle a new incoming message. Calculate message age if a valid Header is present.
+  *
+  * @param received_message, the message to calculate age of.
   */
   void OnMessageReceived(const T & received_message) override
   {
-    const rclcpp::Time timestamp_from_header = message_filters::message_traits::TimeStamp<T>::value(
+    const auto timestamp_from_header = message_filters::message_traits::TimeStamp<T>::value(
       received_message);
 
     if (timestamp_from_header.nanoseconds()) {
       const auto now = GetCurrentTime();
 
-      const std::chrono::nanoseconds age_nanos{
-        now.nanoseconds() - timestamp_from_header.nanoseconds()};
-      const std::chrono::milliseconds age_millis{
-        std::chrono::duration_cast<std::chrono::milliseconds>(age_nanos)};
+      if (timestamp_from_header.get_clock_type() == now.get_clock_type()) {
+        const std::chrono::nanoseconds age_nanos{
+          now.nanoseconds() - timestamp_from_header.nanoseconds()};
+        const std::chrono::milliseconds age_millis{
+          std::chrono::duration_cast<std::chrono::milliseconds>(age_nanos)};
 
-      system_metrics_collector::Collector::AcceptData(static_cast<double>(age_millis.count()));
+        system_metrics_collector::Collector::AcceptData(static_cast<double>(age_millis.count()));
+      } else {
+        RCUTILS_LOG_WARN_NAMED(
+          "topic_statistics_collector",
+          "Message header and current clock have different time sources, no metric reported");
+      }
     }
   }
 

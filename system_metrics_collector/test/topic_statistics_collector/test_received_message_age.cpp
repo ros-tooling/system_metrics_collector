@@ -19,8 +19,8 @@
 
 #include "topic_statistics_collector/received_message_age.hpp"
 
-#include "rclcpp/clock.hpp"
 #include "rcl/time.h"
+#include "rclcpp/clock.hpp"
 #include "sensor_msgs/msg/imu.hpp"
 #include "std_msgs/msg/string.hpp"
 
@@ -108,20 +108,42 @@ TEST(ReceivedMessageAgeTest, TestOnlyMessagesWithHeaderGetSampled) {
   }
 }
 
-TEST(ReceivedMessageAgeTest, TestMeasurementOnlyMadeForPositiveHeaderValue) {
+TEST(ReceivedMessageAgeTest, TestMeasurementOnlyMadeForInitializedHeaderValue) {
   rclcpp::Clock clock{RCL_SYSTEM_TIME};
   topic_statistics_collector::ReceivedMessageAgeCollector<sensor_msgs::msg::Imu>
   imu_msg_collector{clock};
 
-  const auto imu_msg_zero_header = GetImuMessageWithHeader(0);
-  imu_msg_collector.OnMessageReceived(imu_msg_zero_header);
+  // Don't initialize `header.stamp`
+  const auto imu_msg_uninitialized_header = sensor_msgs::msg::Imu();
+  imu_msg_collector.OnMessageReceived(imu_msg_uninitialized_header);
   auto stats = imu_msg_collector.GetStatisticsResults();
   EXPECT_EQ(0, stats.sample_count) << "Expect 0 samples to be collected";
 
+  // Set `header.stamp` to 0
+  const auto imu_msg_zero_header = GetImuMessageWithHeader(0);
+  imu_msg_collector.OnMessageReceived(imu_msg_zero_header);
+  stats = imu_msg_collector.GetStatisticsResults();
+  EXPECT_EQ(0, stats.sample_count) << "Expect 0 samples to be collected";
+
+  // Set `header.stamp` to non-zero value
   const auto imu_msg_positive_header = GetImuMessageWithHeader(1);
   imu_msg_collector.OnMessageReceived(imu_msg_positive_header);
   stats = imu_msg_collector.GetStatisticsResults();
   EXPECT_EQ(1, stats.sample_count) << "Expect 1 sample to be collected";
+}
+
+TEST(ReceivedMessageAgeTest, TestDifferentClockSourcesAreHandledCorrectly) {
+  rclcpp::Clock clock{RCL_SYSTEM_TIME};
+
+  // Default clock source is RCL_STEADY_TIME
+  topic_statistics_collector::ReceivedMessageAgeCollector<sensor_msgs::msg::Imu>
+  imu_msg_collector;
+
+  const auto imu_msg = GetImuMessageWithHeader(clock.now().nanoseconds());
+
+  imu_msg_collector.OnMessageReceived(imu_msg);
+  auto stats = imu_msg_collector.GetStatisticsResults();
+  EXPECT_EQ(0, stats.sample_count) << "Expect 0 samples to be collected";
 }
 
 TEST(ReceivedMessageAgeTest, TestAgeMeasurement) {
