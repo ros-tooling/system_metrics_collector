@@ -37,6 +37,9 @@
 #include "test_constants.hpp"
 #include "test_functions.hpp"
 
+
+namespace
+{
 using lifecycle_msgs::msg::State;
 using metrics_statistics_msgs::msg::MetricsMessage;
 using metrics_statistics_msgs::msg::StatisticDataPoint;
@@ -45,10 +48,8 @@ using moving_average_statistics::MovingAverageStatistics;
 using moving_average_statistics::StatisticData;
 using test_constants::kProcPidSamples;
 
-namespace
-{
 constexpr const char kTestProcessCpuNodeName[] = "test_measure_linux_process_cpu";
-}
+}  // namespace
 
 class MockLinuxProcessCpuMeasurementNode : public system_metrics_collector::
   LinuxProcessCpuMeasurementNode, public test_functions::PromiseSetter
@@ -153,7 +154,7 @@ TEST_F(LinuxProcessCpuMeasurementTestFixture, TestGetMetricName) {
 TEST_F(LinuxProcessCpuMeasurementTestFixture, TestManualMeasurement)
 {
   // first measurement caches
-  double cpu_active_percentage = test_measure_linux_process_cpu_->PeriodicMeasurement();
+  auto cpu_active_percentage = test_measure_linux_process_cpu_->PeriodicMeasurement();
   ASSERT_TRUE(std::isnan(cpu_active_percentage));
   // second measurement compares current and cached
   cpu_active_percentage = test_measure_linux_process_cpu_->PeriodicMeasurement();

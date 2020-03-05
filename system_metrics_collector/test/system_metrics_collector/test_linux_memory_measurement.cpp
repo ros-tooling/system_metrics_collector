@@ -41,6 +41,8 @@
 #include "test_functions.hpp"
 
 
+namespace
+{
 using lifecycle_msgs::msg::State;
 using metrics_statistics_msgs::msg::MetricsMessage;
 using metrics_statistics_msgs::msg::StatisticDataPoint;
@@ -50,9 +52,6 @@ using system_metrics_collector::ProcessMemInfoLines;
 using moving_average_statistics::MovingAverageStatistics;
 using moving_average_statistics::StatisticData;
 
-
-namespace
-{
 constexpr const char kTestMemoryNodeName[] = "test_measure_linux_memory";
 constexpr const char kTestMetricName[] = "system_memory_percent_used";
 

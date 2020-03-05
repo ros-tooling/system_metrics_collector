@@ -28,10 +28,11 @@
 
 #include "test_constants.hpp"
 
-using lifecycle_msgs::msg::State;
 
 namespace
 {
+using lifecycle_msgs::msg::State;
+
 constexpr const char kTestNodeName[] = "test_periodic_node";
 constexpr const char kTestStatmLine[] = "2084389 308110 7390 1 0 366785 0\n";
 constexpr const int kExpectedProcessMemoryUsed{2084389};
