@@ -47,7 +47,7 @@ using test_constants::kProcPidSamples;
 
 namespace
 {
-constexpr const char kTestNodeName[] = "test_measure_linux_process_cpu";
+constexpr const char kTestProcessCpuNodeName[] = "test_measure_linux_process_cpu";
 }
 
 class MockLinuxProcessCpuMeasurementNode : public system_metrics_collector::
@@ -114,7 +114,7 @@ public:
       test_constants::kPublishCpuPeriod.count());
 
     test_measure_linux_process_cpu_ = std::make_shared<MockLinuxProcessCpuMeasurementNode>(
-      kTestNodeName, options);
+      kTestProcessCpuNodeName, options);
 
     ASSERT_FALSE(test_measure_linux_process_cpu_->IsStarted());
 
@@ -306,7 +306,7 @@ TEST_F(LinuxProcessCpuMeasurementTestFixture, TestPublishMessage)
   // check expected received message
   const auto received_message = test_receive_measurements->GetLastReceivedMessage();
 
-  EXPECT_EQ(std::string(kTestNodeName), received_message.measurement_source_name);
+  EXPECT_EQ(std::string(kTestProcessCpuNodeName), received_message.measurement_source_name);
   EXPECT_EQ(
     std::string(system_metrics_collector::collector_node_constants::kPercentUnitName),
     received_message.unit);
