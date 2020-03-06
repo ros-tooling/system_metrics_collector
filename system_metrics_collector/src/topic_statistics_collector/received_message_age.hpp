@@ -17,6 +17,7 @@
 
 #include <chrono>
 #include <string>
+#include <sstream>
 
 #include "topic_statistics_collector.hpp"
 
@@ -70,9 +71,13 @@ public:
 
         system_metrics_collector::Collector::AcceptData(static_cast<double>(age_millis.count()));
       } else {
-        RCUTILS_LOG_WARN_NAMED(
-          "topic_statistics_collector",
-          "Message header and current clock have different time sources, no metric reported");
+        std::stringstream warn_msg;
+        warn_msg <<
+          "Message header and current clock have different time sources, " <<
+          "cannot measure message age" <<
+          "\nmessage header clock type: " << timestamp_from_header.get_clock_type() <<
+          "\ncollector clock type: " << clock_.get_clock_type();
+        RCUTILS_LOG_WARN_NAMED("topic_statistics_collector", "%s", warn_msg.str().c_str());
       }
     }
   }
