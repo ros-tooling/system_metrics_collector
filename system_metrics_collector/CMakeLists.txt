@@ -28,6 +28,7 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(message_filters REQUIRED)
 find_package(metrics_statistics_msgs REQUIRED)
 find_package(rcl REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -35,6 +36,8 @@ find_package(rclcpp_components REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(rcpputils REQUIRED)
 find_package(rcutils REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
 
 include_directories(src)
 
@@ -54,6 +57,7 @@ add_library(system_metrics_collector SHARED
   src/system_metrics_collector/utilities.cpp
 )
 ament_target_dependencies(system_metrics_collector
+        message_filters
         metrics_statistics_msgs
         rcl
         rclcpp
@@ -141,6 +145,11 @@ if(BUILD_TESTING)
   target_link_libraries(test_received_message_period system_metrics_collector)
   ament_target_dependencies(test_received_message_period rcl rclcpp)
 
+  ament_add_gtest(test_received_message_age
+          test/topic_statistics_collector/test_received_message_age.cpp)
+  target_link_libraries(test_received_message_age system_metrics_collector)
+  ament_target_dependencies(test_received_message_age rcl rclcpp message_filters std_msgs sensor_msgs)
+
   install(TARGETS
     test_moving_average_statistics
     DESTINATION
@@ -155,6 +164,10 @@ if(BUILD_TESTING)
     lib/${PROJECT_NAME})
   install(TARGETS
     test_received_message_period
+    DESTINATION
+    lib/${PROJECT_NAME})
+  install(TARGETS
+    test_received_message_age
     DESTINATION
     lib/${PROJECT_NAME})
 endif()
