@@ -54,7 +54,7 @@ def generate_launch_description():
     # Collect, aggregate, and measure system CPU % used
     system_cpu_node = LifecycleNode(
         package='system_metrics_collector',
-        node_name='linux_system_cpu_collector',
+        name='linux_system_cpu_collector',
         node_executable='linux_cpu_collector',
         output='screen',
         parameters=node_parameters,
@@ -63,7 +63,7 @@ def generate_launch_description():
     # Collect, aggregate, and measure system memory % used
     system_memory_node = LifecycleNode(
         package='system_metrics_collector',
-        node_name='linux_system_memory_collector',
+        name='linux_system_memory_collector',
         node_executable='linux_memory_collector',
         output='screen',
         parameters=node_parameters,
@@ -72,25 +72,24 @@ def generate_launch_description():
     # Instrument the listener demo to collect, aggregate, and publish it's CPU % + memory % used
     listener_container = ComposableNodeContainer(
         name='listener_container',
-        node_name='listener_container',
-        node_namespace='',
+        namespace='',
         package='rclcpp_components',
         node_executable='component_container',
         composable_node_descriptions=[
             ComposableNode(
                 package='demo_nodes_cpp',
-                node_plugin='demo_nodes_cpp::Listener',
-                node_name='listener'),
+                plugin='demo_nodes_cpp::Listener',
+                name='listener'),
             ComposableNode(
                 package='system_metrics_collector',
-                node_plugin='system_metrics_collector::LinuxProcessCpuMeasurementNode',
-                node_name='listener_process_cpu_node',
+                plugin='system_metrics_collector::LinuxProcessCpuMeasurementNode',
+                name='listener_process_cpu_node',
                 parameters=node_parameters,
             ),
             ComposableNode(
                 package='system_metrics_collector',
-                node_plugin='system_metrics_collector::LinuxProcessMemoryMeasurementNode',
-                node_name='listener_process_memory_node',
+                plugin='system_metrics_collector::LinuxProcessMemoryMeasurementNode',
+                name='listener_process_memory_node',
                 parameters=node_parameters,
             )
         ],
@@ -100,25 +99,24 @@ def generate_launch_description():
     # Instrument the talker demo to collect, aggregate, and publish it's CPU % + memory % used
     talker_container = ComposableNodeContainer(
         name='talker_container',
-        node_name='talker_container',
-        node_namespace='',
+        namespace='',
         package='rclcpp_components',
         node_executable='component_container',
         composable_node_descriptions=[
             ComposableNode(
                 package='demo_nodes_cpp',
-                node_plugin='demo_nodes_cpp::Talker',
-                node_name='talker'),
+                plugin='demo_nodes_cpp::Talker',
+                name='talker'),
             ComposableNode(
                 package='system_metrics_collector',
-                node_plugin='system_metrics_collector::LinuxProcessCpuMeasurementNode',
-                node_name='talker_process_cpu_node',
+                plugin='system_metrics_collector::LinuxProcessCpuMeasurementNode',
+                name='talker_process_cpu_node',
                 parameters=node_parameters,
             ),
             ComposableNode(
                 package='system_metrics_collector',
-                node_plugin='system_metrics_collector::LinuxProcessMemoryMeasurementNode',
-                node_name='talker_process_memory_node',
+                plugin='system_metrics_collector::LinuxProcessMemoryMeasurementNode',
+                name='talker_process_memory_node',
                 parameters=node_parameters,
             )
         ],

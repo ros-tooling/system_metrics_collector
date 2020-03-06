@@ -77,7 +77,7 @@ def generate_launch_description():
         Node(
             package='system_metrics_collector',
             node_executable='linux_cpu_collector',
-            node_name=LaunchConfiguration(CPU_NODE_NAME),
+            name=LaunchConfiguration(CPU_NODE_NAME),
             parameters=node_parameters,
             remappings=[('system_metrics', LaunchConfiguration(PUBLISH_TOPIC))],
             output='screen'))
@@ -85,7 +85,7 @@ def generate_launch_description():
         Node(
             package='system_metrics_collector',
             node_executable='linux_memory_collector',
-            node_name=LaunchConfiguration(MEMORY_NODE_NAME),
+            name=LaunchConfiguration(MEMORY_NODE_NAME),
             parameters=node_parameters,
             remappings=[('system_metrics', LaunchConfiguration(PUBLISH_TOPIC))],
             output='screen'))
