@@ -39,8 +39,11 @@ private:
   /**
    * Handle receiving a single message of type T.
    * @tparam T the ROS2 message type to collect
+   * @param nanoseconds the time the message was received. Any metrics using this time assumes the
+   * following 1). the time provided is strictly monotonic 2). the time provided uses the same source
+   * as time obtained from the message header.
    */
-  virtual void OnMessageReceived(const T & received_message) = 0;
+  virtual void OnMessageReceived(const T & received_message, const uint64_t & now_nanoseconds) = 0;
 };
 
 }  // namespace topic_statistics_collector

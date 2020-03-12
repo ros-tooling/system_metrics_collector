@@ -21,9 +21,8 @@
 
 #include "topic_statistics_collector.hpp"
 
-#include "message_filters/message_traits.h"
+#include "message_filters/message_traits.h"  // TODO(dabonnie): remove and redefine here
 #include "rcl/time.h"
-#include "rclcpp/clock.hpp"
 #include "rcutils/logging_macros.h"
 
 
@@ -41,12 +40,8 @@ public:
   /**
    * Construct a ReceivedMessageAgeCollector object.
    *
-   * @param clock input clock to use to calculate received message age.
-   * Default is RCL_STEADY_TIME
    */
-  explicit ReceivedMessageAgeCollector(
-    const rclcpp::Clock & clock = rclcpp::Clock{RCL_STEADY_TIME})
-  : clock_{clock}
+  explicit ReceivedMessageAgeCollector()
   {}
 
   virtual ~ReceivedMessageAgeCollector() = default;
@@ -56,41 +51,19 @@ public:
   *
   * @param received_message, the message to calculate age of.
   */
-  void OnMessageReceived(const T & received_message) override
+  void OnMessageReceived(const T & received_message, const uint64_t & now_nanoseconds) override
   {
     const auto timestamp_from_header = message_filters::message_traits::TimeStamp<T>::value(
       received_message);
 
     if (timestamp_from_header.nanoseconds()) {
-      const auto now = GetCurrentTime();
 
-      if (timestamp_from_header.get_clock_type() == now.get_clock_type()) {
         const std::chrono::nanoseconds age_nanos{
-          now.nanoseconds() - timestamp_from_header.nanoseconds()};
+          now_nanoseconds - timestamp_from_header.nanoseconds()};
         const auto age_millis = std::chrono::duration_cast<std::chrono::milliseconds>(age_nanos);
 
         system_metrics_collector::Collector::AcceptData(static_cast<double>(age_millis.count()));
-      } else {
-        std::stringstream warn_msg;
-        warn_msg <<
-          "Message header and current clock have different time sources, " <<
-          "cannot measure message age" <<
-          "\nmessage header clock type: " << timestamp_from_header.get_clock_type() <<
-          "\ncollector clock type: " << clock_.get_clock_type();
-        RCUTILS_LOG_WARN_NAMED("topic_statistics_collector", "%s", warn_msg.str().c_str());
-      }
     }
-  }
-
-  /**
-   * Return the current time using high_resolution_clock.
-   * Defined as virtual for testing and if another clock implementation is desired.
-   *
-   * @return the current time provided by the clock given at construction time
-   */
-  virtual rclcpp::Time GetCurrentTime()
-  {
-    return clock_.now();
   }
 
 protected:
@@ -104,11 +77,6 @@ protected:
     return true;
   }
 
-private:
-  /**
-   * The clock to use in order to determine the age of incoming messages.
-   */
-  rclcpp::Clock clock_;
 };
 
 }  // namespace topic_statistics_collector
