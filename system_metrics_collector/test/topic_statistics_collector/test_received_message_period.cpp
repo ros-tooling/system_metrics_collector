@@ -43,7 +43,7 @@ TEST(ReceivedMessagePeriodTest, TestPeriodMeasurement) {
   EXPECT_TRUE(test.Start()) << "Expected Start() to be successful";
   EXPECT_TRUE(test.IsStarted()) << "Expected to be started";
 
-  int64_t fake_now_nanos_{1};
+  rcl_time_point_value_t fake_now_nanos_{1};
 
   test.OnMessageReceived(kDefaultMessage, fake_now_nanos_);
   auto stats = test.GetStatisticsResults();

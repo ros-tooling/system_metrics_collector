@@ -33,7 +33,7 @@ constexpr const double kExpectedMaxMilliseconds{3000.0};
 constexpr const double kExpectedStandardDeviation{816.49658092772597};
 constexpr const int kDefaultTimesToTest{10};
 constexpr const uint64_t kDefaultTimeMessageReceived{1000};
-
+constexpr const rcl_time_point_value_t kStartTime{123456789};
 sensor_msgs::msg::Imu GetImuMessageWithHeader(const int64_t timestamp)
 {
   auto message = sensor_msgs::msg::Imu{};
@@ -106,7 +106,7 @@ TEST(ReceivedMessageAgeTest, TestAgeMeasurement) {
   EXPECT_TRUE(test_collector.Start()) << "Expect Start() to be successful";
   EXPECT_TRUE(test_collector.IsStarted()) << "Expect to be started";
 
-  int64_t fake_now_nanos_{123456789};
+  rcl_time_point_value_t fake_now_nanos_{kStartTime};
   const auto test_message = GetImuMessageWithHeader(fake_now_nanos_);
   fake_now_nanos_ +=
     std::chrono::duration_cast<std::chrono::nanoseconds>(kDefaultDurationSeconds).count();

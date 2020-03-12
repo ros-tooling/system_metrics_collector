@@ -80,7 +80,9 @@ public:
   *
   * @param received_message, the message to calculate age of.
   */
-  void OnMessageReceived(const T & received_message, const uint64_t & now_nanoseconds) override
+  void OnMessageReceived(
+    const T & received_message,
+    const rcl_time_point_value_t & now_nanoseconds) override
   {
     const auto timestamp_from_header = TimeStamp<T>::value(received_message);
 
