@@ -20,7 +20,6 @@
 #include "topic_statistics_collector/received_message_age.hpp"
 
 #include "rcl/time.h"
-#include "rclcpp/clock.hpp"
 #include "sensor_msgs/msg/imu.hpp"
 #include "std_msgs/msg/string.hpp"
 
@@ -32,47 +31,14 @@ constexpr const double kExpectedAverageMilliseconds{2000.0};
 constexpr const double kExpectedMinMilliseconds{1000.0};
 constexpr const double kExpectedMaxMilliseconds{3000.0};
 constexpr const double kExpectedStandardDeviation{816.49658092772597};
-const rclcpp::Time kDefaultSystemTime{0, 0, RCL_SYSTEM_TIME};
 constexpr const int kDefaultTimesToTest{10};
-}  // namespace
-
-class TestReceivedMessageAgeCollector
-  : public topic_statistics_collector::ReceivedMessageAgeCollector<
-    sensor_msgs::msg::Imu>
-{
-public:
-  TestReceivedMessageAgeCollector()
-  {
-    fake_now_ = ReceivedMessageAgeCollector::GetCurrentTime().nanoseconds();
-  }
-  virtual ~TestReceivedMessageAgeCollector() = default;
-
-  /**
-   * Overridden in order to mock the clock for measurement testing.
-   * @return a fixed time point
-   */
-  rclcpp::Time GetCurrentTime() override
-  {
-    return rclcpp::Time{fake_now_, RCL_SYSTEM_TIME};
-  }
-
-  /**
-   * Advance time by a specified duration, in seconds.
-   * @param seconds duration which to advance time
-   */
-  void AdvanceTime(std::chrono::nanoseconds nanos)
-  {
-    fake_now_ += nanos.count();
-  }
-
-  int64_t fake_now_;
-};
+constexpr const uint64_t kDefaultTimeMessageReceived{1000};
 
 sensor_msgs::msg::Imu GetImuMessageWithHeader(const int64_t timestamp)
 {
   auto message = sensor_msgs::msg::Imu{};
   message.header = std_msgs::msg::Header{};
-  message.header.stamp = rclcpp::Time{timestamp};
+  message.header.stamp.nanosec = timestamp;
   return message;
 }
 
@@ -82,93 +48,84 @@ std_msgs::msg::String GetStringMessageWithoutHeader()
   message.data = "Any message with no header";
   return message;
 }
+}  // namespace
+
 
 TEST(ReceivedMessageAgeTest, TestOnlyMessagesWithHeaderGetSampled) {
-  rclcpp::Clock clock{RCL_SYSTEM_TIME};
   topic_statistics_collector::ReceivedMessageAgeCollector<std_msgs::msg::String>
-  string_msg_collector{clock};
+  string_msg_collector{};
 
   const auto string_msg = GetStringMessageWithoutHeader();
   moving_average_statistics::StatisticData stats;
 
   for (int i = 0; i < kDefaultTimesToTest; ++i) {
-    string_msg_collector.OnMessageReceived(string_msg);
+    string_msg_collector.OnMessageReceived(string_msg, kDefaultTimeMessageReceived);
     stats = string_msg_collector.GetStatisticsResults();
     EXPECT_EQ(0, stats.sample_count) << "Expect 0 samples to be collected";
   }
 
   topic_statistics_collector::ReceivedMessageAgeCollector<sensor_msgs::msg::Imu>
-  imu_msg_collector{clock};
-  const auto imu_msg = GetImuMessageWithHeader(clock.now().nanoseconds());
+  imu_msg_collector{};
+  const auto imu_msg = GetImuMessageWithHeader(1);
 
   for (int i = 0; i < kDefaultTimesToTest; ++i) {
-    imu_msg_collector.OnMessageReceived(imu_msg);
+    imu_msg_collector.OnMessageReceived(imu_msg, kDefaultTimeMessageReceived);
     stats = imu_msg_collector.GetStatisticsResults();
     EXPECT_EQ(i + 1, stats.sample_count) << "Expect " << i + 1 << " samples to be collected";
   }
 }
 
 TEST(ReceivedMessageAgeTest, TestMeasurementOnlyMadeForInitializedHeaderValue) {
-  rclcpp::Clock clock{RCL_SYSTEM_TIME};
   topic_statistics_collector::ReceivedMessageAgeCollector<sensor_msgs::msg::Imu>
-  imu_msg_collector{clock};
+  imu_msg_collector{};
 
   // Don't initialize `header.stamp`
   const auto imu_msg_uninitialized_header = sensor_msgs::msg::Imu{};
-  imu_msg_collector.OnMessageReceived(imu_msg_uninitialized_header);
+  imu_msg_collector.OnMessageReceived(imu_msg_uninitialized_header, kDefaultTimeMessageReceived);
   auto stats = imu_msg_collector.GetStatisticsResults();
   EXPECT_EQ(0, stats.sample_count) << "Expect 0 samples to be collected";
 
   // Set `header.stamp` to 0
   const auto imu_msg_zero_header = GetImuMessageWithHeader(0);
-  imu_msg_collector.OnMessageReceived(imu_msg_zero_header);
+  imu_msg_collector.OnMessageReceived(imu_msg_zero_header, kDefaultTimeMessageReceived);
   stats = imu_msg_collector.GetStatisticsResults();
   EXPECT_EQ(0, stats.sample_count) << "Expect 0 samples to be collected";
 
   // Set `header.stamp` to non-zero value
   const auto imu_msg_positive_header = GetImuMessageWithHeader(1);
-  imu_msg_collector.OnMessageReceived(imu_msg_positive_header);
+  imu_msg_collector.OnMessageReceived(imu_msg_positive_header, kDefaultTimeMessageReceived);
   stats = imu_msg_collector.GetStatisticsResults();
   EXPECT_EQ(1, stats.sample_count) << "Expect 1 sample to be collected";
 }
 
-TEST(ReceivedMessageAgeTest, TestDifferentClockSourcesAreHandledCorrectly) {
-  rclcpp::Clock clock{RCL_SYSTEM_TIME};
-
-  // Default clock source is RCL_STEADY_TIME
-  topic_statistics_collector::ReceivedMessageAgeCollector<sensor_msgs::msg::Imu>
-  imu_msg_collector;
-
-  const auto imu_msg = GetImuMessageWithHeader(clock.now().nanoseconds());
-
-  imu_msg_collector.OnMessageReceived(imu_msg);
-  auto stats = imu_msg_collector.GetStatisticsResults();
-  EXPECT_EQ(0, stats.sample_count) << "Expect 0 samples to be collected";
-}
-
 TEST(ReceivedMessageAgeTest, TestAgeMeasurement) {
-  TestReceivedMessageAgeCollector test_collector{};
-  EXPECT_NE(kDefaultSystemTime, test_collector.GetCurrentTime());
+  topic_statistics_collector::ReceivedMessageAgeCollector<sensor_msgs::msg::Imu> test_collector{};
 
   EXPECT_FALSE(test_collector.IsStarted()) << "Expect to be not started after constructed";
 
   EXPECT_TRUE(test_collector.Start()) << "Expect Start() to be successful";
   EXPECT_TRUE(test_collector.IsStarted()) << "Expect to be started";
 
-  const auto test_message = GetImuMessageWithHeader(test_collector.fake_now_);
+  int64_t fake_now_nanos_{123456789};
+  const auto test_message = GetImuMessageWithHeader(fake_now_nanos_);
+  fake_now_nanos_ +=
+    std::chrono::duration_cast<std::chrono::nanoseconds>(kDefaultDurationSeconds).count();
 
-  test_collector.AdvanceTime(kDefaultDurationSeconds);
-  test_collector.OnMessageReceived(test_message);
+  test_collector.OnMessageReceived(test_message, fake_now_nanos_);
   auto stats = test_collector.GetStatisticsResults();
   EXPECT_EQ(1, stats.sample_count);
 
-  test_collector.AdvanceTime(kDefaultDurationSeconds);
-  test_collector.OnMessageReceived(test_message);
+  fake_now_nanos_ +=
+    std::chrono::duration_cast<std::chrono::nanoseconds>(kDefaultDurationSeconds).count();
+
+  test_collector.OnMessageReceived(test_message, fake_now_nanos_);
   stats = test_collector.GetStatisticsResults();
   EXPECT_EQ(2, stats.sample_count);
 
-  test_collector.AdvanceTime(kDefaultDurationSeconds);
-  test_collector.OnMessageReceived(test_message);
+  fake_now_nanos_ +=
+    std::chrono::duration_cast<std::chrono::nanoseconds>(kDefaultDurationSeconds).count();
+
+  test_collector.OnMessageReceived(test_message, fake_now_nanos_);
   stats = test_collector.GetStatisticsResults();
   EXPECT_EQ(3, stats.sample_count);
 

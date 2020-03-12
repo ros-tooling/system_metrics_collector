@@ -145,10 +145,10 @@ if(BUILD_TESTING)
   target_link_libraries(test_received_message_period system_metrics_collector)
   ament_target_dependencies(test_received_message_period rcl rclcpp)
 
-#  ament_add_gtest(test_received_message_age
-#          test/topic_statistics_collector/test_received_message_age.cpp)
-#  target_link_libraries(test_received_message_age system_metrics_collector)
-#  ament_target_dependencies(test_received_message_age rcl rclcpp message_filters std_msgs sensor_msgs)
+  ament_add_gtest(test_received_message_age
+          test/topic_statistics_collector/test_received_message_age.cpp)
+  target_link_libraries(test_received_message_age system_metrics_collector)
+  ament_target_dependencies(test_received_message_age rcl rclcpp message_filters std_msgs sensor_msgs)
 
   install(TARGETS
     test_moving_average_statistics
@@ -166,10 +166,10 @@ if(BUILD_TESTING)
     test_received_message_period
     DESTINATION
     lib/${PROJECT_NAME})
-#  install(TARGETS
-#    test_received_message_age
-#    DESTINATION
-#    lib/${PROJECT_NAME})
+  install(TARGETS
+    test_received_message_age
+    DESTINATION
+    lib/${PROJECT_NAME})
 endif()
 
 # Install launch files

@@ -18,13 +18,42 @@
 #include <chrono>
 #include <string>
 #include <sstream>
+#include <type_traits>
 
 #include "topic_statistics_collector.hpp"
 
-#include "message_filters/message_traits.h"  // TODO(dabonnie): remove and redefine here
 #include "rcl/time.h"
 #include "rcutils/logging_macros.h"
 
+
+namespace
+{
+template<typename M, typename = void>
+struct HasHeader : public std::false_type {};
+
+template<typename M>
+struct HasHeader<M, decltype((void) M::header)>: std::true_type {};
+
+template<typename M, typename Enable = void>
+struct TimeStamp
+{
+  static uint64_t value(const M & m)
+  {
+    (void)m;
+    return 0;
+  }
+};
+
+template<typename M>
+struct TimeStamp<M, typename std::enable_if<HasHeader<M>::value>::type>
+{
+  static uint64_t value(const M & m)
+  {
+    auto stamp = m.header.stamp;
+    return stamp.nanosec;
+  }
+};
+}  // namespace
 
 namespace topic_statistics_collector
 {
@@ -41,7 +70,7 @@ public:
    * Construct a ReceivedMessageAgeCollector object.
    *
    */
-  explicit ReceivedMessageAgeCollector()
+  ReceivedMessageAgeCollector()
   {}
 
   virtual ~ReceivedMessageAgeCollector() = default;
@@ -53,16 +82,13 @@ public:
   */
   void OnMessageReceived(const T & received_message, const uint64_t & now_nanoseconds) override
   {
-    const auto timestamp_from_header = message_filters::message_traits::TimeStamp<T>::value(
-      received_message);
+    const auto timestamp_from_header = TimeStamp<T>::value(received_message);
 
-    if (timestamp_from_header.nanoseconds()) {
+    if (timestamp_from_header && now_nanoseconds) {
+      const std::chrono::nanoseconds age_nanos{now_nanoseconds - timestamp_from_header};
+      const auto age_millis = std::chrono::duration_cast<std::chrono::milliseconds>(age_nanos);
 
-        const std::chrono::nanoseconds age_nanos{
-          now_nanoseconds - timestamp_from_header.nanoseconds()};
-        const auto age_millis = std::chrono::duration_cast<std::chrono::milliseconds>(age_nanos);
-
-        system_metrics_collector::Collector::AcceptData(static_cast<double>(age_millis.count()));
+      system_metrics_collector::Collector::AcceptData(static_cast<double>(age_millis.count()));
     }
   }
 
@@ -76,7 +102,6 @@ protected:
   {
     return true;
   }
-
 };
 
 }  // namespace topic_statistics_collector

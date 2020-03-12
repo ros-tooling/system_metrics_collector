@@ -21,7 +21,6 @@
 #include "moving_average_statistics/types.hpp"
 #include "topic_statistics_collector/received_message_period.hpp"
 
-#include "rclcpp/clock.hpp"
 #include "rcl/time.h"
 
 
@@ -33,9 +32,6 @@ constexpr const double kExpectedAverageMilliseconds{1000.0};
 constexpr const double kExpectedMinMilliseconds{1000.0};
 constexpr const double kExpectedMaxMilliseconds{1000.0};
 constexpr const double kExpectedStandardDeviation{0.0};
-const rclcpp::Time kDefaultSteadyTime{0, 0, RCL_STEADY_TIME};
-const rclcpp::Time kDefaultROSTime{0, 0, RCL_ROS_TIME};
-const rclcpp::Time kDefaultSysTime{0, 0, RCL_SYSTEM_TIME};
 }  // namespace
 
 
@@ -53,19 +49,22 @@ TEST(ReceivedMessagePeriodTest, TestPeriodMeasurement) {
   auto stats = test.GetStatisticsResults();
   EXPECT_EQ(0, stats.sample_count) << "Expected 0 samples to be collected";
 
-  fake_now_nanos_ += std::chrono::duration_cast<std::chrono::nanoseconds>(kDefaultDurationSeconds).count();
+  fake_now_nanos_ +=
+    std::chrono::duration_cast<std::chrono::nanoseconds>(kDefaultDurationSeconds).count();
 
   test.OnMessageReceived(kDefaultMessage, fake_now_nanos_);
   stats = test.GetStatisticsResults();
   EXPECT_EQ(1, stats.sample_count) << "Expected 1 sample to be collected";
 
-  fake_now_nanos_ += std::chrono::duration_cast<std::chrono::nanoseconds>(kDefaultDurationSeconds).count();
+  fake_now_nanos_ +=
+    std::chrono::duration_cast<std::chrono::nanoseconds>(kDefaultDurationSeconds).count();
 
   test.OnMessageReceived(kDefaultMessage, fake_now_nanos_);
   stats = test.GetStatisticsResults();
   EXPECT_EQ(2, stats.sample_count) << "Expected 2 samples to be collected";
 
-  fake_now_nanos_ += std::chrono::duration_cast<std::chrono::nanoseconds>(kDefaultDurationSeconds).count();
+  fake_now_nanos_ +=
+    std::chrono::duration_cast<std::chrono::nanoseconds>(kDefaultDurationSeconds).count();
 
   test.OnMessageReceived(kDefaultMessage, fake_now_nanos_);
   stats = test.GetStatisticsResults();
