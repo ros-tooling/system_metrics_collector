@@ -37,7 +37,7 @@ struct HasHeader<M, decltype((void) M::header)>: std::true_type {};
 template<typename M, typename Enable = void>
 struct TimeStamp
 {
-  static uint64_t value(const M & m)
+  static int64_t value(const M & m)
   {
     (void)m;
     return 0;
@@ -47,10 +47,10 @@ struct TimeStamp
 template<typename M>
 struct TimeStamp<M, typename std::enable_if<HasHeader<M>::value>::type>
 {
-  static uint64_t value(const M & m)
+  static int64_t value(const M & m)
   {
     auto stamp = m.header.stamp;
-    return stamp.nanosec;
+    return RCL_S_TO_NS(static_cast<int64_t>(stamp.sec)) + stamp.nanosec;
   }
 };
 }  // namespace
@@ -79,10 +79,11 @@ public:
   * Handle a new incoming message. Calculate message age if a valid Header is present.
   *
   * @param received_message, the message to calculate age of.
+  * @param time the message was received in nanoseconds
   */
   void OnMessageReceived(
     const T & received_message,
-    const rcl_time_point_value_t & now_nanoseconds) override
+    const rcl_time_point_value_t now_nanoseconds) override
   {
     const auto timestamp_from_header = TimeStamp<T>::value(received_message);
 
@@ -91,7 +92,7 @@ public:
       const auto age_millis = std::chrono::duration_cast<std::chrono::milliseconds>(age_nanos);
 
       system_metrics_collector::Collector::AcceptData(static_cast<double>(age_millis.count()));
-    }
+    }  // else no valid time to compute age
   }
 
 protected:

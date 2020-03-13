@@ -47,7 +47,7 @@ private:
    */
   virtual void OnMessageReceived(
     const T & received_message,
-    const rcl_time_point_value_t & now_nanoseconds) = 0;
+    const rcl_time_point_value_t now_nanoseconds) = 0;
 };
 
 }  // namespace topic_statistics_collector

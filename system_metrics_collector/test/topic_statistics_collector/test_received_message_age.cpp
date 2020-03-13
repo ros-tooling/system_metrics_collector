@@ -32,13 +32,14 @@ constexpr const double kExpectedMinMilliseconds{1000.0};
 constexpr const double kExpectedMaxMilliseconds{3000.0};
 constexpr const double kExpectedStandardDeviation{816.49658092772597};
 constexpr const int kDefaultTimesToTest{10};
-constexpr const uint64_t kDefaultTimeMessageReceived{1000};
+constexpr const int64_t kDefaultTimeMessageReceived{1000};
 constexpr const rcl_time_point_value_t kStartTime{123456789};
-sensor_msgs::msg::Imu GetImuMessageWithHeader(const int64_t timestamp)
+sensor_msgs::msg::Imu GetImuMessageWithHeader(const int64_t seconds, const int64_t nanoseconds)
 {
   auto message = sensor_msgs::msg::Imu{};
   message.header = std_msgs::msg::Header{};
-  message.header.stamp.nanosec = timestamp;
+  message.header.stamp.sec = seconds;
+  message.header.stamp.nanosec = nanoseconds;
   return message;
 }
 
@@ -66,7 +67,7 @@ TEST(ReceivedMessageAgeTest, TestOnlyMessagesWithHeaderGetSampled) {
 
   topic_statistics_collector::ReceivedMessageAgeCollector<sensor_msgs::msg::Imu>
   imu_msg_collector{};
-  const auto imu_msg = GetImuMessageWithHeader(1);
+  const auto imu_msg = GetImuMessageWithHeader(1, 0);
 
   for (int i = 0; i < kDefaultTimesToTest; ++i) {
     imu_msg_collector.OnMessageReceived(imu_msg, kDefaultTimeMessageReceived);
@@ -86,13 +87,13 @@ TEST(ReceivedMessageAgeTest, TestMeasurementOnlyMadeForInitializedHeaderValue) {
   EXPECT_EQ(0, stats.sample_count) << "Expect 0 samples to be collected";
 
   // Set `header.stamp` to 0
-  const auto imu_msg_zero_header = GetImuMessageWithHeader(0);
+  const auto imu_msg_zero_header = GetImuMessageWithHeader(0, 0);
   imu_msg_collector.OnMessageReceived(imu_msg_zero_header, kDefaultTimeMessageReceived);
   stats = imu_msg_collector.GetStatisticsResults();
   EXPECT_EQ(0, stats.sample_count) << "Expect 0 samples to be collected";
 
   // Set `header.stamp` to non-zero value
-  const auto imu_msg_positive_header = GetImuMessageWithHeader(1);
+  const auto imu_msg_positive_header = GetImuMessageWithHeader(1, 0);
   imu_msg_collector.OnMessageReceived(imu_msg_positive_header, kDefaultTimeMessageReceived);
   stats = imu_msg_collector.GetStatisticsResults();
   EXPECT_EQ(1, stats.sample_count) << "Expect 1 sample to be collected";
@@ -107,7 +108,7 @@ TEST(ReceivedMessageAgeTest, TestAgeMeasurement) {
   EXPECT_TRUE(test_collector.IsStarted()) << "Expect to be started";
 
   rcl_time_point_value_t fake_now_nanos_{kStartTime};
-  const auto test_message = GetImuMessageWithHeader(fake_now_nanos_);
+  const auto test_message = GetImuMessageWithHeader(0, fake_now_nanos_);
   fake_now_nanos_ +=
     std::chrono::duration_cast<std::chrono::nanoseconds>(kDefaultDurationSeconds).count();
 

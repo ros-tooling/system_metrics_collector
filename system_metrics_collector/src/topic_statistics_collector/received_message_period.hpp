@@ -27,7 +27,7 @@
 
 namespace
 {
-constexpr const uint64_t kUninitializedTime{0};
+constexpr const int64_t kUninitializedTime{0};
 }  // namespace
 
 namespace topic_statistics_collector
@@ -59,9 +59,9 @@ public:
    * a lock to prevent race conditions when setting the time_last_message_received_ member.
    *
    * @param received_message
-   * @param time the message was received in nan
+   * @param time the message was received in nanoseconds
    */
-  void OnMessageReceived(const T & received_message, const rcl_time_point_value_t & now_nanoseconds)
+  void OnMessageReceived(const T & received_message, const rcl_time_point_value_t now_nanoseconds)
   override RCPPUTILS_TSA_REQUIRES(mutex_)
   {
     std::unique_lock<std::mutex> ulock{mutex_};
