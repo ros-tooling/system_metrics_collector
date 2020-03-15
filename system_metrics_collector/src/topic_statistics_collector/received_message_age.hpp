@@ -21,6 +21,7 @@
 #include <type_traits>
 #include <utility>
 
+#include "constants.hpp"
 #include "topic_statistics_collector.hpp"
 
 #include "rcl/time.h"
@@ -113,6 +114,36 @@ public:
         system_metrics_collector::Collector::AcceptData(static_cast<double>(age_millis.count()));
       }  // else no valid time to compute age
     }
+  }
+
+  /**
+   * Return message age metric name
+   *
+   * @return a string representing message age metric name
+   */
+  const std::string GetStatisticName() const override
+  {
+    return topic_statistics_constants::kMsgAgeStatName;
+  }
+  /**
+   * Return messge age metric unit
+   *
+   * @return a string representing messager age metric unit
+   */
+  const std::string GetStatisticUnit() const override
+  {
+    return topic_statistics_constants::kMillisecondUnitName;
+  }
+
+  /**
+   * Return the current time using high_resolution_clock.
+   * Defined as virtual for testing and if another clock implementation is desired.
+   *
+   * @return the current time provided by the clock given at construction time
+   */
+  virtual rclcpp::Time GetCurrentTime()
+  {
+    return clock_.now();
   }
 
 protected:

@@ -37,9 +37,9 @@ public:
   TopicStatisticsCollector() = default;
   virtual ~TopicStatisticsCollector() = default;
 
-private:
   /**
    * Handle receiving a single message of type T.
+   *
    * @tparam T the ROS2 message type to collect
    * @param nanoseconds the time the message was received. Any metrics using this time assumes the
    * following 1). the time provided is strictly monotonic 2). the time provided uses the same source
@@ -48,6 +48,20 @@ private:
   virtual void OnMessageReceived(
     const T & received_message,
     const rcl_time_point_value_t now_nanoseconds) = 0;
+
+  /**
+   * Return the name to use for collected statistic
+   *
+   * @return a string of the name for this statistic
+   */
+  virtual const std::string GetStatisticName() const = 0;
+
+  /**
+   * Return the name of the measurement unit of collected statistic
+   *
+   * @return a string of the name of the measurement unit of this statistic
+   */
+  virtual const std::string GetStatisticUnit() const = 0;
 };
 
 }  // namespace topic_statistics_collector
