@@ -27,6 +27,11 @@ namespace topic_statistics_constants
 constexpr const char kMsgAgeStatName[] = "message_age";
 constexpr const char kMsgPeriodStatName[] = "message_period";
 constexpr const char kMillisecondUnitName[] = "ms";
+
+constexpr const char kCollectStatsTopicName[] = "collect_topic_name";
+constexpr const char kDefaultCollectStatsTopicName[] = "/topic";
+
+constexpr const char kPublishStatsTopicName[] = "publish_topic_name";
 }  // namespace topic_statistics_constants
 
 }  // namespace topic_statistics_collector

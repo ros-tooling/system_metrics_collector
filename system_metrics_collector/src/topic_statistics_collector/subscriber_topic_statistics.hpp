@@ -24,10 +24,8 @@
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-#include "received_message_age.hpp"
-#include "received_message_period.hpp"
-#include "system_metrics_collector/collector.hpp"
 #include "system_metrics_collector/metrics_message_publisher.hpp"
+#include "topic_statistics_collector.hpp"
 
 namespace topic_statistics_collector
 {
@@ -36,13 +34,12 @@ namespace topic_statistics_collector
  * Class which makes periodic topic statistics measurements, using a ROS2 timer.
  */
 template<typename T>
-class SubscriberTopicStatistics : public system_metrics_collector::MetricsMessagePublisher,
-  public rclcpp_lifecycle::LifecycleNode,
-  public system_metrics_collector::Collector
+class SubscriberTopicStatisticsNode : public system_metrics_collector::MetricsMessagePublisher,
+  public rclcpp_lifecycle::LifecycleNode
 {
 public:
   /**
-   * Constructs a SubscriberTopicStatistics node.
+   * Constructs a SubscriberTopicStatisticsNode node.
    * The following parameter can be set via the rclcpp::NodeOptions:
    * `publish_period`: the period at which metrics are published
    *
@@ -50,19 +47,11 @@ public:
    * @param node_options the options (arguments, parameters, etc.) for this node
    * @param topic_name the name of topic to compute statistics for
    */
-  SubscriberTopicStatistics(
+  SubscriberTopicStatisticsNode(
     const std::string & node_name,
-    const rclcpp::NodeOptions & node_options,
-    const std::string & topic_name);
+    const rclcpp::NodeOptions & node_options);
 
-  virtual ~SubscriberTopicStatistics() = default;
-
-  /**
-   * Returns a pretty printed status representation of this class
-   *
-   * @return a string detailing the current status
-   */
-  std::string GetStatusString() const override;
+  virtual ~SubscriberTopicStatisticsNode();
 
   /**
    * Starts the node.
@@ -100,28 +89,40 @@ public:
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_error(
     const rclcpp_lifecycle::State & previous_state);
 
+protected:
+  /**
+   * LifecyclePublisher publisher that periodically publishes statistic messages
+   *
+   */
+  rclcpp_lifecycle::LifecyclePublisher<metrics_statistics_msgs::msg::MetricsMessage>::SharedPtr
+    publisher_;
+
+  /**
+  * ROS 2 topic statistics collectors
+  */
+  std::vector<std::shared_ptr<TopicStatisticsCollector<T>>> statistics_collectors_;
+
+private:
   /**
    * Creates ROS2 timers and a publisher for periodically triggering measurements
    * and publishing MetricsMessages
    *
    * @return if setup was successful
    */
-  bool SetupStart() override;
+  void StartPublisher();
 
   /**
-   * Stops the ROS2 timers that were created by SetupStart()
+   * Stops the ROS2 timers that were created by StartPublisher()
    *
    * @return if teardown was successful
    */
-  bool SetupStop() override;
+  void StopPublisher();
 
   /**
-   * LifecyclePublisher publisher that is activated on SetupStart and deactivated on SetupStop().
-   */
-  rclcpp_lifecycle::LifecyclePublisher<metrics_statistics_msgs::msg::MetricsMessage>::SharedPtr
-    publisher_;
+  * Clear the emasurements made by all statistics collectors
+  */
+  void ClearCollectorMeasurements();
 
-private:
   /**
    * Publishes the statistics derived from the collected measurements (this is to be called via a
    * ROS2 timer per the publish_period)
@@ -129,11 +130,9 @@ private:
   void PublishStatisticMessage() override;
 
   /**
-   *  Callback function to execute when messages on subscribed topics are received
-   *
-   *  @param msg message received
-  **/
-  void CollectorCallback(const typename T::SharedPtr received_message);
+   * Clock to use to get current time needed for statistic calculation
+   */
+  rcl_clock_t clock_;
 
   /**
    * Tracks the starting time of the statistics
@@ -151,24 +150,19 @@ private:
   rclcpp::TimerBase::SharedPtr publish_timer_;
 
   /**
-  * Subscriber to listen to incoming messages on a topic
-  */
+   * Subscriber to listen to incoming messages on a topic
+   */
   typename rclcpp::Subscription<T>::SharedPtr subscription_;
 
   /**
-  * Subscription options to configure the subscriber
-  */
-  rclcpp::SubscriptionOptions subscription_options_;
+   * Topic name to compute statistics for
+   */
+  std::string collect_topic_name_;
 
   /**
-  * Topic name to compute statistics for
-  */
-  const std::string topic_name_;
-
-  /**
-  * ROS2 message age calculator
-  */
-  std::vector<std::unique_ptr<TopicStatisticsCollector<T>>> statistics_collectors_;
+   * Topic name to compute statistics for
+   */
+  std::string publish_topic_name_;
 };
 
 }  // namespace topic_statistics_collector
