@@ -25,13 +25,10 @@
 #include "rcl/time.h"
 
 
-namespace
-{
-constexpr const int64_t kUninitializedTime{0};
-}  // namespace
-
 namespace topic_statistics_collector
 {
+
+static constexpr const int64_t kUninitializedTime{0};
 
 /**
  * Class used to measure the received messsage, tparam T, period from a ROS2 subscriber. This class

@@ -19,6 +19,7 @@
 #include <string>
 #include <sstream>
 #include <type_traits>
+#include <utility>
 
 #include "topic_statistics_collector.hpp"
 
@@ -26,37 +27,54 @@
 #include "rcutils/logging_macros.h"
 
 
-namespace
+namespace topic_statistics_collector
 {
+
+/**
+ * False if the message does not have a header
+ * @tparam M
+ */
 template<typename M, typename = void>
 struct HasHeader : public std::false_type {};
 
+/**
+ * True if the message has a header
+ * @tparam M
+ */
 template<typename M>
 struct HasHeader<M, decltype((void) M::header)>: std::true_type {};
 
+/**
+ * Return a boolean flag indicating the timestamp is not set
+ * and zero if the message does not have a header
+ * @tparam M the message to extract the header from
+ * @tparam Enable
+ */
 template<typename M, typename Enable = void>
 struct TimeStamp
 {
-  static int64_t value(const M & m)
+  static std::pair<bool, int64_t> value(const M &)
   {
-    (void)m;
-    return 0;
+    return std::make_pair(false, 0);
   }
 };
 
+/**
+ * Returns a message header's timestamp, in nanoseconds, if the message's
+ * header exists.
+ * @tparam M the message to extract the header timestamp from
+ */
 template<typename M>
 struct TimeStamp<M, typename std::enable_if<HasHeader<M>::value>::type>
 {
-  static int64_t value(const M & m)
+  static std::pair<bool, int64_t> value(const M & m)
   {
-    auto stamp = m.header.stamp;
-    return RCL_S_TO_NS(static_cast<int64_t>(stamp.sec)) + stamp.nanosec;
+    const auto stamp = m.header.stamp;
+    const auto nanos = RCL_S_TO_NS(static_cast<int64_t>(stamp.sec)) + stamp.nanosec;
+    return std::make_pair(true, nanos);
   }
 };
-}  // namespace
 
-namespace topic_statistics_collector
-{
 /**
  * Class used to measure the received messsage, tparam T, age from a ROS2 subscriber.
  *
@@ -70,8 +88,7 @@ public:
    * Construct a ReceivedMessageAgeCollector object.
    *
    */
-  ReceivedMessageAgeCollector()
-  {}
+  ReceivedMessageAgeCollector() = default;
 
   virtual ~ReceivedMessageAgeCollector() = default;
 
@@ -87,12 +104,15 @@ public:
   {
     const auto timestamp_from_header = TimeStamp<T>::value(received_message);
 
-    if (timestamp_from_header && now_nanoseconds) {
-      const std::chrono::nanoseconds age_nanos{now_nanoseconds - timestamp_from_header};
-      const auto age_millis = std::chrono::duration_cast<std::chrono::milliseconds>(age_nanos);
+    if (timestamp_from_header.first) {
+      // only compare if non-zero
+      if (timestamp_from_header.second && now_nanoseconds) {
+        const std::chrono::nanoseconds age_nanos{now_nanoseconds - timestamp_from_header.second};
+        const auto age_millis = std::chrono::duration_cast<std::chrono::milliseconds>(age_nanos);
 
-      system_metrics_collector::Collector::AcceptData(static_cast<double>(age_millis.count()));
-    }  // else no valid time to compute age
+        system_metrics_collector::Collector::AcceptData(static_cast<double>(age_millis.count()));
+      }  // else no valid time to compute age
+    }
   }
 
 protected:
