@@ -77,8 +77,8 @@ TEST(ReceivedMessagePeriodTest, TestPeriodMeasurement) {
 }
 
 TEST(ReceivedMessagePeriodTest, TestGetStatNameAndUnit) {
-  TestReceivedMessagePeriodCollector test_collector{};
+  topic_statistics_collector::ReceivedMessagePeriodCollector<int> test{};
 
-  EXPECT_FALSE(test_collector.GetMetricName().empty());
-  EXPECT_FALSE(test_collector.GetMetricUnit().empty());
+  EXPECT_FALSE(test.GetMetricName().empty());
+  EXPECT_FALSE(test.GetMetricUnit().empty());
 }

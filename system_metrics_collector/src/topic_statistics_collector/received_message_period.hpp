@@ -82,6 +82,7 @@ public:
   {
     return topic_statistics_constants::kMsgPeriodStatName;
   }
+
   /**
    * Return message period metric unit
    *
@@ -90,17 +91,6 @@ public:
   std::string GetMetricUnit() const override
   {
     return topic_statistics_constants::kMillisecondUnitName;
-  }
-
-  /**
-   * Return the current time using high_resolution_clock. Defined as virtual for testing
-   * and if another clock implementation is desired.
-   *
-   * @return the current time provided by the clock given at construction time
-   */
-  virtual rclcpp::Time GetCurrentTime()
-  {
-    return clock_.now();
   }
 
 protected:

@@ -138,7 +138,7 @@ TEST(ReceivedMessageAgeTest, TestAgeMeasurement) {
 }
 
 TEST(ReceivedMessageAgeTest, TestGetStatNameAndUnit) {
-  TestReceivedMessageAgeCollector test_collector{};
+  topic_statistics_collector::ReceivedMessageAgeCollector<sensor_msgs::msg::Imu> test_collector{};
 
   EXPECT_FALSE(test_collector.GetMetricName().empty());
   EXPECT_FALSE(test_collector.GetMetricUnit().empty());
