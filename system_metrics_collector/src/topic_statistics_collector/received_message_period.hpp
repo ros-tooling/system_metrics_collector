@@ -23,11 +23,11 @@
 #include "system_metrics_collector/collector.hpp"
 
 #include "rcl/time.h"
-#include "rclcpp/clock.hpp"
 
 
 namespace topic_statistics_collector
 {
+constexpr const int64_t kUninitializedTime{0};
 
 /**
  * Class used to measure the received messsage, tparam T, period from a ROS2 subscriber. This class
@@ -40,19 +40,11 @@ class ReceivedMessagePeriodCollector : public TopicStatisticsCollector<T>
 {
 public:
   /**
-   * Construct a ReceivedMessagePeriodCollector object. Set the
-   * uninitialized_time_ member to use the input clock rcl_clock_type_t.
-   * This is done because time can be compared iff they are provided by
-   * the same clock type.
+   * Construct a ReceivedMessagePeriodCollector object.
    *
-   * @param clock input clock to use in order to measure received message
-   * period, default is RCL_STEADY_TIME
    */
-  explicit ReceivedMessagePeriodCollector(
-    const rclcpp::Clock & clock = rclcpp::Clock{RCL_STEADY_TIME})
-  : clock_{clock}
+  ReceivedMessagePeriodCollector()
   {
-    uninitialized_time_ = rclcpp::Time{0, 0, clock_.get_clock_type()};
     ResetTimeLastMessageReceived();
   }
 
@@ -63,32 +55,21 @@ public:
    * a lock to prevent race conditions when setting the time_last_message_received_ member.
    *
    * @param received_message
+   * @param time the message was received in nanoseconds
    */
-  void OnMessageReceived(const T & received_message) override RCPPUTILS_TSA_REQUIRES(mutex_)
+  void OnMessageReceived(const T & received_message, const rcl_time_point_value_t now_nanoseconds)
+  override RCPPUTILS_TSA_REQUIRES(mutex_)
   {
     std::unique_lock<std::mutex> ulock{mutex_};
-    const auto now = GetCurrentTime();
 
-    if (time_last_message_received_ == uninitialized_time_) {
-      time_last_message_received_ = now;
+    if (time_last_message_received_ == kUninitializedTime) {
+      time_last_message_received_ = now_nanoseconds;
     } else {
-      const std::chrono::nanoseconds nanos{now.nanoseconds() -
-        time_last_message_received_.nanoseconds()};
+      const std::chrono::nanoseconds nanos{now_nanoseconds - time_last_message_received_};
       const auto period = std::chrono::duration_cast<std::chrono::milliseconds>(nanos);
-      time_last_message_received_ = now;
+      time_last_message_received_ = now_nanoseconds;
       system_metrics_collector::Collector::AcceptData(static_cast<double>(period.count()));
     }
-  }
-
-  /**
-   * Return the current time using high_resolution_clock. Defined as virtual for testing
-   * and if another clock implementation is desired.
-   *
-   * @return the current time provided by the clock given at construction time
-   */
-  virtual rclcpp::Time GetCurrentTime()
-  {
-    return clock_.now();
   }
 
 protected:
@@ -113,19 +94,14 @@ private:
    */
   void ResetTimeLastMessageReceived()
   {
-    time_last_message_received_ = uninitialized_time_;
+    time_last_message_received_ = kUninitializedTime;
   }
 
   /**
-   * The clock to use in order to determine the rate OnMessageReceived is called.
+   * Default uninitialized time.
    */
-  rclcpp::Clock clock_;
-  /**
-   * Default uninitialized time. In order to compare rclcpp::Time they must come from
-   * the same type of clock.
-   */
-  rclcpp::Time uninitialized_time_;
-  rclcpp::Time time_last_message_received_ RCPPUTILS_TSA_GUARDED_BY(mutex_);
+  rcl_time_point_value_t time_last_message_received_{kUninitializedTime}
+  RCPPUTILS_TSA_GUARDED_BY(mutex_);
   mutable std::mutex mutex_;
 };
 

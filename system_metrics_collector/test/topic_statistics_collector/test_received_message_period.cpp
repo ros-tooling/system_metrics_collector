@@ -21,7 +21,6 @@
 #include "moving_average_statistics/types.hpp"
 #include "topic_statistics_collector/received_message_period.hpp"
 
-#include "rclcpp/clock.hpp"
 #include "rcl/time.h"
 
 
@@ -33,87 +32,41 @@ constexpr const double kExpectedAverageMilliseconds{1000.0};
 constexpr const double kExpectedMinMilliseconds{1000.0};
 constexpr const double kExpectedMaxMilliseconds{1000.0};
 constexpr const double kExpectedStandardDeviation{0.0};
-const rclcpp::Time kDefaultSteadyTime{0, 0, RCL_STEADY_TIME};
-const rclcpp::Time kDefaultROSTime{0, 0, RCL_ROS_TIME};
-const rclcpp::Time kDefaultSysTime{0, 0, RCL_SYSTEM_TIME};
 }  // namespace
 
-/**
- * Class used to provide a mock time when testing received message period measurements.
- */
-class TestReceivedMessagePeriodCollector
-  : public topic_statistics_collector::ReceivedMessagePeriodCollector<int>
-{
-public:
-  /**
-   * Construct a TestReceivedMessagePeriod object. Initializes the
-   * fake_now_nanos_ member.
-=  */
-  TestReceivedMessagePeriodCollector()
-  {
-    fake_now_nanos_ = ReceivedMessagePeriodCollector::GetCurrentTime().nanoseconds();
-  }
-  virtual ~TestReceivedMessagePeriodCollector() = default;
-
-  /**
-   * Overridden in order to mock the clock for measurement testing.
-   * @return
-   */
-  rclcpp::Time GetCurrentTime() override
-  {
-    return rclcpp::Time{fake_now_nanos_, RCL_STEADY_TIME};
-  }
-
-  /**
-   * Advance time by a specified duration, in seconds.
-   * @param seconds duration which to advance time
-   */
-  void AdvanceTime(std::chrono::seconds seconds)
-  {
-    fake_now_nanos_ += std::chrono::duration_cast<std::chrono::nanoseconds>(seconds).count();
-  }
-
-  int64_t fake_now_nanos_;
-};
-
-TEST(ReceivedMessagePeriodTest, GetCurrentTimeDefaultClock) {
-  topic_statistics_collector::ReceivedMessagePeriodCollector<int> test{};
-  auto now = test.GetCurrentTime();
-  EXPECT_NE(kDefaultSteadyTime, now);
-}
-
-TEST(ReceivedMessagePeriodTest, GetCurrentTimeCustomClock) {
-  const rclcpp::Clock asdf{RCL_ROS_TIME};
-  topic_statistics_collector::ReceivedMessagePeriodCollector<int> test{asdf};
-  auto now = test.GetCurrentTime();
-  EXPECT_NE(kDefaultROSTime, now);
-}
 
 TEST(ReceivedMessagePeriodTest, TestPeriodMeasurement) {
-  TestReceivedMessagePeriodCollector test{};
-  EXPECT_NE(kDefaultSteadyTime, test.GetCurrentTime());
+  topic_statistics_collector::ReceivedMessagePeriodCollector<int> test{};
 
   EXPECT_FALSE(test.IsStarted()) << "Expected to be not started after constructed";
 
   EXPECT_TRUE(test.Start()) << "Expected Start() to be successful";
   EXPECT_TRUE(test.IsStarted()) << "Expected to be started";
 
-  test.OnMessageReceived(kDefaultMessage);
+  rcl_time_point_value_t fake_now_nanos_{1};
+
+  test.OnMessageReceived(kDefaultMessage, fake_now_nanos_);
   auto stats = test.GetStatisticsResults();
   EXPECT_EQ(0, stats.sample_count) << "Expected 0 samples to be collected";
 
-  test.AdvanceTime(kDefaultDurationSeconds);
-  test.OnMessageReceived(kDefaultMessage);
+  fake_now_nanos_ +=
+    std::chrono::duration_cast<std::chrono::nanoseconds>(kDefaultDurationSeconds).count();
+
+  test.OnMessageReceived(kDefaultMessage, fake_now_nanos_);
   stats = test.GetStatisticsResults();
   EXPECT_EQ(1, stats.sample_count) << "Expected 1 sample to be collected";
 
-  test.AdvanceTime(kDefaultDurationSeconds);
-  test.OnMessageReceived(kDefaultMessage);
+  fake_now_nanos_ +=
+    std::chrono::duration_cast<std::chrono::nanoseconds>(kDefaultDurationSeconds).count();
+
+  test.OnMessageReceived(kDefaultMessage, fake_now_nanos_);
   stats = test.GetStatisticsResults();
   EXPECT_EQ(2, stats.sample_count) << "Expected 2 samples to be collected";
 
-  test.AdvanceTime(kDefaultDurationSeconds);
-  test.OnMessageReceived(kDefaultMessage);
+  fake_now_nanos_ +=
+    std::chrono::duration_cast<std::chrono::nanoseconds>(kDefaultDurationSeconds).count();
+
+  test.OnMessageReceived(kDefaultMessage, fake_now_nanos_);
   stats = test.GetStatisticsResults();
   EXPECT_EQ(3, stats.sample_count);
   EXPECT_EQ(kExpectedAverageMilliseconds, stats.average);
