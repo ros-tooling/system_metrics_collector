@@ -21,7 +21,6 @@
 #include "builtin_interfaces/msg/time.hpp"
 #include "metrics_statistics_msgs/msg/metrics_message.hpp"
 
-#include "metric_details_interface.hpp"
 #include "moving_average_statistics/types.hpp"
 
 namespace system_metrics_collector
@@ -50,7 +49,7 @@ metrics_statistics_msgs::msg::MetricsMessage GenerateStatisticMessage(
 /**
  * Simple class to facilitate publishing messages containing statistics data
  */
-class MetricsMessagePublisher : virtual public MetricDetailsInterface
+class MetricsMessagePublisher
 {
 public:
   /**
@@ -58,20 +57,6 @@ public:
    * ROS2 timer per the publish_period)
    */
   virtual void PublishStatisticMessage() = 0;
-
-  /**
-   * Returns the name to use for this metric
-   *
-   * @return a string of the name for this measured metric
-   */
-  std::string GetMetricName() const override = 0;
-
-  /**
-   * Returns the name of the measurement unit of this metric
-   *
-   * @return a string of the name of the measurement unit of this metric
-   */
-  std::string GetMetricUnit() const override = 0;
 };
 }  // namespace system_metrics_collector
 

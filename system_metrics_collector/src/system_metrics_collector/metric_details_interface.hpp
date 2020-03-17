@@ -20,7 +20,8 @@
 namespace system_metrics_collector
 {
 /**
- * Class to represent a single metric for collection or publication.
+ * Interface to represent a single metric's name and unit,
+ * which are used for metric message generation and publication.
  */
 
 class MetricDetailsInterface
@@ -28,8 +29,18 @@ class MetricDetailsInterface
 public:
   virtual ~MetricDetailsInterface() = default;
 
+  /**
+   * Return a single metric's name.
+   *
+   * @return a string representing the metric name
+   */
   virtual std::string GetMetricName() const = 0;
 
+  /**
+   * Return a single metric's measurement unit.
+   *
+   * @return a string representing the metric unit
+   */
   virtual std::string GetMetricUnit() const = 0;
 };
 

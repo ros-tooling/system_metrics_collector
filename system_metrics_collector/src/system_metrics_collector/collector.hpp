@@ -30,7 +30,7 @@ namespace system_metrics_collector
 /**
  * Simple class in order to collect observed data and generate statistics for the given observations.
  */
-class Collector : virtual public MetricDetailsInterface
+class Collector : public MetricDetailsInterface
 {
 public:
   Collector() = default;
