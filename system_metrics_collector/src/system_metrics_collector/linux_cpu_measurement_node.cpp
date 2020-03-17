@@ -86,10 +86,9 @@ std::string LinuxCpuMeasurementNode::GetMetricName() const
   return kMeasurementType;
 }
 
-const std::string & LinuxCpuMeasurementNode::GetMetricUnit() const
+std::string LinuxCpuMeasurementNode::GetMetricUnit() const
 {
-  static const std::string unit_name{collector_node_constants::kPercentUnitName};
-  return unit_name;
+  return collector_node_constants::kPercentUnitName;
 }
 
 }  // namespace system_metrics_collector

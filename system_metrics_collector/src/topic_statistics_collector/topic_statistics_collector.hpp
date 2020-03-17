@@ -54,14 +54,14 @@ public:
    *
    * @return a string of the name for this statistic
    */
-  virtual const std::string GetStatisticName() const = 0;
+  std::string GetMetricName() const override = 0;
 
   /**
    * Return the name of the measurement unit of collected statistic
    *
    * @return a string of the name of the measurement unit of this statistic
    */
-  virtual const std::string GetStatisticUnit() const = 0;
+  std::string GetMetricUnit() const override = 0;
 };
 
 }  // namespace topic_statistics_collector

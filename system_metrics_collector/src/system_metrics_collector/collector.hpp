@@ -18,6 +18,7 @@
 #include <mutex>
 #include <string>
 
+#include "metric_details_interface.hpp"
 #include "moving_average_statistics/moving_average.hpp"
 #include "moving_average_statistics/types.hpp"
 
@@ -29,7 +30,7 @@ namespace system_metrics_collector
 /**
  * Simple class in order to collect observed data and generate statistics for the given observations.
  */
-class Collector
+class Collector : virtual public MetricDetailsInterface
 {
 public:
   Collector() = default;
@@ -90,6 +91,20 @@ public:
    * @return true if stopped, false if an error occurred
    */
   virtual bool Stop();
+
+  /**
+   * Return the name of the metric collected.
+   *
+   * @return string reporesenting name of the collected metric
+   */
+  std::string GetMetricName() const override = 0;
+
+  /**
+   * Return the measurement unit of the metric collected.
+   *
+   * @return string representing unit of the metric collected
+   */
+  std::string GetMetricUnit() const override = 0;
 
 private:
   /**

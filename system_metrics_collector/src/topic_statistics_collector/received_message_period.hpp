@@ -78,16 +78,16 @@ public:
    *
    * @return a string representing message period metric name
    */
-  const std::string GetStatisticName() const override
+  std::string GetMetricName() const override
   {
     return topic_statistics_constants::kMsgPeriodStatName;
   }
   /**
    * Return message period metric unit
    *
-   * @return a string representing message period metric name
+   * @return a string representing message period metric unit
    */
-  const std::string GetStatisticUnit() const override
+  std::string GetMetricUnit() const override
   {
     return topic_statistics_constants::kMillisecondUnitName;
   }

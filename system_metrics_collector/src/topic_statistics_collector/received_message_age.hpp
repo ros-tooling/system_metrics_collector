@@ -121,7 +121,7 @@ public:
    *
    * @return a string representing message age metric name
    */
-  const std::string GetStatisticName() const override
+  std::string GetMetricName() const override
   {
     return topic_statistics_constants::kMsgAgeStatName;
   }
@@ -130,7 +130,7 @@ public:
    *
    * @return a string representing messager age metric unit
    */
-  const std::string GetStatisticUnit() const override
+  std::string GetMetricUnit() const override
   {
     return topic_statistics_constants::kMillisecondUnitName;
   }

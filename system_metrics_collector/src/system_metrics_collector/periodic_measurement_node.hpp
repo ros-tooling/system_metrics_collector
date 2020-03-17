@@ -93,6 +93,20 @@ public:
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn on_error(
     const rclcpp_lifecycle::State & previous_state);
 
+  /**
+   * Return the name of the metric collected.
+   *
+   * @return string reporesenting name of the collected metric
+   */
+  std::string GetMetricName() const override = 0;
+
+  /**
+   * Return the measurement unit of the metric collected.
+   *
+   * @return string representing unit of the metric collected
+   */
+  std::string GetMetricUnit() const override = 0;
+
 protected:
   /**
    * Creates ROS2 timers and a publisher for periodically triggering measurements

@@ -94,7 +94,7 @@ protected:
    *
    * @return a string of the name of the measurement unit of this metric
    */
-  const std::string & GetMetricUnit() const override;
+  std::string GetMetricUnit() const override;
 
 private:
   /**

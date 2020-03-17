@@ -95,10 +95,9 @@ private:
     return kTestMetricName;
   }
 
-  const std::string & GetMetricUnit() const override
+  std::string GetMetricUnit() const override
   {
-    static const std::string unit_name{kTestMetricUnit};
-    return unit_name;
+    return kTestMetricUnit;
   }
 
   std::atomic<int> times_measured_{0};
