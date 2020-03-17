@@ -139,3 +139,8 @@ TEST_F(CollectorTestFixure, TestStartAndStop) {
   ASSERT_TRUE(test_collector_->Stop());
   ASSERT_FALSE(test_collector_->IsStarted());
 }
+
+TEST_F(CollectorTestFixure, TestGetMetricNameAndUnit) {
+  EXPECT_FALSE(test_collector_->GetMetricName().empty());
+  EXPECT_FALSE(test_collector_->GetMetricUnit().empty());
+}
