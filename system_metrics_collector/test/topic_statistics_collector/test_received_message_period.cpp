@@ -19,6 +19,7 @@
 #include <thread>
 
 #include "moving_average_statistics/types.hpp"
+#include "topic_statistics_collector/constants.hpp"
 #include "topic_statistics_collector/received_message_period.hpp"
 
 #include "rcl/time.h"
@@ -73,4 +74,11 @@ TEST(ReceivedMessagePeriodTest, TestPeriodMeasurement) {
   EXPECT_EQ(kExpectedMinMilliseconds, stats.min);
   EXPECT_EQ(kExpectedMaxMilliseconds, stats.max);
   EXPECT_EQ(kExpectedStandardDeviation, stats.standard_deviation);
+}
+
+TEST(ReceivedMessagePeriodTest, TestGetStatNameAndUnit) {
+  topic_statistics_collector::ReceivedMessagePeriodCollector<int> test{};
+
+  EXPECT_FALSE(test.GetMetricName().empty());
+  EXPECT_FALSE(test.GetMetricUnit().empty());
 }

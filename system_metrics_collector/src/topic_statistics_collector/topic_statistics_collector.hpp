@@ -37,9 +37,9 @@ public:
   TopicStatisticsCollector() = default;
   virtual ~TopicStatisticsCollector() = default;
 
-private:
   /**
    * Handle receiving a single message of type T.
+   *
    * @tparam T the ROS2 message type to collect
    * @param nanoseconds the time the message was received. Any metrics using this time assumes the
    * following 1). the time provided is strictly monotonic 2). the time provided uses the same source

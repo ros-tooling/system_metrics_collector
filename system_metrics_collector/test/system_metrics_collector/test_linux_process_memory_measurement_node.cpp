@@ -54,7 +54,7 @@ public:
     return LinuxProcessMemoryMeasurementNode::GetMetricName();
   }
 
-  const std::string & GetMetricUnit() const override
+  std::string GetMetricUnit() const override
   {
     return LinuxProcessMemoryMeasurementNode::GetMetricUnit();
   }

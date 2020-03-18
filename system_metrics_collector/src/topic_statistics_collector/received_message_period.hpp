@@ -19,6 +19,7 @@
 #include <mutex>
 #include <string>
 
+#include "constants.hpp"
 #include "topic_statistics_collector.hpp"
 #include "system_metrics_collector/collector.hpp"
 
@@ -70,6 +71,26 @@ public:
       time_last_message_received_ = now_nanoseconds;
       system_metrics_collector::Collector::AcceptData(static_cast<double>(period.count()));
     }
+  }
+
+  /**
+   * Return message period metric name
+   *
+   * @return a string representing message period metric name
+   */
+  std::string GetMetricName() const override
+  {
+    return topic_statistics_constants::kMsgPeriodStatName;
+  }
+
+  /**
+   * Return message period metric unit
+   *
+   * @return a string representing message period metric unit
+   */
+  std::string GetMetricUnit() const override
+  {
+    return topic_statistics_constants::kMillisecondUnitName;
   }
 
 protected:

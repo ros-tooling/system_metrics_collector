@@ -17,6 +17,7 @@
 #include <chrono>
 #include <string>
 
+#include "topic_statistics_collector/constants.hpp"
 #include "topic_statistics_collector/received_message_age.hpp"
 
 #include "rcl/time.h"
@@ -134,4 +135,11 @@ TEST(ReceivedMessageAgeTest, TestAgeMeasurement) {
   EXPECT_EQ(kExpectedMinMilliseconds, stats.min);
   EXPECT_EQ(kExpectedMaxMilliseconds, stats.max);
   EXPECT_DOUBLE_EQ(kExpectedStandardDeviation, stats.standard_deviation);
+}
+
+TEST(ReceivedMessageAgeTest, TestGetStatNameAndUnit) {
+  topic_statistics_collector::ReceivedMessageAgeCollector<sensor_msgs::msg::Imu> test_collector{};
+
+  EXPECT_FALSE(test_collector.GetMetricName().empty());
+  EXPECT_FALSE(test_collector.GetMetricUnit().empty());
 }

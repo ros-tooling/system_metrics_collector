@@ -18,6 +18,7 @@
 #include <mutex>
 #include <string>
 
+#include "metric_details_interface.hpp"
 #include "moving_average_statistics/moving_average.hpp"
 #include "moving_average_statistics/types.hpp"
 
@@ -29,7 +30,7 @@ namespace system_metrics_collector
 /**
  * Simple class in order to collect observed data and generate statistics for the given observations.
  */
-class Collector
+class Collector : public MetricDetailsInterface
 {
 public:
   Collector() = default;

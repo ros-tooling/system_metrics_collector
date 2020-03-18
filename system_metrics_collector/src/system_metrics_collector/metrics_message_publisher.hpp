@@ -57,20 +57,6 @@ public:
    * ROS2 timer per the publish_period)
    */
   virtual void PublishStatisticMessage() = 0;
-
-  /**
-   * Returns the name to use for this metric
-   *
-   * @return a string of the name for this measured metric
-   */
-  virtual std::string GetMetricName() const = 0;
-
-  /**
-   * Returns the name of the measurement unit of this metric
-   *
-   * @return a string of the name of the measurement unit of this metric
-   */
-  virtual const std::string & GetMetricUnit() const = 0;
 };
 }  // namespace system_metrics_collector
 

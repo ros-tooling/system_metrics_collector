@@ -16,11 +16,17 @@
 
 #include <iostream>
 #include <memory>
+#include <string>
 
 #include "moving_average_statistics/types.hpp"
 
-
 #include "system_metrics_collector/collector.hpp"
+
+namespace
+{
+constexpr const char kTestMetricName[] = "test_metric_name";
+constexpr const char kTestMetricUnit[] = "test_metric_unit";
+}
 
 /**
  * Simple extension to test basic functionality
@@ -56,6 +62,16 @@ public:
   {
     this->ClearCurrentMeasurements();
     return true;
+  }
+
+  std::string GetMetricName() const override
+  {
+    return kTestMetricName;
+  }
+
+  std::string GetMetricUnit() const override
+  {
+    return kTestMetricUnit;
   }
 };
 
@@ -122,4 +138,9 @@ TEST_F(CollectorTestFixure, TestStartAndStop) {
 
   ASSERT_TRUE(test_collector_->Stop());
   ASSERT_FALSE(test_collector_->IsStarted());
+}
+
+TEST_F(CollectorTestFixure, TestGetMetricNameAndUnit) {
+  EXPECT_FALSE(test_collector_->GetMetricName().empty());
+  EXPECT_FALSE(test_collector_->GetMetricUnit().empty());
 }

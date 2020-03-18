@@ -68,6 +68,16 @@ public:
     return publisher_ != nullptr && publisher_->is_activated();
   }
 
+  std::string GetMetricName() const override
+  {
+    return kTestMetricName;
+  }
+
+  std::string GetMetricUnit() const override
+  {
+    return kTestMetricUnit;
+  }
+
 private:
   /**
    * Test measurement for the fixture.
@@ -88,17 +98,6 @@ private:
   void PublishStatisticMessage() override
   {
     ++times_published_;
-  }
-
-  std::string GetMetricName() const override
-  {
-    return kTestMetricName;
-  }
-
-  const std::string & GetMetricUnit() const override
-  {
-    static const std::string unit_name{kTestMetricUnit};
-    return unit_name;
   }
 
   std::atomic<int> times_measured_{0};
@@ -240,6 +239,11 @@ TEST_F(PeriodicMeasurementTestFixure, TestStartAndStop) {
   int times_published = test_periodic_measurer_->GetNumPublished();
   ASSERT_EQ(
     test_constants::kTestDuration.count() / kDontPublishDuringTest.count(), times_published);
+}
+
+TEST_F(PeriodicMeasurementTestFixure, TestGetMetricNameAndUnit) {
+  ASSERT_FALSE(test_periodic_measurer_->GetMetricName().empty());
+  ASSERT_FALSE(test_periodic_measurer_->GetMetricUnit().empty());
 }
 
 TEST_F(PeriodicMeasurementTestFixure, TestLifecycleManually) {
