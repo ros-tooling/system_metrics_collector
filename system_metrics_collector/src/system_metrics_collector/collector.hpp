@@ -92,20 +92,6 @@ public:
    */
   virtual bool Stop();
 
-  /**
-   * Return the name of the metric collected.
-   *
-   * @return string reporesenting name of the collected metric
-   */
-  std::string GetMetricName() const override = 0;
-
-  /**
-   * Return the measurement unit of the metric collected.
-   *
-   * @return string representing unit of the metric collected
-   */
-  std::string GetMetricUnit() const override = 0;
-
 private:
   /**
    * Override in order to perform necessary starting steps.

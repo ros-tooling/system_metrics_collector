@@ -48,20 +48,6 @@ public:
   virtual void OnMessageReceived(
     const T & received_message,
     const rcl_time_point_value_t now_nanoseconds) = 0;
-
-  /**
-   * Return the name to use for collected statistic
-   *
-   * @return a string of the name for this statistic
-   */
-  std::string GetMetricName() const override = 0;
-
-  /**
-   * Return the name of the measurement unit of collected statistic
-   *
-   * @return a string of the name of the measurement unit of this statistic
-   */
-  std::string GetMetricUnit() const override = 0;
 };
 
 }  // namespace topic_statistics_collector
