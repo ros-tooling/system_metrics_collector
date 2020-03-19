@@ -28,6 +28,7 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(libcollector REQUIRED)
 find_package(message_filters REQUIRED)
 find_package(metrics_statistics_msgs REQUIRED)
 find_package(rcl REQUIRED)
@@ -42,11 +43,7 @@ find_package(std_msgs REQUIRED)
 include_directories(src)
 
 add_library(system_metrics_collector SHARED
-  src/moving_average_statistics/moving_average.cpp
-  src/moving_average_statistics/types.cpp
-  src/moving_average_statistics/types.hpp
   src/system_metrics_collector/metrics_message_publisher.cpp
-  src/system_metrics_collector/collector.cpp
   src/system_metrics_collector/linux_cpu_measurement_node.cpp
   src/system_metrics_collector/linux_memory_measurement_node.cpp
   src/system_metrics_collector/linux_process_cpu_measurement_node.cpp
@@ -57,6 +54,7 @@ add_library(system_metrics_collector SHARED
   src/system_metrics_collector/utilities.cpp
 )
 ament_target_dependencies(system_metrics_collector
+        libcollector
         message_filters
         metrics_statistics_msgs
         rcl
@@ -91,11 +89,6 @@ if(BUILD_TESTING)
 
   ament_lint_auto_find_test_dependencies()
 
-  ament_add_gtest(test_collector
-    test/system_metrics_collector/test_collector.cpp)
-  target_link_libraries(test_collector system_metrics_collector)
-  ament_target_dependencies(test_collector rclcpp)
-
   ament_add_gtest(test_metrics_message_publisher
     test/system_metrics_collector/test_metrics_message_publisher.cpp)
   target_link_libraries(test_metrics_message_publisher system_metrics_collector)
@@ -121,11 +114,6 @@ if(BUILD_TESTING)
   target_link_libraries(test_linux_process_memory_measurement_node system_metrics_collector)
   ament_target_dependencies(test_linux_process_memory_measurement_node lifecycle_msgs metrics_statistics_msgs rclcpp)
 
-  ament_add_gtest(test_moving_average_statistics
-          test/moving_average_statistics/test_moving_average_statistics.cpp)
-  target_link_libraries(test_moving_average_statistics system_metrics_collector)
-  ament_target_dependencies(test_moving_average_statistics rclcpp)
-
   ament_add_gtest(test_periodic_measurement_node
     test/system_metrics_collector/test_periodic_measurement_node.cpp)
   target_link_libraries(test_periodic_measurement_node system_metrics_collector)
@@ -150,14 +138,6 @@ if(BUILD_TESTING)
   target_link_libraries(test_received_message_age system_metrics_collector)
   ament_target_dependencies(test_received_message_age rcl rclcpp message_filters std_msgs sensor_msgs)
 
-  install(TARGETS
-    test_moving_average_statistics
-    DESTINATION
-    lib/${PROJECT_NAME})
-  install(TARGETS
-    test_collector
-    DESTINATION
-    lib/${PROJECT_NAME})
   install(TARGETS
     test_periodic_measurement_node
     DESTINATION

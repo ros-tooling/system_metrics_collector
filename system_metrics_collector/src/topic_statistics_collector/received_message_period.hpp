@@ -21,7 +21,6 @@
 
 #include "constants.hpp"
 #include "topic_statistics_collector.hpp"
-#include "system_metrics_collector/collector.hpp"
 
 #include "rcl/time.h"
 
@@ -69,7 +68,7 @@ public:
       const std::chrono::nanoseconds nanos{now_nanoseconds - time_last_message_received_};
       const auto period = std::chrono::duration_cast<std::chrono::milliseconds>(nanos);
       time_last_message_received_ = now_nanoseconds;
-      system_metrics_collector::Collector::AcceptData(static_cast<double>(period.count()));
+      collector::Collector::AcceptData(static_cast<double>(period.count()));
     }
   }
 
