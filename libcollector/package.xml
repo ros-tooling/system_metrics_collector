@@ -3,7 +3,7 @@
 <package format="3">
   <name>libcollector</name>
   <version>0.0.0</version>
-  <description>Aggregation utilities to measure and publish metrics.</description>
+  <description>:Lightweight aggregation utilities to collect statistics and measure message metrics.</description>
   <maintainer email="ros-tooling@googlegroups.com">ROS Tooling Working Group</maintainer>
   <license>Apache License 2.0</license>
 
