@@ -68,23 +68,6 @@ if(BUILD_TESTING)
     test/topic_statistics_collector/test_received_message_age.cpp)
   target_link_libraries(test_received_message_age libcollector)
   ament_target_dependencies(test_received_message_age rcl rcpputils std_msgs sensor_msgs)
-
-  install(TARGETS
-    test_moving_average_statistics
-    DESTINATION
-    lib/${PROJECT_NAME})
-  install(TARGETS
-    test_collector
-    DESTINATION
-    lib/${PROJECT_NAME})
-  install(TARGETS
-    test_received_message_period
-    DESTINATION
-    lib/${PROJECT_NAME})
-  install(TARGETS
-    test_received_message_age
-    DESTINATION
-    lib/${PROJECT_NAME})
 endif()
 
 install(
@@ -103,6 +86,7 @@ install(
 
 ament_export_include_directories(include)
 ament_export_libraries(${PROJECT_NAME})
+ament_export_dependencies(rcl)
 ament_export_dependencies(rcpputils)
 
 ament_package()

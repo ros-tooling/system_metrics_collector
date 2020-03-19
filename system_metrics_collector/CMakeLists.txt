@@ -127,11 +127,6 @@ if(BUILD_TESTING)
           test/system_metrics_collector/test_utilities.cpp)
   target_link_libraries(test_utilities system_metrics_collector)
   ament_target_dependencies(test_utilities rclcpp)
-
-  install(TARGETS
-    test_periodic_measurement_node
-    DESTINATION
-    lib/${PROJECT_NAME})
 endif()
 
 # Install launch files
