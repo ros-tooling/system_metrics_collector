@@ -18,8 +18,7 @@
   <depend>rclcpp_lifecycle</depend>
   <depend>rcpputils</depend>
   <depend>rcutils</depend>
-  <depend>sensor_msgs</depend>
-  <depend>std_msgs</depend>
+
 
   <!--Required for example launch file-->
   <exec_depend>demo_nodes_cpp</exec_depend>

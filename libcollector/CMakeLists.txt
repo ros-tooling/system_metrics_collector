@@ -40,8 +40,8 @@ add_library(libcollector SHARED
 )
 
 ament_target_dependencies(libcollector
-        rcl
-        rcpputils)
+  rcl
+  rcpputils)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -55,8 +55,19 @@ if(BUILD_TESTING)
   ament_target_dependencies(test_collector rcpputils)
 
   ament_add_gtest(test_moving_average_statistics
-          test/moving_average_statistics/test_moving_average_statistics.cpp)
+    test/moving_average_statistics/test_moving_average_statistics.cpp)
   target_link_libraries(test_moving_average_statistics libcollector)
+
+
+  ament_add_gtest(test_received_message_period
+    test/topic_statistics_collector/test_received_message_period.cpp)
+  target_link_libraries(test_received_message_period libcollector)
+  ament_target_dependencies(test_received_message_period rcl rcpputils)
+
+  ament_add_gtest(test_received_message_age
+    test/topic_statistics_collector/test_received_message_age.cpp)
+  target_link_libraries(test_received_message_age libcollector)
+  ament_target_dependencies(test_received_message_age rcl rcpputils std_msgs sensor_msgs)
 
   install(TARGETS
     test_moving_average_statistics
@@ -66,20 +77,28 @@ if(BUILD_TESTING)
     test_collector
     DESTINATION
     lib/${PROJECT_NAME})
+  install(TARGETS
+    test_received_message_period
+    DESTINATION
+    lib/${PROJECT_NAME})
+  install(TARGETS
+    test_received_message_age
+    DESTINATION
+    lib/${PROJECT_NAME})
 endif()
 
 install(
-        TARGETS "${PROJECT_NAME}"
-        EXPORT "${PROJECT_NAME}-targets"
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        RUNTIME DESTINATION bin
-        INCLUDES DESTINATION include
+  TARGETS "${PROJECT_NAME}"
+  EXPORT "${PROJECT_NAME}-targets"
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
 )
 
 install(
-        DIRECTORY include/
-        DESTINATION include
+  DIRECTORY include/
+  DESTINATION include
 )
 
 ament_export_include_directories(include)
@@ -89,5 +108,5 @@ ament_export_dependencies(rcpputils)
 ament_package()
 
 export(TARGETS ${PROJECT_NAME}
-        FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}-targets.cmake")
+  FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}-targets.cmake")
 export(PACKAGE ${PROJECT_NAME})
