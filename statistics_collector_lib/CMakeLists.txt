@@ -57,7 +57,7 @@ if(BUILD_TESTING)
   ament_add_gtest(test_moving_average_statistics
     test/moving_average_statistics/test_moving_average_statistics.cpp)
   target_link_libraries(test_moving_average_statistics ${PROJECT_NAME})
-
+  ament_target_dependencies(test_moving_average_statistics rcpputils)
 
   ament_add_gtest(test_received_message_period
     test/topic_statistics_collector/test_received_message_period.cpp)
