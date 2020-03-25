@@ -27,7 +27,7 @@
 #include "metrics_statistics_msgs/msg/metrics_message.hpp"
 #include "metrics_statistics_msgs/msg/statistic_data_type.hpp"
 
-#include "moving_average_statistics/moving_average.hpp"
+#include "libstatistics_collector/moving_average_statistics/moving_average.hpp"
 
 #include "system_metrics_collector/constants.hpp"
 #include "system_metrics_collector/linux_process_cpu_measurement_node.hpp"

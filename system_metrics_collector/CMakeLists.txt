@@ -28,7 +28,7 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(statistics_collector_lib REQUIRED)
+find_package(libstatistics_collector REQUIRED)
 find_package(message_filters REQUIRED)
 find_package(metrics_statistics_msgs REQUIRED)
 find_package(rcl REQUIRED)
@@ -54,7 +54,6 @@ add_library(system_metrics_collector SHARED
   src/system_metrics_collector/utilities.cpp
 )
 ament_target_dependencies(system_metrics_collector
-        statistics_collector_lib
         message_filters
         metrics_statistics_msgs
         rcl
@@ -62,7 +61,8 @@ ament_target_dependencies(system_metrics_collector
         rclcpp_components
         rclcpp_lifecycle
         rcpputils
-        rcutils)
+        rcutils
+        libstatistics_collector)
 rclcpp_components_register_nodes(system_metrics_collector
   system_metrics_collector::LinuxProcessCpuMeasurementNode)
 rclcpp_components_register_nodes(system_metrics_collector

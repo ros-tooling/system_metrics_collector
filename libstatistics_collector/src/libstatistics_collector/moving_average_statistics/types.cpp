@@ -15,7 +15,7 @@
 #include <sstream>
 #include <string>
 
-#include "moving_average_statistics/types.hpp"
+#include "libstatistics_collector/moving_average_statistics/types.hpp"
 
 namespace moving_average_statistics
 {

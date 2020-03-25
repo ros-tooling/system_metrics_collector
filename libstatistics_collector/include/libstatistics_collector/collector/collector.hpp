@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef COLLECTOR__COLLECTOR_HPP_
-#define COLLECTOR__COLLECTOR_HPP_
+#ifndef LIBSTATISTICS_COLLECTOR__COLLECTOR__COLLECTOR_HPP_
+#define LIBSTATISTICS_COLLECTOR__COLLECTOR__COLLECTOR_HPP_
 
 #include <mutex>
 #include <string>
 
 #include "metric_details_interface.hpp"
-#include "moving_average_statistics/moving_average.hpp"
-#include "moving_average_statistics/types.hpp"
+#include "libstatistics_collector/moving_average_statistics/moving_average.hpp"
+#include "libstatistics_collector/moving_average_statistics/types.hpp"
 
 #include "rcpputils/thread_safety_annotations.hpp"
 
@@ -116,4 +116,4 @@ private:
 
 }  // namespace collector
 
-#endif  // COLLECTOR__COLLECTOR_HPP_
+#endif  // LIBSTATISTICS_COLLECTOR__COLLECTOR__COLLECTOR_HPP_

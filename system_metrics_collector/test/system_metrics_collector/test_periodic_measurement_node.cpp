@@ -24,10 +24,10 @@
 #include <string>
 #include <vector>
 
-#include "moving_average_statistics/types.hpp"
+#include "libstatistics_collector/moving_average_statistics/types.hpp"
 #include "lifecycle_msgs/msg/state.hpp"
 
-#include "collector/collector.hpp"
+#include "libstatistics_collector/collector/collector.hpp"
 #include "system_metrics_collector/constants.hpp"
 #include "system_metrics_collector/periodic_measurement_node.hpp"
 

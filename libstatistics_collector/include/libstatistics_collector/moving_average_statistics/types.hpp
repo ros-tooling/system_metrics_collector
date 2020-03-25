@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef MOVING_AVERAGE_STATISTICS__TYPES_HPP_
-#define MOVING_AVERAGE_STATISTICS__TYPES_HPP_
+#ifndef LIBSTATISTICS_COLLECTOR__MOVING_AVERAGE_STATISTICS__TYPES_HPP_
+#define LIBSTATISTICS_COLLECTOR__MOVING_AVERAGE_STATISTICS__TYPES_HPP_
 
 #include <cmath>
 #include <sstream>
@@ -45,4 +45,4 @@ std::string StatisticsDataToString(const StatisticData & results);
 
 }  // namespace moving_average_statistics
 
-#endif  // MOVING_AVERAGE_STATISTICS__TYPES_HPP_
+#endif  // LIBSTATISTICS_COLLECTOR__MOVING_AVERAGE_STATISTICS__TYPES_HPP_

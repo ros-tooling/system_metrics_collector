@@ -13,15 +13,15 @@
 // limitations under the License.
 
 
-#ifndef TOPIC_STATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR_HPP_
-#define TOPIC_STATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR_HPP_
+#ifndef LIBSTATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR_HPP_
+#define LIBSTATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR_HPP_
 
 #include <chrono>
 #include <string>
 
 #include "rcl/time.h"
 
-#include "collector/collector.hpp"
+#include "libstatistics_collector/collector/collector.hpp"
 
 namespace topic_statistics_collector
 {
@@ -52,4 +52,4 @@ public:
 
 }  // namespace topic_statistics_collector
 
-#endif  // TOPIC_STATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR_HPP_
+#endif  // LIBSTATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR_HPP_

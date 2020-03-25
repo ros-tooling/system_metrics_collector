@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef TOPIC_STATISTICS_COLLECTOR__RECEIVED_MESSAGE_PERIOD_HPP_
-#define TOPIC_STATISTICS_COLLECTOR__RECEIVED_MESSAGE_PERIOD_HPP_
+#ifndef LIBSTATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR__RECEIVED_MESSAGE_PERIOD_HPP_
+#define LIBSTATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR__RECEIVED_MESSAGE_PERIOD_HPP_
 
 #include <chrono>
 #include <mutex>
 #include <string>
 
 #include "constants.hpp"
-#include "topic_statistics_collector.hpp"
+#include "libstatistics_collector/topic_statistics_collector/topic_statistics_collector.hpp"
 
 #include "rcl/time.h"
 
@@ -61,6 +61,8 @@ public:
   override RCPPUTILS_TSA_REQUIRES(mutex_)
   {
     std::unique_lock<std::mutex> ulock{mutex_};
+
+    (void) received_message;
 
     if (time_last_message_received_ == kUninitializedTime) {
       time_last_message_received_ = now_nanoseconds;
@@ -128,4 +130,4 @@ private:
 }  // namespace topic_statistics_collector
 
 
-#endif  // TOPIC_STATISTICS_COLLECTOR__RECEIVED_MESSAGE_PERIOD_HPP_
+#endif  // LIBSTATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR__RECEIVED_MESSAGE_PERIOD_HPP_

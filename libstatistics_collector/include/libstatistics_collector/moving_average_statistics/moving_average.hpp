@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef MOVING_AVERAGE_STATISTICS__MOVING_AVERAGE_HPP_
-#define MOVING_AVERAGE_STATISTICS__MOVING_AVERAGE_HPP_
+#ifndef LIBSTATISTICS_COLLECTOR__MOVING_AVERAGE_STATISTICS__MOVING_AVERAGE_HPP_
+#define LIBSTATISTICS_COLLECTOR__MOVING_AVERAGE_STATISTICS__MOVING_AVERAGE_HPP_
 
 #include <cmath>
 
@@ -120,4 +120,4 @@ private:
 
 }  // namespace moving_average_statistics
 
-#endif  // MOVING_AVERAGE_STATISTICS__MOVING_AVERAGE_HPP_
+#endif  // LIBSTATISTICS_COLLECTOR__MOVING_AVERAGE_STATISTICS__MOVING_AVERAGE_HPP_

@@ -18,9 +18,10 @@
 #include <memory>
 #include <string>
 
-#include "moving_average_statistics/types.hpp"
+#include "libstatistics_collector/moving_average_statistics/types.hpp"
 
-#include "collector/collector.hpp"
+#include "libstatistics_collector/collector/collector.hpp"
+
 
 namespace
 {

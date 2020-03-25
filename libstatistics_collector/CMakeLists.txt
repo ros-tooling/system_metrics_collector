@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(statistics_collector_lib)
+project(libstatistics_collector)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -34,9 +34,9 @@ find_package(rcpputils REQUIRED)
 include_directories(include)
 
 add_library(${PROJECT_NAME} SHARED
-  src/moving_average_statistics/moving_average.cpp
-  src/moving_average_statistics/types.cpp
-  src/collector/collector.cpp
+  src/libstatistics_collector/moving_average_statistics/moving_average.cpp
+  src/libstatistics_collector/moving_average_statistics/types.cpp
+  src/libstatistics_collector/collector/collector.cpp
 )
 
 ament_target_dependencies(${PROJECT_NAME}
@@ -70,6 +70,7 @@ if(BUILD_TESTING)
   ament_target_dependencies(test_received_message_age rcl rcpputils std_msgs sensor_msgs)
 endif()
 
+#todo remove?
 install(
   TARGETS "${PROJECT_NAME}"
   EXPORT "${PROJECT_NAME}-targets"
@@ -91,6 +92,7 @@ ament_export_dependencies(rcpputils)
 
 ament_package()
 
+# todo remove?
 export(TARGETS ${PROJECT_NAME}
   FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}-targets.cmake")
 export(PACKAGE ${PROJECT_NAME})

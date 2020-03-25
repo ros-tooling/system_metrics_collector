@@ -23,7 +23,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 
-#include "collector/collector.hpp"
+#include "libstatistics_collector/collector/collector.hpp"
 #include "metrics_message_publisher.hpp"
 
 namespace system_metrics_collector

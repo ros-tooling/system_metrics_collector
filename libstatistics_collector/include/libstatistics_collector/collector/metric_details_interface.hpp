@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef COLLECTOR__METRIC_DETAILS_INTERFACE_HPP_
-#define COLLECTOR__METRIC_DETAILS_INTERFACE_HPP_
+#ifndef LIBSTATISTICS_COLLECTOR__COLLECTOR__METRIC_DETAILS_INTERFACE_HPP_
+#define LIBSTATISTICS_COLLECTOR__COLLECTOR__METRIC_DETAILS_INTERFACE_HPP_
 
 #include <string>
 
@@ -46,4 +46,4 @@ public:
 
 }  // namespace collector
 
-#endif  // COLLECTOR__METRIC_DETAILS_INTERFACE_HPP_
+#endif  // LIBSTATISTICS_COLLECTOR__COLLECTOR__METRIC_DETAILS_INTERFACE_HPP_
