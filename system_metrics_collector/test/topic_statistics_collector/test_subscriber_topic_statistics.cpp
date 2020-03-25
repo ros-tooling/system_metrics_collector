@@ -22,24 +22,21 @@
 #include "lifecycle_msgs/msg/state.hpp"
 #include "sensor_msgs/msg/imu.hpp"
 
-#include "system_metrics_collector/collector.hpp"
 #include "system_metrics_collector/constants.hpp"
 #include "topic_statistics_collector/constants.hpp"
 #include "topic_statistics_collector/subscriber_topic_statistics.hpp"
-#include "topic_statistics_collector/subscriber_topic_statistics.cpp"
 #include "topic_statistics_collector/topic_statistics_collector.hpp"
+#include "../system_metrics_collector/test_functions.hpp"
 
 using lifecycle_msgs::msg::State;
 
 namespace
 {
 constexpr const int64_t kAnyTimestamp = 1000000;
-constexpr const char kPublishPeriodParam[] = "publish_period";
 constexpr const std::chrono::milliseconds kTestDuration{250};
-constexpr const char kTestNodeName[] = "test_periodic_node";
-constexpr const char kCollectStatsTopicName[] = "collect_topic_name";
+constexpr const char kStatsCollectorNodeName[] = "topic_stats_node";
 constexpr const char kTestTopicName[] = "/test_topic";
-constexpr const uint64_t kTimesCallbackCalled = 10;
+constexpr const uint64_t kTimesCallbackCalled{10u};
 }  // namespace
 
 class TestSubscriberTopicStatisticsNode
@@ -73,14 +70,57 @@ public:
   }
 
   /**
-   * Return the container holding topic statistics collector.
+   * Check if individual topic statistics collectors are started.
    *
-   * @return data streucture containing the collectors
+   * @return true if all the collectoers are started, false otherwise
    */
-  std::vector<std::shared_ptr<topic_statistics_collector::TopicStatisticsCollector<
-      sensor_msgs::msg::Imu>>> GetCollectors() const
+  bool AreCollectorsStarted() const
   {
-    return statistics_collectors_;
+    for (const auto & collector : statistics_collectors_) {
+      if (!collector->IsStarted()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Return number of collectors owned by this node.
+   *
+   * @return number of collectors now_nanoseconds*/
+  int GetCollectorCount() const
+  {
+    return statistics_collectors_.size();
+  }
+
+  /**
+   * Return the statistic data collected by all individual collectors in this node.
+   *
+   * @return statistic data collected by all collectors
+   */
+  std::vector<moving_average_statistics::StatisticData> GetCollectorData() const
+  {
+    std::vector<moving_average_statistics::StatisticData> data;
+    for (const auto & collector : statistics_collectors_) {
+      data.push_back(collector->GetStatisticsResults());
+    }
+    return data;
+  }
+
+  /**
+   * Spin a MetricsMessageSubscriber node until the desired MetricsMessages are received.
+   */
+  void SpinUntilMessageReceived()
+  {
+    const auto receive_messages = std::make_shared<test_functions::MetricsMessageSubscriber>(
+      "receive_messages");
+
+    rclcpp::executors::SingleThreadedExecutor ex;
+    ex.add_node(this->get_node_base_interface());
+    ex.add_node(receive_messages);
+
+    ex.spin_until_future_complete(
+      receive_messages->GetFuture(), kTestDuration);
   }
 
 private:
@@ -110,13 +150,18 @@ public:
   ~ImuMessagePublisher() = default;
 
   /**
-   * Publish a  single message.
+   * Publish a  single IMU data message.
    */
   void publish(std::shared_ptr<sensor_msgs::msg::Imu> msg)
   {
     publisher_->publish(*msg);
   }
 
+  /**
+   * Get the number of subscribers subscribed to the ImuPublisher topic.
+   *
+   * @return number of subscriptions
+   */
   uint64_t getSubscriptionCount() const
   {
     return publisher_->get_subscription_count();
@@ -137,21 +182,23 @@ public:
     rclcpp::init(0, nullptr);
 
     rclcpp::NodeOptions options;
-    options.append_parameter_override(kPublishPeriodParam, kDontPublishDuringTest.count());
-    options.append_parameter_override(kCollectStatsTopicName, kTestTopicName);
+    options.append_parameter_override(
+      system_metrics_collector::collector_node_constants::kPublishPeriodParam,
+      kVeryLongPublishPeriod.count());
+    options.append_parameter_override(
+      topic_statistics_collector::topic_statistics_constants::kCollectStatsTopicNameParam,
+      kTestTopicName);
 
     imu_publisher_ = std::make_shared<ImuMessagePublisher>();
     EXPECT_EQ(imu_publisher_->getSubscriptionCount(), 0);
 
-    test_periodic_publisher_ = std::make_shared<TestSubscriberTopicStatisticsNode>(
-      kTestNodeName, options);
+    test_topic_stats_node_ = std::make_shared<TestSubscriberTopicStatisticsNode>(
+      kStatsCollectorNodeName, options);
 
-    const auto collectors = test_periodic_publisher_->GetCollectors();
-    ASSERT_FALSE(collectors.empty());
+    ASSERT_GT(test_topic_stats_node_->GetCollectorCount(), 0);
 
-    moving_average_statistics::StatisticData data;
-    for (const auto & collector : collectors) {
-      data = collector->GetStatisticsResults();
+    const auto all_collected_data = test_topic_stats_node_->GetCollectorData();
+    for (const auto & data : all_collected_data) {
       ASSERT_TRUE(std::isnan(data.average));
       ASSERT_TRUE(std::isnan(data.min));
       ASSERT_TRUE(std::isnan(data.max));
@@ -162,11 +209,11 @@ public:
 
   void TearDown() override
   {
-    test_periodic_publisher_->shutdown();
-    EXPECT_EQ(State::PRIMARY_STATE_FINALIZED, test_periodic_publisher_->get_current_state().id());
-    EXPECT_FALSE(test_periodic_publisher_->IsPublisherActivated());
+    test_topic_stats_node_->shutdown();
+    EXPECT_EQ(State::PRIMARY_STATE_FINALIZED, test_topic_stats_node_->get_current_state().id());
+    EXPECT_FALSE(test_topic_stats_node_->IsPublisherActivated());
 
-    test_periodic_publisher_.reset();
+    test_topic_stats_node_.reset();
     imu_publisher_.reset();
     rclcpp::shutdown();
   }
@@ -175,8 +222,8 @@ protected:
   // this test is not designed to have the statistics published and reset at any point of the test,
   // so this is defining the publish period to be something amply larger than the test duration
   // itself
-  static constexpr std::chrono::milliseconds kDontPublishDuringTest = 2 * kTestDuration;
-  std::shared_ptr<TestSubscriberTopicStatisticsNode> test_periodic_publisher_;
+  static constexpr std::chrono::milliseconds kVeryLongPublishPeriod = 2 * kTestDuration;
+  std::shared_ptr<TestSubscriberTopicStatisticsNode> test_topic_stats_node_;
   std::shared_ptr<ImuMessagePublisher> imu_publisher_;
 };
 
@@ -211,50 +258,48 @@ std::shared_ptr<sensor_msgs::msg::Imu> GetImuMessageWithHeader()
 }
 
 constexpr std::chrono::milliseconds
-SubscriberTopicStatisticsNodeTestFixture::kDontPublishDuringTest;
+SubscriberTopicStatisticsNodeTestFixture::kVeryLongPublishPeriod;
 
-TEST_F(SubscriberTopicStatisticsNodeTestFixture, TestStart) {
-  ASSERT_NE(test_periodic_publisher_, nullptr);
-  for (const auto & collector : test_periodic_publisher_->GetCollectors()) {
-    ASSERT_FALSE(collector->IsStarted());
-  }
+TEST_F(SubscriberTopicStatisticsNodeTestFixture, TestStartAndStop) {
+  ASSERT_NE(test_topic_stats_node_, nullptr);
+  ASSERT_FALSE(test_topic_stats_node_->AreCollectorsStarted());
 
   ASSERT_EQ(
     State::PRIMARY_STATE_UNCONFIGURED,
-    test_periodic_publisher_->get_current_state().id());
-  ASSERT_FALSE(test_periodic_publisher_->IsPublisherActivated());
+    test_topic_stats_node_->get_current_state().id());
+  ASSERT_FALSE(test_topic_stats_node_->IsPublisherActivated());
 
-  test_periodic_publisher_->configure();
-  ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, test_periodic_publisher_->get_current_state().id());
-  ASSERT_FALSE(test_periodic_publisher_->IsPublisherActivated());
+  test_topic_stats_node_->configure();
+  ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, test_topic_stats_node_->get_current_state().id());
+  ASSERT_FALSE(test_topic_stats_node_->IsPublisherActivated());
 
-  test_periodic_publisher_->activate();
-  for (const auto & collector : test_periodic_publisher_->GetCollectors()) {
-    ASSERT_TRUE(collector->IsStarted());
-  }
-  ASSERT_EQ(State::PRIMARY_STATE_ACTIVE, test_periodic_publisher_->get_current_state().id());
-  ASSERT_TRUE(test_periodic_publisher_->IsPublisherActivated());
+  test_topic_stats_node_->activate();
+  ASSERT_TRUE(test_topic_stats_node_->AreCollectorsStarted());
+  ASSERT_EQ(State::PRIMARY_STATE_ACTIVE, test_topic_stats_node_->get_current_state().id());
+  ASSERT_TRUE(test_topic_stats_node_->IsPublisherActivated());
+
+  test_topic_stats_node_->deactivate();
+  ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, test_topic_stats_node_->get_current_state().id());
+  ASSERT_FALSE(test_topic_stats_node_->AreCollectorsStarted());
+  ASSERT_FALSE(test_topic_stats_node_->IsPublisherActivated());
 }
 
 TEST_F(SubscriberTopicStatisticsNodeTestFixture, TestSubscriptionCallback) {
-  test_periodic_publisher_->configure();
-  test_periodic_publisher_->activate();
+  test_topic_stats_node_->configure();
+  test_topic_stats_node_->activate();
+
+  ASSERT_TRUE(test_topic_stats_node_->AreCollectorsStarted());
+  ASSERT_TRUE(test_topic_stats_node_->IsPublisherActivated());
 
   const auto msg = GetImuMessageWithHeader();
   for (int i = 0; i < kTimesCallbackCalled; ++i) {
     imu_publisher_->publish(msg);
   }
 
-  std::promise<bool> empty_promise;
-  std::shared_future<bool> dummy_future = empty_promise.get_future();
+  test_topic_stats_node_->SpinUntilMessageReceived();
 
-  rclcpp::executors::SingleThreadedExecutor ex;
-  ex.add_node(test_periodic_publisher_->get_node_base_interface());
-  ex.spin_until_future_complete(dummy_future, kTestDuration);
-
-  moving_average_statistics::StatisticData data;
-  for (const auto & collector : test_periodic_publisher_->GetCollectors()) {
-    data = collector->GetStatisticsResults();
+  const auto all_collected_data = test_topic_stats_node_->GetCollectorData();
+  for (const auto & data : all_collected_data) {
     ASSERT_GT(data.sample_count, 0);
     ASSERT_FALSE(std::isnan(data.average));
     ASSERT_FALSE(std::isnan(data.min));
@@ -262,63 +307,41 @@ TEST_F(SubscriberTopicStatisticsNodeTestFixture, TestSubscriptionCallback) {
     ASSERT_FALSE(std::isnan(data.standard_deviation));
   }
 
-  int times_published = test_periodic_publisher_->GetNumPublished();
+  int times_published = test_topic_stats_node_->GetNumPublished();
   ASSERT_EQ(
-    kTestDuration.count() / kDontPublishDuringTest.count(), times_published);
-}
-
-TEST_F(SubscriberTopicStatisticsNodeTestFixture, TestStop) {
-  test_periodic_publisher_->configure();
-  test_periodic_publisher_->activate();
-
-  test_periodic_publisher_->deactivate();
-  ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, test_periodic_publisher_->get_current_state().id());
-  for (const auto & collector : test_periodic_publisher_->GetCollectors()) {
-    ASSERT_FALSE(collector->IsStarted());
-  }
-  ASSERT_FALSE(test_periodic_publisher_->IsPublisherActivated());
+    kTestDuration.count() / kVeryLongPublishPeriod.count(), times_published);
 }
 
 TEST_F(SubscriberTopicStatisticsNodeTestFixture, TestLifecycleManually_reactivate) {
-  ASSERT_NE(test_periodic_publisher_, nullptr);
-  for (const auto & collector : test_periodic_publisher_->GetCollectors()) {
-    ASSERT_FALSE(collector->IsStarted());
-  }
+  ASSERT_NE(test_topic_stats_node_, nullptr);
+  ASSERT_FALSE(test_topic_stats_node_->AreCollectorsStarted());
   ASSERT_EQ(
     State::PRIMARY_STATE_UNCONFIGURED,
-    test_periodic_publisher_->get_current_state().id());
-  ASSERT_FALSE(test_periodic_publisher_->IsPublisherActivated());
+    test_topic_stats_node_->get_current_state().id());
+  ASSERT_FALSE(test_topic_stats_node_->IsPublisherActivated());
 
   // configure the node
-  test_periodic_publisher_->configure();
-  ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, test_periodic_publisher_->get_current_state().id());
-  for (const auto & collector : test_periodic_publisher_->GetCollectors()) {
-    ASSERT_FALSE(collector->IsStarted());
-  }
-  ASSERT_FALSE(test_periodic_publisher_->IsPublisherActivated());
+  test_topic_stats_node_->configure();
+  ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, test_topic_stats_node_->get_current_state().id());
+  ASSERT_FALSE(test_topic_stats_node_->AreCollectorsStarted());
+  ASSERT_FALSE(test_topic_stats_node_->IsPublisherActivated());
 
   // activate the node
-  test_periodic_publisher_->activate();
-  ASSERT_EQ(State::PRIMARY_STATE_ACTIVE, test_periodic_publisher_->get_current_state().id());
-  for (const auto & collector : test_periodic_publisher_->GetCollectors()) {
-    ASSERT_TRUE(collector->IsStarted());
-  }
-  ASSERT_TRUE(test_periodic_publisher_->IsPublisherActivated());
+  test_topic_stats_node_->activate();
+  ASSERT_EQ(State::PRIMARY_STATE_ACTIVE, test_topic_stats_node_->get_current_state().id());
+  ASSERT_TRUE(test_topic_stats_node_->AreCollectorsStarted());
+  ASSERT_TRUE(test_topic_stats_node_->IsPublisherActivated());
 
   // deactivate the node
-  test_periodic_publisher_->deactivate();
-  ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, test_periodic_publisher_->get_current_state().id());
-  for (const auto & collector : test_periodic_publisher_->GetCollectors()) {
-    ASSERT_FALSE(collector->IsStarted());
-  }
-  ASSERT_FALSE(test_periodic_publisher_->IsPublisherActivated());
+  test_topic_stats_node_->deactivate();
+  ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, test_topic_stats_node_->get_current_state().id());
+  ASSERT_FALSE(test_topic_stats_node_->AreCollectorsStarted());
+  ASSERT_FALSE(test_topic_stats_node_->IsPublisherActivated());
 
   // reactivate the node
-  test_periodic_publisher_->activate();
-  ASSERT_EQ(State::PRIMARY_STATE_ACTIVE, test_periodic_publisher_->get_current_state().id());
-  for (const auto & collector : test_periodic_publisher_->GetCollectors()) {
-    ASSERT_TRUE(collector->IsStarted());
-  }
+  test_topic_stats_node_->activate();
+  ASSERT_EQ(State::PRIMARY_STATE_ACTIVE, test_topic_stats_node_->get_current_state().id());
+  ASSERT_TRUE(test_topic_stats_node_->AreCollectorsStarted());
 }
 
 TEST_F(RclcppFixture, TestConstructorNodeNameValidation) {
@@ -343,7 +366,7 @@ TEST_F(RclcppFixture, TestConstructorPublishPeriodValidation) {
 TEST_F(RclcppFixture, TestConstructorTopicNameValidation) {
   rclcpp::NodeOptions options;
   options.append_parameter_override(
-    topic_statistics_collector::topic_statistics_constants::kCollectStatsTopicName,
+    topic_statistics_collector::topic_statistics_constants::kCollectStatsTopicNameParam,
     std::string());
 
   ASSERT_THROW(
@@ -357,7 +380,7 @@ TEST_F(RclcppFixture, TestMetricsMessagePublisher) {
     system_metrics_collector::collector_node_constants::kPublishPeriodParam,
     std::chrono::milliseconds{kTestDuration}.count());
   options.append_parameter_override(
-    topic_statistics_collector::topic_statistics_constants::kCollectStatsTopicName,
+    topic_statistics_collector::topic_statistics_constants::kCollectStatsTopicNameParam,
     kTestTopicName);
 
   auto test_node = std::make_shared<TestSubscriberTopicStatisticsNode>(
@@ -373,18 +396,12 @@ TEST_F(RclcppFixture, TestMetricsMessagePublisher) {
   }
 
   // After spinning, test that MetricsMessage is published and collected values are cleared.
-  std::promise<bool> empty_promise;
-  std::shared_future<bool> dummy_future = empty_promise.get_future();
-
-  rclcpp::executors::SingleThreadedExecutor ex;
-  ex.add_node(test_node->get_node_base_interface());
-  ex.spin_until_future_complete(dummy_future, kTestDuration);
+  test_node->SpinUntilMessageReceived();
 
   ASSERT_EQ(test_node->GetNumPublished(), 1);
 
-  moving_average_statistics::StatisticData data;
-  for (const auto & collector : test_node->GetCollectors()) {
-    data = collector->GetStatisticsResults();
+  const auto all_collected_data = test_node->GetCollectorData();
+  for (const auto & data : all_collected_data) {
     ASSERT_EQ(data.sample_count, 0);
     ASSERT_TRUE(std::isnan(data.average));
     ASSERT_TRUE(std::isnan(data.min));
