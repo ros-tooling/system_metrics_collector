@@ -70,14 +70,11 @@ if(BUILD_TESTING)
   ament_target_dependencies(test_received_message_age rcl rcpputils std_msgs sensor_msgs)
 endif()
 
-#todo remove?
 install(
   TARGETS "${PROJECT_NAME}"
   EXPORT "${PROJECT_NAME}-targets"
   LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
 )
 
 install(
@@ -92,7 +89,6 @@ ament_export_dependencies(rcpputils)
 
 ament_package()
 
-# todo remove?
 export(TARGETS ${PROJECT_NAME}
   FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}-targets.cmake")
 export(PACKAGE ${PROJECT_NAME})
