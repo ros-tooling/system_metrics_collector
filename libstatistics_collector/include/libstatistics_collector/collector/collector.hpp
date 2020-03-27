@@ -24,7 +24,7 @@
 
 #include "rcpputils/thread_safety_annotations.hpp"
 
-namespace collector
+namespace libstatistics_collector
 {
 
 /**
@@ -114,6 +114,6 @@ private:
   bool started_{false} RCPPUTILS_TSA_GUARDED_BY(mutex_);
 };
 
-}  // namespace collector
+}  // namespace libstatistics_collector
 
 #endif  // LIBSTATISTICS_COLLECTOR__COLLECTOR__COLLECTOR_HPP_

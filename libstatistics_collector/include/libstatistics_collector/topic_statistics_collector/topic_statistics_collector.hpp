@@ -31,7 +31,7 @@ namespace topic_statistics_collector
  * @tparam T the ROS2 message type to collect
  */
 template<typename T>
-class TopicStatisticsCollector : public collector::Collector
+class TopicStatisticsCollector : public libstatistics_collector::Collector
 {
 public:
   TopicStatisticsCollector() = default;

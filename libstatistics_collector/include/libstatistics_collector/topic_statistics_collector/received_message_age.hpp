@@ -111,7 +111,7 @@ public:
         const std::chrono::nanoseconds age_nanos{now_nanoseconds - timestamp_from_header.second};
         const auto age_millis = std::chrono::duration_cast<std::chrono::milliseconds>(age_nanos);
 
-        collector::Collector::AcceptData(static_cast<double>(age_millis.count()));
+        libstatistics_collector::Collector::AcceptData(static_cast<double>(age_millis.count()));
       }  // else no valid time to compute age
     }
   }

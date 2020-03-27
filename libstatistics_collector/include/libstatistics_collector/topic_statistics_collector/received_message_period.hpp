@@ -70,7 +70,7 @@ public:
       const std::chrono::nanoseconds nanos{now_nanoseconds - time_last_message_received_};
       const auto period = std::chrono::duration_cast<std::chrono::milliseconds>(nanos);
       time_last_message_received_ = now_nanoseconds;
-      collector::Collector::AcceptData(static_cast<double>(period.count()));
+      libstatistics_collector::Collector::AcceptData(static_cast<double>(period.count()));
     }
   }
 

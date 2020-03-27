@@ -17,7 +17,7 @@
 
 #include <string>
 
-namespace collector
+namespace libstatistics_collector
 {
 /**
  * Interface to represent a single metric's name and unit,
@@ -44,6 +44,6 @@ public:
   virtual std::string GetMetricUnit() const = 0;
 };
 
-}  // namespace collector
+}  // namespace libstatistics_collector
 
 #endif  // LIBSTATISTICS_COLLECTOR__COLLECTOR__METRIC_DETAILS_INTERFACE_HPP_
