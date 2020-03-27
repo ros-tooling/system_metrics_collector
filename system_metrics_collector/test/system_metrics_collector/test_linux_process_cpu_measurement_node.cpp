@@ -72,7 +72,7 @@ public:
       count_ = 0;
       PromiseSetter::SetPromise();
     }
-    LinuxProcessCpuMeasurementNode::PeriodicMeasurement();
+    return LinuxProcessCpuMeasurementNode::PeriodicMeasurement();
   }
 
   /**

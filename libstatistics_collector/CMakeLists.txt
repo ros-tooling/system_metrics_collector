@@ -82,13 +82,9 @@ install(
   DESTINATION include
 )
 
-ament_export_include_directories(include)
-ament_export_libraries(${PROJECT_NAME})
 ament_export_dependencies(rcl)
 ament_export_dependencies(rcpputils)
+ament_export_include_directories(include)
+ament_export_libraries(${PROJECT_NAME})
 
 ament_package()
-
-export(TARGETS ${PROJECT_NAME}
-  FILE "${PROJECT_BINARY_DIR}/${PROJECT_NAME}-targets.cmake")
-export(PACKAGE ${PROJECT_NAME})
