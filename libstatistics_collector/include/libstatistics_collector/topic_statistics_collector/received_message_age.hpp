@@ -27,8 +27,10 @@
 #include "rcl/time.h"
 #include "rcutils/logging_macros.h"
 
-namespace libstatistics_collector {
-namespace topic_statistics_collector {
+namespace libstatistics_collector
+{
+namespace topic_statistics_collector
+{
 
 /**
  * False if the message does not have a header

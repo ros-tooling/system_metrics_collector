@@ -21,8 +21,10 @@
 #include "libstatistics_collector/moving_average_statistics/moving_average.hpp"
 #include "libstatistics_collector/moving_average_statistics/types.hpp"
 
-namespace libstatistics_collector {
-namespace collector {
+namespace libstatistics_collector
+{
+namespace collector
+{
 
 bool Collector::Start()
 {

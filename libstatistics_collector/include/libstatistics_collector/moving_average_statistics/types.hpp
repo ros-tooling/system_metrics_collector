@@ -19,8 +19,10 @@
 #include <sstream>
 #include <string>
 
-namespace libstatistics_collector {
-namespace moving_average_statistics {
+namespace libstatistics_collector
+{
+namespace moving_average_statistics
+{
 
 /**
  *  A container for statistics data results for a set of recorded observations.

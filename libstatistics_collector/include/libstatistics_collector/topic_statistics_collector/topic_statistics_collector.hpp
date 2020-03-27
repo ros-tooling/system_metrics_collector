@@ -23,8 +23,10 @@
 
 #include "libstatistics_collector/collector/collector.hpp"
 
-namespace libstatistics_collector {
-namespace topic_statistics_collector {
+namespace libstatistics_collector
+{
+namespace topic_statistics_collector
+{
 
 /**
  * Interface to collect and perform measurements for ROS2 topic statistics.

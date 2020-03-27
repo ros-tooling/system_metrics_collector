@@ -24,8 +24,10 @@
 
 #include "rcl/time.h"
 
-namespace libstatistics_collector {
-namespace topic_statistics_collector {
+namespace libstatistics_collector
+{
+namespace topic_statistics_collector
+{
 
 constexpr const int64_t kUninitializedTime{0};
 

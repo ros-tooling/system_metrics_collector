@@ -17,8 +17,10 @@
 
 #include <string>
 
-namespace libstatistics_collector {
-namespace collector {
+namespace libstatistics_collector
+{
+namespace collector
+{
 
 /**
  * Interface to represent a single metric's name and unit,

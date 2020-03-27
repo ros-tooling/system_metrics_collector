@@ -17,8 +17,10 @@
 
 #include <string>
 
-namespace libstatistics_collector {
-namespace topic_statistics_collector {
+namespace libstatistics_collector
+{
+namespace topic_statistics_collector
+{
 
 namespace topic_statistics_constants
 {

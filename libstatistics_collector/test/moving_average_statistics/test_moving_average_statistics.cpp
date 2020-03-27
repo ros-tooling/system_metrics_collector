@@ -200,5 +200,6 @@ TEST(MovingAverageStatisticsTest, TestPrettyPrinting) {
   stats.AddMeasurement(1);
   ASSERT_EQ(
     "avg=1.000000, min=1.000000, max=1.000000, std_dev=0.000000, count=1",
-    libstatistics_collector::moving_average_statistics::StatisticsDataToString(stats.GetStatistics()));
+    libstatistics_collector::moving_average_statistics::StatisticsDataToString(
+      stats.GetStatistics()));
 }

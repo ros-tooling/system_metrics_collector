@@ -52,8 +52,10 @@ std_msgs::msg::String GetStringMessageWithoutHeader()
 }
 }  // namespace
 
-using ReceivedImuMessageAgeCollector = libstatistics_collector::topic_statistics_collector::ReceivedMessageAgeCollector<sensor_msgs::msg::Imu>;
-using ReceivedStringMessageAgeCollector = libstatistics_collector::topic_statistics_collector::ReceivedMessageAgeCollector<std_msgs::msg::String>;
+using ReceivedImuMessageAgeCollector = libstatistics_collector::
+  topic_statistics_collector::ReceivedMessageAgeCollector<sensor_msgs::msg::Imu>;
+using ReceivedStringMessageAgeCollector = libstatistics_collector::
+  topic_statistics_collector::ReceivedMessageAgeCollector<std_msgs::msg::String>;
 
 TEST(ReceivedMessageAgeTest, TestOnlyMessagesWithHeaderGetSampled) {
   ReceivedStringMessageAgeCollector string_msg_collector{};
