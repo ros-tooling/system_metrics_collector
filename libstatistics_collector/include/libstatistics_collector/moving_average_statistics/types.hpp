@@ -19,8 +19,8 @@
 #include <sstream>
 #include <string>
 
-namespace moving_average_statistics
-{
+namespace libstatistics_collector {
+namespace moving_average_statistics {
 
 /**
  *  A container for statistics data results for a set of recorded observations.
@@ -44,5 +44,6 @@ struct StatisticData
 std::string StatisticsDataToString(const StatisticData & results);
 
 }  // namespace moving_average_statistics
+}  // namespace libstatistics_collector
 
 #endif  // LIBSTATISTICS_COLLECTOR__MOVING_AVERAGE_STATISTICS__TYPES_HPP_

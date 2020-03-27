@@ -40,12 +40,12 @@
 
 namespace
 {
+using libstatistics_collector::moving_average_statistics::MovingAverageStatistics;
+using libstatistics_collector::moving_average_statistics::StatisticData;
 using lifecycle_msgs::msg::State;
 using metrics_statistics_msgs::msg::MetricsMessage;
 using metrics_statistics_msgs::msg::StatisticDataPoint;
 using metrics_statistics_msgs::msg::StatisticDataType;
-using moving_average_statistics::MovingAverageStatistics;
-using moving_average_statistics::StatisticData;
 using test_constants::kProcPidSamples;
 
 constexpr const char kTestProcessCpuNodeName[] = "test_measure_linux_process_cpu";
@@ -119,8 +119,7 @@ public:
 
     ASSERT_FALSE(test_measure_linux_process_cpu_->IsStarted());
 
-    const moving_average_statistics::StatisticData data =
-      test_measure_linux_process_cpu_->GetStatisticsResults();
+    const StatisticData data = test_measure_linux_process_cpu_->GetStatisticsResults();
     ASSERT_TRUE(std::isnan(data.average));
     ASSERT_TRUE(std::isnan(data.min));
     ASSERT_TRUE(std::isnan(data.max));

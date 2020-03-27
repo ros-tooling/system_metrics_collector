@@ -44,12 +44,12 @@
 
 namespace
 {
+using libstatistics_collector::moving_average_statistics::MovingAverageStatistics;
+using libstatistics_collector::moving_average_statistics::StatisticData;
 using lifecycle_msgs::msg::State;
 using metrics_statistics_msgs::msg::MetricsMessage;
 using metrics_statistics_msgs::msg::StatisticDataPoint;
 using metrics_statistics_msgs::msg::StatisticDataType;
-using moving_average_statistics::MovingAverageStatistics;
-using moving_average_statistics::StatisticData;
 using system_metrics_collector::ProcessStatCpuLine;
 using test_constants::kProcSamples;
 

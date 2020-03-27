@@ -82,8 +82,7 @@ install(
   DESTINATION include
 )
 
-ament_export_dependencies(rcl)
-ament_export_dependencies(rcpputils)
+ament_export_dependencies(rcl rcpputils)
 ament_export_include_directories(include)
 ament_export_libraries(${PROJECT_NAME})
 

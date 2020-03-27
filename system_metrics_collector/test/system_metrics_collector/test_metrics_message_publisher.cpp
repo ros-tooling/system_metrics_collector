@@ -22,10 +22,10 @@
 
 #include "system_metrics_collector/metrics_message_publisher.hpp"
 
+using libstatistics_collector::moving_average_statistics::StatisticData;
 using metrics_statistics_msgs::msg::MetricsMessage;
 using metrics_statistics_msgs::msg::StatisticDataPoint;
 using metrics_statistics_msgs::msg::StatisticDataType;
-using moving_average_statistics::StatisticData;
 using system_metrics_collector::MetricsMessagePublisher;
 
 namespace

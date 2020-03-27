@@ -43,14 +43,13 @@
 
 namespace
 {
+using libstatistics_collector::moving_average_statistics::MovingAverageStatistics;
+using libstatistics_collector::moving_average_statistics::StatisticData;
 using lifecycle_msgs::msg::State;
 using metrics_statistics_msgs::msg::MetricsMessage;
 using metrics_statistics_msgs::msg::StatisticDataPoint;
 using metrics_statistics_msgs::msg::StatisticDataType;
-using moving_average_statistics::StatisticData;
 using system_metrics_collector::ProcessMemInfoLines;
-using moving_average_statistics::MovingAverageStatistics;
-using moving_average_statistics::StatisticData;
 
 constexpr const char kTestMemoryNodeName[] = "test_measure_linux_memory";
 constexpr const char kTestMetricName[] = "system_memory_percent_used";
@@ -134,8 +133,7 @@ public:
 
     ASSERT_FALSE(test_measure_linux_memory_->IsStarted());
 
-    const moving_average_statistics::StatisticData data =
-      test_measure_linux_memory_->GetStatisticsResults();
+    const StatisticData data = test_measure_linux_memory_->GetStatisticsResults();
     ASSERT_TRUE(std::isnan(data.average));
     ASSERT_TRUE(std::isnan(data.min));
     ASSERT_TRUE(std::isnan(data.max));

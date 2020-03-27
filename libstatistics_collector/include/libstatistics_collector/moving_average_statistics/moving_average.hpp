@@ -27,8 +27,8 @@
 
 #include "rcpputils/thread_safety_annotations.hpp"
 
-namespace moving_average_statistics
-{
+namespace libstatistics_collector {
+namespace moving_average_statistics {
 
 /**
  *  A class for calculating moving average statistics. This operates in constant memory and constant time. Note:
@@ -119,5 +119,6 @@ private:
 };
 
 }  // namespace moving_average_statistics
+}  // namespace libstatistics_collector
 
 #endif  // LIBSTATISTICS_COLLECTOR__MOVING_AVERAGE_STATISTICS__MOVING_AVERAGE_HPP_

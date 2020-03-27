@@ -24,8 +24,8 @@
 
 #include "rcpputils/thread_safety_annotations.hpp"
 
-namespace libstatistics_collector
-{
+namespace libstatistics_collector {
+namespace collector {
 
 /**
  * Simple class in order to collect observed data and generate statistics for the given observations.
@@ -114,6 +114,7 @@ private:
   bool started_{false} RCPPUTILS_TSA_GUARDED_BY(mutex_);
 };
 
+}  // namespace collector
 }  // namespace libstatistics_collector
 
 #endif  // LIBSTATISTICS_COLLECTOR__COLLECTOR__COLLECTOR_HPP_

@@ -27,9 +27,8 @@
 #include "rcl/time.h"
 #include "rcutils/logging_macros.h"
 
-
-namespace topic_statistics_collector
-{
+namespace libstatistics_collector {
+namespace topic_statistics_collector {
 
 /**
  * False if the message does not have a header
@@ -111,7 +110,7 @@ public:
         const std::chrono::nanoseconds age_nanos{now_nanoseconds - timestamp_from_header.second};
         const auto age_millis = std::chrono::duration_cast<std::chrono::milliseconds>(age_nanos);
 
-        libstatistics_collector::Collector::AcceptData(static_cast<double>(age_millis.count()));
+        collector::Collector::AcceptData(static_cast<double>(age_millis.count()));
       }  // else no valid time to compute age
     }
   }
@@ -148,5 +147,6 @@ protected:
 };
 
 }  // namespace topic_statistics_collector
+}  // namespace libstatistics_collector
 
 #endif  // LIBSTATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR__RECEIVED_MESSAGE_AGE_HPP_

@@ -52,13 +52,14 @@ std_msgs::msg::String GetStringMessageWithoutHeader()
 }
 }  // namespace
 
+using ReceivedImuMessageAgeCollector = libstatistics_collector::topic_statistics_collector::ReceivedMessageAgeCollector<sensor_msgs::msg::Imu>;
+using ReceivedStringMessageAgeCollector = libstatistics_collector::topic_statistics_collector::ReceivedMessageAgeCollector<std_msgs::msg::String>;
 
 TEST(ReceivedMessageAgeTest, TestOnlyMessagesWithHeaderGetSampled) {
-  topic_statistics_collector::ReceivedMessageAgeCollector<std_msgs::msg::String>
-  string_msg_collector{};
+  ReceivedStringMessageAgeCollector string_msg_collector{};
 
   const auto string_msg = GetStringMessageWithoutHeader();
-  moving_average_statistics::StatisticData stats;
+  libstatistics_collector::moving_average_statistics::StatisticData stats;
 
   for (int i = 0; i < kDefaultTimesToTest; ++i) {
     string_msg_collector.OnMessageReceived(string_msg, kDefaultTimeMessageReceived);
@@ -66,8 +67,7 @@ TEST(ReceivedMessageAgeTest, TestOnlyMessagesWithHeaderGetSampled) {
     EXPECT_EQ(0, stats.sample_count) << "Expect 0 samples to be collected";
   }
 
-  topic_statistics_collector::ReceivedMessageAgeCollector<sensor_msgs::msg::Imu>
-  imu_msg_collector{};
+  ReceivedImuMessageAgeCollector imu_msg_collector{};
   const auto imu_msg = GetImuMessageWithHeader(1, 0);
 
   for (int i = 0; i < kDefaultTimesToTest; ++i) {
@@ -78,8 +78,7 @@ TEST(ReceivedMessageAgeTest, TestOnlyMessagesWithHeaderGetSampled) {
 }
 
 TEST(ReceivedMessageAgeTest, TestMeasurementOnlyMadeForInitializedHeaderValue) {
-  topic_statistics_collector::ReceivedMessageAgeCollector<sensor_msgs::msg::Imu>
-  imu_msg_collector{};
+  ReceivedImuMessageAgeCollector imu_msg_collector{};
 
   // Don't initialize `header.stamp`
   const auto imu_msg_uninitialized_header = sensor_msgs::msg::Imu{};
@@ -101,7 +100,7 @@ TEST(ReceivedMessageAgeTest, TestMeasurementOnlyMadeForInitializedHeaderValue) {
 }
 
 TEST(ReceivedMessageAgeTest, TestAgeMeasurement) {
-  topic_statistics_collector::ReceivedMessageAgeCollector<sensor_msgs::msg::Imu> test_collector{};
+  ReceivedImuMessageAgeCollector test_collector{};
 
   EXPECT_FALSE(test_collector.IsStarted()) << "Expect to be not started after constructed";
 
@@ -138,7 +137,7 @@ TEST(ReceivedMessageAgeTest, TestAgeMeasurement) {
 }
 
 TEST(ReceivedMessageAgeTest, TestGetStatNameAndUnit) {
-  topic_statistics_collector::ReceivedMessageAgeCollector<sensor_msgs::msg::Imu> test_collector{};
+  ReceivedImuMessageAgeCollector test_collector{};
 
   EXPECT_FALSE(test_collector.GetMetricName().empty());
   EXPECT_FALSE(test_collector.GetMetricUnit().empty());

@@ -24,9 +24,9 @@
 
 #include "rcl/time.h"
 
+namespace libstatistics_collector {
+namespace topic_statistics_collector {
 
-namespace topic_statistics_collector
-{
 constexpr const int64_t kUninitializedTime{0};
 
 /**
@@ -70,7 +70,7 @@ public:
       const std::chrono::nanoseconds nanos{now_nanoseconds - time_last_message_received_};
       const auto period = std::chrono::duration_cast<std::chrono::milliseconds>(nanos);
       time_last_message_received_ = now_nanoseconds;
-      libstatistics_collector::Collector::AcceptData(static_cast<double>(period.count()));
+      collector::Collector::AcceptData(static_cast<double>(period.count()));
     }
   }
 
@@ -128,6 +128,6 @@ private:
 };
 
 }  // namespace topic_statistics_collector
-
+}  // namespace libstatistics_collector
 
 #endif  // LIBSTATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR__RECEIVED_MESSAGE_PERIOD_HPP_

@@ -35,9 +35,10 @@ constexpr const double kExpectedMaxMilliseconds{1000.0};
 constexpr const double kExpectedStandardDeviation{0.0};
 }  // namespace
 
+using ReceivedIntMessagePeriodCollector = libstatistics_collector::topic_statistics_collector::ReceivedMessagePeriodCollector<int>;
 
 TEST(ReceivedMessagePeriodTest, TestPeriodMeasurement) {
-  topic_statistics_collector::ReceivedMessagePeriodCollector<int> test{};
+  ReceivedIntMessagePeriodCollector test{};
 
   EXPECT_FALSE(test.IsStarted()) << "Expected to be not started after constructed";
 
@@ -77,7 +78,7 @@ TEST(ReceivedMessagePeriodTest, TestPeriodMeasurement) {
 }
 
 TEST(ReceivedMessagePeriodTest, TestGetStatNameAndUnit) {
-  topic_statistics_collector::ReceivedMessagePeriodCollector<int> test{};
+  ReceivedIntMessagePeriodCollector test{};
 
   EXPECT_FALSE(test.GetMetricName().empty());
   EXPECT_FALSE(test.GetMetricUnit().empty());

@@ -32,7 +32,7 @@ MetricsMessage GenerateStatisticMessage(
   const std::string & unit,
   const builtin_interfaces::msg::Time window_start,
   const builtin_interfaces::msg::Time window_stop,
-  const moving_average_statistics::StatisticData & data)
+  const libstatistics_collector::moving_average_statistics::StatisticData & data)
 {
   MetricsMessage msg;
 

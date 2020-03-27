@@ -32,7 +32,7 @@ constexpr const char kTestMetricUnit[] = "test_metric_unit";
 /**
  * Simple extension to test basic functionality
  */
-class TestCollector : public libstatistics_collector::Collector
+class TestCollector : public libstatistics_collector::collector::Collector
 {
 public:
   TestCollector() = default;

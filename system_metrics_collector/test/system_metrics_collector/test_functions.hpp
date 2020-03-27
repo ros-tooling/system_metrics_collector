@@ -55,7 +55,7 @@ using ExpectedStatistics =
  * @return output ExpectedStatistics to use for testing.
  */
 ExpectedStatistics StatisticDataToExpectedStatistics(
-  const moving_average_statistics::StatisticData & src)
+  const libstatistics_collector::moving_average_statistics::StatisticData & src)
 {
   ExpectedStatistics expected{};
   expected[StatisticDataType::STATISTICS_DATA_TYPE_AVERAGE] = src.average;

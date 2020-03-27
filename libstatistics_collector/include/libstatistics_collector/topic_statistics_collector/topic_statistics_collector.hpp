@@ -23,15 +23,16 @@
 
 #include "libstatistics_collector/collector/collector.hpp"
 
-namespace topic_statistics_collector
-{
+namespace libstatistics_collector {
+namespace topic_statistics_collector {
+
 /**
  * Interface to collect and perform measurements for ROS2 topic statistics.
  *
  * @tparam T the ROS2 message type to collect
  */
 template<typename T>
-class TopicStatisticsCollector : public libstatistics_collector::Collector
+class TopicStatisticsCollector : public collector::Collector
 {
 public:
   TopicStatisticsCollector() = default;
@@ -51,5 +52,6 @@ public:
 };
 
 }  // namespace topic_statistics_collector
+}  // namespace libstatistics_collector
 
 #endif  // LIBSTATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR_HPP_

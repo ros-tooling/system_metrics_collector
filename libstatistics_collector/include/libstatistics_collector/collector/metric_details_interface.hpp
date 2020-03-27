@@ -17,13 +17,13 @@
 
 #include <string>
 
-namespace libstatistics_collector
-{
+namespace libstatistics_collector {
+namespace collector {
+
 /**
  * Interface to represent a single metric's name and unit,
  * which are used for metric message generation and publication.
  */
-
 class MetricDetailsInterface
 {
 public:
@@ -44,6 +44,7 @@ public:
   virtual std::string GetMetricUnit() const = 0;
 };
 
+}  // namespace collector
 }  // namespace libstatistics_collector
 
 #endif  // LIBSTATISTICS_COLLECTOR__COLLECTOR__METRIC_DETAILS_INTERFACE_HPP_

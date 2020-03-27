@@ -19,11 +19,11 @@
 
 namespace system_metrics_collector
 {
+
 /**
  * Interface to represent a single metric's name and unit,
  * which are used for metric message generation and publication.
  */
-
 class MetricDetailsInterface
 {
 public:

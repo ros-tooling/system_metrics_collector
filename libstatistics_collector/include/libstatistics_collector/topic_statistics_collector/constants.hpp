@@ -17,8 +17,8 @@
 
 #include <string>
 
-namespace topic_statistics_collector
-{
+namespace libstatistics_collector {
+namespace topic_statistics_collector {
 
 namespace topic_statistics_constants
 {
@@ -28,5 +28,6 @@ constexpr const char kMillisecondUnitName[] = "ms";
 }  // namespace topic_statistics_constants
 
 }  // namespace topic_statistics_collector
+}  // namespace libstatistics_collector
 
 #endif  // LIBSTATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR__CONSTANTS_HPP_
