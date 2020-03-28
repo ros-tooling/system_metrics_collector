@@ -264,9 +264,7 @@ TEST_F(SubscriberTopicStatisticsNodeTestFixture, TestStartAndStop) {
   ASSERT_NE(test_topic_stats_node_, nullptr);
   ASSERT_FALSE(test_topic_stats_node_->AreCollectorsStarted());
 
-  ASSERT_EQ(
-    State::PRIMARY_STATE_UNCONFIGURED,
-    test_topic_stats_node_->get_current_state().id());
+  ASSERT_EQ(State::PRIMARY_STATE_UNCONFIGURED, test_topic_stats_node_->get_current_state().id());
   ASSERT_FALSE(test_topic_stats_node_->IsPublisherActivated());
 
   test_topic_stats_node_->configure();

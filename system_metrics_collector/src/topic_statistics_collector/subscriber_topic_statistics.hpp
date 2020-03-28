@@ -32,7 +32,6 @@
 #include "system_metrics_collector/metrics_message_publisher.hpp"
 #include "topic_statistics_collector.hpp"
 
-using metrics_statistics_msgs::msg::MetricsMessage;
 
 namespace topic_statistics_collector
 {
@@ -96,13 +95,9 @@ inline rcl_interfaces::msg::ParameterDescriptor buildTopicParameterDescriptor(
  *
  * @throws std::invalid_argument if the parameter value is empty
  */
-inline void validateStringParam(const std::string & param)
+inline void validateStringParam(const std::string & name, const std::string & value)
 {
-  if (param.empty()) {
-    std::stringstream ss;
-    ss << param << " node paramater cannot be empty";
-    throw std::invalid_argument{ss.str().c_str()};
-  }
+  rcpputils::require_true(!value.empty(), name + " node parameter cannot be empty");
 }
 
 /**
@@ -155,7 +150,9 @@ public:
       topic_statistics_constants::kCollectStatsTopicNameParam,
       std::string(),
       collect_topic_desc);
-    validateStringParam(collect_topic_name_);
+    validateStringParam(
+      topic_statistics_constants::kCollectStatsTopicNameParam,
+      collect_topic_name_);
 
     const auto publish_topic_desc = buildTopicParameterDescriptor(
       "The topic to publish topic statistics to.");
@@ -212,7 +209,8 @@ public:
       }
     }
 
-    StopPublisher();
+    publish_timer_->cancel();
+    publisher_->on_deactivate();
     return CallbackReturn::SUCCESS;
   }
 
@@ -270,10 +268,10 @@ private:
    */
   void StartPublisher()
   {
-    rcpputils::check_true(publish_timer_ == nullptr);
-
     if (publisher_ == nullptr) {
-      publisher_ = create_publisher<MetricsMessage>(publish_topic_name_, 10);
+      publisher_ = create_publisher<metrics_statistics_msgs::msg::MetricsMessage>(
+        publish_topic_name_,
+        10);
     }
 
     publisher_->on_activate();
