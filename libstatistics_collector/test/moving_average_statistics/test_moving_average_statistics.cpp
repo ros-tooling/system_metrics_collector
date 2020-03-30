@@ -23,6 +23,8 @@
 
 namespace
 {
+using libstatistics_collector::moving_average_statistics::MovingAverageStatistics;
+
 // Useful testing constants
 constexpr const uint64_t kExpectedSize = 9;
 constexpr const std::array<double, kExpectedSize> kTestData{-3.5, -2.1, -1.1, 0.0, 4.7, 5.0,
@@ -33,7 +35,6 @@ constexpr const double kExpectedMax = 11.0;
 constexpr const double kExpectedStd = 4.997999599839919955173;
 }  // namespace
 
-using libstatistics_collector::moving_average_statistics::MovingAverageStatistics;
 
 /**
  * Test fixture
@@ -58,7 +59,7 @@ public:
   }
 
 protected:
-  std::unique_ptr<MovingAverageStatistics> moving_average_statistics_ = nullptr;
+  std::unique_ptr<MovingAverageStatistics> moving_average_statistics_;
   int expected_count_ = 0;
 };
 

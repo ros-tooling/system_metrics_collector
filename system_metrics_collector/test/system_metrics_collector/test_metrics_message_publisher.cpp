@@ -22,18 +22,19 @@
 
 #include "system_metrics_collector/metrics_message_publisher.hpp"
 
+namespace
+{
 using libstatistics_collector::moving_average_statistics::StatisticData;
 using metrics_statistics_msgs::msg::MetricsMessage;
 using metrics_statistics_msgs::msg::StatisticDataPoint;
 using metrics_statistics_msgs::msg::StatisticDataType;
 using system_metrics_collector::MetricsMessagePublisher;
 
-namespace
-{
 constexpr const char kTestNodeName[] = "test_publisher";
 constexpr const char kTestMeasurementType[] = "test_measurement";
 constexpr const char kTestMeasurementUnit[] = "test_unit";
 }  // namespace
+
 
 TEST(MetricsMessagePublisherTest, TestGenerateMessage) {
   rclcpp::init(0, nullptr);

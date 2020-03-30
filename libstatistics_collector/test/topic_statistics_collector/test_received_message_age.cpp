@@ -27,6 +27,11 @@
 
 namespace
 {
+using ReceivedImuMessageAgeCollector = libstatistics_collector::
+  topic_statistics_collector::ReceivedMessageAgeCollector<sensor_msgs::msg::Imu>;
+using ReceivedStringMessageAgeCollector = libstatistics_collector::
+  topic_statistics_collector::ReceivedMessageAgeCollector<std_msgs::msg::String>;
+
 constexpr const std::chrono::seconds kDefaultDurationSeconds{1};
 constexpr const double kExpectedAverageMilliseconds{2000.0};
 constexpr const double kExpectedMinMilliseconds{1000.0};
@@ -35,6 +40,7 @@ constexpr const double kExpectedStandardDeviation{816.49658092772597};
 constexpr const int kDefaultTimesToTest{10};
 constexpr const int64_t kDefaultTimeMessageReceived{1000};
 constexpr const rcl_time_point_value_t kStartTime{123456789};
+
 sensor_msgs::msg::Imu GetImuMessageWithHeader(const int64_t seconds, const int64_t nanoseconds)
 {
   auto message = sensor_msgs::msg::Imu{};
@@ -52,10 +58,6 @@ std_msgs::msg::String GetStringMessageWithoutHeader()
 }
 }  // namespace
 
-using ReceivedImuMessageAgeCollector = libstatistics_collector::
-  topic_statistics_collector::ReceivedMessageAgeCollector<sensor_msgs::msg::Imu>;
-using ReceivedStringMessageAgeCollector = libstatistics_collector::
-  topic_statistics_collector::ReceivedMessageAgeCollector<std_msgs::msg::String>;
 
 TEST(ReceivedMessageAgeTest, TestOnlyMessagesWithHeaderGetSampled) {
   ReceivedStringMessageAgeCollector string_msg_collector{};

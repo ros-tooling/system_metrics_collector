@@ -83,8 +83,7 @@ public:
     ASSERT_FALSE(test_node_->IsStarted());
     ASSERT_EQ(State::PRIMARY_STATE_UNCONFIGURED, test_node_->get_current_state().id());
 
-    const libstatistics_collector::moving_average_statistics::StatisticData data =
-      test_node_->GetStatisticsResults();
+    const auto data = test_node_->GetStatisticsResults();
     ASSERT_TRUE(std::isnan(data.average));
     ASSERT_TRUE(std::isnan(data.min));
     ASSERT_TRUE(std::isnan(data.max));

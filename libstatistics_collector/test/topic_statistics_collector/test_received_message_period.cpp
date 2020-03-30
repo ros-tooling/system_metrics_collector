@@ -27,6 +27,9 @@
 
 namespace
 {
+using ReceivedIntMessagePeriodCollector =
+  libstatistics_collector::topic_statistics_collector::ReceivedMessagePeriodCollector<int>;
+
 constexpr const std::chrono::seconds kDefaultDurationSeconds{1};
 constexpr const int kDefaultMessage{42};
 constexpr const double kExpectedAverageMilliseconds{1000.0};
@@ -35,8 +38,6 @@ constexpr const double kExpectedMaxMilliseconds{1000.0};
 constexpr const double kExpectedStandardDeviation{0.0};
 }  // namespace
 
-using ReceivedIntMessagePeriodCollector =
-  libstatistics_collector::topic_statistics_collector::ReceivedMessagePeriodCollector<int>;
 
 TEST(ReceivedMessagePeriodTest, TestPeriodMeasurement) {
   ReceivedIntMessagePeriodCollector test{};
