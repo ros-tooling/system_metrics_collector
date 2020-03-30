@@ -24,10 +24,10 @@
 #include <string>
 #include <vector>
 
-#include "../../src/moving_average_statistics/types.hpp"
+#include "libstatistics_collector/moving_average_statistics/types.hpp"
 #include "lifecycle_msgs/msg/state.hpp"
 
-#include "system_metrics_collector/collector.hpp"
+#include "libstatistics_collector/collector/collector.hpp"
 #include "system_metrics_collector/constants.hpp"
 #include "system_metrics_collector/periodic_measurement_node.hpp"
 
@@ -128,8 +128,7 @@ public:
     ASSERT_FALSE(test_periodic_measurer_->IsStarted());
     ASSERT_FALSE(test_periodic_measurer_->IsPublisherActivated());
 
-    const moving_average_statistics::StatisticData data =
-      test_periodic_measurer_->GetStatisticsResults();
+    const auto data = test_periodic_measurer_->GetStatisticsResults();
     ASSERT_TRUE(std::isnan(data.average));
     ASSERT_TRUE(std::isnan(data.min));
     ASSERT_TRUE(std::isnan(data.max));
@@ -220,7 +219,7 @@ TEST_F(PeriodicMeasurementTestFixure, TestStartAndStop) {
   ex.add_node(test_periodic_measurer_->get_node_base_interface());
   ex.spin_until_future_complete(dummy_future, test_constants::kTestDuration);
 
-  moving_average_statistics::StatisticData data = test_periodic_measurer_->GetStatisticsResults();
+  auto data = test_periodic_measurer_->GetStatisticsResults();
   ASSERT_EQ(3, data.average);
   ASSERT_EQ(1, data.min);
   ASSERT_EQ(

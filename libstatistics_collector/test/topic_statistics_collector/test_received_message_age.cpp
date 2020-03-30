@@ -12,21 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
 #include <gtest/gtest.h>
 
 #include <chrono>
 #include <string>
 
-#include "topic_statistics_collector/constants.hpp"
-#include "topic_statistics_collector/received_message_age.hpp"
+#include "libstatistics_collector/topic_statistics_collector/constants.hpp"
+#include "libstatistics_collector/topic_statistics_collector/received_message_age.hpp"
 
 #include "rcl/time.h"
 #include "sensor_msgs/msg/imu.hpp"
 #include "std_msgs/msg/string.hpp"
 
-
 namespace
 {
+using ReceivedImuMessageAgeCollector = libstatistics_collector::
+  topic_statistics_collector::ReceivedMessageAgeCollector<sensor_msgs::msg::Imu>;
+using ReceivedStringMessageAgeCollector = libstatistics_collector::
+  topic_statistics_collector::ReceivedMessageAgeCollector<std_msgs::msg::String>;
+
 constexpr const std::chrono::seconds kDefaultDurationSeconds{1};
 constexpr const double kExpectedAverageMilliseconds{2000.0};
 constexpr const double kExpectedMinMilliseconds{1000.0};
@@ -35,6 +40,7 @@ constexpr const double kExpectedStandardDeviation{816.49658092772597};
 constexpr const int kDefaultTimesToTest{10};
 constexpr const int64_t kDefaultTimeMessageReceived{1000};
 constexpr const rcl_time_point_value_t kStartTime{123456789};
+
 sensor_msgs::msg::Imu GetImuMessageWithHeader(const int64_t seconds, const int64_t nanoseconds)
 {
   auto message = sensor_msgs::msg::Imu{};
@@ -54,11 +60,10 @@ std_msgs::msg::String GetStringMessageWithoutHeader()
 
 
 TEST(ReceivedMessageAgeTest, TestOnlyMessagesWithHeaderGetSampled) {
-  topic_statistics_collector::ReceivedMessageAgeCollector<std_msgs::msg::String>
-  string_msg_collector{};
+  ReceivedStringMessageAgeCollector string_msg_collector{};
 
   const auto string_msg = GetStringMessageWithoutHeader();
-  moving_average_statistics::StatisticData stats;
+  libstatistics_collector::moving_average_statistics::StatisticData stats;
 
   for (int i = 0; i < kDefaultTimesToTest; ++i) {
     string_msg_collector.OnMessageReceived(string_msg, kDefaultTimeMessageReceived);
@@ -66,8 +71,7 @@ TEST(ReceivedMessageAgeTest, TestOnlyMessagesWithHeaderGetSampled) {
     EXPECT_EQ(0, stats.sample_count) << "Expect 0 samples to be collected";
   }
 
-  topic_statistics_collector::ReceivedMessageAgeCollector<sensor_msgs::msg::Imu>
-  imu_msg_collector{};
+  ReceivedImuMessageAgeCollector imu_msg_collector{};
   const auto imu_msg = GetImuMessageWithHeader(1, 0);
 
   for (int i = 0; i < kDefaultTimesToTest; ++i) {
@@ -78,8 +82,7 @@ TEST(ReceivedMessageAgeTest, TestOnlyMessagesWithHeaderGetSampled) {
 }
 
 TEST(ReceivedMessageAgeTest, TestMeasurementOnlyMadeForInitializedHeaderValue) {
-  topic_statistics_collector::ReceivedMessageAgeCollector<sensor_msgs::msg::Imu>
-  imu_msg_collector{};
+  ReceivedImuMessageAgeCollector imu_msg_collector{};
 
   // Don't initialize `header.stamp`
   const auto imu_msg_uninitialized_header = sensor_msgs::msg::Imu{};
@@ -101,7 +104,7 @@ TEST(ReceivedMessageAgeTest, TestMeasurementOnlyMadeForInitializedHeaderValue) {
 }
 
 TEST(ReceivedMessageAgeTest, TestAgeMeasurement) {
-  topic_statistics_collector::ReceivedMessageAgeCollector<sensor_msgs::msg::Imu> test_collector{};
+  ReceivedImuMessageAgeCollector test_collector{};
 
   EXPECT_FALSE(test_collector.IsStarted()) << "Expect to be not started after constructed";
 
@@ -138,7 +141,7 @@ TEST(ReceivedMessageAgeTest, TestAgeMeasurement) {
 }
 
 TEST(ReceivedMessageAgeTest, TestGetStatNameAndUnit) {
-  topic_statistics_collector::ReceivedMessageAgeCollector<sensor_msgs::msg::Imu> test_collector{};
+  ReceivedImuMessageAgeCollector test_collector{};
 
   EXPECT_FALSE(test_collector.GetMetricName().empty());
   EXPECT_FALSE(test_collector.GetMetricUnit().empty());

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef TOPIC_STATISTICS_COLLECTOR__RECEIVED_MESSAGE_AGE_HPP_
-#define TOPIC_STATISTICS_COLLECTOR__RECEIVED_MESSAGE_AGE_HPP_
+#ifndef LIBSTATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR__RECEIVED_MESSAGE_AGE_HPP_
+#define LIBSTATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR__RECEIVED_MESSAGE_AGE_HPP_
 
 #include <chrono>
 #include <string>
@@ -22,12 +22,13 @@
 #include <utility>
 
 #include "constants.hpp"
-#include "topic_statistics_collector.hpp"
+#include "libstatistics_collector/topic_statistics_collector/topic_statistics_collector.hpp"
 
 #include "rcl/time.h"
 #include "rcutils/logging_macros.h"
 
-
+namespace libstatistics_collector
+{
 namespace topic_statistics_collector
 {
 
@@ -111,7 +112,7 @@ public:
         const std::chrono::nanoseconds age_nanos{now_nanoseconds - timestamp_from_header.second};
         const auto age_millis = std::chrono::duration_cast<std::chrono::milliseconds>(age_nanos);
 
-        system_metrics_collector::Collector::AcceptData(static_cast<double>(age_millis.count()));
+        collector::Collector::AcceptData(static_cast<double>(age_millis.count()));
       }  // else no valid time to compute age
     }
   }
@@ -148,5 +149,6 @@ protected:
 };
 
 }  // namespace topic_statistics_collector
+}  // namespace libstatistics_collector
 
-#endif  // TOPIC_STATISTICS_COLLECTOR__RECEIVED_MESSAGE_AGE_HPP_
+#endif  // LIBSTATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR__RECEIVED_MESSAGE_AGE_HPP_

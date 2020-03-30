@@ -21,7 +21,7 @@
 #include "builtin_interfaces/msg/time.hpp"
 #include "metrics_statistics_msgs/msg/metrics_message.hpp"
 
-#include "moving_average_statistics/types.hpp"
+#include "libstatistics_collector/moving_average_statistics/types.hpp"
 
 namespace system_metrics_collector
 {
@@ -43,7 +43,7 @@ metrics_statistics_msgs::msg::MetricsMessage GenerateStatisticMessage(
   const std::string & unit,
   const builtin_interfaces::msg::Time window_start,
   const builtin_interfaces::msg::Time window_stop,
-  const moving_average_statistics::StatisticData & data
+  const libstatistics_collector::moving_average_statistics::StatisticData & data
 );
 
 /**

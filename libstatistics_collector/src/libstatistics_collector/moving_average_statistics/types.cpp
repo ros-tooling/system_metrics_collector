@@ -15,8 +15,10 @@
 #include <sstream>
 #include <string>
 
-#include "types.hpp"
+#include "libstatistics_collector/moving_average_statistics/types.hpp"
 
+namespace libstatistics_collector
+{
 namespace moving_average_statistics
 {
 
@@ -30,3 +32,4 @@ std::string StatisticsDataToString(const StatisticData & results)
 }
 
 }  // namespace moving_average_statistics
+}  // namespace libstatistics_collector

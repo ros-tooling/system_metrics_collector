@@ -12,19 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SYSTEM_METRICS_COLLECTOR__COLLECTOR_HPP_
-#define SYSTEM_METRICS_COLLECTOR__COLLECTOR_HPP_
+#ifndef LIBSTATISTICS_COLLECTOR__COLLECTOR__COLLECTOR_HPP_
+#define LIBSTATISTICS_COLLECTOR__COLLECTOR__COLLECTOR_HPP_
 
 #include <mutex>
 #include <string>
 
 #include "metric_details_interface.hpp"
-#include "moving_average_statistics/moving_average.hpp"
-#include "moving_average_statistics/types.hpp"
+#include "libstatistics_collector/moving_average_statistics/moving_average.hpp"
+#include "libstatistics_collector/moving_average_statistics/types.hpp"
 
 #include "rcpputils/thread_safety_annotations.hpp"
 
-namespace system_metrics_collector
+namespace libstatistics_collector
+{
+namespace collector
 {
 
 /**
@@ -114,6 +116,7 @@ private:
   bool started_{false} RCPPUTILS_TSA_GUARDED_BY(mutex_);
 };
 
-}  // namespace system_metrics_collector
+}  // namespace collector
+}  // namespace libstatistics_collector
 
-#endif  // SYSTEM_METRICS_COLLECTOR__COLLECTOR_HPP_
+#endif  // LIBSTATISTICS_COLLECTOR__COLLECTOR__COLLECTOR_HPP_

@@ -12,16 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "collector.hpp"
 
 #include <mutex>
 #include <sstream>
 #include <string>
 
-#include "moving_average_statistics/moving_average.hpp"
-#include "moving_average_statistics/types.hpp"
+#include "libstatistics_collector/collector/collector.hpp"
+#include "libstatistics_collector/moving_average_statistics/moving_average.hpp"
+#include "libstatistics_collector/moving_average_statistics/types.hpp"
 
-namespace system_metrics_collector
+namespace libstatistics_collector
+{
+namespace collector
 {
 
 bool Collector::Start()
@@ -79,4 +81,5 @@ std::string Collector::GetStatusString() const
   return ss.str();
 }
 
-}  // namespace system_metrics_collector
+}  // namespace collector
+}  // namespace libstatistics_collector

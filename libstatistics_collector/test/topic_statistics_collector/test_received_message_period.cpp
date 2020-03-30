@@ -12,21 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
 #include <gtest/gtest.h>
 
 #include <chrono>
 #include <string>
 #include <thread>
 
-#include "moving_average_statistics/types.hpp"
-#include "topic_statistics_collector/constants.hpp"
-#include "topic_statistics_collector/received_message_period.hpp"
+#include "libstatistics_collector/moving_average_statistics/types.hpp"
+#include "libstatistics_collector/topic_statistics_collector/constants.hpp"
+#include "libstatistics_collector/topic_statistics_collector/received_message_period.hpp"
 
 #include "rcl/time.h"
 
-
 namespace
 {
+using ReceivedIntMessagePeriodCollector =
+  libstatistics_collector::topic_statistics_collector::ReceivedMessagePeriodCollector<int>;
+
 constexpr const std::chrono::seconds kDefaultDurationSeconds{1};
 constexpr const int kDefaultMessage{42};
 constexpr const double kExpectedAverageMilliseconds{1000.0};
@@ -37,7 +40,7 @@ constexpr const double kExpectedStandardDeviation{0.0};
 
 
 TEST(ReceivedMessagePeriodTest, TestPeriodMeasurement) {
-  topic_statistics_collector::ReceivedMessagePeriodCollector<int> test{};
+  ReceivedIntMessagePeriodCollector test{};
 
   EXPECT_FALSE(test.IsStarted()) << "Expected to be not started after constructed";
 
@@ -77,7 +80,7 @@ TEST(ReceivedMessagePeriodTest, TestPeriodMeasurement) {
 }
 
 TEST(ReceivedMessagePeriodTest, TestGetStatNameAndUnit) {
-  topic_statistics_collector::ReceivedMessagePeriodCollector<int> test{};
+  ReceivedIntMessagePeriodCollector test{};
 
   EXPECT_FALSE(test.GetMetricName().empty());
   EXPECT_FALSE(test.GetMetricUnit().empty());

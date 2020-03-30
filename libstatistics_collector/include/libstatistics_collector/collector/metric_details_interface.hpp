@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SYSTEM_METRICS_COLLECTOR__METRIC_DETAILS_INTERFACE_HPP_
-#define SYSTEM_METRICS_COLLECTOR__METRIC_DETAILS_INTERFACE_HPP_
+#ifndef LIBSTATISTICS_COLLECTOR__COLLECTOR__METRIC_DETAILS_INTERFACE_HPP_
+#define LIBSTATISTICS_COLLECTOR__COLLECTOR__METRIC_DETAILS_INTERFACE_HPP_
 
 #include <string>
 
-namespace system_metrics_collector
+namespace libstatistics_collector
+{
+namespace collector
 {
 
 /**
@@ -44,6 +46,7 @@ public:
   virtual std::string GetMetricUnit() const = 0;
 };
 
-}  // namespace system_metrics_collector
+}  // namespace collector
+}  // namespace libstatistics_collector
 
-#endif  // SYSTEM_METRICS_COLLECTOR__METRIC_DETAILS_INTERFACE_HPP_
+#endif  // LIBSTATISTICS_COLLECTOR__COLLECTOR__METRIC_DETAILS_INTERFACE_HPP_

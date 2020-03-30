@@ -23,7 +23,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 
-#include "collector.hpp"
+#include "libstatistics_collector/collector/collector.hpp"
 #include "metrics_message_publisher.hpp"
 
 namespace system_metrics_collector
@@ -32,7 +32,7 @@ namespace system_metrics_collector
 /**
  * Class which makes periodic measurements, using a ROS2 timer.
  */
-class PeriodicMeasurementNode : public system_metrics_collector::Collector,
+class PeriodicMeasurementNode : public libstatistics_collector::collector::Collector,
   public system_metrics_collector::MetricsMessagePublisher, public rclcpp_lifecycle::LifecycleNode
 {
 public:

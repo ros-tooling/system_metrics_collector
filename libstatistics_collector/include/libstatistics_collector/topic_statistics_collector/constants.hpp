@@ -12,11 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef TOPIC_STATISTICS_COLLECTOR__CONSTANTS_HPP_
-#define TOPIC_STATISTICS_COLLECTOR__CONSTANTS_HPP_
+#ifndef LIBSTATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR__CONSTANTS_HPP_
+#define LIBSTATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR__CONSTANTS_HPP_
 
 #include <string>
 
+namespace libstatistics_collector
+{
 namespace topic_statistics_collector
 {
 
@@ -28,5 +30,6 @@ constexpr const char kMillisecondUnitName[] = "ms";
 }  // namespace topic_statistics_constants
 
 }  // namespace topic_statistics_collector
+}  // namespace libstatistics_collector
 
-#endif  // TOPIC_STATISTICS_COLLECTOR__CONSTANTS_HPP_
+#endif  // LIBSTATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR__CONSTANTS_HPP_

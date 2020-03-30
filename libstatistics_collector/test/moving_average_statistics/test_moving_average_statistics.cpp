@@ -19,10 +19,12 @@
 #include <memory>
 #include <thread>
 
-#include "moving_average_statistics/moving_average.hpp"
+#include "libstatistics_collector/moving_average_statistics/moving_average.hpp"
 
 namespace
 {
+using libstatistics_collector::moving_average_statistics::MovingAverageStatistics;
+
 // Useful testing constants
 constexpr const uint64_t kExpectedSize = 9;
 constexpr const std::array<double, kExpectedSize> kTestData{-3.5, -2.1, -1.1, 0.0, 4.7, 5.0,
@@ -33,6 +35,7 @@ constexpr const double kExpectedMax = 11.0;
 constexpr const double kExpectedStd = 4.997999599839919955173;
 }  // namespace
 
+
 /**
  * Test fixture
  */
@@ -41,8 +44,7 @@ class MovingAverageStatisticsTestFixture : public ::testing::Test
 public:
   void SetUp() override
   {
-    moving_average_statistics_ =
-      std::make_unique<moving_average_statistics::MovingAverageStatistics>();
+    moving_average_statistics_ = std::make_unique<MovingAverageStatistics>();
 
     for (double d : kTestData) {
       moving_average_statistics_->AddMeasurement(d);
@@ -57,8 +59,7 @@ public:
   }
 
 protected:
-  std::unique_ptr<moving_average_statistics::MovingAverageStatistics> moving_average_statistics_ =
-    nullptr;
+  std::unique_ptr<MovingAverageStatistics> moving_average_statistics_;
   int expected_count_ = 0;
 };
 
@@ -90,27 +91,27 @@ TEST_F(MovingAverageStatisticsTestFixture, TestStandardDeviation) {
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, TestAverageEmpty) {
-  moving_average_statistics::MovingAverageStatistics empty;
+  MovingAverageStatistics empty;
   ASSERT_TRUE(std::isnan(empty.Average()));
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, TestMaximumEmpty) {
-  moving_average_statistics::MovingAverageStatistics empty;
+  MovingAverageStatistics empty;
   ASSERT_TRUE(std::isnan(empty.Max()));
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, TestMinimumEmpty) {
-  moving_average_statistics::MovingAverageStatistics empty;
+  MovingAverageStatistics empty;
   ASSERT_TRUE(std::isnan(empty.Min()));
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, TestStddevEmpty) {
-  moving_average_statistics::MovingAverageStatistics empty;
+  MovingAverageStatistics empty;
   ASSERT_TRUE(std::isnan(empty.StandardDeviation()));
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, TestCountEmpty) {
-  moving_average_statistics::MovingAverageStatistics empty;
+  MovingAverageStatistics empty;
   ASSERT_EQ(0, empty.GetCount());
 }
 
@@ -193,12 +194,13 @@ TEST_F(MovingAverageStatisticsTestFixture, TestThreadSafe) {
 }
 
 TEST(MovingAverageStatisticsTest, TestPrettyPrinting) {
-  moving_average_statistics::StatisticData data;
+  libstatistics_collector::moving_average_statistics::StatisticData data;
   ASSERT_EQ("avg=nan, min=nan, max=nan, std_dev=nan, count=0", StatisticsDataToString(data));
 
-  moving_average_statistics::MovingAverageStatistics stats;
+  MovingAverageStatistics stats;
   stats.AddMeasurement(1);
   ASSERT_EQ(
     "avg=1.000000, min=1.000000, max=1.000000, std_dev=0.000000, count=1",
-    moving_average_statistics::StatisticsDataToString(stats.GetStatistics()));
+    libstatistics_collector::moving_average_statistics::StatisticsDataToString(
+      stats.GetStatistics()));
 }

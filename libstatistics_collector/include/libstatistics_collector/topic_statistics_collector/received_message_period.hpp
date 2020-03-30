@@ -12,22 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef TOPIC_STATISTICS_COLLECTOR__RECEIVED_MESSAGE_PERIOD_HPP_
-#define TOPIC_STATISTICS_COLLECTOR__RECEIVED_MESSAGE_PERIOD_HPP_
+#ifndef LIBSTATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR__RECEIVED_MESSAGE_PERIOD_HPP_
+#define LIBSTATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR__RECEIVED_MESSAGE_PERIOD_HPP_
 
 #include <chrono>
 #include <mutex>
 #include <string>
 
 #include "constants.hpp"
-#include "topic_statistics_collector.hpp"
-#include "system_metrics_collector/collector.hpp"
+#include "libstatistics_collector/topic_statistics_collector/topic_statistics_collector.hpp"
 
 #include "rcl/time.h"
 
-
+namespace libstatistics_collector
+{
 namespace topic_statistics_collector
 {
+
 constexpr const int64_t kUninitializedTime{0};
 
 /**
@@ -63,13 +64,15 @@ public:
   {
     std::unique_lock<std::mutex> ulock{mutex_};
 
+    (void) received_message;
+
     if (time_last_message_received_ == kUninitializedTime) {
       time_last_message_received_ = now_nanoseconds;
     } else {
       const std::chrono::nanoseconds nanos{now_nanoseconds - time_last_message_received_};
       const auto period = std::chrono::duration_cast<std::chrono::milliseconds>(nanos);
       time_last_message_received_ = now_nanoseconds;
-      system_metrics_collector::Collector::AcceptData(static_cast<double>(period.count()));
+      collector::Collector::AcceptData(static_cast<double>(period.count()));
     }
   }
 
@@ -127,6 +130,6 @@ private:
 };
 
 }  // namespace topic_statistics_collector
+}  // namespace libstatistics_collector
 
-
-#endif  // TOPIC_STATISTICS_COLLECTOR__RECEIVED_MESSAGE_PERIOD_HPP_
+#endif  // LIBSTATISTICS_COLLECTOR__TOPIC_STATISTICS_COLLECTOR__RECEIVED_MESSAGE_PERIOD_HPP_

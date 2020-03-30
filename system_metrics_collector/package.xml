@@ -9,6 +9,7 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <depend>libstatistics_collector</depend>
   <depend>message_filters</depend>
   <depend>metrics_statistics_msgs</depend>
   <depend>rcl</depend>
@@ -17,8 +18,6 @@
   <depend>rclcpp_lifecycle</depend>
   <depend>rcpputils</depend>
   <depend>rcutils</depend>
-  <depend>sensor_msgs</depend>
-  <depend>std_msgs</depend>
 
   <!--Required for example launch file-->
   <exec_depend>demo_nodes_cpp</exec_depend>

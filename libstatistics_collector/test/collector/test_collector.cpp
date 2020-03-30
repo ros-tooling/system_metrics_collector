@@ -18,9 +18,10 @@
 #include <memory>
 #include <string>
 
-#include "moving_average_statistics/types.hpp"
+#include "libstatistics_collector/moving_average_statistics/types.hpp"
 
-#include "system_metrics_collector/collector.hpp"
+#include "libstatistics_collector/collector/collector.hpp"
+
 
 namespace
 {
@@ -31,7 +32,7 @@ constexpr const char kTestMetricUnit[] = "test_metric_unit";
 /**
  * Simple extension to test basic functionality
  */
-class TestCollector : public system_metrics_collector::Collector
+class TestCollector : public libstatistics_collector::collector::Collector
 {
 public:
   TestCollector() = default;

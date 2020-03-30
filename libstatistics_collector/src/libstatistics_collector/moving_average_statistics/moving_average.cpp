@@ -21,9 +21,11 @@
 #include <numeric>
 #include <type_traits>
 
-#include "moving_average.hpp"
-#include "types.hpp"
+#include "libstatistics_collector/moving_average_statistics/moving_average.hpp"
+#include "libstatistics_collector/moving_average_statistics/types.hpp"
 
+namespace libstatistics_collector
+{
 namespace moving_average_statistics
 {
 
@@ -98,3 +100,4 @@ uint64_t MovingAverageStatistics::GetCount() const
 }
 
 }  // namespace moving_average_statistics
+}  // namespace libstatistics_collector
