@@ -87,6 +87,10 @@ add_executable(linux_memory_collector src/system_metrics_collector/linux_memory_
 target_link_libraries(linux_memory_collector ${PROJECT_NAME})
 ament_target_dependencies(linux_memory_collector)
 
+add_executable(imu_talker src/topic_statistics_collector/imu_talker.cpp)
+target_link_libraries(imu_talker system_metrics_collector)
+ament_target_dependencies(imu_talker sensor_msgs)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   find_package(ament_cmake_gtest REQUIRED)
@@ -164,6 +168,12 @@ install(TARGETS
 
 install(TARGETS
   linux_memory_collector
+  DESTINATION
+  lib/${PROJECT_NAME}
+)
+
+install(TARGETS
+  imu_talker
   DESTINATION
   lib/${PROJECT_NAME}
 )
