@@ -13,12 +13,11 @@
 // limitations under the License.
 
 #include <memory>
+#include <mutex>
 #include <utility>
 
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/imu.hpp"
-
-using namespace std::chrono_literals;
 
 /**
  * A class that publishes IMU messages every second with the Header set to current time.
@@ -29,16 +28,18 @@ public:
   ImuTalker()
   : Node("imu_talker")
   {
+    using namespace std::chrono_literals;
     auto publish_lambda =
       [this]() -> void
       {
+        std::unique_lock<std::mutex> ulock{mutex_};
+
         msg_ = std::make_unique<sensor_msgs::msg::Imu>();
         msg_->header = std_msgs::msg::Header{};
         msg_->header.stamp = this->now();
         RCLCPP_INFO(
           this->get_logger(),
-          "%lu Publishing header: %lu",
-          ++count_,
+          "Publishing header: %lu",
           msg_->header.stamp.nanosec);
 
         publisher_->publish(std::move(msg_));
@@ -46,15 +47,15 @@ public:
 
     publisher_ = this->create_publisher<sensor_msgs::msg::Imu>(
       "imu_data",
-      10);
+      10 /* QoS history_depth */);
     timer_ = this->create_wall_timer(1s, publish_lambda);
   }
 
 private:
-  uint64_t count_ = 1;
   std::unique_ptr<sensor_msgs::msg::Imu> msg_;
   rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr publisher_;
   rclcpp::TimerBase::SharedPtr timer_;
+  mutable std::mutex mutex_;
 };
 
 int main(int argc, char ** argv)
