@@ -26,15 +26,21 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rcpputils/asserts.hpp"
 
-#include "received_message_age.hpp"
-#include "received_message_period.hpp"
+#include "libstatistics_collector/topic_statistics_collector/received_message_age.hpp"
+#include "libstatistics_collector/topic_statistics_collector/received_message_period.hpp"
+#include "libstatistics_collector/topic_statistics_collector/topic_statistics_collector.hpp"
 #include "system_metrics_collector/constants.hpp"
 #include "system_metrics_collector/metrics_message_publisher.hpp"
-#include "topic_statistics_collector.hpp"
 
 
 namespace topic_statistics_collector
 {
+
+using libstatistics_collector::topic_statistics_collector::TopicStatisticsCollector;
+using libstatistics_collector::topic_statistics_collector::ReceivedMessageAgeCollector;
+using libstatistics_collector::topic_statistics_collector::ReceivedMessagePeriodCollector;
+namespace constants =
+  libstatistics_collector::topic_statistics_collector::topic_statistics_constants;
 
 /**
  * Build a positive integer range to use in parameter descriptors.
@@ -147,17 +153,17 @@ public:
     const auto collect_topic_desc = buildTopicParameterDescriptor(
       "The topic to subscribe to, for calculating topic statistics.");
     collect_topic_name_ = declare_parameter(
-      topic_statistics_constants::kCollectStatsTopicNameParam,
+      constants::kCollectStatsTopicNameParam,
       std::string(),
       collect_topic_desc);
     validateStringParam(
-      topic_statistics_constants::kCollectStatsTopicNameParam,
+      constants::kCollectStatsTopicNameParam,
       collect_topic_name_);
 
     const auto publish_topic_desc = buildTopicParameterDescriptor(
       "The topic to publish topic statistics to.");
     publish_topic_name_ = declare_parameter(
-      topic_statistics_constants::kPublishStatsTopicNameParam,
+      constants::kPublishStatsTopicNameParam,
       system_metrics_collector::collector_node_constants::kStatisticsTopicName,
       publish_topic_desc);
 

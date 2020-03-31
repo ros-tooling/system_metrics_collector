@@ -22,13 +22,16 @@
 #include "lifecycle_msgs/msg/state.hpp"
 #include "sensor_msgs/msg/imu.hpp"
 
+#include "libstatistics_collector/topic_statistics_collector/constants.hpp"
+#include "libstatistics_collector/topic_statistics_collector/topic_statistics_collector.hpp"
 #include "system_metrics_collector/constants.hpp"
-#include "topic_statistics_collector/constants.hpp"
 #include "topic_statistics_collector/subscriber_topic_statistics.hpp"
-#include "topic_statistics_collector/topic_statistics_collector.hpp"
 #include "../system_metrics_collector/test_functions.hpp"
 
 using lifecycle_msgs::msg::State;
+using libstatistics_collector::moving_average_statistics::StatisticData;
+namespace constants =
+  libstatistics_collector::topic_statistics_collector::topic_statistics_constants;
 
 namespace
 {
@@ -98,9 +101,9 @@ public:
    *
    * @return statistic data collected by all collectors
    */
-  std::vector<moving_average_statistics::StatisticData> GetCollectorData() const
+  std::vector<StatisticData> GetCollectorData() const
   {
-    std::vector<moving_average_statistics::StatisticData> data;
+    std::vector<StatisticData> data;
     for (const auto & collector : statistics_collectors_) {
       data.push_back(collector->GetStatisticsResults());
     }
@@ -185,9 +188,7 @@ public:
     options.append_parameter_override(
       system_metrics_collector::collector_node_constants::kPublishPeriodParam,
       kVeryLongPublishPeriod.count());
-    options.append_parameter_override(
-      topic_statistics_collector::topic_statistics_constants::kCollectStatsTopicNameParam,
-      kTestTopicName);
+    options.append_parameter_override(constants::kCollectStatsTopicNameParam, kTestTopicName);
 
     imu_publisher_ = std::make_shared<ImuMessagePublisher>();
     EXPECT_EQ(imu_publisher_->getSubscriptionCount(), 0);
@@ -363,9 +364,7 @@ TEST_F(RclcppFixture, TestConstructorPublishPeriodValidation) {
 
 TEST_F(RclcppFixture, TestConstructorTopicNameValidation) {
   rclcpp::NodeOptions options;
-  options.append_parameter_override(
-    topic_statistics_collector::topic_statistics_constants::kCollectStatsTopicNameParam,
-    std::string());
+  options.append_parameter_override(constants::kCollectStatsTopicNameParam, std::string());
 
   ASSERT_THROW(
     TestSubscriberTopicStatisticsNode("throw", options),
@@ -377,9 +376,7 @@ TEST_F(RclcppFixture, TestMetricsMessagePublisher) {
   options.append_parameter_override(
     system_metrics_collector::collector_node_constants::kPublishPeriodParam,
     std::chrono::milliseconds{kTestDuration}.count());
-  options.append_parameter_override(
-    topic_statistics_collector::topic_statistics_constants::kCollectStatsTopicNameParam,
-    kTestTopicName);
+  options.append_parameter_override(constants::kCollectStatsTopicNameParam, kTestTopicName);
 
   auto test_node = std::make_shared<TestSubscriberTopicStatisticsNode>(
     "TestMetricsMessagePublisher",
