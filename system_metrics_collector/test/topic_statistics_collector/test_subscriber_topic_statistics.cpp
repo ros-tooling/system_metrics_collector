@@ -91,7 +91,7 @@ public:
    * Return number of collectors owned by this node.
    *
    * @return number of collectors now_nanoseconds*/
-  int GetCollectorCount() const
+  size_t GetCollectorCount() const
   {
     return statistics_collectors_.size();
   }
@@ -196,15 +196,15 @@ public:
     test_topic_stats_node_ = std::make_shared<TestSubscriberTopicStatisticsNode>(
       kStatsCollectorNodeName, options);
 
-    ASSERT_GT(test_topic_stats_node_->GetCollectorCount(), 0);
+    EXPECT_GT(test_topic_stats_node_->GetCollectorCount(), 0);
 
     const auto all_collected_data = test_topic_stats_node_->GetCollectorData();
     for (const auto & data : all_collected_data) {
-      ASSERT_TRUE(std::isnan(data.average));
-      ASSERT_TRUE(std::isnan(data.min));
-      ASSERT_TRUE(std::isnan(data.max));
-      ASSERT_TRUE(std::isnan(data.standard_deviation));
-      ASSERT_EQ(0, data.sample_count);
+      EXPECT_TRUE(std::isnan(data.average));
+      EXPECT_TRUE(std::isnan(data.min));
+      EXPECT_TRUE(std::isnan(data.max));
+      EXPECT_TRUE(std::isnan(data.standard_deviation));
+      EXPECT_EQ(0, data.sample_count);
     }
   }
 
@@ -262,33 +262,33 @@ constexpr std::chrono::milliseconds
 SubscriberTopicStatisticsNodeTestFixture::kVeryLongPublishPeriod;
 
 TEST_F(SubscriberTopicStatisticsNodeTestFixture, TestStartAndStop) {
-  ASSERT_NE(test_topic_stats_node_, nullptr);
-  ASSERT_FALSE(test_topic_stats_node_->AreCollectorsStarted());
+  EXPECT_NE(test_topic_stats_node_, nullptr);
+  EXPECT_FALSE(test_topic_stats_node_->AreCollectorsStarted());
 
-  ASSERT_EQ(State::PRIMARY_STATE_UNCONFIGURED, test_topic_stats_node_->get_current_state().id());
-  ASSERT_FALSE(test_topic_stats_node_->IsPublisherActivated());
+  EXPECT_EQ(State::PRIMARY_STATE_UNCONFIGURED, test_topic_stats_node_->get_current_state().id());
+  EXPECT_FALSE(test_topic_stats_node_->IsPublisherActivated());
 
   test_topic_stats_node_->configure();
-  ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, test_topic_stats_node_->get_current_state().id());
-  ASSERT_FALSE(test_topic_stats_node_->IsPublisherActivated());
+  EXPECT_EQ(State::PRIMARY_STATE_INACTIVE, test_topic_stats_node_->get_current_state().id());
+  EXPECT_FALSE(test_topic_stats_node_->IsPublisherActivated());
 
   test_topic_stats_node_->activate();
-  ASSERT_TRUE(test_topic_stats_node_->AreCollectorsStarted());
-  ASSERT_EQ(State::PRIMARY_STATE_ACTIVE, test_topic_stats_node_->get_current_state().id());
-  ASSERT_TRUE(test_topic_stats_node_->IsPublisherActivated());
+  EXPECT_TRUE(test_topic_stats_node_->AreCollectorsStarted());
+  EXPECT_EQ(State::PRIMARY_STATE_ACTIVE, test_topic_stats_node_->get_current_state().id());
+  EXPECT_TRUE(test_topic_stats_node_->IsPublisherActivated());
 
   test_topic_stats_node_->deactivate();
-  ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, test_topic_stats_node_->get_current_state().id());
-  ASSERT_FALSE(test_topic_stats_node_->AreCollectorsStarted());
-  ASSERT_FALSE(test_topic_stats_node_->IsPublisherActivated());
+  EXPECT_EQ(State::PRIMARY_STATE_INACTIVE, test_topic_stats_node_->get_current_state().id());
+  EXPECT_FALSE(test_topic_stats_node_->AreCollectorsStarted());
+  EXPECT_FALSE(test_topic_stats_node_->IsPublisherActivated());
 }
 
 TEST_F(SubscriberTopicStatisticsNodeTestFixture, TestSubscriptionCallback) {
   test_topic_stats_node_->configure();
   test_topic_stats_node_->activate();
 
-  ASSERT_TRUE(test_topic_stats_node_->AreCollectorsStarted());
-  ASSERT_TRUE(test_topic_stats_node_->IsPublisherActivated());
+  EXPECT_TRUE(test_topic_stats_node_->AreCollectorsStarted());
+  EXPECT_TRUE(test_topic_stats_node_->IsPublisherActivated());
 
   const auto msg = GetImuMessageWithHeader();
   for (int i = 0; i < kTimesCallbackCalled; ++i) {
@@ -299,54 +299,54 @@ TEST_F(SubscriberTopicStatisticsNodeTestFixture, TestSubscriptionCallback) {
 
   const auto all_collected_data = test_topic_stats_node_->GetCollectorData();
   for (const auto & data : all_collected_data) {
-    ASSERT_GT(data.sample_count, 0);
-    ASSERT_FALSE(std::isnan(data.average));
-    ASSERT_FALSE(std::isnan(data.min));
-    ASSERT_FALSE(std::isnan(data.max));
-    ASSERT_FALSE(std::isnan(data.standard_deviation));
+    EXPECT_GT(data.sample_count, 0);
+    EXPECT_FALSE(std::isnan(data.average));
+    EXPECT_FALSE(std::isnan(data.min));
+    EXPECT_FALSE(std::isnan(data.max));
+    EXPECT_FALSE(std::isnan(data.standard_deviation));
   }
 
   int times_published = test_topic_stats_node_->GetNumPublished();
-  ASSERT_EQ(
+  EXPECT_EQ(
     kTestDuration.count() / kVeryLongPublishPeriod.count(), times_published);
 }
 
 TEST_F(SubscriberTopicStatisticsNodeTestFixture, TestLifecycleManually_reactivate) {
-  ASSERT_NE(test_topic_stats_node_, nullptr);
-  ASSERT_FALSE(test_topic_stats_node_->AreCollectorsStarted());
-  ASSERT_EQ(
+  EXPECT_NE(test_topic_stats_node_, nullptr);
+  EXPECT_FALSE(test_topic_stats_node_->AreCollectorsStarted());
+  EXPECT_EQ(
     State::PRIMARY_STATE_UNCONFIGURED,
     test_topic_stats_node_->get_current_state().id());
-  ASSERT_FALSE(test_topic_stats_node_->IsPublisherActivated());
+  EXPECT_FALSE(test_topic_stats_node_->IsPublisherActivated());
 
   // configure the node
   test_topic_stats_node_->configure();
-  ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, test_topic_stats_node_->get_current_state().id());
-  ASSERT_FALSE(test_topic_stats_node_->AreCollectorsStarted());
-  ASSERT_FALSE(test_topic_stats_node_->IsPublisherActivated());
+  EXPECT_EQ(State::PRIMARY_STATE_INACTIVE, test_topic_stats_node_->get_current_state().id());
+  EXPECT_FALSE(test_topic_stats_node_->AreCollectorsStarted());
+  EXPECT_FALSE(test_topic_stats_node_->IsPublisherActivated());
 
   // activate the node
   test_topic_stats_node_->activate();
-  ASSERT_EQ(State::PRIMARY_STATE_ACTIVE, test_topic_stats_node_->get_current_state().id());
-  ASSERT_TRUE(test_topic_stats_node_->AreCollectorsStarted());
-  ASSERT_TRUE(test_topic_stats_node_->IsPublisherActivated());
+  EXPECT_EQ(State::PRIMARY_STATE_ACTIVE, test_topic_stats_node_->get_current_state().id());
+  EXPECT_TRUE(test_topic_stats_node_->AreCollectorsStarted());
+  EXPECT_TRUE(test_topic_stats_node_->IsPublisherActivated());
 
   // deactivate the node
   test_topic_stats_node_->deactivate();
-  ASSERT_EQ(State::PRIMARY_STATE_INACTIVE, test_topic_stats_node_->get_current_state().id());
-  ASSERT_FALSE(test_topic_stats_node_->AreCollectorsStarted());
-  ASSERT_FALSE(test_topic_stats_node_->IsPublisherActivated());
+  EXPECT_EQ(State::PRIMARY_STATE_INACTIVE, test_topic_stats_node_->get_current_state().id());
+  EXPECT_FALSE(test_topic_stats_node_->AreCollectorsStarted());
+  EXPECT_FALSE(test_topic_stats_node_->IsPublisherActivated());
 
   // reactivate the node
   test_topic_stats_node_->activate();
-  ASSERT_EQ(State::PRIMARY_STATE_ACTIVE, test_topic_stats_node_->get_current_state().id());
-  ASSERT_TRUE(test_topic_stats_node_->AreCollectorsStarted());
+  EXPECT_EQ(State::PRIMARY_STATE_ACTIVE, test_topic_stats_node_->get_current_state().id());
+  EXPECT_TRUE(test_topic_stats_node_->AreCollectorsStarted());
 }
 
 TEST_F(RclcppFixture, TestConstructorNodeNameValidation) {
   rclcpp::NodeOptions options;
 
-  ASSERT_THROW(
+  EXPECT_THROW(
     TestSubscriberTopicStatisticsNode("", options),
     std::invalid_argument);
 }
@@ -357,7 +357,7 @@ TEST_F(RclcppFixture, TestConstructorPublishPeriodValidation) {
     system_metrics_collector::collector_node_constants::kPublishPeriodParam,
     std::chrono::milliseconds{-1}.count());
 
-  ASSERT_THROW(
+  EXPECT_THROW(
     TestSubscriberTopicStatisticsNode("throw", options),
     rclcpp::exceptions::InvalidParameterValueException);
 }
@@ -366,7 +366,7 @@ TEST_F(RclcppFixture, TestConstructorTopicNameValidation) {
   rclcpp::NodeOptions options;
   options.append_parameter_override(constants::kCollectStatsTopicNameParam, std::string());
 
-  ASSERT_THROW(
+  EXPECT_THROW(
     TestSubscriberTopicStatisticsNode("throw", options),
     std::invalid_argument);
 }
@@ -393,14 +393,14 @@ TEST_F(RclcppFixture, TestMetricsMessagePublisher) {
   // After spinning, test that MetricsMessage is published and collected values are cleared.
   test_node->SpinUntilMessageReceived();
 
-  ASSERT_EQ(test_node->GetNumPublished(), 1);
+  EXPECT_EQ(test_node->GetNumPublished(), 1);
 
   const auto all_collected_data = test_node->GetCollectorData();
   for (const auto & data : all_collected_data) {
-    ASSERT_EQ(data.sample_count, 0);
-    ASSERT_TRUE(std::isnan(data.average));
-    ASSERT_TRUE(std::isnan(data.min));
-    ASSERT_TRUE(std::isnan(data.max));
-    ASSERT_TRUE(std::isnan(data.standard_deviation));
+    EXPECT_EQ(data.sample_count, 0);
+    EXPECT_TRUE(std::isnan(data.average));
+    EXPECT_TRUE(std::isnan(data.min));
+    EXPECT_TRUE(std::isnan(data.max));
+    EXPECT_TRUE(std::isnan(data.standard_deviation));
   }
 }

@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #ifndef TOPIC_STATISTICS_COLLECTOR__SUBSCRIBER_TOPIC_STATISTICS_HPP_
 #define TOPIC_STATISTICS_COLLECTOR__SUBSCRIBER_TOPIC_STATISTICS_HPP_
 
@@ -29,13 +28,12 @@
 #include "libstatistics_collector/topic_statistics_collector/received_message_age.hpp"
 #include "libstatistics_collector/topic_statistics_collector/received_message_period.hpp"
 #include "libstatistics_collector/topic_statistics_collector/topic_statistics_collector.hpp"
+#include "parameter_utils.hpp"
 #include "system_metrics_collector/constants.hpp"
 #include "system_metrics_collector/metrics_message_publisher.hpp"
 
-
 namespace topic_statistics_collector
 {
-
 using libstatistics_collector::topic_statistics_collector::TopicStatisticsCollector;
 using libstatistics_collector::topic_statistics_collector::ReceivedMessageAgeCollector;
 using libstatistics_collector::topic_statistics_collector::ReceivedMessagePeriodCollector;
@@ -43,82 +41,10 @@ namespace constants =
   libstatistics_collector::topic_statistics_collector::topic_statistics_constants;
 
 /**
- * Build a positive integer range to use in parameter descriptors.
+ * Class which makes periodic topic statistics measurements and publishes them,
+ * using a ROS2 timer.
  *
- * @return a positive integer range with specififies start, end and step values
- */
-inline rcl_interfaces::msg::IntegerRange buildPositiveIntegerRange(
-  int64_t from,
-  int64_t to,
-  uint64_t step)
-{
-  rcl_interfaces::msg::IntegerRange positive_range;
-  positive_range.from_value = from;
-  positive_range.to_value = to;
-  positive_range.step = step;
-
-  return positive_range;
-}
-
-/**
- * Build a parameter description for period node parameters.
- *
- * @return a read-only integer range topic descriptor
- */
-inline rcl_interfaces::msg::ParameterDescriptor buildPeriodParameterDescriptor(
-  const std::string & description)
-{
-  const auto positive_range = buildPositiveIntegerRange(
-    1,
-    std::numeric_limits<decltype(rcl_interfaces::msg::IntegerRange::to_value)>::max(),
-    1
-  );
-
-  rcl_interfaces::msg::ParameterDescriptor period_descriptor;
-  period_descriptor.read_only = true;
-  period_descriptor.integer_range.push_back(positive_range);
-  period_descriptor.description = description;
-
-  return period_descriptor;
-}
-
-/**
- * Build a parameter description for string node parameters.
- *
- * @return a read-only topic descriptor
- */
-inline rcl_interfaces::msg::ParameterDescriptor buildTopicParameterDescriptor(
-  const std::string & description)
-{
-  rcl_interfaces::msg::ParameterDescriptor topic_descriptor;
-  topic_descriptor.read_only = true;
-
-  return topic_descriptor;
-}
-
-/**
- * Validate the values assigned to string node parameters.
- *
- * @throws std::invalid_argument if the parameter value is empty
- */
-inline void validateStringParam(const std::string & name, const std::string & value)
-{
-  rcpputils::require_true(!value.empty(), name + " node parameter cannot be empty");
-}
-
-/**
- * Initialize topic statistics collectors to use with this node.
- */
-template<typename T>
-void initializeCollectors(
-  std::vector<std::unique_ptr<TopicStatisticsCollector<T>>> & container)
-{
-  container.push_back(std::make_unique<ReceivedMessageAgeCollector<T>>());
-  container.push_back(std::make_unique<ReceivedMessagePeriodCollector<T>>());
-}
-
-/**
- * Class which makes periodic topic statistics measurements, using a ROS2 timer.
+ * @tparam T the ROS2 message type to observe and collect statistics
  */
 template<typename T>
 class SubscriberTopicStatisticsNode : public system_metrics_collector::MetricsMessagePublisher,
@@ -141,39 +67,41 @@ public:
     const rclcpp::NodeOptions & node_options)
   : rclcpp_lifecycle::LifecycleNode{node_name, node_options}
   {
-    const auto publish_param_desc = buildPeriodParameterDescriptor(
+    const auto publish_param_desc = BuildPeriodParameterDescriptor(
       "The period in milliseconds between each published MetricsMessage."
     );
-    auto publish_period = declare_parameter(
+    const auto publish_period = declare_parameter(
       system_metrics_collector::collector_node_constants::kPublishPeriodParam,
       system_metrics_collector::collector_node_constants::kDefaultPublishPeriod.count(),
       publish_param_desc);
     publish_period_ = std::chrono::milliseconds{publish_period};
 
-    const auto collect_topic_desc = buildTopicParameterDescriptor(
+    const auto collect_topic_desc = BuildTopicParameterDescriptor(
       "The topic to subscribe to, for calculating topic statistics.");
     collect_topic_name_ = declare_parameter(
       constants::kCollectStatsTopicNameParam,
-      std::string(),
+      std::string() /* setting default to empty, since this is a required parameter */,
       collect_topic_desc);
-    validateStringParam(
+    ValidateStringParam(
       constants::kCollectStatsTopicNameParam,
       collect_topic_name_);
 
-    const auto publish_topic_desc = buildTopicParameterDescriptor(
+    const auto publish_topic_desc = BuildTopicParameterDescriptor(
       "The topic to publish topic statistics to.");
     publish_topic_name_ = declare_parameter(
       constants::kPublishStatsTopicNameParam,
       system_metrics_collector::collector_node_constants::kStatisticsTopicName,
       publish_topic_desc);
 
-    initializeCollectors(statistics_collectors_);
+    InitializeCollectors();
 
     auto callback = [this](typename T::SharedPtr received_message) {
         for (const auto & collector : statistics_collectors_) {
           collector->OnMessageReceived(*received_message, this->LifecycleNode::now().nanoseconds());
         }
       };
+
+    // Create a publisher with QoS histor_depth set to 10.
     subscription_ = create_subscription<T>(collect_topic_name_, 10, callback);
   }
 
@@ -269,6 +197,15 @@ protected:
 
 private:
   /**
+   * Initialize topic statistics collectors to use with this node.
+   */
+  void InitializeCollectors()
+  {
+    statistics_collectors_.push_back(std::make_unique<ReceivedMessageAgeCollector<T>>());
+    statistics_collectors_.push_back(std::make_unique<ReceivedMessagePeriodCollector<T>>());
+  }
+
+  /**
    * Creates ROS2 timers and a publisher for periodically triggering measurements
    * and publishing MetricsMessages
    */
@@ -293,6 +230,8 @@ private:
 
   /**
    * Stops the ROS2 timers that were created by StartPublisher()
+   *
+   * @throws rcpputils::IllegalStateException if publish_timer_ or publisher_ are null
    */
   void StopPublisher()
   {
@@ -319,6 +258,8 @@ private:
   /**
    * Publishes the statistics derived from the collected measurements (this is to be called via a
    * ROS2 timer per the publish_period)
+   *
+   * @throws rcpputils::IllegalStateException if publisher_ is null or not activated
    */
   void PublishStatisticMessage() override
   {
@@ -368,6 +309,5 @@ private:
    */
   std::string publish_topic_name_;
 };
-
 }  // namespace topic_statistics_collector
 #endif  // TOPIC_STATISTICS_COLLECTOR__SUBSCRIBER_TOPIC_STATISTICS_HPP_
