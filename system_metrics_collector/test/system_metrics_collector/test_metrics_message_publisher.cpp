@@ -53,7 +53,7 @@ TEST(MetricsMessagePublisherTest, TestGenerateMessage) {
   data.standard_deviation = dist(gen);
   data.sample_count = dist(gen);
 
-  MetricsMessage msg = libstatistics_collector::collector::GenerateStatisticMessage(
+  const auto msg = libstatistics_collector::collector::GenerateStatisticMessage(
     kTestNodeName, kTestMeasurementType, kTestMeasurementUnit, time1, time2, data);
 
   EXPECT_EQ(kTestNodeName, msg.measurement_source_name);
