@@ -27,7 +27,6 @@
   <test_depend>ament_lint_common</test_depend>
   <test_depend>class_loader</test_depend>
   <test_depend>lifecycle_msgs</test_depend>
-  <test_depend>sensor_msgs</test_depend>
 
   <!--Required for e2e test file-->
   <test_depend>python3-retrying</test_depend>

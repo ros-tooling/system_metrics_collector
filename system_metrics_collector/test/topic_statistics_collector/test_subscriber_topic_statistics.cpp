@@ -20,8 +20,8 @@
 #include <vector>
 
 #include "lifecycle_msgs/msg/state.hpp"
-#include "sensor_msgs/msg/imu.hpp"
 
+#include "metrics_statistics_msgs/msg/dummy_message.hpp"
 #include "libstatistics_collector/topic_statistics_collector/constants.hpp"
 #include "libstatistics_collector/topic_statistics_collector/topic_statistics_collector.hpp"
 #include "system_metrics_collector/constants.hpp"
@@ -30,6 +30,7 @@
 
 using lifecycle_msgs::msg::State;
 using libstatistics_collector::moving_average_statistics::StatisticData;
+using DummyMessage = metrics_statistics_msgs::msg::DummyMessage;
 namespace constants =
   libstatistics_collector::topic_statistics_collector::topic_statistics_constants;
 
@@ -43,12 +44,11 @@ constexpr const uint64_t kTimesCallbackCalled{10u};
 }  // namespace
 
 class TestSubscriberTopicStatisticsNode
-  : public topic_statistics_collector::SubscriberTopicStatisticsNode<
-    sensor_msgs::msg::Imu>
+  : public topic_statistics_collector::SubscriberTopicStatisticsNode<DummyMessage>
 {
 public:
   TestSubscriberTopicStatisticsNode(const std::string & name, const rclcpp::NodeOptions & options)
-  : SubscriberTopicStatisticsNode<sensor_msgs::msg::Imu>{name, options} {}
+  : SubscriberTopicStatisticsNode<DummyMessage>{name, options} {}
 
   ~TestSubscriberTopicStatisticsNode() = default;
 
@@ -141,27 +141,27 @@ private:
 /**
  * Node to publish messages on the test topic to trigger subscriber callbacks.
 */
-class ImuMessagePublisher : public rclcpp::Node
+class DummyMessagePublisher : public rclcpp::Node
 {
 public:
-  ImuMessagePublisher()
-  : Node("imu_publisher"), publisher_(nullptr)
+  DummyMessagePublisher()
+  : Node("dummy_publisher"), publisher_(nullptr)
   {
-    publisher_ = create_publisher<sensor_msgs::msg::Imu>(kTestTopicName, 10);
+    publisher_ = create_publisher<DummyMessage>(kTestTopicName, 10);
   }
 
-  ~ImuMessagePublisher() = default;
+  ~DummyMessagePublisher() = default;
 
   /**
-   * Publish a  single IMU data message.
+   * Publish a  single DummyMessage.
    */
-  void publish(std::shared_ptr<sensor_msgs::msg::Imu> msg)
+  void publish(std::shared_ptr<DummyMessage> msg)
   {
     publisher_->publish(*msg);
   }
 
   /**
-   * Get the number of subscribers subscribed to the ImuPublisher topic.
+   * Get the number of subscribers subscribed to the DummyMessage publisher topic.
    *
    * @return number of subscriptions
    */
@@ -171,7 +171,7 @@ public:
   }
 
 private:
-  typename rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr publisher_;
+  typename rclcpp::Publisher<DummyMessage>::SharedPtr publisher_;
 };
 
 /**
@@ -190,8 +190,8 @@ public:
       kVeryLongPublishPeriod.count());
     options.append_parameter_override(constants::kCollectStatsTopicNameParam, kTestTopicName);
 
-    imu_publisher_ = std::make_shared<ImuMessagePublisher>();
-    EXPECT_EQ(imu_publisher_->getSubscriptionCount(), 0);
+    dummy_publisher_ = std::make_shared<DummyMessagePublisher>();
+    EXPECT_EQ(dummy_publisher_->getSubscriptionCount(), 0);
 
     test_topic_stats_node_ = std::make_shared<TestSubscriberTopicStatisticsNode>(
       kStatsCollectorNodeName, options);
@@ -215,7 +215,7 @@ public:
     EXPECT_FALSE(test_topic_stats_node_->IsPublisherActivated());
 
     test_topic_stats_node_.reset();
-    imu_publisher_.reset();
+    dummy_publisher_.reset();
     rclcpp::shutdown();
   }
 
@@ -225,7 +225,7 @@ protected:
   // itself
   static constexpr std::chrono::milliseconds kVeryLongPublishPeriod = 2 * kTestDuration;
   std::shared_ptr<TestSubscriberTopicStatisticsNode> test_topic_stats_node_;
-  std::shared_ptr<ImuMessagePublisher> imu_publisher_;
+  std::shared_ptr<DummyMessagePublisher> dummy_publisher_;
 };
 
 /**
@@ -244,19 +244,6 @@ public:
     rclcpp::shutdown();
   }
 };
-
-/**
- * Generate an IMU message with a valid header value.
-  *
-  * @return shared_ptr to an IMU message
- */
-std::shared_ptr<sensor_msgs::msg::Imu> GetImuMessageWithHeader()
-{
-  auto message = sensor_msgs::msg::Imu{};
-  message.header = std_msgs::msg::Header{};
-  message.header.stamp = rclcpp::Time{kAnyTimestamp};
-  return std::make_shared<sensor_msgs::msg::Imu>(message);
-}
 
 constexpr std::chrono::milliseconds
 SubscriberTopicStatisticsNodeTestFixture::kVeryLongPublishPeriod;
@@ -290,9 +277,10 @@ TEST_F(SubscriberTopicStatisticsNodeTestFixture, TestSubscriptionCallback) {
   EXPECT_TRUE(test_topic_stats_node_->AreCollectorsStarted());
   EXPECT_TRUE(test_topic_stats_node_->IsPublisherActivated());
 
-  const auto msg = GetImuMessageWithHeader();
+  const auto msg = std::make_shared<DummyMessage>();
+  msg->header.stamp = rclcpp::Time{kAnyTimestamp};
   for (int i = 0; i < kTimesCallbackCalled; ++i) {
-    imu_publisher_->publish(msg);
+    dummy_publisher_->publish(msg);
   }
 
   test_topic_stats_node_->SpinUntilMessageReceived();
@@ -384,8 +372,9 @@ TEST_F(RclcppFixture, TestMetricsMessagePublisher) {
   test_node->configure();
   test_node->activate();
 
-  auto publisher_node = std::make_shared<ImuMessagePublisher>();
-  const auto msg = GetImuMessageWithHeader();
+  auto publisher_node = std::make_shared<DummyMessagePublisher>();
+  const auto msg = std::make_shared<DummyMessage>();
+  msg->header.stamp = rclcpp::Time{kAnyTimestamp};
   for (int i = 0; i < kTimesCallbackCalled; ++i) {
     publisher_node->publish(msg);
   }

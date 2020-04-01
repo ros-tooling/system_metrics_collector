@@ -37,8 +37,6 @@ find_package(rclcpp_components REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(rcpputils REQUIRED)
 find_package(rcutils REQUIRED)
-find_package(sensor_msgs REQUIRED)
-find_package(std_msgs REQUIRED)
 
 include_directories(src)
 
@@ -131,7 +129,7 @@ if(BUILD_TESTING)
   ament_add_gtest(test_subscriber_topic_statistics
           test/topic_statistics_collector/test_subscriber_topic_statistics.cpp)
   target_link_libraries(test_subscriber_topic_statistics system_metrics_collector)
-  ament_target_dependencies(test_subscriber_topic_statistics rcl rclcpp sensor_msgs)
+  ament_target_dependencies(test_subscriber_topic_statistics metrics_statistics_msgs rcl rclcpp)
 endif()
 
 # Install launch files

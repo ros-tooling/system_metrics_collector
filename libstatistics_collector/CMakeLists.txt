@@ -28,6 +28,7 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(metrics_statistics_msgs REQUIRED)
 find_package(rcl REQUIRED)
 find_package(rcpputils REQUIRED)
 
@@ -67,7 +68,7 @@ if(BUILD_TESTING)
   ament_add_gtest(test_received_message_age
     test/topic_statistics_collector/test_received_message_age.cpp)
   target_link_libraries(test_received_message_age ${PROJECT_NAME})
-  ament_target_dependencies(test_received_message_age rcl rcpputils std_msgs sensor_msgs)
+  ament_target_dependencies(test_received_message_age metrics_statistics_msgs rcl rcpputils)
 endif()
 
 install(
