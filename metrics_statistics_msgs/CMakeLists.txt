@@ -29,7 +29,6 @@ find_package(builtin_interfaces REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 set(msg_files
-  msg/DummyMessage.msg
   msg/MetricsMessage.msg
   msg/StatisticDataPoint.msg
   msg/StatisticDataType.msg)

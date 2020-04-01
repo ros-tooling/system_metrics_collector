@@ -21,16 +21,16 @@
 
 #include "lifecycle_msgs/msg/state.hpp"
 
-#include "metrics_statistics_msgs/msg/dummy_message.hpp"
 #include "libstatistics_collector/topic_statistics_collector/constants.hpp"
 #include "libstatistics_collector/topic_statistics_collector/topic_statistics_collector.hpp"
 #include "system_metrics_collector/constants.hpp"
+#include "system_metrics_collector/msg/dummy_message.hpp"
 #include "topic_statistics_collector/subscriber_topic_statistics.hpp"
 #include "../system_metrics_collector/test_functions.hpp"
 
 using lifecycle_msgs::msg::State;
 using libstatistics_collector::moving_average_statistics::StatisticData;
-using DummyMessage = metrics_statistics_msgs::msg::DummyMessage;
+using DummyMessage = system_metrics_collector::msg::DummyMessage;
 namespace constants =
   libstatistics_collector::topic_statistics_collector::topic_statistics_constants;
 

@@ -37,10 +37,17 @@ find_package(rclcpp_components REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(rcpputils REQUIRED)
 find_package(rcutils REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+find_package(std_msgs REQUIRED)
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "test/msg/DummyMessage.msg"
+  DEPENDENCIES std_msgs
+)
 
 include_directories(src)
 
-add_library(system_metrics_collector SHARED
+add_library(${PROJECT_NAME}_shared SHARED
   src/system_metrics_collector/metrics_message_publisher.cpp
   src/system_metrics_collector/linux_cpu_measurement_node.cpp
   src/system_metrics_collector/linux_memory_measurement_node.cpp
@@ -51,7 +58,7 @@ add_library(system_metrics_collector SHARED
   src/system_metrics_collector/proc_pid_cpu_data.cpp
   src/system_metrics_collector/utilities.cpp
 )
-ament_target_dependencies(system_metrics_collector
+ament_target_dependencies(${PROJECT_NAME}_shared
         message_filters
         metrics_statistics_msgs
         rcl
@@ -61,22 +68,22 @@ ament_target_dependencies(system_metrics_collector
         rcpputils
         rcutils
         libstatistics_collector)
-rclcpp_components_register_nodes(system_metrics_collector
+rclcpp_components_register_nodes(${PROJECT_NAME}_shared
   system_metrics_collector::LinuxProcessCpuMeasurementNode)
-rclcpp_components_register_nodes(system_metrics_collector
+rclcpp_components_register_nodes(${PROJECT_NAME}_shared
   system_metrics_collector::LinuxProcessMemoryMeasurementNode)
 ament_export_libraries(system_metrics_collector)
 
 add_executable(example_main src/system_metrics_collector/example_main.cpp)
-target_link_libraries(example_main system_metrics_collector)
+target_link_libraries(example_main ${PROJECT_NAME}_shared)
 ament_target_dependencies(example_main)
 
 add_executable(linux_cpu_collector src/system_metrics_collector/linux_cpu_collector.cpp)
-target_link_libraries(linux_cpu_collector system_metrics_collector)
+target_link_libraries(linux_cpu_collector ${PROJECT_NAME}_shared)
 ament_target_dependencies(linux_cpu_collector)
 
 add_executable(linux_memory_collector src/system_metrics_collector/linux_memory_collector.cpp)
-target_link_libraries(linux_memory_collector system_metrics_collector)
+target_link_libraries(linux_memory_collector ${PROJECT_NAME}_shared)
 ament_target_dependencies(linux_memory_collector)
 
 if(BUILD_TESTING)
@@ -89,32 +96,32 @@ if(BUILD_TESTING)
 
   ament_add_gtest(test_metrics_message_publisher
     test/system_metrics_collector/test_metrics_message_publisher.cpp)
-  target_link_libraries(test_metrics_message_publisher system_metrics_collector)
+  target_link_libraries(test_metrics_message_publisher ${PROJECT_NAME}_shared)
   ament_target_dependencies(test_metrics_message_publisher metrics_statistics_msgs rclcpp)
 
   ament_add_gtest(test_linux_cpu_measurement_node
           test/system_metrics_collector/test_linux_cpu_measurement.cpp)
-  target_link_libraries(test_linux_cpu_measurement_node system_metrics_collector)
+  target_link_libraries(test_linux_cpu_measurement_node ${PROJECT_NAME}_shared)
   ament_target_dependencies(test_linux_cpu_measurement_node metrics_statistics_msgs rclcpp)
 
   ament_add_gtest(test_linux_memory_measurement_node
           test/system_metrics_collector/test_linux_memory_measurement.cpp)
-  target_link_libraries(test_linux_memory_measurement_node system_metrics_collector)
+  target_link_libraries(test_linux_memory_measurement_node ${PROJECT_NAME}_shared)
   ament_target_dependencies(test_linux_memory_measurement_node lifecycle_msgs metrics_statistics_msgs rclcpp)
 
   ament_add_gtest(test_linux_process_cpu_measurement_node
           test/system_metrics_collector/test_linux_process_cpu_measurement_node.cpp)
-  target_link_libraries(test_linux_process_cpu_measurement_node system_metrics_collector)
+  target_link_libraries(test_linux_process_cpu_measurement_node ${PROJECT_NAME}_shared)
   ament_target_dependencies(test_linux_process_cpu_measurement_node lifecycle_msgs metrics_statistics_msgs rclcpp)
 
   ament_add_gtest(test_linux_process_memory_measurement_node
           test/system_metrics_collector/test_linux_process_memory_measurement_node.cpp)
-  target_link_libraries(test_linux_process_memory_measurement_node system_metrics_collector)
+  target_link_libraries(test_linux_process_memory_measurement_node ${PROJECT_NAME}_shared)
   ament_target_dependencies(test_linux_process_memory_measurement_node lifecycle_msgs metrics_statistics_msgs rclcpp)
 
   ament_add_gtest(test_periodic_measurement_node
     test/system_metrics_collector/test_periodic_measurement_node.cpp)
-  target_link_libraries(test_periodic_measurement_node system_metrics_collector)
+  target_link_libraries(test_periodic_measurement_node ${PROJECT_NAME}_shared)
   ament_target_dependencies(test_periodic_measurement_node lifecycle_msgs metrics_statistics_msgs rclcpp)
 
   ament_add_gtest(test_composition
@@ -123,14 +130,17 @@ if(BUILD_TESTING)
 
   ament_add_gtest(test_utilities
           test/system_metrics_collector/test_utilities.cpp)
-  target_link_libraries(test_utilities system_metrics_collector)
+  target_link_libraries(test_utilities ${PROJECT_NAME}_shared)
   ament_target_dependencies(test_utilities rclcpp)
 
   ament_add_gtest(test_subscriber_topic_statistics
           test/topic_statistics_collector/test_subscriber_topic_statistics.cpp)
-  target_link_libraries(test_subscriber_topic_statistics system_metrics_collector)
-  ament_target_dependencies(test_subscriber_topic_statistics metrics_statistics_msgs rcl rclcpp)
+  target_link_libraries(test_subscriber_topic_statistics ${PROJECT_NAME}_shared)
+  ament_target_dependencies(test_subscriber_topic_statistics rcl rclcpp)
 endif()
+
+# To enable use of dummy_message.hpp in test_subscriber_topic_statistics
+rosidl_target_interfaces(test_subscriber_topic_statistics ${PROJECT_NAME} "rosidl_typesupport_cpp")
 
 # Install launch files
 install(DIRECTORY
@@ -158,11 +168,11 @@ install(TARGETS
 )
 
 install(TARGETS
-  ${PROJECT_NAME}
+  ${PROJECT_NAME}_shared
   DESTINATION
   lib
 )
 
-ament_export_libraries(${PROJECT_NAME})
+ament_export_libraries(${PROJECT_NAME}_shared)
 
 ament_package()

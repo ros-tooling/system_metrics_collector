@@ -18,15 +18,15 @@
 #include <chrono>
 #include <string>
 
+#include "libstatistics_collector/msg/dummy_message.hpp"
 #include "libstatistics_collector/topic_statistics_collector/constants.hpp"
 #include "libstatistics_collector/topic_statistics_collector/received_message_age.hpp"
 
-#include "metrics_statistics_msgs/msg/dummy_message.hpp"
 #include "rcl/time.h"
 
 namespace
 {
-using DummyMessage = metrics_statistics_msgs::msg::DummyMessage;
+using DummyMessage = libstatistics_collector::msg::DummyMessage;
 using ReceivedDummyMessageAgeCollector = libstatistics_collector::
   topic_statistics_collector::ReceivedMessageAgeCollector<DummyMessage>;
 using ReceivedIntMessageAgeCollector = libstatistics_collector::
