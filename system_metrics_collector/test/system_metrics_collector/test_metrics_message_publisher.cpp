@@ -22,6 +22,8 @@
 
 #include "system_metrics_collector/metrics_message_publisher.hpp"
 
+#include "libstatistics_collector/collector/generate_statistics_message.hpp"
+
 namespace
 {
 using libstatistics_collector::moving_average_statistics::StatisticData;
@@ -51,7 +53,7 @@ TEST(MetricsMessagePublisherTest, TestGenerateMessage) {
   data.standard_deviation = dist(gen);
   data.sample_count = dist(gen);
 
-  MetricsMessage msg = system_metrics_collector::GenerateStatisticMessage(
+  MetricsMessage msg = libstatistics_collector::collector::GenerateStatisticMessage(
     kTestNodeName, kTestMeasurementType, kTestMeasurementUnit, time1, time2, data);
 
   EXPECT_EQ(kTestNodeName, msg.measurement_source_name);

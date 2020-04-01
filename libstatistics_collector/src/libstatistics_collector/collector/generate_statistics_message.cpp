@@ -1,4 +1,4 @@
-// Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,19 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "metrics_message_publisher.hpp"
+#include "libstatistics_collector/collector/generate_statistics_message.hpp"
 
 #include <string>
 #include <utility>
 
 #include "metrics_statistics_msgs/msg/statistic_data_type.hpp"
 
+namespace libstatistics_collector
+{
+namespace collector
+{
+
 using metrics_statistics_msgs::msg::MetricsMessage;
 using metrics_statistics_msgs::msg::StatisticDataPoint;
 using metrics_statistics_msgs::msg::StatisticDataType;
-
-namespace system_metrics_collector
-{
 
 MetricsMessage GenerateStatisticMessage(
   const std::string & node_name,
@@ -67,4 +69,5 @@ MetricsMessage GenerateStatisticMessage(
   return msg;
 }
 
-}  // namespace system_metrics_collector
+}  // namespace collector
+}  // namespace libstatistics_collector

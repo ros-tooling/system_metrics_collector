@@ -23,6 +23,8 @@
 #include "constants.hpp"
 #include "metrics_message_publisher.hpp"
 
+#include "libstatistics_collector/collector/generate_statistics_message.hpp"
+
 #include "rclcpp/rclcpp.hpp"
 
 using metrics_statistics_msgs::msg::MetricsMessage;
@@ -178,7 +180,7 @@ void PeriodicMeasurementNode::PublishStatisticMessage()
   assert(publisher_ != nullptr);
   assert(publisher_->is_activated());
 
-  const auto msg = GenerateStatisticMessage(
+  const auto msg = libstatistics_collector::collector::GenerateStatisticMessage(
     get_name(),
     GetMetricName(),
     GetMetricUnit(),
