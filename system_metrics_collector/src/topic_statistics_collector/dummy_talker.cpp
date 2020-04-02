@@ -16,17 +16,18 @@
 #include <mutex>
 #include <utility>
 
+#include "system_metrics_collector/msg/dummy_message.hpp"
+
 #include "rclcpp/rclcpp.hpp"
-#include "sensor_msgs/msg/imu.hpp"
 
 /**
- * A class that publishes IMU messages every second with the Header set to current time.
+ * A class that publishes DummyMessages every second with the Header set to current time.
  */
-class ImuTalker : public rclcpp::Node
+class DummyTalker : public rclcpp::Node
 {
 public:
-  ImuTalker()
-  : Node("imu_talker")
+  DummyTalker()
+  : Node("dummy_talker")
   {
     using namespace std::chrono_literals;
     auto publish_lambda =
@@ -34,7 +35,7 @@ public:
       {
         std::unique_lock<std::mutex> ulock{mutex_};
 
-        msg_ = std::make_unique<sensor_msgs::msg::Imu>();
+        msg_ = std::make_unique<system_metrics_collector::msg::DummyMessage>();
         msg_->header = std_msgs::msg::Header{};
         msg_->header.stamp = this->now();
         RCLCPP_INFO(
@@ -45,15 +46,15 @@ public:
         publisher_->publish(std::move(msg_));
       };
 
-    publisher_ = this->create_publisher<sensor_msgs::msg::Imu>(
-      "imu_data",
+    publisher_ = this->create_publisher<system_metrics_collector::msg::DummyMessage>(
+      "dummy_data",
       10 /* QoS history_depth */);
     timer_ = this->create_wall_timer(1s, publish_lambda);
   }
 
 private:
-  std::unique_ptr<sensor_msgs::msg::Imu> msg_;
-  rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr publisher_;
+  std::unique_ptr<system_metrics_collector::msg::DummyMessage> msg_;
+  rclcpp::Publisher<system_metrics_collector::msg::DummyMessage>::SharedPtr publisher_;
   rclcpp::TimerBase::SharedPtr timer_;
   mutable std::mutex mutex_;
 };
@@ -62,11 +63,11 @@ int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
 
-  const auto imu_talker_node =
-    std::make_shared<ImuTalker>();
+  const auto dummy_talker =
+    std::make_shared<DummyTalker>();
 
   rclcpp::executors::SingleThreadedExecutor ex;
-  ex.add_node(imu_talker_node->get_node_base_interface());
+  ex.add_node(dummy_talker->get_node_base_interface());
   ex.spin();
 
   rclcpp::shutdown();

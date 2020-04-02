@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Launch file to launch an IMU data publisher node."""
+"""Launch file to launch a DummyMessage publisher node."""
 
 from launch import LaunchDescription
 import launch_ros.actions
@@ -22,6 +22,6 @@ def generate_launch_description():
     return LaunchDescription([
         launch_ros.actions.Node(
             package='system_metrics_collector',
-            node_executable='imu_talker',
+            node_executable='dummy_talker',
             output='screen'),
     ])
