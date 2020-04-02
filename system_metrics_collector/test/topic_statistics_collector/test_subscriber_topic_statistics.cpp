@@ -28,14 +28,14 @@
 #include "topic_statistics_collector/subscriber_topic_statistics.hpp"
 #include "../system_metrics_collector/test_functions.hpp"
 
-using lifecycle_msgs::msg::State;
-using libstatistics_collector::moving_average_statistics::StatisticData;
-using DummyMessage = system_metrics_collector::msg::DummyMessage;
-namespace constants =
-  libstatistics_collector::topic_statistics_collector::topic_statistics_constants;
-
 namespace
 {
+using lifecycle_msgs::msg::State;
+using libstatistics_collector::moving_average_statistics::StatisticData;
+namespace constants =
+  libstatistics_collector::topic_statistics_collector::topic_statistics_constants;
+using DummyMessage = system_metrics_collector::msg::DummyMessage;
+
 constexpr const int64_t kAnyTimestamp = 1000000;
 constexpr const std::chrono::milliseconds kTestDuration{250};
 constexpr const char kStatsCollectorNodeName[] = "topic_stats_node";

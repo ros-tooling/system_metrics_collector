@@ -26,7 +26,7 @@
 
 namespace
 {
-constexpr const char kSystemMetricsCollectorLibName[] = "libsystem_metrics_collector_shared.so";
+constexpr const char kSystemMetricsCollectorLibName[] = "libsystem_metrics_collector.so";
 constexpr const std::array<const char *, 2> kExpectedClassNames = {
   "system_metrics_collector::LinuxProcessCpuMeasurementNode",
   "system_metrics_collector::LinuxProcessMemoryMeasurementNode"
