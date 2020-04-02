@@ -30,6 +30,13 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rcl REQUIRED)
 find_package(rcpputils REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+find_package(std_msgs REQUIRED)
+
+rosidl_generate_interfaces(libstatistics_collector_test_msgs
+  "test/msg/DummyMessage.msg"
+  DEPENDENCIES std_msgs
+)
 
 include_directories(include)
 
@@ -67,8 +74,11 @@ if(BUILD_TESTING)
   ament_add_gtest(test_received_message_age
     test/topic_statistics_collector/test_received_message_age.cpp)
   target_link_libraries(test_received_message_age ${PROJECT_NAME})
-  ament_target_dependencies(test_received_message_age rcl rcpputils std_msgs sensor_msgs)
+  ament_target_dependencies(test_received_message_age rcl rcpputils)
 endif()
+
+# To enable use of dummy_message.hpp in test_received_message_age
+rosidl_target_interfaces(test_received_message_age libstatistics_collector_test_msgs "rosidl_typesupport_cpp")
 
 install(
   TARGETS "${PROJECT_NAME}"
@@ -82,7 +92,7 @@ install(
   DESTINATION include
 )
 
-ament_export_dependencies(rcl rcpputils)
+ament_export_dependencies(rcl rcpputils rosidl_default_runtime)
 ament_export_include_directories(include)
 ament_export_libraries(${PROJECT_NAME})
 
