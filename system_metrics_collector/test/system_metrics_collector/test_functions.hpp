@@ -181,8 +181,8 @@ public:
   }
 
   /**
-   * Return the number of messages received
-   * @return
+   * Return the number of messages received by this subscriber
+   * @return the number of messages received by the subscriber callback
    */
   int GetNumberOfMessagesReceived() const
   {
