@@ -305,7 +305,7 @@ TEST_F(SubscriberTopicStatisticsNodeTestFixture, TestSubscriptionCallback) {
 
   // check we have at least published once
   EXPECT_EQ(test_topic_stats_node_->GetNumPublished(), 1);
-  // check that IMU data was actually published
+  // check that dummy data was actually published
   EXPECT_GT(dummy_publisher_->GetNumberPublished(), 0);
 
   const auto all_collected_data = test_topic_stats_node_->GetPublishedCollectorData();
@@ -415,7 +415,7 @@ TEST_F(SubscriberTopicStatisticsNodeTestFixture, TestMetricsMessagePublisher) {
     receive_messages->GetFuture(),
     kTestDuration);
 
-  // check that IMU data was actually published
+  // check that dummy data was actually published
   EXPECT_GT(dummy_publisher_->GetNumberPublished(), 0);
   // check that we actually received a message
   EXPECT_EQ(receive_messages->GetNumberOfMessagesReceived(), 1);
