@@ -41,7 +41,7 @@ using DummyMessage = system_metrics_collector::msg::DummyMessage;
 
 constexpr const int64_t kAnyTimestamp = 1000000;
 constexpr const std::chrono::seconds kTestDuration{10};
-constexpr const std::chrono::milliseconds kImuPublishPeriod{100};
+constexpr const std::chrono::milliseconds kDummyPublishPeriod{100};
 constexpr const std::chrono::milliseconds kTopicPublishPeriod{1000};
 constexpr const char kStatsCollectorNodeName[] = "topic_stats_node";
 constexpr const char kTestTopicName[] = "/test_topic";
@@ -116,7 +116,7 @@ public:
     return data;
   }
 
-  std::vector<StatisticData> GetPublishedCollectorData() const
+  const std::vector<StatisticData> & GetPublishedCollectorData() const
   {
     return last_published_data_;
   }
@@ -147,7 +147,7 @@ public:
   {
     publisher_ = create_publisher<DummyMessage>(kTestTopicName, 10);
     publish_timer_ = this->create_wall_timer(
-      kImuPublishPeriod, [this]() {
+      kDummyPublishPeriod, [this]() {
         this->PublishMessage();
       });
   }
