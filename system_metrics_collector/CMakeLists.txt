@@ -86,6 +86,10 @@ add_executable(linux_memory_collector src/system_metrics_collector/linux_memory_
 target_link_libraries(linux_memory_collector ${PROJECT_NAME})
 ament_target_dependencies(linux_memory_collector)
 
+add_executable(dummy_talker src/topic_statistics_collector/dummy_talker.cpp)
+target_link_libraries(dummy_talker system_metrics_collector)
+ament_target_dependencies(dummy_talker)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   find_package(ament_cmake_gtest REQUIRED)
@@ -139,8 +143,9 @@ if(BUILD_TESTING)
   ament_target_dependencies(test_subscriber_topic_statistics rcl rclcpp)
 endif()
 
-# To enable use of dummy_message.hpp in test_subscriber_topic_statistics
+# To enable use of dummy_message.hpp in executables
 rosidl_target_interfaces(test_subscriber_topic_statistics system_metrics_collector_test_msgs "rosidl_typesupport_cpp")
+rosidl_target_interfaces(dummy_talker system_metrics_collector_test_msgs "rosidl_typesupport_cpp")
 
 # Install launch files
 install(DIRECTORY
@@ -163,6 +168,12 @@ install(TARGETS
 
 install(TARGETS
   linux_memory_collector
+  DESTINATION
+  lib/${PROJECT_NAME}
+)
+
+install(TARGETS
+  dummy_talker
   DESTINATION
   lib/${PROJECT_NAME}
 )
