@@ -152,24 +152,41 @@ private:
 class MetricsMessageSubscriber : public rclcpp::Node, public PromiseSetter
 {
 public:
-  explicit MetricsMessageSubscriber(const std::string & name)
+  /**
+   * Constucts a MetricsMessageSubscriber
+   * @param name the node name
+   * @param name the topic name
+   */
+  MetricsMessageSubscriber(const std::string & name, const std::string & topic_name)
   : rclcpp::Node(name)
   {
-    auto callback = [this](MetricsMessage::UniquePtr msg) {this->MetricsMessageCallback(*msg);};
+    auto callback = [this](MetricsMessage::UniquePtr msg) {
+        this->MetricsMessageCallback(*msg);
+      };
     subscription_ = create_subscription<MetricsMessage,
         std::function<void(MetricsMessage::UniquePtr)>>(
-      system_metrics_collector::collector_node_constants::kStatisticsTopicName,
-      0 /*history_depth*/, callback);
+      topic_name,
+      0 /*history_depth*/,
+      callback);
   }
 
   /**
    * Acquires a mutex in order to get the last message received member.
    * @return the last message received
    */
-  MetricsMessage GetLastReceivedMessage()
+  MetricsMessage GetLastReceivedMessage() const
   {
     std::unique_lock<std::mutex> ulock{mutex_};
     return last_received_message_;
+  }
+
+  /**
+   * Return the number of messages received by this subscriber
+   * @return the number of messages received by the subscriber callback
+   */
+  int GetNumberOfMessagesReceived() const
+  {
+    return num_messages_received_;
   }
 
 private:
@@ -181,6 +198,7 @@ private:
   void MetricsMessageCallback(const MetricsMessage & msg)
   {
     std::unique_lock<std::mutex> ulock{mutex_};
+    ++num_messages_received_;
     last_received_message_ = msg;
     PromiseSetter::SetPromise();
   }
@@ -188,6 +206,7 @@ private:
   MetricsMessage last_received_message_;
   rclcpp::Subscription<MetricsMessage>::SharedPtr subscription_;
   mutable std::mutex mutex_;
+  std::atomic<int> num_messages_received_{0};
 };
 
 }  // namespace test_functions

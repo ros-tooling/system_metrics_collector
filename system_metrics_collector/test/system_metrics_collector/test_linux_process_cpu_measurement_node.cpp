@@ -265,7 +265,8 @@ TEST_F(LinuxProcessCpuMeasurementTestFixture, TestPublishMessage)
     test_measure_linux_process_cpu_->get_current_state().id());
 
   const auto test_receive_measurements = std::make_shared<test_functions::MetricsMessageSubscriber>(
-    "test_receive_measurements");
+    "test_receive_measurements",
+    system_metrics_collector::collector_node_constants::kStatisticsTopicName);
 
   rclcpp::executors::SingleThreadedExecutor ex;
   ex.add_node(test_measure_linux_process_cpu_->get_node_base_interface());
@@ -289,6 +290,7 @@ TEST_F(LinuxProcessCpuMeasurementTestFixture, TestPublishMessage)
   //
   ex.spin_until_future_complete(
     test_receive_measurements->GetFuture(), test_constants::kPublishTestTimeout);
+  EXPECT_EQ(test_receive_measurements->GetNumberOfMessagesReceived(), 1);
 
   // generate expected data: expectation is that 6 samples are taken within the publish
   // time frame
