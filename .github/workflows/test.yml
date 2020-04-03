@@ -20,7 +20,7 @@ jobs:
     - uses: ros-tooling/setup-ros@0.0.13
     - uses: ros-tooling/action-ros-ci@0.0.13
       with:
-        package-name: system_metrics_collector
+        package-name: libstatistics_collector metrics_statistics_msgs system_metrics_collector
         colcon-mixin-name: coverage-gcc
         colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
     - uses: codecov/codecov-action@v1
@@ -51,7 +51,7 @@ jobs:
       with:
         colcon-mixin-name: asan
         colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
-        package-name: system_metrics_collector
+        package-name: libstatistics_collector metrics_statistics_msgs system_metrics_collector
     - uses: actions/upload-artifact@master
       with:
         name: colcon-logs-${{ matrix.os }}-asan
