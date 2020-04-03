@@ -265,6 +265,7 @@ private:
   {
     rcpputils::check_true(publisher_ != nullptr);
     rcpputils::check_true(publisher_->is_activated());
+
     this->window_start_ = this->now();
 
     for (const auto & collector : statistics_collectors_) {

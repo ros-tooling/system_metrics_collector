@@ -34,17 +34,23 @@ using lifecycle_msgs::msg::State;
 using libstatistics_collector::moving_average_statistics::StatisticData;
 namespace constants =
   libstatistics_collector::topic_statistics_collector::topic_statistics_constants;
+using metrics_statistics_msgs::msg::MetricsMessage;
+using metrics_statistics_msgs::msg::StatisticDataPoint;
+using metrics_statistics_msgs::msg::StatisticDataType;
 using DummyMessage = system_metrics_collector::msg::DummyMessage;
 
 constexpr const int64_t kAnyTimestamp = 1000000;
-constexpr const std::chrono::milliseconds kTestDuration{250};
+constexpr const std::chrono::seconds kTestDuration{10};
+constexpr const std::chrono::milliseconds kImuPublishPeriod{100};
+constexpr const std::chrono::milliseconds kTopicPublishPeriod{1000};
 constexpr const char kStatsCollectorNodeName[] = "topic_stats_node";
 constexpr const char kTestTopicName[] = "/test_topic";
 constexpr const uint64_t kTimesCallbackCalled{10u};
 }  // namespace
 
 class TestSubscriberTopicStatisticsNode
-  : public topic_statistics_collector::SubscriberTopicStatisticsNode<DummyMessage>
+  : public topic_statistics_collector::SubscriberTopicStatisticsNode<
+    DummyMessage>, public test_functions::PromiseSetter
 {
 public:
   TestSubscriberTopicStatisticsNode(const std::string & name, const rclcpp::NodeOptions & options)
@@ -101,7 +107,7 @@ public:
    *
    * @return statistic data collected by all collectors
    */
-  std::vector<StatisticData> GetCollectorData() const
+  std::vector<StatisticData> GetCurrentCollectorData() const
   {
     std::vector<StatisticData> data;
     for (const auto & collector : statistics_collectors_) {
@@ -110,20 +116,9 @@ public:
     return data;
   }
 
-  /**
-   * Spin a MetricsMessageSubscriber node until the desired MetricsMessages are received.
-   */
-  void SpinUntilMessageReceived()
+  std::vector<StatisticData> GetPublishedCollectorData() const
   {
-    const auto receive_messages = std::make_shared<test_functions::MetricsMessageSubscriber>(
-      "receive_messages");
-
-    rclcpp::executors::SingleThreadedExecutor ex;
-    ex.add_node(this->get_node_base_interface());
-    ex.add_node(receive_messages);
-
-    ex.spin_until_future_complete(
-      receive_messages->GetFuture(), kTestDuration);
+    return last_published_data_;
   }
 
 private:
@@ -132,10 +127,13 @@ private:
    */
   void PublishStatisticMessage() override
   {
+    last_published_data_ = this->GetCurrentCollectorData();
     ++times_published_;
+    test_functions::PromiseSetter::SetPromise();
   }
 
   std::atomic<int> times_published_{0};
+  std::vector<StatisticData> last_published_data_;
 };
 
 /**
@@ -148,16 +146,28 @@ public:
   : Node("dummy_publisher"), publisher_(nullptr)
   {
     publisher_ = create_publisher<DummyMessage>(kTestTopicName, 10);
+    publish_timer_ = this->create_wall_timer(
+      kImuPublishPeriod, [this]() {
+        this->PublishMessage();
+      });
   }
 
   ~DummyMessagePublisher() = default;
 
+  int GetNumberPublished() const
+  {
+    return number_published_;
+  }
+
   /**
    * Publish a  single DummyMessage.
    */
-  void publish(std::shared_ptr<DummyMessage> msg)
+  void PublishMessage()
   {
-    publisher_->publish(*msg);
+    ++number_published_;
+    auto msg = DummyMessage{};
+    msg.header.stamp = rclcpp::Time{kAnyTimestamp};
+    publisher_->publish(msg);
   }
 
   /**
@@ -172,6 +182,8 @@ public:
 
 private:
   typename rclcpp::Publisher<DummyMessage>::SharedPtr publisher_;
+  std::atomic<int> number_published_{0};
+  rclcpp::TimerBase::SharedPtr publish_timer_;
 };
 
 /**
@@ -185,9 +197,11 @@ public:
     rclcpp::init(0, nullptr);
 
     rclcpp::NodeOptions options;
+    // set the topic stat publishing period
     options.append_parameter_override(
       system_metrics_collector::collector_node_constants::kPublishPeriodParam,
-      kVeryLongPublishPeriod.count());
+      kTopicPublishPeriod.count());
+    // set the topic to collect statistics (listen)
     options.append_parameter_override(constants::kCollectStatsTopicNameParam, kTestTopicName);
 
     dummy_publisher_ = std::make_shared<DummyMessagePublisher>();
@@ -198,7 +212,7 @@ public:
 
     EXPECT_GT(test_topic_stats_node_->GetCollectorCount(), 0);
 
-    const auto all_collected_data = test_topic_stats_node_->GetCollectorData();
+    const auto all_collected_data = test_topic_stats_node_->GetCurrentCollectorData();
     for (const auto & data : all_collected_data) {
       EXPECT_TRUE(std::isnan(data.average));
       EXPECT_TRUE(std::isnan(data.min));
@@ -210,9 +224,11 @@ public:
 
   void TearDown() override
   {
-    test_topic_stats_node_->shutdown();
-    EXPECT_EQ(State::PRIMARY_STATE_FINALIZED, test_topic_stats_node_->get_current_state().id());
-    EXPECT_FALSE(test_topic_stats_node_->IsPublisherActivated());
+    if(test_topic_stats_node_->get_current_state().id() == State::PRIMARY_STATE_ACTIVE) {
+      test_topic_stats_node_->shutdown();
+      EXPECT_EQ(State::PRIMARY_STATE_FINALIZED, test_topic_stats_node_->get_current_state().id());
+      EXPECT_FALSE(test_topic_stats_node_->IsPublisherActivated());
+    }
 
     test_topic_stats_node_.reset();
     dummy_publisher_.reset();
@@ -223,7 +239,7 @@ protected:
   // this test is not designed to have the statistics published and reset at any point of the test,
   // so this is defining the publish period to be something amply larger than the test duration
   // itself
-  static constexpr std::chrono::milliseconds kVeryLongPublishPeriod = 2 * kTestDuration;
+  static constexpr std::chrono::milliseconds kVeryLongPublishPeriod{500};
   std::shared_ptr<TestSubscriberTopicStatisticsNode> test_topic_stats_node_;
   std::shared_ptr<DummyMessagePublisher> dummy_publisher_;
 };
@@ -272,31 +288,38 @@ TEST_F(SubscriberTopicStatisticsNodeTestFixture, TestStartAndStop) {
 
 TEST_F(SubscriberTopicStatisticsNodeTestFixture, TestSubscriptionCallback) {
   test_topic_stats_node_->configure();
+  EXPECT_EQ(State::PRIMARY_STATE_INACTIVE, test_topic_stats_node_->get_current_state().id());
+
   test_topic_stats_node_->activate();
+  EXPECT_EQ(State::PRIMARY_STATE_ACTIVE, test_topic_stats_node_->get_current_state().id());
 
   EXPECT_TRUE(test_topic_stats_node_->AreCollectorsStarted());
   EXPECT_TRUE(test_topic_stats_node_->IsPublisherActivated());
 
-  const auto msg = std::make_shared<DummyMessage>();
-  msg->header.stamp = rclcpp::Time{kAnyTimestamp};
-  for (int i = 0; i < kTimesCallbackCalled; ++i) {
-    dummy_publisher_->publish(msg);
-  }
+  rclcpp::executors::SingleThreadedExecutor ex;
+  ex.add_node(test_topic_stats_node_->get_node_base_interface());
+  ex.add_node(dummy_publisher_);
 
-  test_topic_stats_node_->SpinUntilMessageReceived();
+  // future fires for a single publish, otherwise long timeout
+  ex.spin_until_future_complete(test_topic_stats_node_->GetFuture(), kTestDuration);
 
-  const auto all_collected_data = test_topic_stats_node_->GetCollectorData();
+  EXPECT_EQ(test_topic_stats_node_->GetNumPublished(), 1);  // check we have at least published once
+  EXPECT_GT(dummy_publisher_->GetNumberPublished(), 0); // check that IMU data was actually published
+
+  const auto all_collected_data = test_topic_stats_node_->GetPublishedCollectorData();
+
+  EXPECT_GT(all_collected_data.size(), 0);
+
   for (const auto & data : all_collected_data) {
-    EXPECT_GT(data.sample_count, 0);
+    // expect to match the number of IMU messages published
+    // message age requires the header, so expect dummy_publisher_->GetNumberPublished()
+    // message period requires dummy_publisher_->GetNumberPublished() - 1
+    EXPECT_GE(data.sample_count, dummy_publisher_->GetNumberPublished() - 1);
     EXPECT_FALSE(std::isnan(data.average));
     EXPECT_FALSE(std::isnan(data.min));
     EXPECT_FALSE(std::isnan(data.max));
     EXPECT_FALSE(std::isnan(data.standard_deviation));
   }
-
-  int times_published = test_topic_stats_node_->GetNumPublished();
-  EXPECT_EQ(
-    kTestDuration.count() / kVeryLongPublishPeriod.count(), times_published);
 }
 
 TEST_F(SubscriberTopicStatisticsNodeTestFixture, TestLifecycleManually_reactivate) {
@@ -359,37 +382,67 @@ TEST_F(RclcppFixture, TestConstructorTopicNameValidation) {
     std::invalid_argument);
 }
 
-TEST_F(RclcppFixture, TestMetricsMessagePublisher) {
+TEST_F(SubscriberTopicStatisticsNodeTestFixture, TestMetricsMessagePublisher) {
   rclcpp::NodeOptions options;
+  // set the topic stat publishing period
   options.append_parameter_override(
     system_metrics_collector::collector_node_constants::kPublishPeriodParam,
-    std::chrono::milliseconds{kTestDuration}.count());
+    kTopicPublishPeriod.count());
+  // set the topic to collect statistics (listen)
   options.append_parameter_override(constants::kCollectStatsTopicNameParam, kTestTopicName);
 
-  auto test_node = std::make_shared<TestSubscriberTopicStatisticsNode>(
-    "TestMetricsMessagePublisher",
-    options);
+  const auto receive_messages = std::make_shared<test_functions::MetricsMessageSubscriber>(
+  "TestMetricsMessagePublisher_listener",
+  system_metrics_collector::collector_node_constants::kStatisticsTopicName);
+
+  auto test_node = std::make_shared<topic_statistics_collector::SubscriberTopicStatisticsNode<DummyMessage>>(
+        "TestMetricsMessagePublisher",
+        options);
+
+  rclcpp::executors::SingleThreadedExecutor ex;
+  ex.add_node(test_node->get_node_base_interface());
+  ex.add_node(dummy_publisher_);
+  ex.add_node(receive_messages);
+
   test_node->configure();
+  EXPECT_EQ(State::PRIMARY_STATE_INACTIVE, test_node->get_current_state().id());
+
   test_node->activate();
+  EXPECT_EQ(State::PRIMARY_STATE_ACTIVE, test_node->get_current_state().id());
 
-  auto publisher_node = std::make_shared<DummyMessagePublisher>();
-  const auto msg = std::make_shared<DummyMessage>();
-  msg->header.stamp = rclcpp::Time{kAnyTimestamp};
-  for (int i = 0; i < kTimesCallbackCalled; ++i) {
-    publisher_node->publish(msg);
-  }
+  // wait until a metrics message was received
+  ex.spin_until_future_complete(
+    receive_messages->GetFuture(),
+    kTestDuration);
 
-  // After spinning, test that MetricsMessage is published and collected values are cleared.
-  test_node->SpinUntilMessageReceived();
+  EXPECT_GT(dummy_publisher_->GetNumberPublished(), 0); // check that IMU data was actually published
+  EXPECT_EQ(receive_messages->GetNumberOfMessagesReceived(), 1); //check that we actually received a message
 
-  EXPECT_EQ(test_node->GetNumPublished(), 1);
-
-  const auto all_collected_data = test_node->GetCollectorData();
-  for (const auto & data : all_collected_data) {
-    EXPECT_EQ(data.sample_count, 0);
-    EXPECT_TRUE(std::isnan(data.average));
-    EXPECT_TRUE(std::isnan(data.min));
-    EXPECT_TRUE(std::isnan(data.max));
-    EXPECT_TRUE(std::isnan(data.standard_deviation));
-  }
+  // check the received message
+  const auto received_message = receive_messages->GetLastReceivedMessage();
+  for (const auto & stats_point : received_message.statistics) {
+    const auto type = stats_point.data_type;
+    switch (type) {
+      case StatisticDataType::STATISTICS_DATA_TYPE_SAMPLE_COUNT:
+        EXPECT_GE(dummy_publisher_->GetNumberPublished(), stats_point.data - 1) << "unexpected sample count";
+        break;
+//      case StatisticDataType::STATISTICS_DATA_TYPE_AVERAGE:
+//        EXPECT_DOUBLE_EQ(expected_stats.at(type), stats_point.data) << "unexpected average";
+//        break;
+//      case StatisticDataType::STATISTICS_DATA_TYPE_MINIMUM:
+//        EXPECT_DOUBLE_EQ(
+//          expected_stats.at(type), stats_point.data) << "unexpected min";
+//        break;
+//      case StatisticDataType::STATISTICS_DATA_TYPE_MAXIMUM:
+//        EXPECT_DOUBLE_EQ(
+//        expected_stats.at(type), stats_point.data) << "unexpected max";
+//        break;
+//      case StatisticDataType::STATISTICS_DATA_TYPE_STDDEV:
+//        EXPECT_DOUBLE_EQ(expected_stats.at(type), stats_point.data) << "unexpected stddev";
+//        break;
+//      default:
+//        FAIL() << "received unknown statistics type: " << std::dec <<
+//        static_cast<unsigned int>(type);
+      }
+    }
 }
