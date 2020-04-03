@@ -428,6 +428,10 @@ TEST_F(SubscriberTopicStatisticsNodeTestFixture, TestMetricsMessagePublisher) {
       case StatisticDataType::STATISTICS_DATA_TYPE_SAMPLE_COUNT:
         EXPECT_GT(dummy_publisher_->GetNumberPublished(), 1) << "unexpected sample count";
         break;
+      default:
+        // do nothing, we don't check statistics validity here but at a minimum
+        // check that the sample count is at least non-zero
+        break;
     }
   }
 }

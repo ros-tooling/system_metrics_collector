@@ -262,10 +262,8 @@ TEST_F(LinuxCpuMeasurementTestFixture, TestPublishMessage)
   ASSERT_EQ(State::PRIMARY_STATE_ACTIVE, test_measure_linux_cpu_->get_current_state().id());
   ASSERT_TRUE(test_measure_linux_cpu_->IsStarted());
 
-  //
   // spin the node while activated and use the node's future to halt
   // after the first published message
-  //
   ex.spin_until_future_complete(
     test_receive_measurements->GetFuture(), test_constants::kPublishTestTimeout);
   EXPECT_EQ(test_receive_measurements->GetNumberOfMessagesReceived(), 1);

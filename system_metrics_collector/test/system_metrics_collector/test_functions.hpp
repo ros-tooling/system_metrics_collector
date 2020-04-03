@@ -153,13 +153,11 @@ class MetricsMessageSubscriber : public rclcpp::Node, public PromiseSetter
 {
 public:
   /**
-   *
+   * Constucts a MetricsMessageSubscriber
    * @param name the node name
    * @param name the topic name
-   * @param promise_trigger the PromiseSetter::SetPromise will be called when the number of messages
-   * received is >= the promise_trigger.
    */
-  MetricsMessageSubscriber(const std::string & name, const std::string topic_name)
+  MetricsMessageSubscriber(const std::string & name, const std::string & topic_name)
   : rclcpp::Node(name)
   {
     auto callback = [this](MetricsMessage::UniquePtr msg) {
@@ -182,6 +180,10 @@ public:
     return last_received_message_;
   }
 
+  /**
+   * Return the number of messages received
+   * @return
+   */
   int GetNumberOfMessagesReceived() const
   {
     return num_messages_received_;
