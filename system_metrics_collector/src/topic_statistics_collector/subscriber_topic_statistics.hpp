@@ -25,9 +25,11 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rcpputils/asserts.hpp"
 
+#include "libstatistics_collector/collector/generate_statistics_message.hpp"
 #include "libstatistics_collector/topic_statistics_collector/received_message_age.hpp"
 #include "libstatistics_collector/topic_statistics_collector/received_message_period.hpp"
 #include "libstatistics_collector/topic_statistics_collector/topic_statistics_collector.hpp"
+
 #include "parameter_utils.hpp"
 #include "system_metrics_collector/constants.hpp"
 #include "system_metrics_collector/metrics_message_publisher.hpp"
@@ -268,7 +270,7 @@ private:
     this->window_start_ = this->now();
 
     for (const auto & collector : statistics_collectors_) {
-      const auto msg = system_metrics_collector::GenerateStatisticMessage(
+      const auto msg = libstatistics_collector::collector::GenerateStatisticMessage(
         get_name(),
         collector->GetMetricName(),
         collector->GetMetricUnit(),

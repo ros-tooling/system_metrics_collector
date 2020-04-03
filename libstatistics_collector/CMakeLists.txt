@@ -28,6 +28,7 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(metrics_statistics_msgs REQUIRED)
 find_package(rcl REQUIRED)
 find_package(rcpputils REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
@@ -41,12 +42,13 @@ rosidl_generate_interfaces(libstatistics_collector_test_msgs
 include_directories(include)
 
 add_library(${PROJECT_NAME} SHARED
-  src/libstatistics_collector/moving_average_statistics/moving_average.cpp
-  src/libstatistics_collector/moving_average_statistics/types.cpp
   src/libstatistics_collector/collector/collector.cpp
-)
+  src/libstatistics_collector/collector/generate_statistics_message.cpp
+  src/libstatistics_collector/moving_average_statistics/moving_average.cpp
+  src/libstatistics_collector/moving_average_statistics/types.cpp)
 
 ament_target_dependencies(${PROJECT_NAME}
+  metrics_statistics_msgs
   rcl
   rcpputils)
 

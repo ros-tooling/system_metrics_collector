@@ -49,7 +49,6 @@ rosidl_generate_interfaces(system_metrics_collector_test_msgs
 include_directories(src)
 
 add_library(${PROJECT_NAME} SHARED
-  src/system_metrics_collector/metrics_message_publisher.cpp
   src/system_metrics_collector/linux_cpu_measurement_node.cpp
   src/system_metrics_collector/linux_memory_measurement_node.cpp
   src/system_metrics_collector/linux_process_cpu_measurement_node.cpp
