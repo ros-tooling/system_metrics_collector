@@ -17,7 +17,6 @@
 
 #include <gtest/gtest.h>
 
-#include <atomic>
 #include <array>
 #include <atomic>
 #include <chrono>
@@ -153,7 +152,6 @@ private:
 class MetricsMessageSubscriber : public rclcpp::Node, public PromiseSetter
 {
 public:
-
   /**
    *
    * @param name the node name
@@ -165,7 +163,8 @@ public:
   : rclcpp::Node(name)
   {
     auto callback = [this](MetricsMessage::UniquePtr msg) {
-      this->MetricsMessageCallback(*msg);};
+        this->MetricsMessageCallback(*msg);
+      };
     subscription_ = create_subscription<MetricsMessage,
         std::function<void(MetricsMessage::UniquePtr)>>(
       topic_name,
