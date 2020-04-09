@@ -10,6 +10,21 @@ on:
     - cron:  '0 * * * *'
 
 jobs:
+  build_and_test_metrics_statistics_msgs:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macOS-latest, ubuntu-18.04, windows-latest]
+    steps:
+      - uses: ros-tooling/setup-ros@0.0.17
+      - uses: ros-tooling/action-ros-ci@0.0.15
+        with:
+          package-name: metrics_statistics_msgs
+      - uses: actions/upload-artifact@master
+        with:
+          name: colcon-logs-${{ matrix.os }}
+          path: ros_ws/log
   build_and_test_libstatistics_collector:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -21,8 +36,6 @@ jobs:
       - uses: ros-tooling/action-ros-ci@0.0.15
         with:
           package-name: libstatistics_collector
-          colcon-mixin-name: coverage-gcc
-          colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
       - uses: actions/upload-artifact@master
         with:
           name: colcon-logs-${{ matrix.os }}
@@ -37,7 +50,7 @@ jobs:
     - uses: ros-tooling/setup-ros@0.0.17
     - uses: ros-tooling/action-ros-ci@0.0.15
       with:
-        package-name: libstatistics_collector metrics_statistics_msgs system_metrics_collector
+        package-name: libstatistics_collector system_metrics_collector
         colcon-mixin-name: coverage-gcc
         colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
     - uses: codecov/codecov-action@v1
