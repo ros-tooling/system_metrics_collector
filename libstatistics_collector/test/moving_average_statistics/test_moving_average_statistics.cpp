@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include <array>
 #include <atomic>
 #include <memory>
 #include <thread>
