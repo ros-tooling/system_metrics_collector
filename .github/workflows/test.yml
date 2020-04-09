@@ -77,7 +77,7 @@ jobs:
           os: [ubuntu-18.04]
     steps:
     - uses: ros-tooling/setup-ros@0.0.18
-    - uses: ros-tooling/action-ros-ci@0.0.13
+    - uses: ros-tooling/action-ros-ci@0.0.15
       with:
         colcon-mixin-name: asan
         colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
