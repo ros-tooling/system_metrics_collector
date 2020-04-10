@@ -36,7 +36,7 @@ find_package(std_msgs REQUIRED)
 
 rosidl_generate_interfaces(libstatistics_collector_test_msgs
   "test/msg/DummyMessage.msg"
-  DEPENDENCIES std_msgs
+  DEPENDENCIES "std_msgs"
 )
 
 include_directories(include)
@@ -48,9 +48,9 @@ add_library(${PROJECT_NAME} SHARED
   src/libstatistics_collector/moving_average_statistics/types.cpp)
 
 ament_target_dependencies(${PROJECT_NAME}
-  metrics_statistics_msgs
-  rcl
-  rcpputils)
+  "metrics_statistics_msgs"
+  "rcl"
+  "rcpputils")
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -61,22 +61,22 @@ if(BUILD_TESTING)
   ament_add_gtest(test_collector
     test/collector/test_collector.cpp)
   target_link_libraries(test_collector ${PROJECT_NAME})
-  ament_target_dependencies(test_collector rcpputils)
+  ament_target_dependencies(test_collector "rcpputils")
 
   ament_add_gtest(test_moving_average_statistics
     test/moving_average_statistics/test_moving_average_statistics.cpp)
   target_link_libraries(test_moving_average_statistics ${PROJECT_NAME})
-  ament_target_dependencies(test_moving_average_statistics rcpputils)
+  ament_target_dependencies(test_moving_average_statistics "rcpputils")
 
   ament_add_gtest(test_received_message_period
     test/topic_statistics_collector/test_received_message_period.cpp)
   target_link_libraries(test_received_message_period ${PROJECT_NAME})
-  ament_target_dependencies(test_received_message_period rcl rcpputils)
+  ament_target_dependencies(test_received_message_period "rcl" "rcpputils")
 
   ament_add_gtest(test_received_message_age
     test/topic_statistics_collector/test_received_message_age.cpp)
   target_link_libraries(test_received_message_age ${PROJECT_NAME})
-  ament_target_dependencies(test_received_message_age rcl rcpputils)
+  ament_target_dependencies(test_received_message_age "rcl" "rcpputils")
 endif()
 
 # To enable use of dummy_message.hpp in test_received_message_age

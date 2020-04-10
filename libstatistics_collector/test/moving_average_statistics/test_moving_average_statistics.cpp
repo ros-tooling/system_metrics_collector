@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include <array>
 #include <atomic>
 #include <memory>
 #include <thread>
@@ -27,12 +28,12 @@ using libstatistics_collector::moving_average_statistics::MovingAverageStatistic
 
 // Useful testing constants
 constexpr const uint64_t kExpectedSize = 9;
-constexpr const std::array<double, kExpectedSize> kTestData{-3.5, -2.1, -1.1, 0.0, 4.7, 5.0,
-  6.7, 9.9, 11.0};
 constexpr const double kExpectedAvg = 3.4;
 constexpr const double kExpectedMin = -3.5;
 constexpr const double kExpectedMax = 11.0;
 constexpr const double kExpectedStd = 4.997999599839919955173;
+const std::array<double, kExpectedSize> kTestData{-3.5, -2.1, -1.1, 0.0, 4.7, 5.0,
+  6.7, 9.9, 11.0};
 }  // namespace
 
 
