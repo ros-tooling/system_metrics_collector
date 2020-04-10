@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
-      - uses: ros-tooling/setup-ros@0.0.17
-      - uses: ros-tooling/action-ros-ci@0.0.13
+      - uses: ros-tooling/setup-ros@0.0.18
+      - uses: ros-tooling/action-ros-ci@0.0.15
         with:
           package-name: system_metrics_collector
       - name: Run end-to-end test
