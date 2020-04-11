@@ -12,14 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from collections import Counter
 import logging
-import sys
 from threading import Lock
 from typing import List
 
 from metrics_statistics_msgs.msg import MetricsMessage
 
-import rclpy
 from rclpy.node import Node
 from rclpy.task import Future
 
@@ -33,6 +32,7 @@ This class is a Node that subscribes to the topic to which MetricsMessages are p
 and checks that all expected messages are received.
 """
 
+
 class StatisticsListener(Node):
     """Listen for MetricsMessages published on the /system_metrics topic."""
 
@@ -45,23 +45,15 @@ class StatisticsListener(Node):
                                             self.listener_callback,
                                             QOS_DEPTH)
         # set up logging
-        logger = logging.getLogger()
-        # setting to debug for end to end test soak
-        logger.setLevel(logging.DEBUG)
-
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('[%(module)s] [%(levelname)s] [%(asctime)s]: %(message)s')
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
+        self._logger = logging.getLogger()
 
         # used to stop spinning upon success
-        self.future = future
+        self._future = future
         # key is node name, value is expected number of messages to receive
-        self.expected_lifecycle_nodes_dict = {}
+        self.lifecycle_nodes_message_counter = Counter()
         for node in expected_lifecycle_nodes:
-            self.expected_lifecycle_nodes_dict[node] = expected_number_of_messages_to_receive
-        self.lock = Lock()
+            self.lifecycle_nodes_message_counter[node] = expected_number_of_messages_to_receive
+        self._lock = Lock()
 
     def listener_callback(self, msg) -> None:
         """
@@ -75,23 +67,25 @@ class StatisticsListener(Node):
         """
         node_name = '/' + msg.measurement_source_name
 
-        if node_name in self.expected_lifecycle_nodes_dict:
-            logging.debug('received message from %s', node_name)
-            removed = False
-            with self.lock:
-                self.expected_lifecycle_nodes_dict[node_name] = (
-                        self.expected_lifecycle_nodes_dict[node_name] - 1)
-                if self.expected_lifecycle_nodes_dict[node_name] == 0:
-                    removed = True
-            if removed:
+        if node_name in self.lifecycle_nodes_message_counter:
+            self._logger.debug('received message from %s', node_name)
+            received_all_msgs_for_node = False
+            with self._lock:
+                self.lifecycle_nodes_message_counter[node_name] -= 1
+                if self.lifecycle_nodes_message_counter[node_name] == 0:
+                    received_all_msgs_for_node = True
+                    del self.lifecycle_nodes_message_counter[node_name]
+
+            if received_all_msgs_for_node:
                 # don't lock on a logging statement
-                logging.debug('received all messages from %s', node_name)
+                self._logger.debug('received all messages from %s', node_name)
 
         if self.received_all_expected_messages():
-            logging.debug('received all expected messages')
-            self.future.set_result(True)
+            self._logger.debug('received all expected messages')
+            self._future.set_result(True)
         else:
-            logging.debug('messages left to receive %s', self.expected_lifecycle_nodes_dict)
+            self._logger.debug(
+                'messages left to receive %s', self.lifecycle_nodes_message_counter)
 
     def received_all_expected_messages(self) -> bool:
         """
@@ -100,4 +94,4 @@ class StatisticsListener(Node):
         :return: true if all expected messages have been received, specifically
         if the node's received count is not greater than 0, false otherwise.
         """
-        return not any(v > 0 for _, v in self.expected_lifecycle_nodes_dict.items())
+        return (len(self.lifecycle_nodes_message_counter) == 0)

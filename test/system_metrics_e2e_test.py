@@ -26,11 +26,12 @@ import signal
 import subprocess
 import sys
 
-import test_helpers
-
 import rclpy
 
-# expected outputs
+import test_helpers
+
+
+# Expected outputs
 EXPECTED_LIFECYCLE_NODES = frozenset(['/linux_system_cpu_collector',
                                       '/linux_system_memory_collector',
                                       '/listener_process_cpu_node',
@@ -40,13 +41,14 @@ EXPECTED_LIFECYCLE_NODES = frozenset(['/linux_system_cpu_collector',
 EXPECTED_REGULAR_NODES = frozenset(['/listener', '/talker'])
 EXPECTED_LIFECYCLE_STATE = 'active [3]'
 EXPECTED_TOPIC = '/system_metrics'
-# executable commands
+# Commands to execute
 LAUNCH_COMMAND = 'ros2 launch system_metrics_collector talker_listener_example.launch.py'
-# test constants
+# Test constants
 TIMEOUT_SECONDS = 30
 RETURN_VALUE_FAILURE = 1
 RETURN_VALUE_SUCCESS = 0
 EXPECTED_NUMBER_OF_MESSAGES_TO_RECEIVE = 5
+
 
 def setup_logger() -> None:
     """Format and setup the logger."""
@@ -68,7 +70,6 @@ def main(args=None) -> int:
     :param args:
     :return: 0 if all tests pass, 1 if any fail
     """
-
     try:
         rclpy.init()
 
@@ -106,7 +107,6 @@ def main(args=None) -> int:
 
 if __name__ == '__main__':
     setup_logger()
-    test_helpers.setup_logger()
     test_output = main()
     logging.debug('exiting with test_output=%s', test_output)
     sys.exit(test_output)
