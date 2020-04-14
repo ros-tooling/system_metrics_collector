@@ -17,7 +17,7 @@
 #include <memory>
 #include <random>
 
-#include "metrics_statistics_msgs/msg/statistic_data_type.hpp"
+#include "statistics_msgs/msg/statistic_data_type.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 #include "system_metrics_collector/metrics_message_publisher.hpp"
@@ -27,9 +27,9 @@
 namespace
 {
 using libstatistics_collector::moving_average_statistics::StatisticData;
-using metrics_statistics_msgs::msg::MetricsMessage;
-using metrics_statistics_msgs::msg::StatisticDataPoint;
-using metrics_statistics_msgs::msg::StatisticDataType;
+using statistics_msgs::msg::MetricsMessage;
+using statistics_msgs::msg::StatisticDataPoint;
+using statistics_msgs::msg::StatisticDataType;
 using system_metrics_collector::MetricsMessagePublisher;
 
 constexpr const char kTestNodeName[] = "test_publisher";

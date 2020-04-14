@@ -19,7 +19,7 @@
 #include <string>
 
 #include "builtin_interfaces/msg/time.hpp"
-#include "metrics_statistics_msgs/msg/metrics_message.hpp"
+#include "statistics_msgs/msg/metrics_message.hpp"
 
 #include "libstatistics_collector/moving_average_statistics/types.hpp"
 

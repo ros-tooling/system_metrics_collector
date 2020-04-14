@@ -27,7 +27,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 
-using metrics_statistics_msgs::msg::MetricsMessage;
+using statistics_msgs::msg::MetricsMessage;
 using rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface;
 
 namespace system_metrics_collector

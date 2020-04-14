@@ -17,7 +17,7 @@ import logging
 from threading import Lock
 from typing import List
 
-from metrics_statistics_msgs.msg import MetricsMessage
+from statistics_msgs.msg import MetricsMessage
 
 from rclpy.node import Node
 from rclpy.task import Future

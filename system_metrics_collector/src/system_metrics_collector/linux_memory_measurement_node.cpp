@@ -26,7 +26,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "rcutils/logging_macros.h"
 
-using metrics_statistics_msgs::msg::MetricsMessage;
+using statistics_msgs::msg::MetricsMessage;
 
 namespace
 {

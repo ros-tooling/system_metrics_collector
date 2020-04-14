@@ -19,7 +19,7 @@
 #include <chrono>
 #include <string>
 
-#include "metrics_statistics_msgs/msg/metrics_message.hpp"
+#include "statistics_msgs/msg/metrics_message.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp_lifecycle/lifecycle_node.hpp"
 
@@ -117,7 +117,7 @@ protected:
   /**
    * LifecyclePublisher publisher that is activated on SetupStart and deactivated on SetupStop().
    */
-  rclcpp_lifecycle::LifecyclePublisher<metrics_statistics_msgs::msg::MetricsMessage>::SharedPtr
+  rclcpp_lifecycle::LifecyclePublisher<statistics_msgs::msg::MetricsMessage>::SharedPtr
     publisher_;
 
 private:
