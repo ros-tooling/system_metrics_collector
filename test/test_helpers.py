@@ -45,14 +45,25 @@ DEFAULT_MAX_EXPONENTIAL_WAIT_MILLISECONDS = 60000
 # This is longer than PUBLICATION_TEST_TIMEOUT_SECONDS in order to let the spin
 # timout complete
 DEFAULT_FIXED_WAIT_MILLISECONDS = (PUBLICATION_TEST_TIMEOUT_SECONDS + TIMEOUT_SECONDS) * 1000
-# Logger for this module
-LOGGER = logging.getLogger()
 
 
 class SystemMetricsEnd2EndTestException(Exception):
     """Exception used to denote end to end test failures."""
 
     pass
+
+
+def setup_logger() -> None:
+    """Format and setup the logger."""
+    logger = logging.getLogger()
+    # setting to debug for end to end test soak
+    logger.setLevel(logging.DEBUG)
+
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('[%(module)s] [%(levelname)s] [%(asctime)s]: %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
 
 def execute_command(command_list: List[str], timeout=TIMEOUT_SECONDS) -> List[str]:
@@ -66,7 +77,7 @@ def execute_command(command_list: List[str], timeout=TIMEOUT_SECONDS) -> List[st
     :param timeout: raise subprocess.TimeoutExpired if the input command exceeds the timeout
     :return: List[str] of the command output
     """
-    LOGGER.debug('execute_command: %s', command_list)
+    logging.debug('execute_command: %s', command_list)
     return (subprocess.check_output(command_list, timeout=timeout)
             .decode(sys.stdout.encoding).splitlines())
 
@@ -81,15 +92,15 @@ def check_for_expected_nodes(expected_nodes: List) -> None:
     Raise a SystemMetricsEnd2EndTestException if the attempts have been exceeded
     :param args:
     """
-    LOGGER.debug('starting test check_for_expected_nodes')
+    logging.debug('starting test check_for_expected_nodes')
 
     expected_nodes = list(expected_nodes)
     observed_nodes = execute_command(LIST_NODES_COMMAND.split(' '))
-    LOGGER.debug(
+    logging.debug(
         'check_for_expected_nodes=%s observed_nodes=%s', str(expected_nodes), str(observed_nodes))
 
     if set(expected_nodes).issubset(set(observed_nodes)):
-        LOGGER.debug('check_for_expected_nodes success')
+        logging.debug('check_for_expected_nodes success')
         return
 
     raise SystemMetricsEnd2EndTestException('Failed to enumerate expected nodes.'
@@ -105,12 +116,12 @@ def check_lifecycle_node_enumeration(expected_nodes: List) -> None:
 
     This requires the ros2lifecycle dependency.
     """
-    LOGGER.debug('starting test check_lifecycle_node_enumeration')
+    logging.debug('starting test check_lifecycle_node_enumeration')
 
     output = execute_command(LIST_LIFECYCLE_NODES_COMMAND.split(' '))
 
     if output.sort() == list(expected_nodes).sort():
-        LOGGER.info('check_lifecycle_node_enumeration success')
+        logging.info('check_lifecycle_node_enumeration success')
     else:
         raise SystemMetricsEnd2EndTestException('check_lifecycle_node_enumeration failed: '
                                                 + str(output))
@@ -125,7 +136,7 @@ def check_lifecycle_node_state(expected_nodes: List, expected_state: str) -> Non
 
     This requires the ros2lifecycle dependency.
     """
-    LOGGER.debug('starting test check_lifecycle_node_state')
+    logging.debug('starting test check_lifecycle_node_state')
 
     for lifecycle_node in expected_nodes:
 
@@ -137,7 +148,7 @@ def check_lifecycle_node_state(expected_nodes: List, expected_state: str) -> Non
                                                     ' for node: ' + lifecycle_node)
 
         if output[0] == expected_state:
-            LOGGER.debug('%s in expected state', lifecycle_node)
+            logging.debug('%s in expected state', lifecycle_node)
 
         else:
             raise SystemMetricsEnd2EndTestException('check_lifecycle_node_state:'
@@ -145,7 +156,7 @@ def check_lifecycle_node_state(expected_nodes: List, expected_state: str) -> Non
                                                     ' not in expected state: '
                                                     + str(output))
 
-    LOGGER.info('check_lifecycle_node_state success')
+    logging.info('check_lifecycle_node_state success')
 
 
 @retry(stop_max_attempt_number=DEFAULT_MAX_ATTEMPTS,
@@ -157,12 +168,12 @@ def check_for_expected_topic(expected_topic: str) -> None:
 
     :param expected_topic:
     """
-    LOGGER.debug('starting test check_for_expected_topic')
+    logging.debug('starting test check_for_expected_topic')
 
     output = execute_command(TOPIC_LIST_COMMAND.split(' '))
 
     if expected_topic in output:
-        LOGGER.info('check_for_expected_topic success')
+        logging.info('check_for_expected_topic success')
     else:
         raise SystemMetricsEnd2EndTestException('Unable to find expected topic: ' + str(output))
 
@@ -179,7 +190,7 @@ def check_for_statistic_publications(
     timeout (default TIMEOUT_SECONDS) if any publishers have not been observed.
     :param args:
     """
-    LOGGER.debug('starting test check_for_statistic_publications')
+    logging.debug('starting test check_for_statistic_publications')
     try:
         future = Future()
         node = StatisticsListener(future, list(expected_nodes), num_msgs, expected_topic)
@@ -188,7 +199,7 @@ def check_for_statistic_publications(
                                          timeout_sec=PUBLICATION_TEST_TIMEOUT_SECONDS)
 
         if node.received_all_expected_messages():
-            LOGGER.info('check_for_statistic_publications success')
+            logging.info('check_for_statistic_publications success')
         else:
             raise SystemMetricsEnd2EndTestException('check_for_statistic_publications failed.'
                                                     ' Absent publisher(s): '

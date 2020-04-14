@@ -50,19 +50,6 @@ RETURN_VALUE_SUCCESS = 0
 EXPECTED_NUMBER_OF_MESSAGES_TO_RECEIVE = 5
 
 
-def setup_logger() -> None:
-    """Format and setup the logger."""
-    logger = logging.getLogger()
-    # setting to debug for end to end test soak
-    logger.setLevel(logging.DEBUG)
-
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('[%(module)s] [%(levelname)s] [%(asctime)s]: %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-
-
 def main(args=None) -> int:
     """
     Run all the e2e tests. This exits on the first failure encountered.
@@ -106,7 +93,7 @@ def main(args=None) -> int:
 
 
 if __name__ == '__main__':
-    setup_logger()
+    test_helpers.setup_logger()
     test_output = main()
     logging.debug('exiting with test_output=%s', test_output)
     sys.exit(test_output)
