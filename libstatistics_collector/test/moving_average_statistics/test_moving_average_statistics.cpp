@@ -122,7 +122,7 @@ TEST_F(MovingAverageStatisticsTestFixture, TestGetStatistics) {
   EXPECT_DOUBLE_EQ(result.min, kExpectedMin);
   EXPECT_DOUBLE_EQ(result.max, kExpectedMax);
   EXPECT_DOUBLE_EQ(result.standard_deviation, kExpectedStd);
-  EXPECT_DOUBLE_EQ(result.sample_count, kExpectedSize);
+  EXPECT_EQ(result.sample_count, kExpectedSize);
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, TestGetStatisticsInt) {
@@ -145,7 +145,7 @@ TEST_F(MovingAverageStatisticsTestFixture, TestGetStatisticsInt) {
   EXPECT_DOUBLE_EQ(result.min, kExpectedMinimum);
   EXPECT_DOUBLE_EQ(result.max, kExpectedMaximum);
   EXPECT_DOUBLE_EQ(result.standard_deviation, kExpectedStd);
-  EXPECT_DOUBLE_EQ(result.sample_count, kExpectedSize);
+  EXPECT_EQ(result.sample_count, kExpectedSize);
 }
 
 TEST_F(MovingAverageStatisticsTestFixture, TestReset) {
