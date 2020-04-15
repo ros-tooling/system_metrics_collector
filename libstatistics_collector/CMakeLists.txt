@@ -24,6 +24,8 @@ endforeach()
 
 if(WIN32)
   add_definitions(-DNOMINMAX)
+    target_compile_definitions(${PROJECT_NAME}
+            PRIVATE "LIBSTATISTICS_COLLECTOR_BUILDING_DLL")
 endif()
 
 # find dependencies
@@ -39,7 +41,7 @@ rosidl_generate_interfaces(libstatistics_collector_test_msgs
   DEPENDENCIES "std_msgs"
 )
 
-include_directories(include)
+include_directories("include")
 
 add_library(${PROJECT_NAME} SHARED
   src/libstatistics_collector/collector/collector.cpp
@@ -51,6 +53,21 @@ ament_target_dependencies(${PROJECT_NAME}
   "metrics_statistics_msgs"
   "rcl"
   "rcpputils")
+
+install(
+        TARGETS "${PROJECT_NAME}"
+        EXPORT "${PROJECT_NAME}-targets"
+        LIBRARY DESTINATION lib
+        RUNTIME DESTINATION bin
+)
+install(
+        DIRECTORY include/
+        DESTINATION include
+)
+
+ament_export_include_directories(include)
+ament_export_libraries(${PROJECT_NAME})
+ament_export_dependencies("metrics_statistics_msgs" "rcl" "rcpputils" "rosidl_default_runtime")
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -77,25 +94,8 @@ if(BUILD_TESTING)
     test/topic_statistics_collector/test_received_message_age.cpp)
   target_link_libraries(test_received_message_age ${PROJECT_NAME})
   ament_target_dependencies(test_received_message_age "rcl" "rcpputils")
+  # To enable use of dummy_message.hpp in test_received_message_age
+  rosidl_target_interfaces(test_received_message_age libstatistics_collector_test_msgs "rosidl_typesupport_cpp")
 endif()
-
-# To enable use of dummy_message.hpp in test_received_message_age
-rosidl_target_interfaces(test_received_message_age libstatistics_collector_test_msgs "rosidl_typesupport_cpp")
-
-install(
-  TARGETS "${PROJECT_NAME}"
-  EXPORT "${PROJECT_NAME}-targets"
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
-)
-
-install(
-  DIRECTORY include/
-  DESTINATION include
-)
-
-ament_export_dependencies(rcl rcpputils rosidl_default_runtime)
-ament_export_include_directories(include)
-ament_export_libraries(${PROJECT_NAME})
 
 ament_package()
