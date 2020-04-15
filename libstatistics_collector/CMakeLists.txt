@@ -14,7 +14,7 @@ endif()
 # Enable strict compiler flags if possible.
 include(CheckCXXCompilerFlag)
 set(FLAGS -pedantic -Wno-long-long -Wall -Wextra -Wcast-qual -Wformat -Wwrite-strings -Wcast-align
-  -Wno-error=cast-align -Wmissing-declarations)
+  -Wno-error=cast-align -Wmissing-declarations -Wconversion)
 foreach(FLAG ${FLAGS})
   check_cxx_compiler_flag(${FLAG} R${FLAG})
   if(${R${FLAG}})
