@@ -28,6 +28,7 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_ros REQUIRED)
 find_package(metrics_statistics_msgs REQUIRED)
 find_package(rcl REQUIRED)
 find_package(rcpputils REQUIRED)
