@@ -24,8 +24,6 @@ endforeach()
 
 if(WIN32)
   add_definitions(-DNOMINMAX)
-    target_compile_definitions(${PROJECT_NAME}
-            PRIVATE "LIBSTATISTICS_COLLECTOR_BUILDING_DLL")
 endif()
 
 # find dependencies
@@ -42,12 +40,17 @@ rosidl_generate_interfaces(libstatistics_collector_test_msgs
 )
 
 include_directories("include")
+include_directories("${CMAKE_CURRENT_BINARY_DIR}/include")
 
-add_library(${PROJECT_NAME} SHARED
+add_library(${PROJECT_NAME}
   src/libstatistics_collector/collector/collector.cpp
   src/libstatistics_collector/collector/generate_statistics_message.cpp
   src/libstatistics_collector/moving_average_statistics/moving_average.cpp
   src/libstatistics_collector/moving_average_statistics/types.cpp)
+
+if(WIN32)
+  target_compile_definitions(${PROJECT_NAME} PRIVATE "LIBSTATISTICS_COLLECTOR_BUILDING_DLL")
+endif()
 
 ament_target_dependencies(${PROJECT_NAME}
   "metrics_statistics_msgs"
@@ -55,14 +58,11 @@ ament_target_dependencies(${PROJECT_NAME}
   "rcpputils")
 
 install(
-        TARGETS "${PROJECT_NAME}"
-        EXPORT "${PROJECT_NAME}-targets"
-        LIBRARY DESTINATION lib
-        RUNTIME DESTINATION bin
-)
-install(
-        DIRECTORY include/
-        DESTINATION include
+  TARGETS ${PROJECT_NAME}
+  EXPORT "${PROJECT_NAME}-targets"
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
 )
 
 ament_export_include_directories(include)
@@ -97,5 +97,10 @@ if(BUILD_TESTING)
   # To enable use of dummy_message.hpp in test_received_message_age
   rosidl_target_interfaces(test_received_message_age libstatistics_collector_test_msgs "rosidl_typesupport_cpp")
 endif()
+
+install(
+  DIRECTORY include/ ${CMAKE_CURRENT_BINARY_DIR}/include/
+  DESTINATION include
+)
 
 ament_package()
