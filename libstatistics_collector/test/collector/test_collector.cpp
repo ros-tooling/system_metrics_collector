@@ -21,7 +21,7 @@
 #include "libstatistics_collector/moving_average_statistics/types.hpp"
 
 #include "libstatistics_collector/collector/collector.hpp"
-
+#include "libstatistics_collector/visibility_control.hpp"
 
 namespace
 {

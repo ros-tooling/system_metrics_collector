@@ -22,7 +22,9 @@
 #include <utility>
 
 #include "constants.hpp"
+
 #include "libstatistics_collector/topic_statistics_collector/topic_statistics_collector.hpp"
+#include "libstatistics_collector/visibility_control.hpp"
 
 #include "rcl/time.h"
 #include "rcutils/logging_macros.h"
@@ -86,10 +88,6 @@ template<typename T>
 class ReceivedMessageAgeCollector : public TopicStatisticsCollector<T>
 {
 public:
-  /**
-   * Construct a ReceivedMessageAgeCollector object.
-   *
-   */
   ReceivedMessageAgeCollector() = default;
 
   virtual ~ReceivedMessageAgeCollector() = default;
@@ -126,6 +124,7 @@ public:
   {
     return topic_statistics_constants::kMsgAgeStatName;
   }
+
   /**
    * Return messge age metric unit
    *

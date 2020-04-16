@@ -17,6 +17,8 @@
 
 #include <string>
 
+#include "libstatistics_collector/visibility_control.hpp"
+
 namespace libstatistics_collector
 {
 namespace topic_statistics_collector

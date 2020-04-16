@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #include <gtest/gtest.h>
 
 #include <array>
@@ -35,7 +34,6 @@ constexpr const double kExpectedStd = 4.997999599839919955173;
 const std::array<double, kExpectedSize> kTestData{-3.5, -2.1, -1.1, 0.0, 4.7, 5.0,
   6.7, 9.9, 11.0};
 }  // namespace
-
 
 /**
  * Test fixture

@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 #include <gtest/gtest.h>
 
 #include <chrono>
@@ -21,6 +20,7 @@
 #include "libstatistics_collector/msg/dummy_message.hpp"
 #include "libstatistics_collector/topic_statistics_collector/constants.hpp"
 #include "libstatistics_collector/topic_statistics_collector/received_message_age.hpp"
+#include "libstatistics_collector/visibility_control.hpp"
 
 #include "rcl/time.h"
 
@@ -97,8 +97,11 @@ TEST(ReceivedMessageAgeTest, TestAgeMeasurement) {
   EXPECT_TRUE(test_collector.IsStarted()) << "Expect to be started";
 
   rcl_time_point_value_t fake_now_nanos_{kStartTime};
+
   auto msg = DummyMessage{};
-  msg.header.stamp.nanosec = fake_now_nanos_;
+  msg.header.stamp.sec = static_cast<std::int32_t>(RCL_NS_TO_S(fake_now_nanos_));
+  msg.header.stamp.nanosec = static_cast<std::uint32_t>(fake_now_nanos_ % (1000 * 1000 * 1000));
+
   fake_now_nanos_ +=
     std::chrono::duration_cast<std::chrono::nanoseconds>(kDefaultDurationSeconds).count();
 
