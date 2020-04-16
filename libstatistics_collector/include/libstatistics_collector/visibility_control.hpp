@@ -18,14 +18,6 @@
 // This logic was borrowed (then namespaced) from the examples on the gcc wiki:
 //     https://gcc.gnu.org/wiki/Visibility
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
-// This logic was borrowed (then namespaced) from the examples on the gcc wiki:
-//     https://gcc.gnu.org/wiki/Visibility
-
 #if defined _WIN32 || defined __CYGWIN__
 #ifdef __GNUC__
     #define LIBSTATISTICS_COLLECTOR_EXPORT __attribute__ ((dllexport))
@@ -34,7 +26,7 @@ extern "C"
     #define LIBSTATISTICS_COLLECTOR_EXPORT __declspec(dllexport)
     #define LIBSTATISTICS_COLLECTOR_IMPORT __declspec(dllimport)
   #endif
-  #ifdef LIBSTATISTICS_COLLECTOR_BUILDING_DLL
+  #ifdef LIBSTATISTICS_COLLECTOR_BUILDING_LIBRARY
     #define LIBSTATISTICS_COLLECTOR_PUBLIC LIBSTATISTICS_COLLECTOR_EXPORT
   #else
     #define LIBSTATISTICS_COLLECTOR_PUBLIC LIBSTATISTICS_COLLECTOR_IMPORT
@@ -54,7 +46,4 @@ extern "C"
 #define LIBSTATISTICS_COLLECTOR_PUBLIC_TYPE
 #endif
 
-#ifdef __cplusplus
-}
-#endif
 #endif  // LIBSTATISTICS_COLLECTOR__VISIBILITY_CONTROL_HPP_

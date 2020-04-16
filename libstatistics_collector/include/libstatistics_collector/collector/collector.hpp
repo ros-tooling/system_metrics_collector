@@ -112,6 +112,7 @@ private:
    *
    * @return true if setup was successful, false otherwise.
    */
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   virtual bool SetupStart() = 0 RCPPUTILS_TSA_REQUIRES(mutex_);
 
   /**
@@ -119,6 +120,7 @@ private:
    *
    * @return true if teardown was successful, false otherwise.
    */
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   virtual bool SetupStop() = 0 RCPPUTILS_TSA_REQUIRES(mutex_);
 
   mutable std::mutex mutex_;
