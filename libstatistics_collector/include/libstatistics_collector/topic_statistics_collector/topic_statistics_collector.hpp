@@ -35,13 +35,10 @@ namespace topic_statistics_collector
  * @tparam T the ROS2 message type to collect
  */
 template<typename T>
-class TopicStatisticsCollector : public collector::Collector
+class LIBSTATISTICS_COLLECTOR_PUBLIC TopicStatisticsCollector : public collector::Collector
 {
 public:
-  LIBSTATISTICS_COLLECTOR_PUBLIC
   TopicStatisticsCollector() = default;
-
-  LIBSTATISTICS_COLLECTOR_PUBLIC
   virtual ~TopicStatisticsCollector() = default;
 
   /**
@@ -52,7 +49,6 @@ public:
    * following 1). the time provided is strictly monotonic 2). the time provided uses the same source
    * as time obtained from the message header.
    */
-  LIBSTATISTICS_COLLECTOR_PUBLIC
   virtual void OnMessageReceived(
     const T & received_message,
     const rcl_time_point_value_t now_nanoseconds) = 0;

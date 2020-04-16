@@ -28,10 +28,9 @@ namespace collector
  * Interface to represent a single metric's name and unit,
  * which are used for metric message generation and publication.
  */
-class MetricDetailsInterface
+class LIBSTATISTICS_COLLECTOR_PUBLIC MetricDetailsInterface
 {
 public:
-  LIBSTATISTICS_COLLECTOR_PUBLIC
   virtual ~MetricDetailsInterface() = default;
 
   /**
@@ -39,7 +38,6 @@ public:
    *
    * @return a string representing the metric name
    */
-  LIBSTATISTICS_COLLECTOR_PUBLIC
   virtual std::string GetMetricName() const = 0;
 
   /**
@@ -47,7 +45,6 @@ public:
    *
    * @return a string representing the metric unit
    */
-  LIBSTATISTICS_COLLECTOR_PUBLIC
   virtual std::string GetMetricUnit() const = 0;
 };
 

@@ -34,7 +34,7 @@ namespace collector
 /**
  * Simple class in order to collect observed data and generate statistics for the given observations.
  */
-class Collector : public MetricDetailsInterface
+class LIBSTATISTICS_COLLECTOR_PUBLIC Collector : public MetricDetailsInterface
 {
 public:
   LIBSTATISTICS_COLLECTOR_PUBLIC

@@ -40,7 +40,7 @@ constexpr const int64_t kUninitializedTime{0};
  * @tparam T the message type to receive from the subscriber / listener
 */
 template<typename T>
-class ReceivedMessagePeriodCollector : public TopicStatisticsCollector<T>
+class LIBSTATISTICS_COLLECTOR_PUBLIC ReceivedMessagePeriodCollector : public TopicStatisticsCollector<T>
 {
 public:
   /**

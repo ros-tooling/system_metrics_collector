@@ -29,7 +29,7 @@ namespace moving_average_statistics
 /**
  *  A container for statistics data results for a set of recorded observations.
  */
-struct StatisticData
+struct LIBSTATISTICS_COLLECTOR_PUBLIC StatisticData
 {
   double average = std::nan("");
   double min = std::nan("");
