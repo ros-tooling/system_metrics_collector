@@ -15,11 +15,8 @@
 #ifndef LIBSTATISTICS_COLLECTOR__VISIBILITY_CONTROL_HPP_
 #define LIBSTATISTICS_COLLECTOR__VISIBILITY_CONTROL_HPP_
 
-// This logic was borrowed (then namespaced) from the examples on the gcc wiki:
-//     https://gcc.gnu.org/wiki/Visibility
-
 #if defined _WIN32 || defined __CYGWIN__
-#ifdef __GNUC__
+  #ifdef __GNUC__
     #define LIBSTATISTICS_COLLECTOR_EXPORT __attribute__ ((dllexport))
     #define LIBSTATISTICS_COLLECTOR_IMPORT __attribute__ ((dllimport))
   #else
@@ -34,16 +31,16 @@
   #define LIBSTATISTICS_COLLECTOR_PUBLIC_TYPE LIBSTATISTICS_COLLECTOR_PUBLIC
   #define LIBSTATISTICS_COLLECTOR_LOCAL
 #else
-#define LIBSTATISTICS_COLLECTOR_EXPORT __attribute__ ((visibility("default")))
-#define LIBSTATISTICS_COLLECTOR_IMPORT
-#if __GNUC__ >= 4
-#define LIBSTATISTICS_COLLECTOR_PUBLIC __attribute__ ((visibility("default")))
-#define LIBSTATISTICS_COLLECTOR_LOCAL  __attribute__ ((visibility("hidden")))
-#else
-#define LIBSTATISTICS_COLLECTOR_PUBLIC
-#define LIBSTATISTICS_COLLECTOR_LOCAL
-#endif
-#define LIBSTATISTICS_COLLECTOR_PUBLIC_TYPE
+  #define LIBSTATISTICS_COLLECTOR_EXPORT __attribute__ ((visibility("default")))
+  #define LIBSTATISTICS_COLLECTOR_IMPORT
+  #if __GNUC__ >= 4
+    #define LIBSTATISTICS_COLLECTOR_PUBLIC __attribute__ ((visibility("default")))
+    #define LIBSTATISTICS_COLLECTOR_LOCAL  __attribute__ ((visibility("hidden")))
+  #else
+    #define LIBSTATISTICS_COLLECTOR_PUBLIC
+    #define LIBSTATISTICS_COLLECTOR_LOCAL
+  #endif
+  #define LIBSTATISTICS_COLLECTOR_PUBLIC_TYPE
 #endif
 
 #endif  // LIBSTATISTICS_COLLECTOR__VISIBILITY_CONTROL_HPP_

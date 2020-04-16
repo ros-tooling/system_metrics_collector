@@ -53,7 +53,6 @@ ament_target_dependencies(${PROJECT_NAME}
 
 install(
   TARGETS ${PROJECT_NAME}
-  EXPORT "${PROJECT_NAME}-targets"
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
@@ -99,7 +98,7 @@ if(BUILD_TESTING)
 endif()
 
 install(
-  DIRECTORY include/ ${CMAKE_CURRENT_BINARY_DIR}/include/
+  DIRECTORY include/
   DESTINATION include
 )
 
