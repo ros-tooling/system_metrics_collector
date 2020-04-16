@@ -25,6 +25,8 @@
 
 #include "types.hpp"
 
+#include "libstatistics_collector/visibility_control.hpp"
+
 #include "rcpputils/thread_safety_annotations.hpp"
 
 namespace libstatistics_collector

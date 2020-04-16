@@ -43,9 +43,7 @@ add_library(${PROJECT_NAME}
   src/libstatistics_collector/moving_average_statistics/moving_average.cpp
   src/libstatistics_collector/moving_average_statistics/types.cpp)
 
-if(WIN32)
-  target_compile_definitions(${PROJECT_NAME} PRIVATE "LIBSTATISTICS_COLLECTOR_BUILDING_LIBRARY")
-endif()
+target_compile_definitions(${PROJECT_NAME} PRIVATE "LIBSTATISTICS_COLLECTOR_BUILDING_LIBRARY")
 
 ament_target_dependencies(${PROJECT_NAME}
   "metrics_statistics_msgs"

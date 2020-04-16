@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #ifndef LIBSTATISTICS_COLLECTOR__VISIBILITY_CONTROL_HPP_
-#define LIBSTATISTICS_COLLECTORVISIBILITY_CONTROL_HPP_
+#define LIBSTATISTICS_COLLECTOR__VISIBILITY_CONTROL_HPP_
 
 // This logic was borrowed (then namespaced) from the examples on the gcc wiki:
 //     https://gcc.gnu.org/wiki/Visibility
@@ -46,4 +46,4 @@
 #define LIBSTATISTICS_COLLECTOR_PUBLIC_TYPE
 #endif
 
-#endif  // LIBSTATISTICS_COLLECTORVISIBILITY_CONTROL_HPP_
+#endif  // LIBSTATISTICS_COLLECTOR__VISIBILITY_CONTROL_HPP_

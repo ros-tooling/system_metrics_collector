@@ -19,6 +19,8 @@
 #include <sstream>
 #include <string>
 
+#include "libstatistics_collector/visibility_control.hpp"
+
 namespace libstatistics_collector
 {
 namespace moving_average_statistics
