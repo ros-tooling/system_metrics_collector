@@ -20,7 +20,6 @@
 #include "libstatistics_collector/msg/dummy_message.hpp"
 #include "libstatistics_collector/topic_statistics_collector/constants.hpp"
 #include "libstatistics_collector/topic_statistics_collector/received_message_age.hpp"
-#include "libstatistics_collector/visibility_control.hpp"
 
 #include "rcl/time.h"
 

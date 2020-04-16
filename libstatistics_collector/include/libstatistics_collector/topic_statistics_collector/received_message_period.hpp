@@ -22,7 +22,6 @@
 #include "constants.hpp"
 
 #include "libstatistics_collector/topic_statistics_collector/topic_statistics_collector.hpp"
-#include "libstatistics_collector/visibility_control.hpp"
 
 #include "rcl/time.h"
 

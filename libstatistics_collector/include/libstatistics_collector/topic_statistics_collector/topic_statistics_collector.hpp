@@ -22,7 +22,6 @@
 #include "rcl/time.h"
 
 #include "libstatistics_collector/collector/collector.hpp"
-#include "libstatistics_collector/visibility_control.hpp"
 
 namespace libstatistics_collector
 {
