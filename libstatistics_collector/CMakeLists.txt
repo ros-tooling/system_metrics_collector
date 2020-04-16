@@ -89,9 +89,8 @@ if(BUILD_TESTING)
   ament_target_dependencies(test_received_message_age "rcl" "rcpputils")
 
   rosidl_generate_interfaces(libstatistics_collector_test_msgs
-          "test/msg/DummyMessage.msg"
-          DEPENDENCIES "std_msgs"
-          )
+    "test/msg/DummyMessage.msg"
+    DEPENDENCIES "std_msgs")
 
   # To enable use of dummy_message.hpp in test_received_message_age
   rosidl_target_interfaces(test_received_message_age libstatistics_collector_test_msgs "rosidl_typesupport_cpp")
