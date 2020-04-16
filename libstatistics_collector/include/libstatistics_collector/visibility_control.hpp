@@ -18,32 +18,43 @@
 // This logic was borrowed (then namespaced) from the examples on the gcc wiki:
 //     https://gcc.gnu.org/wiki/Visibility
 
-#if defined _WIN32 || defined __CYGWIN__
-#ifdef __GNUC__
-    #define LIBSTATISTICS_COLLECTOR_EXPORT __attribute__ ((dllexport))
-    #define LIBSTATISTICS_COLLECTOR_IMPORT __attribute__ ((dllimport))
-  #else
-    #define LIBSTATISTICS_COLLECTOR_EXPORT __declspec(dllexport)
-    #define LIBSTATISTICS_COLLECTOR_IMPORT __declspec(dllimport)
-  #endif
-  #ifdef LIBSTATISTICS_COLLECTOR_BUILDING_LIBRARY
-    #define LIBSTATISTICS_COLLECTOR_PUBLIC LIBSTATISTICS_COLLECTOR_EXPORT
-  #else
-    #define LIBSTATISTICS_COLLECTOR_PUBLIC LIBSTATISTICS_COLLECTOR_IMPORT
-  #endif
-  #define LIBSTATISTICS_COLLECTOR_PUBLIC_TYPE LIBSTATISTICS_COLLECTOR_PUBLIC
-  #define LIBSTATISTICS_COLLECTOR_LOCAL
-#else
-#define LIBSTATISTICS_COLLECTOR_EXPORT __attribute__ ((visibility("default")))
-#define LIBSTATISTICS_COLLECTOR_IMPORT
-#if __GNUC__ >= 4
-#define LIBSTATISTICS_COLLECTOR_PUBLIC __attribute__ ((visibility("default")))
-    #define LIBSTATISTICS_COLLECTOR_LOCAL  __attribute__ ((visibility("hidden")))
-#else
-#define LIBSTATISTICS_COLLECTOR_PUBLIC
-#define LIBSTATISTICS_COLLECTOR_LOCAL
-#endif
-#define LIBSTATISTICS_COLLECTOR_PUBLIC_TYPE
+#ifdef __cplusplus
+extern "C"
+{
 #endif
 
+// This logic was borrowed (then namespaced) from the examples on the gcc wiki:
+//     https://gcc.gnu.org/wiki/Visibility
+
+#if defined _WIN32 || defined __CYGWIN__
+#ifdef __GNUC__
+    #define LIBSTATISTICS_COLLECTOR_COMPRESSION_EXPORT __attribute__ ((dllexport))
+    #define LIBSTATISTICS_COLLECTOR_COMPRESSION_IMPORT __attribute__ ((dllimport))
+  #else
+    #define LIBSTATISTICS_COLLECTOR_COMPRESSION_EXPORT __declspec(dllexport)
+    #define LIBSTATISTICS_COLLECTOR_COMPRESSION_IMPORT __declspec(dllimport)
+  #endif
+  #ifdef LIBSTATISTICS_COLLECTOR_COMPRESSION_BUILDING_DLL
+    #define LIBSTATISTICS_COLLECTOR_COMPRESSION_PUBLIC LIBSTATISTICS_COLLECTOR_COMPRESSION_EXPORT
+  #else
+    #define LIBSTATISTICS_COLLECTOR_COMPRESSION_PUBLIC LIBSTATISTICS_COLLECTOR_COMPRESSION_IMPORT
+  #endif
+  #define LIBSTATISTICS_COLLECTOR_COMPRESSION_PUBLIC_TYPE LIBSTATISTICS_COLLECTOR_COMPRESSION_PUBLIC
+  #define LIBSTATISTICS_COLLECTOR_COMPRESSION_LOCAL
+#else
+#define LIBSTATISTICS_COLLECTOR_COMPRESSION_EXPORT __attribute__ ((visibility("default")))
+#define LIBSTATISTICS_COLLECTOR_COMPRESSION_IMPORT
+#if __GNUC__ >= 4
+#define LIBSTATISTICS_COLLECTOR_COMPRESSION_PUBLIC __attribute__ ((visibility("default")))
+#define LIBSTATISTICS_COLLECTOR_COMPRESSION_LOCAL  __attribute__ ((visibility("hidden")))
+#else
+#define LIBSTATISTICS_COLLECTOR_COMPRESSION_PUBLIC
+#define LIBSTATISTICS_COLLECTOR_COMPRESSION_LOCAL
+#endif
+#define LIBSTATISTICS_COLLECTOR_COMPRESSION_PUBLIC_TYPE
+#endif
+
+#ifdef __cplusplus
+}
+#endif
 #endif  // LIBSTATISTICS_COLLECTOR__VISIBILITY_CONTROL_HPP_
