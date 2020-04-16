@@ -20,6 +20,7 @@
 #include <thread>
 
 #include "libstatistics_collector/moving_average_statistics/moving_average.hpp"
+#include "libstatistics_collector/visibility_control.hpp"
 
 namespace
 {

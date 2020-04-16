@@ -22,6 +22,7 @@
 #include "libstatistics_collector/moving_average_statistics/types.hpp"
 #include "libstatistics_collector/topic_statistics_collector/constants.hpp"
 #include "libstatistics_collector/topic_statistics_collector/received_message_period.hpp"
+#include "libstatistics_collector/visibility_control.hpp"
 
 #include "rcl/time.h"
 
