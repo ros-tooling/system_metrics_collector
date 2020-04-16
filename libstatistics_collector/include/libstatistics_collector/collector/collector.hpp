@@ -34,11 +34,13 @@ namespace collector
 /**
  * Simple class in order to collect observed data and generate statistics for the given observations.
  */
-class LIBSTATISTICS_COLLECTOR_PUBLIC Collector : public MetricDetailsInterface
+class Collector : public MetricDetailsInterface
 {
 public:
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   Collector() = default;
 
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   virtual ~Collector() = default;
 
   /**
@@ -47,6 +49,7 @@ public:
    *
    * @param the measurement observed
    */
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   virtual void AcceptData(const double measurement);
 
   /**
@@ -54,11 +57,13 @@ public:
    *
    * @return the StatisticData for all the observed measurements
    */
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   virtual moving_average_statistics::StatisticData GetStatisticsResults() const;
 
   /**
    * Clear / reset all current measurements.
    */
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   virtual void ClearCurrentMeasurements();
 
   /**
@@ -66,6 +71,7 @@ public:
    *
    * @return the started state of this collector
    */
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   bool IsStarted() const;
 
   /**
@@ -73,6 +79,7 @@ public:
    *
    * @return a string detailing the current status
    */
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   virtual std::string GetStatusString() const;
 
   // TODO(dabonnie): uptime (once start has been called)
@@ -84,6 +91,7 @@ public:
    *
    * @return true if started, false if an error occurred
    */
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   virtual bool Start();
 
   /**
@@ -95,6 +103,7 @@ public:
    *
    * @return true if stopped, false if an error occurred
    */
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   virtual bool Stop();
 
 private:
@@ -103,6 +112,7 @@ private:
    *
    * @return true if setup was successful, false otherwise.
    */
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   virtual bool SetupStart() = 0 RCPPUTILS_TSA_REQUIRES(mutex_);
 
   /**
@@ -110,6 +120,7 @@ private:
    *
    * @return true if teardown was successful, false otherwise.
    */
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   virtual bool SetupStop() = 0 RCPPUTILS_TSA_REQUIRES(mutex_);
 
   mutable std::mutex mutex_;
