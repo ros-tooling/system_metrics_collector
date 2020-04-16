@@ -47,13 +47,11 @@ public:
    * Construct a ReceivedMessagePeriodCollector object.
    *
    */
-  LIBSTATISTICS_COLLECTOR_PUBLIC
   ReceivedMessagePeriodCollector()
   {
     ResetTimeLastMessageReceived();
   }
 
-  LIBSTATISTICS_COLLECTOR_PUBLIC
   virtual ~ReceivedMessagePeriodCollector() = default;
 
   /**
@@ -63,7 +61,6 @@ public:
    * @param received_message
    * @param time the message was received in nanoseconds
    */
-  LIBSTATISTICS_COLLECTOR_PUBLIC
   void OnMessageReceived(const T & received_message, const rcl_time_point_value_t now_nanoseconds)
   override RCPPUTILS_TSA_REQUIRES(mutex_)
   {
@@ -86,7 +83,6 @@ public:
    *
    * @return a string representing message period metric name
    */
-  LIBSTATISTICS_COLLECTOR_PUBLIC
   std::string GetMetricName() const override
   {
     return topic_statistics_constants::kMsgPeriodStatName;
@@ -97,7 +93,6 @@ public:
    *
    * @return a string representing message period metric unit
    */
-  LIBSTATISTICS_COLLECTOR_PUBLIC
   std::string GetMetricUnit() const override
   {
     return topic_statistics_constants::kMillisecondUnitName;
@@ -108,14 +103,12 @@ protected:
    * Reset the time_last_message_received_ member.
    * @return true
    */
-  LIBSTATISTICS_COLLECTOR_PUBLIC
   bool SetupStart() override
   {
     ResetTimeLastMessageReceived();
     return true;
   }
 
-  LIBSTATISTICS_COLLECTOR_PUBLIC
   bool SetupStop() override
   {
     return true;
