@@ -112,7 +112,6 @@ private:
    *
    * @return true if setup was successful, false otherwise.
    */
-  LIBSTATISTICS_COLLECTOR_PUBLIC
   virtual bool SetupStart() = 0 RCPPUTILS_TSA_REQUIRES(mutex_);
 
   /**
@@ -120,16 +119,12 @@ private:
    *
    * @return true if teardown was successful, false otherwise.
    */
-  LIBSTATISTICS_COLLECTOR_PUBLIC
   virtual bool SetupStop() = 0 RCPPUTILS_TSA_REQUIRES(mutex_);
 
-  LIBSTATISTICS_COLLECTOR_PUBLIC
   mutable std::mutex mutex_;
 
-  LIBSTATISTICS_COLLECTOR_PUBLIC
   moving_average_statistics::MovingAverageStatistics collected_data_;
 
-  LIBSTATISTICS_COLLECTOR_PUBLIC
   bool started_{false} RCPPUTILS_TSA_GUARDED_BY(mutex_);
 };
 
