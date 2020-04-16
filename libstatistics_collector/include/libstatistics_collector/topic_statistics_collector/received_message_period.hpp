@@ -40,18 +40,20 @@ constexpr const int64_t kUninitializedTime{0};
  * @tparam T the message type to receive from the subscriber / listener
 */
 template<typename T>
-class LIBSTATISTICS_COLLECTOR_PUBLIC ReceivedMessagePeriodCollector : public TopicStatisticsCollector<T>
+class ReceivedMessagePeriodCollector : public TopicStatisticsCollector<T>
 {
 public:
   /**
    * Construct a ReceivedMessagePeriodCollector object.
    *
    */
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   ReceivedMessagePeriodCollector()
   {
     ResetTimeLastMessageReceived();
   }
 
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   virtual ~ReceivedMessagePeriodCollector() = default;
 
   /**
@@ -61,6 +63,7 @@ public:
    * @param received_message
    * @param time the message was received in nanoseconds
    */
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   void OnMessageReceived(const T & received_message, const rcl_time_point_value_t now_nanoseconds)
   override RCPPUTILS_TSA_REQUIRES(mutex_)
   {
