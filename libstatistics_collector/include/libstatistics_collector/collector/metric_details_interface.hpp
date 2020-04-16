@@ -29,6 +29,7 @@ namespace collector
 class MetricDetailsInterface
 {
 public:
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   virtual ~MetricDetailsInterface() = default;
 
   /**
@@ -36,6 +37,7 @@ public:
    *
    * @return a string representing the metric name
    */
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   virtual std::string GetMetricName() const = 0;
 
   /**
@@ -43,6 +45,7 @@ public:
    *
    * @return a string representing the metric unit
    */
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   virtual std::string GetMetricUnit() const = 0;
 };
 

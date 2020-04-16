@@ -34,11 +34,6 @@ find_package(rcpputils REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(std_msgs REQUIRED)
 
-rosidl_generate_interfaces(libstatistics_collector_test_msgs
-  "test/msg/DummyMessage.msg"
-  DEPENDENCIES "std_msgs"
-)
-
 include_directories("include")
 include_directories("${CMAKE_CURRENT_BINARY_DIR}/include")
 
@@ -49,7 +44,7 @@ add_library(${PROJECT_NAME}
   src/libstatistics_collector/moving_average_statistics/types.cpp)
 
 if(WIN32)
-  target_compile_definitions(${PROJECT_NAME} PRIVATE "LIBSTATISTICS_COLLECTOR_BUILDING_DLL")
+  target_compile_definitions(${PROJECT_NAME} PRIVATE "LIBSTATISTICS_COLLECTOR_BUILDING_LIBRARY")
 endif()
 
 ament_target_dependencies(${PROJECT_NAME}
@@ -94,6 +89,12 @@ if(BUILD_TESTING)
     test/topic_statistics_collector/test_received_message_age.cpp)
   target_link_libraries(test_received_message_age ${PROJECT_NAME})
   ament_target_dependencies(test_received_message_age "rcl" "rcpputils")
+
+  rosidl_generate_interfaces(libstatistics_collector_test_msgs
+          "test/msg/DummyMessage.msg"
+          DEPENDENCIES "std_msgs"
+          )
+
   # To enable use of dummy_message.hpp in test_received_message_age
   rosidl_target_interfaces(test_received_message_age libstatistics_collector_test_msgs "rosidl_typesupport_cpp")
 endif()

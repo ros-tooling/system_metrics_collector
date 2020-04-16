@@ -55,6 +55,7 @@ struct HasHeader<M, decltype((void) M::header)>: std::true_type {};
 template<typename M, typename Enable = void>
 struct TimeStamp
 {
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   static std::pair<bool, int64_t> value(const M &)
   {
     return std::make_pair(false, 0);
@@ -69,6 +70,7 @@ struct TimeStamp
 template<typename M>
 struct TimeStamp<M, typename std::enable_if<HasHeader<M>::value>::type>
 {
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   static std::pair<bool, int64_t> value(const M & m)
   {
     const auto stamp = m.header.stamp;
@@ -86,12 +88,10 @@ template<typename T>
 class ReceivedMessageAgeCollector : public TopicStatisticsCollector<T>
 {
 public:
-  /**
-   * Construct a ReceivedMessageAgeCollector object.
-   *
-   */
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   ReceivedMessageAgeCollector() = default;
 
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   virtual ~ReceivedMessageAgeCollector() = default;
 
   /**
@@ -100,6 +100,7 @@ public:
   * @param received_message, the message to calculate age of.
   * @param time the message was received in nanoseconds
   */
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   void OnMessageReceived(
     const T & received_message,
     const rcl_time_point_value_t now_nanoseconds) override
@@ -122,15 +123,18 @@ public:
    *
    * @return a string representing message age metric name
    */
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   std::string GetMetricName() const override
   {
     return topic_statistics_constants::kMsgAgeStatName;
   }
+
   /**
    * Return messge age metric unit
    *
    * @return a string representing messager age metric unit
    */
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   std::string GetMetricUnit() const override
   {
     return topic_statistics_constants::kMillisecondUnitName;

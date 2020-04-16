@@ -38,6 +38,7 @@ namespace collector
  * @param data statistics derived from the measurements made in the window
  * @return a MetricsMessage containing the statistics in the data parameter
  */
+LIBSTATISTICS_COLLECTOR_PUBLIC
 metrics_statistics_msgs::msg::MetricsMessage GenerateStatisticMessage(
   const std::string & node_name,
   const std::string & metric_name,

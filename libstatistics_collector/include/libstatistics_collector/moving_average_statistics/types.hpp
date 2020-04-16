@@ -43,6 +43,7 @@ struct StatisticData
  * @return std::string formatted struct contents in an easily readable format, e.g.,
  * /"avg=1, min=2, max=3, std_dev=4, count=5/"
  */
+LIBSTATISTICS_COLLECTOR_PUBLIC
 std::string StatisticsDataToString(const StatisticData & results);
 
 }  // namespace moving_average_statistics
