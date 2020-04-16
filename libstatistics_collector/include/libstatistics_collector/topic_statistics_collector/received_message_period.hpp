@@ -108,12 +108,14 @@ protected:
    * Reset the time_last_message_received_ member.
    * @return true
    */
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   bool SetupStart() override
   {
     ResetTimeLastMessageReceived();
     return true;
   }
 
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   bool SetupStop() override
   {
     return true;

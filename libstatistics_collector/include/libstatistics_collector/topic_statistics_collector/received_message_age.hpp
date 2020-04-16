@@ -143,11 +143,13 @@ public:
   }
 
 protected:
+
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   bool SetupStart() override
   {
     return true;
   }
-
+  LIBSTATISTICS_COLLECTOR_PUBLIC
   bool SetupStop() override
   {
     return true;
