@@ -30,7 +30,6 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(libstatistics_collector REQUIRED)
 find_package(message_filters REQUIRED)
-find_package(metrics_statistics_msgs REQUIRED)
 find_package(rcl REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
@@ -38,6 +37,7 @@ find_package(rclcpp_lifecycle REQUIRED)
 find_package(rcpputils REQUIRED)
 find_package(rcutils REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
+find_package(statistics_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 
 rosidl_generate_interfaces(system_metrics_collector_test_msgs
@@ -60,14 +60,15 @@ add_library(${PROJECT_NAME} SHARED
 )
 ament_target_dependencies(${PROJECT_NAME}
         message_filters
-        metrics_statistics_msgs
         rcl
         rclcpp
         rclcpp_components
         rclcpp_lifecycle
         rcpputils
         rcutils
-        libstatistics_collector)
+        libstatistics_collector
+        statistics_msgs)
+
 rclcpp_components_register_nodes(${PROJECT_NAME}
   system_metrics_collector::LinuxProcessCpuMeasurementNode)
 rclcpp_components_register_nodes(${PROJECT_NAME}
@@ -101,32 +102,32 @@ if(BUILD_TESTING)
   ament_add_gtest(test_metrics_message_publisher
     test/system_metrics_collector/test_metrics_message_publisher.cpp)
   target_link_libraries(test_metrics_message_publisher ${PROJECT_NAME})
-  ament_target_dependencies(test_metrics_message_publisher metrics_statistics_msgs rclcpp)
+  ament_target_dependencies(test_metrics_message_publisher rclcpp statistics_msgs)
 
   ament_add_gtest(test_linux_cpu_measurement_node
           test/system_metrics_collector/test_linux_cpu_measurement.cpp)
   target_link_libraries(test_linux_cpu_measurement_node ${PROJECT_NAME})
-  ament_target_dependencies(test_linux_cpu_measurement_node metrics_statistics_msgs rclcpp)
+  ament_target_dependencies(test_linux_cpu_measurement_node rclcpp statistics_msgs)
 
   ament_add_gtest(test_linux_memory_measurement_node
           test/system_metrics_collector/test_linux_memory_measurement.cpp)
   target_link_libraries(test_linux_memory_measurement_node ${PROJECT_NAME})
-  ament_target_dependencies(test_linux_memory_measurement_node lifecycle_msgs metrics_statistics_msgs rclcpp)
+  ament_target_dependencies(test_linux_memory_measurement_node lifecycle_msgs rclcpp statistics_msgs)
 
   ament_add_gtest(test_linux_process_cpu_measurement_node
           test/system_metrics_collector/test_linux_process_cpu_measurement_node.cpp)
   target_link_libraries(test_linux_process_cpu_measurement_node ${PROJECT_NAME})
-  ament_target_dependencies(test_linux_process_cpu_measurement_node lifecycle_msgs metrics_statistics_msgs rclcpp)
+  ament_target_dependencies(test_linux_process_cpu_measurement_node lifecycle_msgs rclcpp statistics_msgs)
 
   ament_add_gtest(test_linux_process_memory_measurement_node
           test/system_metrics_collector/test_linux_process_memory_measurement_node.cpp)
   target_link_libraries(test_linux_process_memory_measurement_node ${PROJECT_NAME})
-  ament_target_dependencies(test_linux_process_memory_measurement_node lifecycle_msgs metrics_statistics_msgs rclcpp)
+  ament_target_dependencies(test_linux_process_memory_measurement_node lifecycle_msgs rclcpp statistics_msgs)
 
   ament_add_gtest(test_periodic_measurement_node
     test/system_metrics_collector/test_periodic_measurement_node.cpp)
   target_link_libraries(test_periodic_measurement_node ${PROJECT_NAME})
-  ament_target_dependencies(test_periodic_measurement_node lifecycle_msgs metrics_statistics_msgs rclcpp)
+  ament_target_dependencies(test_periodic_measurement_node lifecycle_msgs rclcpp statistics_msgs)
 
   ament_add_gtest(test_composition
           test/system_metrics_collector/test_composition.cpp)

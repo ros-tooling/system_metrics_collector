@@ -26,8 +26,8 @@
 
 #include "lifecycle_msgs/msg/state.hpp"
 
-#include "metrics_statistics_msgs/msg/metrics_message.hpp"
-#include "metrics_statistics_msgs/msg/statistic_data_type.hpp"
+#include "statistics_msgs/msg/metrics_message.hpp"
+#include "statistics_msgs/msg/statistic_data_type.hpp"
 
 #include "libstatistics_collector/moving_average_statistics/moving_average.hpp"
 
@@ -47,9 +47,9 @@ namespace
 using libstatistics_collector::moving_average_statistics::MovingAverageStatistics;
 using libstatistics_collector::moving_average_statistics::StatisticData;
 using lifecycle_msgs::msg::State;
-using metrics_statistics_msgs::msg::MetricsMessage;
-using metrics_statistics_msgs::msg::StatisticDataPoint;
-using metrics_statistics_msgs::msg::StatisticDataType;
+using statistics_msgs::msg::MetricsMessage;
+using statistics_msgs::msg::StatisticDataPoint;
+using statistics_msgs::msg::StatisticDataType;
 using system_metrics_collector::ProcessStatCpuLine;
 using test_constants::kProcSamples;
 

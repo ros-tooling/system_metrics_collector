@@ -28,8 +28,8 @@
 #include <unordered_map>
 #include <vector>
 
-#include "metrics_statistics_msgs/msg/metrics_message.hpp"
-#include "metrics_statistics_msgs/msg/statistic_data_type.hpp"
+#include "statistics_msgs/msg/metrics_message.hpp"
+#include "statistics_msgs/msg/statistic_data_type.hpp"
 
 #include "libstatistics_collector/moving_average_statistics/moving_average.hpp"
 
@@ -40,9 +40,9 @@
 
 namespace test_functions
 {
-using metrics_statistics_msgs::msg::MetricsMessage;
-using metrics_statistics_msgs::msg::StatisticDataPoint;
-using metrics_statistics_msgs::msg::StatisticDataType;
+using statistics_msgs::msg::MetricsMessage;
+using statistics_msgs::msg::StatisticDataPoint;
+using statistics_msgs::msg::StatisticDataType;
 
 using ExpectedStatistics =
   std::unordered_map<decltype(StatisticDataPoint::data_type), decltype(StatisticDataPoint::data)>;
@@ -74,7 +74,7 @@ ExpectedStatistics StatisticDataToExpectedStatistics(
  */
 void ExpectedStatisticEquals(
   const ExpectedStatistics & expected_stats,
-  const metrics_statistics_msgs::msg::MetricsMessage & actual)
+  const statistics_msgs::msg::MetricsMessage & actual)
 {
   for (const auto & stats_point : actual.statistics) {
     const auto type = stats_point.data_type;

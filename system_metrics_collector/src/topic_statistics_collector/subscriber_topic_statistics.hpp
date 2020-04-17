@@ -189,7 +189,7 @@ protected:
    * LifecyclePublisher publisher that periodically publishes statistic messages
    *
    */
-  rclcpp_lifecycle::LifecyclePublisher<metrics_statistics_msgs::msg::MetricsMessage>::SharedPtr
+  rclcpp_lifecycle::LifecyclePublisher<statistics_msgs::msg::MetricsMessage>::SharedPtr
     publisher_;
 
   /**
@@ -214,7 +214,7 @@ private:
   void StartPublisher()
   {
     if (publisher_ == nullptr) {
-      publisher_ = create_publisher<metrics_statistics_msgs::msg::MetricsMessage>(
+      publisher_ = create_publisher<statistics_msgs::msg::MetricsMessage>(
         publish_topic_name_,
         10);
     }

@@ -34,9 +34,9 @@ using lifecycle_msgs::msg::State;
 using libstatistics_collector::moving_average_statistics::StatisticData;
 namespace constants =
   libstatistics_collector::topic_statistics_collector::topic_statistics_constants;
-using metrics_statistics_msgs::msg::MetricsMessage;
-using metrics_statistics_msgs::msg::StatisticDataPoint;
-using metrics_statistics_msgs::msg::StatisticDataType;
+using statistics_msgs::msg::MetricsMessage;
+using statistics_msgs::msg::StatisticDataPoint;
+using statistics_msgs::msg::StatisticDataType;
 using DummyMessage = system_metrics_collector::msg::DummyMessage;
 
 constexpr const int64_t kAnyTimestamp = 1000000;
