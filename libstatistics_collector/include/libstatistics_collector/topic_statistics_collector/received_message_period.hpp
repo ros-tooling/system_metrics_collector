@@ -20,7 +20,6 @@
 #include <string>
 
 #include "constants.hpp"
-
 #include "libstatistics_collector/topic_statistics_collector/topic_statistics_collector.hpp"
 
 #include "rcl/time.h"
