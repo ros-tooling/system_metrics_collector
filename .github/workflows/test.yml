@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macOS-latest, ubuntu-18.04]
+        os: [ubuntu-18.04]
     steps:
     - uses: ros-tooling/setup-ros@0.0.19
     - uses: ros-tooling/action-ros-ci@0.0.15
