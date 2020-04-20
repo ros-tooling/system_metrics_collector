@@ -21,33 +21,59 @@
 #include "subscriber_topic_statistics.hpp"
 #include "system_metrics_collector/msg/dummy_message.hpp"
 
+namespace constants =
+  libstatistics_collector::topic_statistics_collector::topic_statistics_constants;
+using system_metrics_collector::msg::DummyMessage;
+using topic_statistics_collector::SubscriberTopicStatisticsNode;
+
 /**
  * An entry point that starts the topic statistics collector node.
+ *
+ * This is supposed to be used for demo purposes in topic_statistics_node launch file
+ * and in topic statsitics end-to-end tests.
  */
+
+class TopicStatisticsRunner
+{
+public:
+  TopicStatisticsRunner(int argc, char ** argv)
+  {
+    rclcpp::init(argc, argv);
+  }
+
+  ~TopicStatisticsRunner()
+  {
+    if (topic_stats_node_) {
+      topic_stats_node_->deactivate();
+    }
+
+    rclcpp::shutdown();
+  }
+
+  void run()
+  {
+    const auto options = rclcpp::NodeOptions().append_parameter_override(
+      constants::kCollectStatsTopicNameParam,
+      "dummy_data" /* The topic to which dummy data is published by dummy_talker. */);
+    topic_stats_node_ = std::make_shared<SubscriberTopicStatisticsNode<DummyMessage>>(
+      "topic_statistics_collector", options);
+
+    rclcpp::executors::MultiThreadedExecutor ex;
+    topic_stats_node_->configure();
+    topic_stats_node_->activate();
+
+    ex.add_node(topic_stats_node_->get_node_base_interface());
+    ex.spin();
+  }
+
+private:
+  std::shared_ptr<SubscriberTopicStatisticsNode<DummyMessage>> topic_stats_node_;
+};
 
 int main(int argc, char ** argv)
 {
-  namespace constants =
-    libstatistics_collector::topic_statistics_collector::topic_statistics_constants;
-
-  rclcpp::init(argc, argv);
-
-  const auto options = rclcpp::NodeOptions().append_parameter_override(
-    constants::kCollectStatsTopicNameParam,
-    "dummy_data");
-  const auto topic_stats_node =
-    std::make_shared<topic_statistics_collector::SubscriberTopicStatisticsNode<
-        system_metrics_collector::msg::DummyMessage>>("topic_statistics_collector", options);
-
-  rclcpp::executors::MultiThreadedExecutor ex;
-  topic_stats_node->configure();
-  topic_stats_node->activate();
-
-  ex.add_node(topic_stats_node->get_node_base_interface());
-  ex.spin();
-
-  rclcpp::shutdown();
-  topic_stats_node->deactivate();
+  TopicStatisticsRunner runner{argc, argv};
+  runner.run();
 
   return 0;
 }

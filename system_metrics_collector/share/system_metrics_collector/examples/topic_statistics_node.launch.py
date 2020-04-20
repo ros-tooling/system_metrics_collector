@@ -48,7 +48,7 @@ def generate_launch_description():
     ld.add_action(DeclareLaunchArgument(
         MONITORED_TOPIC_NAME,
         default_value=DEFAULT_MONITORED_TOPIC_NAME,
-        description='The topic for which to measure message metrics'))
+        description='The topic to subscribe to in order to measure message metrics'))
     ld.add_action(DeclareLaunchArgument(
         PUBLISH_PERIOD_IN_MS,
         default_value=DEFAULT_PUBLISH_PERIOD_IN_MS,
