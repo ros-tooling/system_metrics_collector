@@ -11,5 +11,6 @@ TEST_DIR=ros_ws/src/system_metrics_collector/test
 # source the ROS2 installation
 source "$ROS_WS_DIR/setup.bash" && source "$ROS_WS_DIR/local_setup.bash"
 
-# run the e2e test
+# run the e2e tests
 python3 "$TEST_DIR/system_metrics_e2e_test.py"
+python3 "$TEST_DIR/topic_statistics_e2e_test.py"
