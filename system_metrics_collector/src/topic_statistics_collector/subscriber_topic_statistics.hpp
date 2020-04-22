@@ -57,7 +57,7 @@ public:
    * Constructs a SubscriberTopicStatisticsNode node.
    * The following parameter can be set via the rclcpp::NodeOptions:
    * `publish_period`: the period at which metrics are published
-   * `collect_topic_name`: the topic to subscribe to and collect statistics
+   * `collect_topic_names`: the topic to subscribe to and collect statistics
    * `publish_topic_name`: the topic to publish collected statistics to
    *
    * @param node_name the name of this node, it must be non-empty
@@ -80,13 +80,14 @@ public:
 
     const auto collect_topic_desc = BuildTopicParameterDescriptor(
       "The topic to subscribe to, for calculating topic statistics.");
-    collect_topic_name_ = declare_parameter(
+    collect_topic_names_ = declare_parameter(
       constants::kCollectStatsTopicNameParam,
-      std::string() /* setting default to empty, since this is a required parameter */,
+      std::vector<std::string>() /* setting default to empty, since this is a required parameter */,
       collect_topic_desc);
-    ValidateStringParam(
-      constants::kCollectStatsTopicNameParam,
-      collect_topic_name_);
+
+    rcpputils::require_true(
+      !collect_topic_names_.empty(),
+      "The topic name vector cannot be empty");
 
     const auto publish_topic_desc = BuildTopicParameterDescriptor(
       "The topic to publish topic statistics to.");
@@ -105,7 +106,12 @@ public:
       };
 
     // Create a publisher with QoS histor_depth set to 10.
-    subscription_ = create_subscription<T>(collect_topic_name_, 10, callback);
+    for (const auto & topic_name_str : collect_topic_names_) {
+      ValidateStringParam(
+        constants::kCollectStatsTopicNameParam,
+        topic_name_str);
+      subscriptions_.push_back(create_subscription<T>(topic_name_str, 10, callback));
+    }
   }
 
   virtual ~SubscriberTopicStatisticsNode() = default;
@@ -301,17 +307,26 @@ private:
   /**
    * Subscriber to listen to incoming messages on a topic
    */
-  typename rclcpp::Subscription<T>::SharedPtr subscription_;
+  std::vector<typename rclcpp::Subscription<T>::SharedPtr> subscriptions_;
 
   /**
    * Topic name to compute statistics for
    */
-  std::string collect_topic_name_;
+  std::vector<std::string> collect_topic_names_;
 
   /**
    * Topic name to publish collected statistics to
    */
   std::string publish_topic_name_;
+
+public:
+  /**
+   * Returns multiple topic names
+   */
+  std::vector<std::string> GetCollectTopicName()
+  {
+    return collect_topic_names_;
+  }
 };
 }  // namespace topic_statistics_collector
 #endif  // TOPIC_STATISTICS_COLLECTOR__SUBSCRIBER_TOPIC_STATISTICS_HPP_
