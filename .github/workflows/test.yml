@@ -17,8 +17,8 @@ jobs:
       matrix:
         os: [ubuntu-18.04]
     steps:
-    - uses: ros-tooling/setup-ros@0.0.19
-    - uses: ros-tooling/action-ros-ci@0.0.15
+    - uses: ros-tooling/setup-ros@0.0.20
+    - uses: ros-tooling/action-ros-ci@0.0.16
       with:
         package-name: system_metrics_collector
         colcon-mixin-name: coverage-gcc
@@ -34,7 +34,7 @@ jobs:
         name: codecov-umbrella
         yml: ./codecov.yml
         fail_ci_if_error: true
-    - uses: actions/upload-artifact@master
+    - uses: actions/upload-artifact@v1
       with:
         name: colcon-logs-${{ matrix.os }}
         path: ros_ws/log
@@ -56,13 +56,13 @@ jobs:
       matrix:
           os: [ubuntu-18.04]
     steps:
-    - uses: ros-tooling/setup-ros@0.0.19
-    - uses: ros-tooling/action-ros-ci@0.0.15
+    - uses: ros-tooling/setup-ros@0.0.20
+    - uses: ros-tooling/action-ros-ci@0.0.16
       with:
         colcon-mixin-name: asan
         colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
         package-name: system_metrics_collector
-    - uses: actions/upload-artifact@master
+    - uses: actions/upload-artifact@v1
       with:
         name: colcon-logs-${{ matrix.os }}-asan
         path: ros_ws/log
