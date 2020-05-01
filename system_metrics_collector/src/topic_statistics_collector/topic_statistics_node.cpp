@@ -14,6 +14,8 @@
 
 
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "rclcpp/rclcpp.hpp"
 
@@ -52,9 +54,10 @@ public:
 
   void run()
   {
+    std::vector<std::string> topic_name = {"dummy_data"};
     const auto options = rclcpp::NodeOptions().append_parameter_override(
       constants::kCollectStatsTopicNameParam,
-      "dummy_data" /* The topic to which dummy data is published by dummy_talker. */);
+      topic_name /* The topic to which dummy data is published by dummy_talker. */);
     topic_stats_node_ = std::make_shared<SubscriberTopicStatisticsNode<DummyMessage>>(
       "topic_statistics_collector", options);
 

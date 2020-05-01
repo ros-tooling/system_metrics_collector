@@ -26,13 +26,13 @@ from launch_ros.actions import Node
 
 # Launch argument names
 COLLECTOR_NODE_NAME = 'topic_statistics_node_name'
-MONITORED_TOPIC_NAME = 'collect_topic_name'
+MONITORED_TOPIC_NAME = 'collect_topic_names'
 PUBLISH_PERIOD_IN_MS = 'publish_period'
 PUBLISH_TOPIC_NAME = 'publish_topic_name'
 
 # Default argument values
 DEFAULT_COLLECTOR_NODE_NAME = 'topic_stats_collector'
-DEFAULT_MONITORED_TOPIC_NAME = 'dummy_topic'
+DEFAULT_MONITORED_TOPIC_NAME = ['dummy_topic']
 DEFAULT_PUBLISH_PERIOD_IN_MS = '30000'
 DEFAULT_PUBLISH_TOPIC = 'system_metrics'
 

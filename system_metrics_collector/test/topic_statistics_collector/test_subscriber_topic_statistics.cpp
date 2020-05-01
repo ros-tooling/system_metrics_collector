@@ -202,7 +202,8 @@ public:
       system_metrics_collector::collector_node_constants::kPublishPeriodParam,
       kTopicPublishPeriod.count());
     // set the topic to collect statistics (listen)
-    options.append_parameter_override(constants::kCollectStatsTopicNameParam, kTestTopicName);
+    std::vector<std::string> test_topicname = {kTestTopicName};
+    options.append_parameter_override(constants::kCollectStatsTopicNameParam, test_topicname);
 
     dummy_publisher_ = std::make_shared<DummyMessagePublisher>();
     EXPECT_EQ(dummy_publisher_->getSubscriptionCount(), 0);
@@ -374,11 +375,25 @@ TEST_F(RclcppFixture, TestConstructorPublishPeriodValidation) {
 
 TEST_F(RclcppFixture, TestConstructorTopicNameValidation) {
   rclcpp::NodeOptions options;
-  options.append_parameter_override(constants::kCollectStatsTopicNameParam, std::string());
+  options.append_parameter_override(
+    constants::kCollectStatsTopicNameParam,
+    std::vector<std::string>());
 
   EXPECT_THROW(
     TestSubscriberTopicStatisticsNode("throw", options),
     std::invalid_argument);
+}
+
+TEST_F(SubscriberTopicStatisticsNodeTestFixture, TestConstructorTopicNameVectorValues) {
+  rclcpp::NodeOptions options;
+  std::vector<std::string> test_topicname = {kTestTopicName};
+  options.append_parameter_override(
+    constants::kCollectStatsTopicNameParam,
+    test_topicname);
+  topic_statistics_collector::SubscriberTopicStatisticsNode<DummyMessage> topic_statistics(
+    "TestConstructorTopicNameVectorValues",
+    options);
+  EXPECT_EQ(test_topicname, topic_statistics.GetCollectTopicName());
 }
 
 TEST_F(SubscriberTopicStatisticsNodeTestFixture, TestMetricsMessagePublisher) {
@@ -388,7 +403,8 @@ TEST_F(SubscriberTopicStatisticsNodeTestFixture, TestMetricsMessagePublisher) {
     system_metrics_collector::collector_node_constants::kPublishPeriodParam,
     kTopicPublishPeriod.count());
   // set the topic to collect statistics (listen)
-  options.append_parameter_override(constants::kCollectStatsTopicNameParam, kTestTopicName);
+  std::vector<std::string> test_topicname = {kTestTopicName};
+  options.append_parameter_override(constants::kCollectStatsTopicNameParam, test_topicname);
 
   const auto receive_messages = std::make_shared<test_functions::MetricsMessageSubscriber>(
     "TestMetricsMessagePublisher_listener",
