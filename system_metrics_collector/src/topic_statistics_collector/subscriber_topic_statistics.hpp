@@ -57,7 +57,7 @@ public:
    * Constructs a SubscriberTopicStatisticsNode node.
    * The following parameter can be set via the rclcpp::NodeOptions:
    * `publish_period`: the period at which metrics are published
-   * `collect_topic_names`: the topic to subscribe to and collect statistics
+   * `collect_topic_names`: the topics to subscribe to and collect statistics
    * `publish_topic_name`: the topic to publish collected statistics to
    *
    * @param node_name the name of this node, it must be non-empty
