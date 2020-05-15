@@ -9,10 +9,12 @@ on:
 
 jobs:
   build_and_test:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
+    container:
+      image: rostooling/setup-ros-docker:ubuntu-focal-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: ros-tooling/setup-ros@0.0.20
+    # TODO(setup-ros-docker#7): calling chown is necessary for now
+      - run: sudo chown -R rosbuild:rosbuild "$HOME" .
       - uses: ros-tooling/action-ros-ci@0.0.16
         with:
           package-name: system_metrics_collector
