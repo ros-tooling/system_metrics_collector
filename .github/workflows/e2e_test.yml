@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: rostooling/setup-ros-docker:ubuntu-focal-latest
+      volumes:
+        - /__w/system_metrics_collector:/__w/system_metrics_collector
     steps:
     # TODO(setup-ros-docker#7): calling chown is necessary for now
       - run: sudo chown -R rosbuild:rosbuild "$HOME" .
