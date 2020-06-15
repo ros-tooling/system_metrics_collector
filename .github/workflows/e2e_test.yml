@@ -19,4 +19,4 @@ jobs:
         with:
           package-name: system_metrics_collector
       - name: Run end-to-end test
-        run:  ./test/run_e2e_test.sh
+        run:  src/system_metrics_collector/test/run_e2e_test.sh
