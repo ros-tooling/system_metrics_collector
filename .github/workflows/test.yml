@@ -30,7 +30,7 @@ jobs:
         name: codecov-umbrella
         yml: ./codecov.yml
         fail_ci_if_error: true
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v2.0.1
       with:
         name: colcon-logs-ubuntu
         path: ros_ws/log
@@ -47,7 +47,7 @@ jobs:
         colcon-mixin-name: asan
         colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
         package-name: system_metrics_collector
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v2.0.1
       with:
         name: colcon-logs-ubuntu-asan
         path: ros_ws/log
