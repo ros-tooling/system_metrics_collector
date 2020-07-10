@@ -23,7 +23,7 @@ jobs:
             MERGE_LABELS: ""
             MERGE_METHOD: "squash" # Sqush and merge
             MERGE_COMMIT_MESSAGE: "pull-request-title-and-description"
-            MERGE_RETRY_SLEEP: "20000" # Retry after 20m, enough time for check suites to run
+            MERGE_RETRY_SLEEP: "600000" # Retry after 20m, enough time for check suites to run
             UPDATE_RETRIES: "6"
             UPDATE_METHOD: "rebase" # Rebase PR on base branch
             UPDATE_RETRY_SLEEP: "20000"
