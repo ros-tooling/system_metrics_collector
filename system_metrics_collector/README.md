@@ -1,4 +1,4 @@
-This branch is supposed to test auto-merge GH Action.
+This branch is to test auto-merge GH Action.
 
 # System metrics collector
 
