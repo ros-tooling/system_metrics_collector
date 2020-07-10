@@ -20,6 +20,7 @@ jobs:
           if: github.actor == 'prajakta-gokhale'
           env:
             GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+            MERGE_LABELS: ""
             MERGE_METHOD: "squash" # Sqush and merge
             MERGE_COMMIT_MESSAGE: "pull-request-title-and-description"
             MERGE_RETRY_SLEEP: "20000" # Retry after 20m, enough time for check suites to run
