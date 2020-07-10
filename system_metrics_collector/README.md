@@ -1,3 +1,5 @@
+This branch is supposed to test auto-merge GH Action.
+
 # System metrics collector
 
 ## Supported targets
