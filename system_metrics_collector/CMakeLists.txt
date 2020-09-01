@@ -147,10 +147,11 @@ if(BUILD_TESTING)
           test/topic_statistics_collector/test_subscriber_topic_statistics.cpp)
   target_link_libraries(test_subscriber_topic_statistics ${PROJECT_NAME})
   ament_target_dependencies(test_subscriber_topic_statistics rcl rclcpp)
+
+  rosidl_target_interfaces(test_subscriber_topic_statistics system_metrics_collector_test_msgs "rosidl_typesupport_cpp")
 endif()
 
 # To enable use of dummy_message.hpp in executables
-rosidl_target_interfaces(test_subscriber_topic_statistics system_metrics_collector_test_msgs "rosidl_typesupport_cpp")
 rosidl_target_interfaces(dummy_talker system_metrics_collector_test_msgs "rosidl_typesupport_cpp")
 rosidl_target_interfaces(topic_statistics_node system_metrics_collector_test_msgs "rosidl_typesupport_cpp")
 
