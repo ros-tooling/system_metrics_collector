@@ -4,6 +4,8 @@ Changelog for package system_metrics_collector
 
 Forthcoming
 -----------
+* Fix test_subscriber_topic_statistics being referenced out of scope causing colcon build with flag -DBUILD_TESTING=0 to fail. (`#175 <https://github.com/ros-tooling/system_metrics_collector/issues/175>`_) (`#176 <https://github.com/ros-tooling/system_metrics_collector/issues/176>`_)
+* Contributors: Jaison Titus
 
 0.1.0 (2020-08-13)
 ------------------
