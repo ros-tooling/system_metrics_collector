@@ -5,6 +5,7 @@ The system metrics collector package supports the following:
 
 * ROS Distro
   * ROS 2: `eloquent`
+  * ROS 2: `foxy`
 * OS: `Ubuntu Bionic`
 
 ## Description
@@ -67,7 +68,7 @@ ros2 launch system_metrics_collector talker_listener_example.launch.py
 The [system_cpu_and_memory_configuration_example] can be launched with [ros2launch], which demonstrates
 how to configure the metric collection nodes.
 ```sh
-ros2 launch system_metrics_collector system_cpu_and_memory.launch.py
+ros2 launch system_metrics_collector system_cpu_and_memory_configuration_example.launch.py
 ```
 
 ### Manual Execution
@@ -80,7 +81,7 @@ ros2 run system_metrics_collector example_main
 
 Change `publish_period` or `measurement_period` using `--ros-args`:
 ```sh
-ros2 run system_metrics_collector example_main --ros-args -p measurement_period:=100 -publish_period 1000
+ros2 run system_metrics_collector example_main --ros-args -p measurement_period:=100 -p publish_period 1000
 ```
 
 This node will generate 4 nodes. Using [ros2node]
