@@ -81,7 +81,7 @@ ros2 run system_metrics_collector example_main
 
 Change `publish_period` or `measurement_period` using `--ros-args`:
 ```sh
-ros2 run system_metrics_collector example_main --ros-args -p measurement_period:=100 -p publish_period 1000
+ros2 run system_metrics_collector example_main --ros-args -p measurement_period:=100 -p publish_period:=1000
 ```
 
 This node will generate 4 nodes. Using [ros2node]
