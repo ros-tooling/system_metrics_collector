@@ -53,20 +53,20 @@ def generate_launch_description():
 
     # Collect, aggregate, and measure system CPU % used
     system_cpu_node = LifecycleNode(
-        namespace='',
+        executable='linux_cpu_collector',
         package='system_metrics_collector',
         name='linux_system_cpu_collector',
-        node_executable='linux_cpu_collector',
+        namespace='',
         output='screen',
         parameters=node_parameters,
     )
 
     # Collect, aggregate, and measure system memory % used
     system_memory_node = LifecycleNode(
-        namespace='',
+        executable='linux_memory_collector',
         package='system_metrics_collector',
         name='linux_system_memory_collector',
-        node_executable='linux_memory_collector',
+        namespace='',
         output='screen',
         parameters=node_parameters,
     )
