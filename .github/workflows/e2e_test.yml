@@ -9,12 +9,14 @@ on:
 
 jobs:
   build_and_test:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
+    container:
+      image: rostooling/setup-ros-docker:ubuntu-focal-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: ros-tooling/setup-ros@0.0.26
-      - uses: ros-tooling/action-ros-ci@0.0.17
+      - uses: ros-tooling/action-ros-ci@0.1.0
         with:
           package-name: system_metrics_collector
+          target-ros2-distro: foxy
       - name: Run end-to-end test
-        run:  ./test/run_e2e_test.sh
+        run:  $GITHUB_WORKSPACE/test/run_e2e_test.sh
