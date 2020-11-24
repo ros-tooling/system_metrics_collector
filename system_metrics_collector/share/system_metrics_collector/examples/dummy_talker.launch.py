@@ -22,6 +22,6 @@ def generate_launch_description():
     return LaunchDescription([
         launch_ros.actions.Node(
             package='system_metrics_collector',
-            node_executable='dummy_talker',
+            executable='dummy_talker',
             output='screen'),
     ])

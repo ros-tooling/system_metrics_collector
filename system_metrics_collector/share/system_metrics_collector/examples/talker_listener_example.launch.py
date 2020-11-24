@@ -76,7 +76,7 @@ def generate_launch_description():
         name='listener_container',
         namespace='',
         package='rclcpp_components',
-        node_executable='component_container',
+        executable='component_container',
         composable_node_descriptions=[
             ComposableNode(
                 package='demo_nodes_cpp',
@@ -103,7 +103,7 @@ def generate_launch_description():
         name='talker_container',
         namespace='',
         package='rclcpp_components',
-        node_executable='component_container',
+        executable='component_container',
         composable_node_descriptions=[
             ComposableNode(
                 package='demo_nodes_cpp',

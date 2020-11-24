@@ -68,7 +68,7 @@ def generate_launch_description():
     ld.add_action(
         Node(
             package='system_metrics_collector',
-            node_executable='topic_statistics_node',
+            executable='topic_statistics_node',
             name=LaunchConfiguration(COLLECTOR_NODE_NAME),
             parameters=node_parameters,
             remappings=[('system_metrics', LaunchConfiguration(PUBLISH_TOPIC_NAME))],
