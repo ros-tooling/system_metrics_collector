@@ -69,8 +69,8 @@ def main(args=None) -> int:
         # test_helpers.check_for_expected_nodes(
         #   list(EXPECTED_REGULAR_NODES) + list(EXPECTED_LIFECYCLE_NODES))
         # test_helpers.check_lifecycle_node_enumeration(EXPECTED_LIFECYCLE_NODES)
-        test_helpers.check_lifecycle_node_state(EXPECTED_LIFECYCLE_NODES, EXPECTED_LIFECYCLE_STATE)
-        test_helpers.check_for_expected_topic(EXPECTED_TOPIC)
+        # test_helpers.check_lifecycle_node_state(EXPECTED_LIFECYCLE_NODES, EXPECTED_LIFECYCLE_STATE)
+        # test_helpers.check_for_expected_topic(EXPECTED_TOPIC)
         test_helpers.check_for_statistic_publications(
           EXPECTED_LIFECYCLE_NODES, EXPECTED_NUMBER_OF_MESSAGES_TO_RECEIVE, EXPECTED_TOPIC)
         logging.info('====All tests succeeded====')

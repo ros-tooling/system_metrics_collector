@@ -17,10 +17,10 @@ import logging
 from threading import Lock
 from typing import List
 
-from statistics_msgs.msg import MetricsMessage
-
 from rclpy.node import Node
 from rclpy.task import Future
+from statistics_msgs.msg import MetricsMessage
+
 
 # QoS history_depth to use for listener node
 QOS_DEPTH = 10
