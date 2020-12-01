@@ -11,7 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from collections import Counter
 from pathlib import Path
+from threading import Lock
 from typing import Set
 import unittest
 
@@ -24,22 +26,24 @@ import launch_testing
 from lifecycle_msgs.msg import State
 import pytest
 import rclpy
+from rclpy.task import Future
 import retrying
 import ros2lifecycle.api
 import ros2node.api
+from statistics_msgs.msg import MetricsMessage
 
-EXPECTED_LIFECYCLE_NODES = [
+EXPECTED_LIFECYCLE_NODES = set([
     '/linux_system_cpu_collector',
     '/linux_system_memory_collector',
     '/listener_process_cpu_node',
     '/listener_process_memory_node',
     '/talker_process_cpu_node',
     '/talker_process_memory_node',
-]
-EXPECTED_REGULAR_NODES = [
+])
+EXPECTED_REGULAR_NODES = set([
     '/listener',
     '/talker',
-]
+])
 
 
 def include_python_launch_file(package: str, launchfile: str) -> IncludeLaunchDescription:
@@ -57,7 +61,7 @@ def generate_test_description():
     ])
 
 
-class TestSystemMetricsLaunch(unittest.TestCase):
+class TestMetricsBase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         rclpy.init()
@@ -72,13 +76,10 @@ class TestSystemMetricsLaunch(unittest.TestCase):
         stop_max_attempt_number=10,
         wait_exponential_multiplier=1000,
         wait_exponential_max=10000)
-    def _test_nodes_exist(self, expected_nodes: Set[str]):
+    def _test_nodes_exist(self, node: rclpy.node.Node, expected_nodes: Set[str]):
         node_names = ros2node.api.get_node_names(node=self.node)
         full_names = {n.full_name for n in node_names}
         self.assertTrue(expected_nodes.issubset(full_names))
-
-    def test_nodes_exist(self):
-        return self._test_nodes_exist(set(EXPECTED_LIFECYCLE_NODES + EXPECTED_REGULAR_NODES))
 
     @retrying.retry(
         stop_max_attempt_number=10,
@@ -89,8 +90,14 @@ class TestSystemMetricsLaunch(unittest.TestCase):
         full_names = {n.full_name for n in node_names}
         self.assertTrue(expected_nodes.issubset(full_names))
 
+
+class TestSystemMetricsLaunch(TestMetricsBase):
+    def test_nodes_exist(self):
+        return self._test_nodes_exist(
+            self.node, EXPECTED_LIFECYCLE_NODES.union(EXPECTED_REGULAR_NODES))
+
     def test_lifecycle_nodes_exist(self):
-        return self._test_lifecycle_nodes_exist(set(EXPECTED_LIFECYCLE_NODES))
+        return self._test_lifecycle_nodes_exist(EXPECTED_LIFECYCLE_NODES)
 
     def test_lifecycle_nodes_states(self):
         states = ros2lifecycle.api.call_get_states(
@@ -106,3 +113,31 @@ class TestSystemMetricsLaunch(unittest.TestCase):
                 found = True
                 assert all(t == 'statistics_msgs/msg/MetricsMessage' for t in types)
         assert found, 'No topic named /system_metrics found'
+
+    def test_statistic_publication(self):
+        future = Future()
+        message_counter = Counter()
+        lock = Lock()
+        # arbitrary choice, just tells if it's working for a little while
+        expected_messages_per_node = 3
+        # we are receiving stats every 10 seconds, so this should work in 30 seconds at most
+        timeout_sec = 180
+
+        def message_callback(msg):
+            node_name = '/' + msg.measurement_source_name
+            with lock:
+                message_counter[node_name] += 1
+                if all(
+                    message_counter[node] >= expected_messages_per_node
+                    for node in EXPECTED_LIFECYCLE_NODES
+                ):
+                    print('Successfully received all expected messages')
+                    future.set_result(True)
+
+        sub = self.node.create_subscription(
+            MetricsMessage, '/system_metrics', message_callback, qos_profile=10)
+        rclpy.spin_until_future_complete(self.node, future, timeout_sec=timeout_sec)
+        if not future.done():
+            # test timed out, we never set the future result
+            self.assertTrue(False, f'Timed out, received message count: {message_counter}')
+        self.node.destroy_subscription(sub)
