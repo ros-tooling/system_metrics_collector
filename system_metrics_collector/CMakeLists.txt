@@ -99,6 +99,7 @@ ament_target_dependencies(topic_statistics_node)
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   find_package(ament_cmake_gtest REQUIRED)
+  find_package(launch_testing_ament_cmake REQUIRED)
   find_package(class_loader REQUIRED)
   find_package(lifecycle_msgs REQUIRED)
 
@@ -149,6 +150,11 @@ if(BUILD_TESTING)
   ament_target_dependencies(test_subscriber_topic_statistics rcl rclcpp)
 
   rosidl_target_interfaces(test_subscriber_topic_statistics system_metrics_collector_test_msgs "rosidl_typesupport_cpp")
+
+  add_launch_test(
+    test/test_system_metrics_e2e.py
+    TARGET test_system_metrics_e2e
+    TIMEOUT 60)
 endif()
 
 # To enable use of dummy_message.hpp in executables

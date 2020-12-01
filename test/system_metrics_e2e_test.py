@@ -58,16 +58,16 @@ def main(args=None) -> int:
     :return: 0 if all tests pass, 1 if any fail
     """
     try:
-        rclpy.init()
+        # rclpy.init()
 
         return_value = RETURN_VALUE_FAILURE
-        split_command = LAUNCH_COMMAND.split()
-        logging.debug('Executing: %s', split_command)
-        process = subprocess.Popen(split_command)
+        # split_command = LAUNCH_COMMAND.split()
+        # logging.debug('Executing: %s', split_command)
+        # process = subprocess.Popen(split_command)
 
         logging.info('====Starting tests====')
-        test_helpers.check_for_expected_nodes(
-          list(EXPECTED_REGULAR_NODES) + list(EXPECTED_LIFECYCLE_NODES))
+        # test_helpers.check_for_expected_nodes(
+        #   list(EXPECTED_REGULAR_NODES) + list(EXPECTED_LIFECYCLE_NODES))
         test_helpers.check_lifecycle_node_enumeration(EXPECTED_LIFECYCLE_NODES)
         test_helpers.check_lifecycle_node_state(EXPECTED_LIFECYCLE_NODES, EXPECTED_LIFECYCLE_STATE)
         test_helpers.check_for_expected_topic(EXPECTED_TOPIC)
