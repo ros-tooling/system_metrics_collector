@@ -23,6 +23,8 @@ import launch_testing
 import pytest
 import rclpy
 import retrying
+import ros2node.api
+import ros2lifecycle.api
 
 EXPECTED_LIFECYCLE_NODES = [
     '/linux_system_cpu_collector',
@@ -66,14 +68,27 @@ class TestSystemMetricsLaunch(unittest.TestCase):
     @retrying.retry(
         stop_max_attempt_number=10,
         wait_exponential_multiplier=1000,
-        wait_exponential_max=60000)
+        wait_exponential_max=10000)
     def _test_nodes_exist(self, expected_nodes: Set[str]):
-        node_names_and_namespaces = self.node.get_node_names_and_namespaces()
-        full_names = {
-            namespace + ('' if namespace.endswith('/') else '/') + name
-            for name, namespace in node_names_and_namespaces
-        }
+        print('LOOKING FOR')
+        print(expected_nodes)
+        node_names = ros2node.api.get_node_names(node=self.node)
+        full_names = {n.full_name for n in node_names}
+        print('FOUND')
+        print(full_names)
+        self.assertTrue(expected_nodes.issubset(full_names))
+
+    @retrying.retry(
+        stop_max_attempt_number=10,
+        wait_exponential_multiplier=1000,
+        wait_exponential_max=10000)
+    def _test_lifecycle_nodes_exist(self, expected_nodes: Set[str]):
+        node_names = ros2lifecycle.api.get_node_names(node=self.node)
+        full_names = {n.full_name for n in node_names}
         self.assertTrue(expected_nodes.issubset(full_names))
 
     def test_nodes_exist(self):
         return self._test_nodes_exist(set(EXPECTED_LIFECYCLE_NODES + EXPECTED_REGULAR_NODES))
+
+    def test_lifecycle_nodes_exist(self):
+        return self._test_lifecycle_nodes_exist(set(EXPECTED_LIFECYCLE_NODES))

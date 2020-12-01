@@ -36,7 +36,7 @@
   <test_depend>lifecycle_msgs</test_depend>
   <test_depend>python3-retrying</test_depend>
   <test_depend>rclpy</test_depend>
-  <test_depend>ros2launch</test_depend>
+  <test_depend>ros2node</test_depend>
   <test_depend>ros2lifecycle</test_depend>
   <test_depend>ros2topic</test_depend>
 
