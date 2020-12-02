@@ -48,13 +48,13 @@ def generate_test_description():
 
 class TestSystemMetricsLaunch(TestMetricsBase):
     def test_nodes_exist(self):
-        self._test_nodes_exist(EXPECTED_LIFECYCLE_NODES.union(EXPECTED_REGULAR_NODES))
+        return self._test_nodes_exist(EXPECTED_LIFECYCLE_NODES.union(EXPECTED_REGULAR_NODES))
 
     def test_lifecycle_nodes_exist(self):
-        self._test_lifecycle_nodes_exist(EXPECTED_LIFECYCLE_NODES)
+        return self._test_lifecycle_nodes_exist(EXPECTED_LIFECYCLE_NODES)
 
     def test_lifecycle_nodes_active(self):
-        self._test_lifecycle_nodes_active(EXPECTED_LIFECYCLE_NODES)
+        return self._test_lifecycle_nodes_active(EXPECTED_LIFECYCLE_NODES)
 
     def test_topics_exist(self):
         return self._test_topic_exists('/system_metrics')
