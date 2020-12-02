@@ -47,6 +47,7 @@ def generate_test_description():
 
 
 class TestSystemMetricsLaunch(TestMetricsBase):
+
     def test_nodes_exist(self):
         return self._test_nodes_exist(EXPECTED_LIFECYCLE_NODES.union(EXPECTED_REGULAR_NODES))
 

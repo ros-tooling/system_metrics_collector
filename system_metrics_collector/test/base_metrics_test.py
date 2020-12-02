@@ -37,6 +37,7 @@ def include_python_launch_file(package: str, launchfile: str) -> IncludeLaunchDe
 
 
 class TestMetricsBase(unittest.TestCase):
+
     @classmethod
     def setUpClass(cls):
         rclpy.init()
