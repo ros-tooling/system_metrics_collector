@@ -49,7 +49,7 @@ public:
     publisher_ = this->create_publisher<system_metrics_collector::msg::DummyMessage>(
       "dummy_data",
       10 /* QoS history_depth */);
-    timer_ = this->create_wall_timer(1s, publish_lambda);
+    timer_ = this->create_wall_timer(100ms, publish_lambda);
   }
 
 private:

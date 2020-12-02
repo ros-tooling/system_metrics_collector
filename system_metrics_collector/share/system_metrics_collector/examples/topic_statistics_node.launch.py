@@ -33,7 +33,7 @@ PUBLISH_TOPIC_NAME = 'publish_topic_name'
 # Default argument values
 DEFAULT_COLLECTOR_NODE_NAME = 'topic_stats_collector'
 DEFAULT_MONITORED_TOPIC_NAME = ['dummy_topic']
-DEFAULT_PUBLISH_PERIOD_IN_MS = '30000'
+DEFAULT_PUBLISH_PERIOD_IN_MS = '1000'
 DEFAULT_PUBLISH_TOPIC = 'system_metrics'
 
 
@@ -68,7 +68,7 @@ def generate_launch_description():
     ld.add_action(
         Node(
             package='system_metrics_collector',
-            node_executable='topic_statistics_node',
+            executable='topic_statistics_node',
             name=LaunchConfiguration(COLLECTOR_NODE_NAME),
             parameters=node_parameters,
             remappings=[('system_metrics', LaunchConfiguration(PUBLISH_TOPIC_NAME))],

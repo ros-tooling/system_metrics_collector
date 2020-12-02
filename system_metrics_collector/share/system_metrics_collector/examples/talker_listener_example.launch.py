@@ -53,18 +53,20 @@ def generate_launch_description():
 
     # Collect, aggregate, and measure system CPU % used
     system_cpu_node = LifecycleNode(
+        executable='linux_cpu_collector',
         package='system_metrics_collector',
         name='linux_system_cpu_collector',
-        node_executable='linux_cpu_collector',
+        namespace='',
         output='screen',
         parameters=node_parameters,
     )
 
     # Collect, aggregate, and measure system memory % used
     system_memory_node = LifecycleNode(
+        executable='linux_memory_collector',
         package='system_metrics_collector',
         name='linux_system_memory_collector',
-        node_executable='linux_memory_collector',
+        namespace='',
         output='screen',
         parameters=node_parameters,
     )
@@ -74,7 +76,7 @@ def generate_launch_description():
         name='listener_container',
         namespace='',
         package='rclcpp_components',
-        node_executable='component_container',
+        executable='component_container',
         composable_node_descriptions=[
             ComposableNode(
                 package='demo_nodes_cpp',
@@ -101,7 +103,7 @@ def generate_launch_description():
         name='talker_container',
         namespace='',
         package='rclcpp_components',
-        node_executable='component_container',
+        executable='component_container',
         composable_node_descriptions=[
             ComposableNode(
                 package='demo_nodes_cpp',
