@@ -23,41 +23,36 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from base_metrics_test import include_python_launch_file, TestMetricsBase  # noqa: E402, I100
 
 
-EXPECTED_LIFECYCLE_NODES = {
-    '/linux_system_cpu_collector',
-    '/linux_system_memory_collector',
-    '/listener_process_cpu_node',
-    '/listener_process_memory_node',
-    '/talker_process_cpu_node',
-    '/talker_process_memory_node',
-}
-EXPECTED_REGULAR_NODES = {
-    '/listener',
-    '/talker',
-}
+EXPECTED_LIFECYCLE_NODES = {'/topic_stats_collector'}
+EXPECTED_REGULAR_NODES = {'/dummy_talker'}
 
 
 @pytest.mark.launch_test
 def generate_test_description():
     return LaunchDescription([
         include_python_launch_file(
-            'system_metrics_collector', 'examples/talker_listener_example.launch.py'),
+            'system_metrics_collector',
+            'examples/dummy_talker.launch.py'),
+        include_python_launch_file(
+            'system_metrics_collector',
+            'examples/topic_statistics_node.launch.py'),
         launch_testing.actions.ReadyToTest(),
     ])
 
 
-class TestSystemMetricsLaunch(TestMetricsBase):
+class TestTopicStatisticsLaunch(TestMetricsBase):
     def test_nodes_exist(self):
-        self._test_nodes_exist(EXPECTED_LIFECYCLE_NODES.union(EXPECTED_REGULAR_NODES))
+        return self._test_nodes_exist(
+            self.node, EXPECTED_LIFECYCLE_NODES.union(EXPECTED_REGULAR_NODES))
 
     def test_lifecycle_nodes_exist(self):
-        self._test_lifecycle_nodes_exist(EXPECTED_LIFECYCLE_NODES)
+        return self._test_lifecycle_nodes_exist(EXPECTED_LIFECYCLE_NODES)
 
     def test_lifecycle_nodes_active(self):
-        self._test_lifecycle_nodes_active(EXPECTED_LIFECYCLE_NODES)
+        return self._test_lifecycle_nodes_active(EXPECTED_LIFECYCLE_NODES)
 
     def test_topics_exist(self):
-        return self._test_topic_exists('/system_metrics')
+        self._test_topic_exists('/system_metrics')
 
     def test_statistic_publication(self):
-        return self._test_statistic_publication('/system_metrics', EXPECTED_LIFECYCLE_NODES)
+        self._test_statistic_publication('/system_metrics', EXPECTED_LIFECYCLE_NODES)

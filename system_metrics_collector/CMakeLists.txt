@@ -155,6 +155,11 @@ if(BUILD_TESTING)
     test/test_system_metrics_e2e.py
     TARGET test_system_metrics_e2e
     TIMEOUT 60)
+
+  add_launch_test(
+    test/test_topic_statistics_e2e.py
+    TARGET test_topic_statistics_e2e
+    TIMEOUT 60)
 endif()
 
 # To enable use of dummy_message.hpp in executables
