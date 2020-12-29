@@ -100,7 +100,7 @@ public:
 
     auto callback = [this](typename T::SharedPtr received_message) {
         for (const auto & collector : statistics_collectors_) {
-          RCLCPP_DEBUG(this->get_logger(), collector->GetStatusString());
+          RCLCPP_DEBUG(this->get_logger(), collector->GetStatusString().c_str());
           collector->OnMessageReceived(*received_message, this->LifecycleNode::now().nanoseconds());
         }
       };

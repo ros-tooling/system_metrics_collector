@@ -40,7 +40,7 @@ public:
         msg_->header.stamp = this->now();
         RCLCPP_INFO(
           this->get_logger(),
-          "Publishing header: %lu",
+          "Publishing header: %u",
           msg_->header.stamp.nanosec);
 
         publisher_->publish(std::move(msg_));

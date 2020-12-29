@@ -172,7 +172,7 @@ void PeriodicMeasurementNode::PerformPeriodicMeasurement()
   RCLCPP_DEBUG(this->get_logger(), "PerformPeriodicMeasurement: %f", measurement);
 
   AcceptData(measurement);
-  RCLCPP_DEBUG(this->get_logger(), GetStatusString());
+  RCLCPP_DEBUG(this->get_logger(), GetStatusString().c_str());
 }
 
 void PeriodicMeasurementNode::PublishStatisticMessage()
