@@ -1,6 +1,8 @@
 # system_metrics_collector
 
-Note: _This is currently an **experimental** package._
+DEPRECATION NOTICE
+
+This experimental package is now deprecated - there is no plan to do further development or to maintain what has been built
 
 ![License](https://img.shields.io/github/license/ros-tooling/system_metrics_collector)
 [![GitHub Action Status](https://github.com/ros-tooling/system_metrics_collector/workflows/Test%20system_metrics_collector/badge.svg)](https://github.com/ros-tooling/system_metrics_collector/actions?query=workflow%3A%22Test+system_metrics_collector%22)
